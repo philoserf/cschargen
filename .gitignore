@@ -1,0 +1,12 @@
+# Build output and coverage artifacts. Everything else here is source.
+/cschargen
+/coverage.out
+/coverage.counts.out
+
+# Setting data transcribed from the rulebook. See docs/PRD.md, "Product Identity
+# constraint" -- world, subsector and species names are not open content and are
+# never committed here. Only data/setting.sample.json, which is invented, is.
+/data/setting.json
+/data/setting.*.json
+!/data/setting.sample.json
+!/data/setting.schema.json
