@@ -1,5 +1,7 @@
 package career
 
+import "strings"
+
 // The constructors below exist so that a transcribed table reads as close
 // to the page as Go allows. They are the only way effects are built in this
 // package: a table written with struct literals would bury the one field
@@ -33,6 +35,55 @@ func chr(which string, delta int) Effect {
 		Characteristic: which,
 		Delta:          delta,
 	}
+}
+
+// chrRolled moves a characteristic by an amount the book rolls for: "Lose
+// 1d3 from your choice of STR or END" (p. 156). The sign comes from up,
+// because a table that says "lose 1d3" and one that says "gain 1d6" are the
+// same shape.
+func chrRolled(which, rolled string, up bool) Effect {
+	verb := "lose "
+	delta := -1
+
+	if up {
+		verb = "gain "
+		delta = 1
+	}
+
+	return Effect{
+		Kind:           EffectCharacteristic,
+		Detail:         verb + rolled + " " + which,
+		Characteristic: which,
+		Delta:          delta,
+		Dice:           rolled,
+	}
+}
+
+// pickSkill is the compact form of a choice between whole skills, which
+// rank tables and skill tables use where a cell reads "Chef or Mechanic".
+func pickSkill(names ...string) Effect {
+	if len(names) == 1 {
+		return skill(names[0], "Any")
+	}
+
+	options := make([]Option, len(names))
+	for i, name := range names {
+		options[i] = opt(name, skill(name, "Any"))
+	}
+
+	return pick("choose "+joinOr(names), options...)
+}
+
+// joinOr renders a list the way the page does.
+func joinOr(names []string) string {
+	switch len(names) {
+	case 0:
+		return ""
+	case 1:
+		return names[0]
+	}
+
+	return strings.Join(names[:len(names)-1], ", ") + " or " + names[len(names)-1]
 }
 
 // pick is "gain a level in A or B" -- a choice between effect lists.

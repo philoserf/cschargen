@@ -246,3 +246,21 @@ UWP. The setting data therefore has no hydrographics figure to check against.
 Refusing a career on a rule this engine cannot evaluate would be worse than
 admitting it cannot. This is a limit rather than a reading: nothing is being
 interpreted, and it closes when the setting data carries a UWP.
+
+---
+
+## E-12 (limit) — a result that names a difficulty cannot be resolved
+
+**Where:** Arts event 63 (p. 158), and every later result that does the same.
+
+Most checks in a career's tables name a target number: "Roll Gambler 8+". A few
+name a **difficulty** instead — "Make a Diplomat check at Very Difficult",
+"Routine", "Easy" — which are the Core Rulebook's task system (p. 13 sends the
+reader there), and that book is outside this ruleset.
+
+**The engine records these results rather than resolving them.** A difficulty
+cannot be turned into a target number without the table that maps them, and
+guessing one would be inventing a rule.
+
+Like E-11 this is a limit rather than a reading: nothing is being interpreted,
+and it closes if the difficulty ladder is ever brought into scope.

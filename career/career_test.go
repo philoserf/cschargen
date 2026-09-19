@@ -115,6 +115,10 @@ func TestMishapEjectsMatchesThePage(t *testing.T) {
 	// test rather than defaulting -- the two exceptions are the whole point.
 	want := map[string]bool{
 		"Colonist":                         true,
+		"Arts":                             true,
+		"Belter":                           true,
+		"Corporate Shipper":                true,
+		"Craftsperson":                     true,
 		"Marine":                           true,
 		"National Navy":                    true,
 		"System Defense Forces (Navy)":     true,

@@ -199,7 +199,7 @@ func (c Career) Table(kind SkillTableKind) (SkillTable, bool) {
 // lists them (p. 107).
 func All() []Career {
 	return []Career{
-		Colonist(), Marine(), NationalNavy(), Prisoner(),
+		Arts(), Belter(), Colonist(), CorporateShipper(), Craftsperson(), Marine(), NationalNavy(), Prisoner(),
 		SystemDefenceNavy(), SystemDefenceTroopers(), SystemDefenceWetNavy(), Vagabond(),
 	}
 }

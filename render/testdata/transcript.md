@@ -1,6 +1,6 @@
 # Lifepath: Vela Ashgrove
 
-Seed 7, 114 events.
+Seed 7, 131 events.
 
 
 ## Step 2: Roll Characteristics (p. 39)
@@ -41,128 +41,149 @@ Seed 7, 114 events.
 
 ## Step 9: Choose a Career (p. 104)
 
--   32  choice Choose a career to attempt: Colonist (policy)
+-   32  choice Choose a career to attempt: Arts (policy)
 
 ## Step 10: Enlist in a Career (p. 110)
 
--   34  throw  2d6 [6 2] = 8 +0(END) vs 6+ -- made it  (p. 110)
--   35  -> accepted into Colonist [career, from 34]
+-   34  throw  2d6 [6 2] = 9 +1(INT) vs 8+ -- made it  (p. 110)
+-   35  -> accepted into Arts [career, from 34]
 
 ## Step 11: Choose an Assignment (p. 112)
 
--   37  choice Choose an assignment within Colonist: Settler (policy)
--   38  -> first term in the career: Animals (Any) at level 0 [skill, from 36]
--   39  -> first term in the career: Broker at level 0 [skill, from 36]
--   40  -> first term in the career: Mechanic at level 0 [skill, from 36]
--   41  -> first term in the career: Gun Combat (Any) at level 0 [skill, from 36]
--   42  -> first term in the career: Survival (Any) at level 0 [skill, from 36]
--   43  -> first term in the career: Chef at level 0 [skill, from 36]
--   44  -> Animals (Farming) 1 [skill, from 36]
+-   37  choice Choose an assignment within Arts: Artist (policy)
+-   38  -> first term in the career: Persuade at level 0 [skill, from 36]
+-   39  -> first term in the career: Art (Any) at level 0 [skill, from 36]
+-   40  -> first term in the career: Carouse at level 0 [skill, from 36]
+-   41  -> first term in the career: Language (Any) at level 0 [skill, from 36]
+-   42  -> first term in the career: Advocate (Any) at level 0 [skill, from 36]
+-   43  -> first term in the career: Investigate at level 0 [skill, from 36]
+-   44  -> Art (Any) 1 [skill, from 36]
 
 ## Step 12: Roll for Survival (p. 112)
 
--   46  throw  2d6 [6 4] = 10 +0(END) vs 7+ -- made it  (p. 112)
+-   46  throw  2d6 [6 4] = 11 +1(INT) vs 8+ -- made it  (p. 112)
 
 ## Step 14: Roll for Advancement (p. 114)
 
--   48  throw  2d6 [3 3] = 7 +1(INT) vs 7+ -- made it  (p. 115)
--   49  -> advanced to rank 1 in Settler [rank, from 48]
--   50  -> Animals (Veterinary) 1 [skill, from 48]
+-   48  throw  2d6 [3 3] = 7 +1(EDU) vs 8+ -- failed  (p. 115)
 
 ## Step 15: Roll for Skills (p. 117)
 
--   52  choice Choose a skill table to roll on: Personal Development (policy)
--   53  throw  1d6 [5] = 5  (p. 117)
--   54  -> +1 EDU [characteristic, from 53]
+-   50  choice Choose a skill table to roll on: Personal Development (policy)
+-   51  throw  1d6 [5] = 5  (p. 117)
+-   52  -> +1 EDU [characteristic, from 51]
 
 ## Step 16: Roll for Events (p. 118)
 
--   56  throw  d66 [6 6] = 66  (p. 118)
--   57  -> event: you are recognized as one of the best at what you do [career, from 56]
--   58  -> remain in this career for another term [career, from 56]
--   59  -> an automatic success on the next survival roll [modifier, from 56]
--   60  -> an automatic success on the next advancement roll [modifier, from 56]
+-   54  throw  d66 [6 6] = 66  (p. 118)
+-   55  -> event: the most prestigious award in your field [career, from 54]
+-   56  -> +2 CHA [characteristic, from 54]
+-   57  -> gain 3 benefit rolls [benefit_rolls, from 54]
+-   58  -> a +6 modifier, spent in increments of no more than +2 on survival or advancement rolls until depleted [unimplemented, from 54]
 
 ## Step 17: Aging (p. 121)
 
--   62  -> age 22 [age, from 61]
+-   60  -> age 22 [age, from 59]
 
 ## Step 18: Determining the Next Term (p. 125)
 
 
 ## Step 12: Roll for Survival (p. 112)
 
--   65  -> an automatic success on the survival roll, granted earlier [career, from 64]
+-   63  throw  2d6 [3 1] = 5 +1(INT) vs 8+ -- failed  (p. 112)
+-   64  -> the survival roll failed [career, from 63]
 
-## Step 14: Roll for Advancement (p. 114)
+## Step 13: Roll A Mishap (p. 113)
 
--   67  throw  2d6 [3 1] = 5 +1(INT) vs 7+ -- failed  (p. 115)
-
-## Step 15: Roll for Skills (p. 117)
-
--   69  choice Choose a skill table to roll on: Personal Development (policy)
--   70  throw  1d6 [3] = 3  (p. 117)
--   71  -> +1 END [characteristic, from 70]
-
-## Step 16: Roll for Events (p. 118)
-
--   73  throw  d66 [4 3] = 43  (p. 118)
--   74  -> event: you help with the day-to-day administration of the colony [career, from 73]
--   75  choice administer or advocate: Admin (policy)
--   76  -> Admin 1 [skill, from 75]
+-   66  throw  2d6 [3 4] = 7  (p. 113)
+-   67  -> mishap: injured [career, from 66]
+-   68  throw  1d6 [3] = 3  (p. 119)
+-   69  -> heavily injured: an eye or a limb is gone [injury, from 68]
+-   70  choice what was lost: an arm or hand (policy)
+-   71  -> -2 STR [characteristic, from 70]
 
 ## Step 17: Aging (p. 121)
 
--   78  -> age 26 [age, from 77]
+-   73  throw  1d3 [1] = 1  (p. 121)
+-   74  -> age 23 [age, from 73]
 
 ## Step 18: Determining the Next Term (p. 125)
 
-
-## Step 12: Roll for Survival (p. 112)
-
--   81  throw  2d6 [2 6] = 9 +1(END) vs 7+ -- made it  (p. 112)
-
-## Step 14: Roll for Advancement (p. 114)
-
--   83  throw  2d6 [1 4] = 6 +1(INT) vs 7+ -- failed  (p. 115)
-
-## Step 15: Roll for Skills (p. 117)
-
--   85  choice Choose a skill table to roll on: Personal Development (policy)
--   86  throw  1d6 [1] = 1  (p. 117)
--   87  -> +1 STR [characteristic, from 86]
-
-## Step 16: Roll for Events (p. 118)
-
--   89  throw  d66 [2 3] = 23  (p. 118)
--   90  -> event: colonists work hard by day and relieve the stress at night [career, from 89]
--   91  -> Carouse 1 [skill, from 89]
-
-## Step 17: Aging (p. 121)
-
--   93  -> age 30 [age, from 92]
-
-## Step 18: Determining the Next Term (p. 125)
-
--   95  -> left the Colonist career: character generation ended [career, from 94]
+-   76  -> left the Arts career: ejected by a mishap [career, from 75]
 
 ## Step 19: Muster Out (p. 126)
 
--   97  choice Choose a mustering out table for Colonist: Cash (policy)
--   98  throw  1d6 [4] = 4  (p. 127)
--   99  -> mustering out of Colonist: 1000 credits [credits, from 98]
--  100  choice Choose a mustering out table for Colonist: Cash (policy)
--  101  throw  1d6 [6] = 6  (p. 127)
--  102  -> mustering out of Colonist: 5000 credits [credits, from 101]
--  103  choice Choose a mustering out table for Colonist: Cash (policy)
--  104  throw  1d6 [3] = 3  (p. 127)
--  105  -> mustering out of Colonist: 500 credits [credits, from 104]
--  106  choice Choose a mustering out table for Colonist: Other Benefits (policy)
--  107  throw  1d6 [3] = 3  (p. 127)
--  108  -> +1 INT [characteristic, from 107]
--  109  choice Choose a mustering out table for Colonist: Other Benefits (policy)
--  110  throw  1d6 [6] = 6  (p. 127)
--  111  -> gain 1 ally [relationship, from 110]
--  112  choice Choose a mustering out table for Colonist: Other Benefits (policy)
--  113  throw  1d6 [6] = 6  (p. 127)
--  114  -> gain 1 ally [relationship, from 113]
+-   78  choice Choose a mustering out table for Arts: Cash (policy)
+-   79  throw  1d6 [6] = 6  (p. 127)
+-   80  -> mustering out of Arts: 20000 credits [credits, from 79]
+-   81  choice Choose a mustering out table for Arts: Cash (policy)
+-   82  throw  1d6 [1] = 1  (p. 127)
+-   83  -> mustering out of Arts: 1000 credits [credits, from 82]
+-   84  choice Choose a mustering out table for Arts: Cash (policy)
+-   85  throw  1d6 [4] = 4  (p. 127)
+-   86  -> mustering out of Arts: 10000 credits [credits, from 85]
+-   87  choice Choose a mustering out table for Arts: Other Benefits (policy)
+-   88  throw  1d6 [1] = 1  (p. 127)
+-   89  -> +1 END [characteristic, from 88]
+-   90  choice Choose a mustering out table for Arts: Other Benefits (policy)
+-   91  throw  1d6 [2] = 2  (p. 127)
+-   92  -> +1 DEX [characteristic, from 91]
+-   93  choice Choose a mustering out table for Arts: Other Benefits (policy)
+-   94  throw  1d6 [3] = 3  (p. 127)
+-   95  -> +1 EDU [characteristic, from 94]
+-   96  choice Choose a mustering out table for Arts: Other Benefits (policy)
+-   97  throw  1d6 [4] = 4  (p. 127)
+-   98  -> +1 INT [characteristic, from 97]
+
+## Step 9: Choose a Career (p. 104)
+
+-  100  choice Choose a career to attempt: Arts (policy)
+
+## Step 10: Enlist in a Career (p. 110)
+
+-  102  throw  2d6 [6 3] = 10 +1(INT) vs 8+ -- made it  (p. 110)
+-  103  -> accepted into Arts [career, from 102]
+
+## Step 11: Choose an Assignment (p. 112)
+
+-  105  choice Choose an assignment within Arts: Artist (policy)
+-  106  -> Art (Any) 2 [skill, from 104]
+
+## Step 12: Roll for Survival (p. 112)
+
+-  108  throw  2d6 [3 6] = 10 +1(INT) vs 8+ -- made it  (p. 112)
+
+## Step 14: Roll for Advancement (p. 114)
+
+-  110  throw  2d6 [6 1] = 9 +2(EDU) vs 8+ -- made it  (p. 115)
+-  111  -> advanced to rank 1 in Artist [rank, from 110]
+
+## Step 15: Roll for Skills (p. 117)
+
+-  113  choice Choose a skill table to roll on: Personal Development (policy)
+-  114  throw  1d6 [3] = 3  (p. 117)
+-  115  -> +1 END [characteristic, from 114]
+
+## Step 16: Roll for Events (p. 118)
+
+-  117  throw  d66 [2 2] = 22  (p. 118)
+-  118  -> event: a criminal wants fake art made to sell offworld [career, from 117]
+-  119  choice take the commission or decline: decline (policy)
+-  120  -> gain 1 enemy [relationship, from 119]
+
+## Step 17: Aging (p. 121)
+
+-  122  -> age 27 [age, from 121]
+
+## Step 18: Determining the Next Term (p. 125)
+
+-  124  -> left the Arts career: character generation ended [career, from 123]
+
+## Step 19: Muster Out (p. 126)
+
+-  126  choice Choose a mustering out table for Arts: Cash (policy)
+-  127  throw  1d6 [3] = 3  (p. 127)
+-  128  -> mustering out of Arts: 5000 credits [credits, from 127]
+-  129  choice Choose a mustering out table for Arts: Cash (policy)
+-  130  throw  1d6 [4] = 4  (p. 127)
+-  131  -> mustering out of Arts: 10000 credits [credits, from 130]
