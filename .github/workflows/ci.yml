@@ -1,0 +1,56 @@
+name: CI
+
+# CI runs exactly `task` -- the same gate a developer runs locally, with the
+# same deliberately unpinned toolchain. When a tool moves and the gate goes
+# red on untouched code, that is the signal working: answer the finding, do
+# not pin the tool to silence it.
+#
+# No paths-ignore. A gate that skips a documentation-only push cannot catch
+# a broken example, and the page cites in this repository are checked by
+# tests that a documentation change can invalidate.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v6
+        with:
+          # Deliberately unpinned, as above.
+          go-version: stable
+
+      # The official action installs the released binary. `go install` is
+      # not a supported install path for golangci-lint and can produce a
+      # build that behaves differently from the release -- which, on a gate
+      # running `default: all`, would mean CI and a developer's machine
+      # disagreeing about what the rules are.
+      #
+      # install-only, because CI runs exactly `task`, and `task lint` is
+      # what invokes golangci-lint.
+      - uses: golangci/golangci-lint-action@v8
+        with:
+          version: latest
+          install-only: true
+
+      - name: Install nilaway
+        run: go install go.uber.org/nilaway/cmd/nilaway@latest
+
+      - name: Install prettier
+        run: npm install --global prettier
+
+      - uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Gate
+        run: task

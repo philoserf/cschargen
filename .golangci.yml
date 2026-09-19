@@ -1,0 +1,98 @@
+version: "2"
+
+linters:
+  # Every linter golangci-lint ships. Anything disabled below carries a
+  # measured finding count and a reason that survives reading the findings.
+  # That is the bar for adding another entry: count them, read them, and
+  # write down why they are wrong here.
+  default: all
+
+  disable:
+    - exhaustruct # replaced by exhaustruct_v5, which is on
+    - wsl # replaced by wsl_v5, which is on
+    - gomodguard # replaced by gomodguard_v2, which is on
+
+  settings:
+    depguard:
+      # depguard's own default is a deny-all list that flags this module's
+      # own imports, so the choice was never on or off but configured or
+      # meaningless. Most of the PRD's layering is enforced by the compiler,
+      # because the reverse edge is an import cycle. These are the edges
+      # that would otherwise compile.
+      rules:
+        dice-knows-no-rules:
+          files: ["**/dice/*.go"]
+          deny:
+            - pkg: github.com/philoserf/cschargen/career
+              desc: dice knows the shapes of throw, never what a throw means
+
+    errcheck:
+      check-type-assertions: true
+
+    exhaustive:
+      # A default case is not exhaustiveness. The point is to be told when a
+      # value is added, not to have it silently fall through.
+      default-signifies-exhaustive: false
+      check: [switch, map]
+
+    gosec:
+      excludes:
+        # The dice are meant to be predictable from a seed: that is the
+        # whole determinism contract. A cryptographic source would defeat
+        # the tool rather than harden it.
+        - G404
+
+    govet:
+      enable-all: true
+      disable:
+        # fieldalignment reorders struct fields for memory layout. A
+        # record's field order is the order it prints in, and a table's is
+        # the order it reads in; neither is negotiable for a few bytes of
+        # padding.
+        - fieldalignment
+
+    nolintlint:
+      # A //nolint is a disable one line wide and carries the same burden of
+      # proof as an entry in the disable list: name the linter, say why.
+      # allow-unused false also deletes a suppression once it has stopped
+      # suppressing anything.
+      require-explanation: true
+      require-specific: true
+      allow-unused: false
+
+    revive:
+      rules:
+        - name: exported
+          disabled: false
+
+    varnamelen:
+      # Short names in short scopes are idiomatic. The default distance of
+      # five lines calls a loop index over a seven-line body too terse,
+      # which is not a finding about this code.
+      max-distance: 12
+      ignore-names: [i, n, d, r, t, tc, ok, id, fn]
+
+    wsl_v5:
+      # Every check, not the default subset.
+      default: all
+
+# gofumpt rather than gofmt: a strict superset, so enabling it makes gofmt
+# redundant rather than contradictory. It ships inside golangci-lint, so it
+# costs the gate no separate install and moves when golangci-lint moves.
+# This is the single definition of "formatted" for Go here -- the Taskfile
+# runs no Go formatter of its own, or the two could come to disagree.
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    gofumpt:
+      extra:
+        group-params: true
+
+issues:
+  # Show every finding. The defaults cap output per linter and per repeated
+  # message, which on a gate running default: all would let a count read
+  # smaller than it is.
+  max-issues-per-linter: 0
+  max-same-issues: 0
