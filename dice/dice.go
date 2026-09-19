@@ -19,6 +19,8 @@ import (
 const (
 	sides              = 6 // a die
 	d3Sides            = 3
+	d10Sides           = 10
+	percentileHigh     = 100
 	ordinaryCheck      = 2 // "the player rolls 2d6" (p. 110)
 	characteristicDice = 3 // "Roll 3d6. Drop the score on the lowest" (p. 13)
 )
@@ -126,6 +128,21 @@ func (d *Dice) D66() Roll {
 	tens, units := d.die(), d.die()
 
 	return Roll{Expr: "d66", Dice: []int{tens, units}, Total: tens*10 + units}
+}
+
+// D100 throws percentile dice, which the origin charts of pp. 43-56 are
+// read with. Two ten-sided dice, tens and units, where a double zero is a
+// hundred rather than nothing -- so the results run 1 to 100 and every row
+// of a chart printed "01-04" through "97-00" is reachable.
+func (d *Dice) D100() Roll {
+	tens, units := d.rng.IntN(d10Sides), d.rng.IntN(d10Sides)
+
+	total := tens*d10Sides + units
+	if total == 0 {
+		total = percentileHigh
+	}
+
+	return Roll{Expr: "d100", Dice: []int{tens, units}, Total: total}
 }
 
 // die draws one die. Every shape above is built from it, so the stream is

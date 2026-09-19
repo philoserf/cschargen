@@ -72,6 +72,7 @@ belongs in the external file.
 | `dice`          | Seeded stream and the shapes of throw: 1d6, 1d3, Nd6, 2d6, 3d6-drop-lowest, d66, target |
 | `chargen`       | The engine: character record, event log, `Decider`, and the rules, a file per step      |
 | `career`        | Career definitions and the shared Injury and Life Events tables                         |
+| `setting`       | The external world, subsector and species data: types, validator, content hash          |
 | `render`        | Record → Markdown sheet and lifepath transcript                                         |
 | `cmd/cschargen` | Flags, subcommands, exit statuses                                                       |
 
@@ -150,4 +151,7 @@ repository's documents quote their own examples.
 - **Aging is indexed by term number and gated by homeworld tech level** (pp.
   122-123), not by age. Apparent age is a derived lookup (p. 125), never rolled.
 - **Homeworld is not fixed after character creation.** Six of Colonist's eleven
-  mishaps reassign it, so the record holds a homeworld history.
+  mishaps reassign it, so the record holds a homeworld history — and a
+  reassignment changes the tech level and nothing else (ERRATA E-9).
+- **The term limit has two ceilings.** The policy's `--terms` and the homeworld's
+  own maximum are both caps, and the lower wins (p. 125).

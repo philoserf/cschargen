@@ -169,3 +169,36 @@ on entry.
 
 **If this is wrong:** every character would be one rank benefit poorer per career
 entered — for a Colonist Settler, Animals (Farming) 1.
+
+---
+
+## E-9 (reading) — a homeworld reassigned in adulthood changes the tech level and nothing else
+
+**Where:** Colonist mishaps 3, 4, 5, 6, 8, 9 and 12 (p. 174); background skills
+(p. 40); maximum age and terms (p. 42); the aging tables (pp. 122-123).
+
+Six of Colonist's eleven mishaps end "choose another career and a new homeworld",
+and several other results reassign one. A homeworld carries four things — the
+background skills, the primary language, the maximum age and terms, and the tech
+level the aging throws are gated by. The book never says which of them a
+reassignment changes.
+
+**Reading:** the tech level, and nothing else.
+
+Background skills are "skills which your character is assumed to have learned
+through living their normal life on this world" (p. 40), which is a childhood; an
+adult who is deported does not acquire a new one. The maximum terms "represents
+the longest possible career history that character could have accumulated before
+play begins" and is drawn from the settlement history of where they were **born**
+(p. 42). But the aging tables are indexed by "the tech level of the character's
+homeworld" (p. 121), present tense, and a character living on a lower-tech world
+ages by its medicine rather than by the one they left.
+
+So the record holds a homeworld history: which world, in which subsector, at
+which tech level, from which term, and why they moved.
+
+**If this is wrong:** granting background skills on every reassignment would make
+a much-deported Colonist the most broadly skilled character in the game, from
+mishaps. Carrying the birth world's tech level instead would make a character's
+aging independent of where they actually live, which is the opposite of what
+p. 121 says.

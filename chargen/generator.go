@@ -7,6 +7,7 @@ import (
 
 	"github.com/philoserf/cschargen/career"
 	"github.com/philoserf/cschargen/dice"
+	"github.com/philoserf/cschargen/setting"
 )
 
 // The page the characteristic rule is printed on, and the identifier of its
@@ -25,7 +26,7 @@ type Options struct {
 	Decider       Decider
 	EngineVersion string
 	PolicyVersion string
-	SettingData   SettingData
+	Setting       *setting.Data
 	Inputs        Inputs
 }
 
@@ -74,6 +75,15 @@ type Generator struct {
 	pending          []PendingModifier
 	careerBenefitMod int
 	termLimit        int
+
+	// Where the character is from, and what that world imposes. techLevel
+	// follows the current homeworld; homeworldTerms and maximumAge stay
+	// with the world they were born on (ERRATA E-9).
+	setting         *setting.Data
+	techLevel       int
+	homeworldTerms  int
+	maximumAge      int
+	primaryLanguage string
 }
 
 // New returns a Generator ready to run.
@@ -82,6 +92,7 @@ func New(opts Options) *Generator {
 		dice:      dice.New(opts.Seed),
 		log:       &Log{},
 		decider:   opts.Decider,
+		setting:   opts.Setting,
 		forced:    opts.Inputs.Career,
 		termLimit: termLimit(opts.Inputs.TermLimit),
 		char: &Character{
@@ -91,7 +102,7 @@ func New(opts Options) *Generator {
 				EngineVersion: opts.EngineVersion,
 				PolicyVersion: opts.PolicyVersion,
 				RNG:           RNG{Algorithm: "math/rand/v2 PCG", Seed: opts.Seed},
-				SettingData:   opts.SettingData,
+				SettingData:   describeSetting(opts.Setting),
 				Inputs:        opts.Inputs,
 			},
 		},
@@ -106,6 +117,17 @@ func New(opts Options) *Generator {
 // terms of Colonist is not a usable NPC, so this is a policy decision rather
 // than a rule, and POLICY.md records it as one.
 const defaultTermLimit = 4
+
+// describeSetting stamps what data a record was generated against. A nil
+// Setting is not dereferenced here: Run refuses it, with an error naming
+// the flag, rather than panicking inside a constructor.
+func describeSetting(data *setting.Data) SettingData {
+	if data == nil {
+		return SettingData{}
+	}
+
+	return SettingData{Name: data.Name, Hash: data.Hash, Sample: data.Sample}
+}
 
 // termLimit reads the requested number of terms. Zero means the flag was
 // not given and the policy default applies; a negative number means no
@@ -129,9 +151,18 @@ func termLimit(requested int) int {
 // here is the book's, so that adding a step is adding a line rather than
 // rearranging one.
 func (g *Generator) Run() (*Character, error) {
+	if g.setting == nil {
+		return nil, ErrNoSetting
+	}
+
 	g.char.State.Age = startingAge
 
 	err := g.rollCharacteristics()
+	if err != nil {
+		return nil, err
+	}
+
+	err = g.determineOrigin()
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +180,7 @@ func (g *Generator) Run() (*Character, error) {
 // runCareers is the loop of Steps 9 through 18: enter a career, serve
 // terms, and decide each time whether to go on.
 func (g *Generator) runCareers() error {
-	for len(g.char.State.Terms) < g.termLimit {
+	for len(g.char.State.Terms) < g.terms() {
 		if g.stopped {
 			return nil
 		}
@@ -186,6 +217,19 @@ func (g *Generator) runCareers() error {
 	// A character who reaches the term limit is still in a career, and
 	// leaving it is what mustering out is for.
 	return g.leaveCareer(g.log.Len(), "character generation ended")
+}
+
+// terms is how many terms this character may serve: the policy's limit and
+// the homeworld's cap are both ceilings, and the lower wins. "If the
+// character has reached the maximum number of terms allowed by their
+// homeworld, the character must end character generation at this time"
+// (p. 125).
+func (g *Generator) terms() int {
+	if g.homeworldTerms > 0 && g.homeworldTerms < g.termLimit {
+		return g.homeworldTerms
+	}
+
+	return g.termLimit
 }
 
 // nextTerm is Step 18 (p. 125): continue, change assignment, change career,

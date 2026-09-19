@@ -10,7 +10,7 @@ import (
 func lifepath(t *testing.T, seed uint64, terms int) *chargen.Character {
 	t.Helper()
 
-	opts := options(seed)
+	opts := options(t, seed)
 
 	opts.Inputs.TermLimit = terms
 
@@ -157,7 +157,7 @@ func TestAgeIsFourYearsPerTermUnlessAMishapEjected(t *testing.T) {
 func TestFirstTermGrantsTheServiceSkillsAtLevelZero(t *testing.T) {
 	t.Parallel()
 
-	opts := options(5)
+	opts := options(t, 5)
 
 	opts.Inputs.TermLimit = 1
 	opts.Inputs.Career = "Colonist"
@@ -179,7 +179,7 @@ func TestFirstTermGrantsTheServiceSkillsAtLevelZero(t *testing.T) {
 func TestRankZeroBenefitAppliesOnEntry(t *testing.T) {
 	t.Parallel()
 
-	opts := options(5)
+	opts := options(t, 5)
 
 	opts.Inputs.TermLimit = 1
 	opts.Inputs.Career = "Colonist"
@@ -325,7 +325,7 @@ func TestAWholeLifepathReplays(t *testing.T) {
 	for seed := range uint64(20) {
 		original := lifepath(t, seed, 6)
 
-		opts := options(seed)
+		opts := options(t, seed)
 
 		opts.Inputs.TermLimit = 6
 		opts.Decider = chargen.NewReplay(original.Events)

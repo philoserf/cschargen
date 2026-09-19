@@ -27,6 +27,7 @@ func Sheet(character *chargen.Character) string {
 	fmt.Fprintf(&out, "# %s\n\n", name)
 
 	writeSummary(&out, character)
+	writeOrigin(&out, character)
 	writeCharacteristics(&out, character)
 	writeSkills(&out, character)
 	writeCareers(&out, character)
@@ -47,12 +48,41 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 		fmt.Fprintf(out, "**Homeworld**: %s  \n", world)
 	}
 
+	if state.Language != "" {
+		fmt.Fprintf(out, "**Primary language**: %s  \n", state.Language)
+	}
+
 	fmt.Fprintf(out, "**Terms**: %d\n\n", len(state.Terms))
 }
 
 // writeCharacteristics prints the six with their modifiers. The modifier is
 // computed here rather than stored, which is p. 15's "recalculated
 // immediately" holding at the point of display too.
+// writeOrigin prints the homeworld history, and only when there is a
+// history to print: six of Colonist's eleven mishaps reassign the
+// homeworld, so where a character has lived is part of what happened to
+// them.
+func writeOrigin(out *strings.Builder, character *chargen.Character) {
+	// One homeworld is the birth world, already printed in the summary. A
+	// table is worth its space only once there is a move to show.
+	const aMove = 2
+
+	if len(character.State.Homeworlds) < aMove {
+		return
+	}
+
+	out.WriteString("## Where they have lived\n\n")
+	out.WriteString("| World | Subsector | TL | From term | Why |\n")
+	out.WriteString("| ----- | --------- | -- | --------- | --- |\n")
+
+	for _, home := range character.State.Homeworlds {
+		fmt.Fprintf(out, "| %s | %s | %d | %d | %s |\n",
+			home.World, home.Subsector, home.TechLevel, home.FromTerm, home.Reason)
+	}
+
+	out.WriteString("\n")
+}
+
 func writeCharacteristics(out *strings.Builder, character *chargen.Character) {
 	out.WriteString("## Characteristics\n\n")
 	out.WriteString("| STR | DEX | END | INT | EDU | CHA |\n")

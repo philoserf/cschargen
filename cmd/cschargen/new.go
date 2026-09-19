@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/philoserf/cschargen/chargen"
+	"github.com/philoserf/cschargen/setting"
 )
 
 // recordMode is the permission a written record takes: readable and
@@ -29,6 +30,7 @@ type newFlags struct {
 	forceCar  *string
 	output    *string
 	force     *bool
+	data      *string
 
 	set *flag.FlagSet
 }
@@ -45,6 +47,7 @@ func bindNewFlags() newFlags {
 		maxTerms:  flags.Int("max-terms", 0, "the homeworld's maximum terms (p. 42)"),
 		terms:     flags.Int("terms", 0, "how many terms to serve; the rules impose no limit, so this is policy (POLICY.md)"),
 		forceCar:  flags.String("career", "", "attempt only this career"),
+		data:      flags.String("data", "", "setting data file; omitted means the repository's invented sample"),
 		output:    flags.String("o", "", "write the record here instead of stdout"),
 		force:     flags.Bool("force", false, "overwrite the output file if it exists"),
 		set:       flags,
@@ -85,12 +88,17 @@ func newCommand(args []string, out *os.File) error {
 		return err
 	}
 
+	world, err := loadSetting(*flags.data)
+	if err != nil {
+		return err
+	}
+
 	character, err := chargen.New(chargen.Options{
 		Seed:          seed,
 		Decider:       chargen.Policy{},
 		EngineVersion: version(),
 		PolicyVersion: policyVersion,
-		SettingData:   chargen.SettingData{Name: "sample", Sample: true},
+		Setting:       world,
 		Inputs: chargen.Inputs{
 			Name:      *flags.name,
 			Species:   *flags.species,
@@ -121,6 +129,28 @@ func newCommand(args []string, out *os.File) error {
 	}
 
 	return writeFile(*flags.output, encoded, *flags.force)
+}
+
+// loadSetting reads the user's setting file, or falls back to the
+// repository's invented sample. A character built on the sample is stamped
+// as such and says so on its sheet, so the fallback can never be mistaken
+// for the published worlds.
+func loadSetting(path string) (*setting.Data, error) {
+	if path == "" {
+		data, err := setting.Sample()
+		if err != nil {
+			return nil, fmt.Errorf("%w", err)
+		}
+
+		return data, nil
+	}
+
+	data, err := setting.Load(path)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	return data, nil
 }
 
 // writeFile refuses to overwrite without --force, because a generated

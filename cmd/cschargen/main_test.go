@@ -538,3 +538,63 @@ func TestDataUsageErrors(t *testing.T) {
 		})
 	}
 }
+
+// TestReplayRefusesDifferentSettingData is the check the content hash
+// exists for. With the tables outside the binary, a seed alone no longer
+// determines a character: a record replayed against a different file would
+// diverge at Step 3 and never recover.
+func TestReplayRefusesDifferentSettingData(t *testing.T) {
+	t.Parallel()
+
+	path := record(t, "31")
+
+	content, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading: %v", err)
+	}
+
+	// A record that claims to have come from data this build does not have.
+	tampered := strings.Replace(string(content),
+		`"sample": true`, `"sample": true, "hash": "0000000000000000"`, 1)
+	if tampered == string(content) {
+		t.Skip("the record does not carry the field this test alters")
+	}
+
+	err = os.WriteFile(path, []byte(tampered), 0o600)
+	if err != nil {
+		t.Fatalf("writing: %v", err)
+	}
+
+	_, err = capture(t, "replay", path)
+	if err == nil {
+		t.Fatal("a record generated against other setting data replayed clean")
+	}
+
+	if !strings.Contains(err.Error(), "setting data") {
+		t.Errorf("the error does not name the mismatch: %v", err)
+	}
+}
+
+func TestNewWithASettingFile(t *testing.T) {
+	t.Parallel()
+
+	sample := filepath.Join("..", "..", "setting", "sample.json")
+
+	out, err := capture(t, cmdNew, "--auto", "--seed", "5", "--terms", "2", "--data", sample)
+	if err != nil {
+		t.Fatalf("new --data: %v", err)
+	}
+
+	if !strings.Contains(out, `"homeworlds"`) {
+		t.Errorf("the record carries no homeworld:\n%s", out)
+	}
+}
+
+func TestNewWithASettingFileThatIsNotThere(t *testing.T) {
+	t.Parallel()
+
+	_, err := capture(t, cmdNew, "--auto", "--data", filepath.Join(t.TempDir(), "absent.json"))
+	if err == nil {
+		t.Fatal("a missing setting file was accepted")
+	}
+}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/philoserf/cschargen/chargen"
 	"github.com/philoserf/cschargen/render"
+	"github.com/philoserf/cschargen/setting"
 )
 
 // update rewrites the golden files instead of comparing against them. It is
@@ -26,7 +27,7 @@ func character(t *testing.T, seed uint64, terms int, name string) *chargen.Chara
 		Decider:       chargen.Policy{},
 		EngineVersion: "test",
 		PolicyVersion: "test",
-		SettingData:   chargen.SettingData{Name: "sample", Sample: true},
+		Setting:       sampleSetting(t),
 		Inputs: chargen.Inputs{
 			Name: name, Species: "human", TermLimit: terms, TechLevel: 11, MaxTerms: 28,
 		},
@@ -156,5 +157,86 @@ func TestModifiersOnTheSheetAreComputed(t *testing.T) {
 
 	if !strings.Contains(got, "(+") && !strings.Contains(got, "(-") {
 		t.Errorf("no modifiers beside the scores:\n%s", got)
+	}
+}
+
+func sampleSetting(t *testing.T) *setting.Data {
+	t.Helper()
+
+	data, err := setting.Sample()
+	if err != nil {
+		t.Fatalf("loading the sample setting: %v", err)
+	}
+
+	return data
+}
+
+// moved finds a seed whose character was reassigned a homeworld, so that
+// the parts of the sheet only such a character reaches are rendered.
+func moved(t *testing.T) *chargen.Character {
+	t.Helper()
+
+	for seed := range uint64(60) {
+		got := character(t, seed, 8, "Wanderer")
+		if len(got.State.Homeworlds) > 1 {
+			return got
+		}
+	}
+
+	t.Skip("no character in the sample was ever reassigned a homeworld")
+
+	return nil
+}
+
+// TestTheSheetShowsWhereTheyHaveLived: a character who was deported twice
+// has a history, and it belongs on the sheet -- where they lived is part of
+// what happened to them.
+func TestTheSheetShowsWhereTheyHaveLived(t *testing.T) {
+	t.Parallel()
+
+	got := render.Sheet(moved(t))
+
+	if !strings.Contains(got, "## Where they have lived") {
+		t.Errorf("a character who moved has no history on their sheet:\n%s", got)
+	}
+
+	if !strings.Contains(got, "| World | Subsector | TL | From term | Why |") {
+		t.Errorf("the history has no table header:\n%s", got)
+	}
+}
+
+// TestTheSheetOmitsAHistoryOfOne: a character who never moved should not
+// get a one-row table repeating the homeworld already in the summary.
+func TestTheSheetOmitsAHistoryOfOne(t *testing.T) {
+	t.Parallel()
+
+	for seed := range uint64(60) {
+		got := character(t, seed, 2, "Settled")
+		if len(got.State.Homeworlds) != 1 {
+			continue
+		}
+
+		sheet := render.Sheet(got)
+		if strings.Contains(sheet, "## Where they have lived") {
+			t.Errorf("a character who never moved has a history table:\n%s", sheet)
+		}
+
+		return
+	}
+
+	t.Skip("every character in the sample moved at least once")
+}
+
+// TestTheSheetNamesTheHomeworldAndLanguage: both come from Step 4 and both
+// are things a referee reads off the sheet.
+func TestTheSheetNamesTheHomeworldAndLanguage(t *testing.T) {
+	t.Parallel()
+
+	got := render.Sheet(character(t, 7, 3, "Vela Ashgrove"))
+
+	for _, want := range []string{"**Homeworld**:", "**Primary language**:"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("the sheet has no %q line:\n%s", want, got)
+		}
 	}
 }
