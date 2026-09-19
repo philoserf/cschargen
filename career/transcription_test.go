@@ -206,7 +206,6 @@ func TestTheImplementedCareersCoverTheForcedTransfers(t *testing.T) {
 	// zero; a destination appearing that is not here fails the test rather
 	// than passing unnoticed.
 	want := map[string]bool{
-		"Celebrity":            true,
 		"Independent Merchant": true,
 	}
 	for name := range stubbed {

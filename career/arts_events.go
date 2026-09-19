@@ -134,10 +134,7 @@ func artsEvents() EventTable {
 		},
 		56: {
 			Summary: "people rave about you in public and in private",
-			Effects: []Effect{
-				relationship(Contact, 0, "1d3"),
-				unimplemented("1d3 existing Contacts become Allies"),
-			},
+			Effects: ravedAbout(),
 		},
 		61: {
 			Summary: "your most recent work is very well received",
