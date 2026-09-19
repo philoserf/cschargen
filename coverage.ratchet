@@ -2,6 +2,6 @@
 # a number that rises is lost coverage, one that falls is coverage to lock in.
 # Regenerate with: task ratchet:update
 github.com/philoserf/cschargen/career 0
-github.com/philoserf/cschargen/chargen 57
+github.com/philoserf/cschargen/chargen 55
 github.com/philoserf/cschargen/cmd/cschargen 12
 github.com/philoserf/cschargen/dice 0

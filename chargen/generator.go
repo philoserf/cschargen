@@ -177,36 +177,47 @@ func (g *Generator) runCareers() error {
 			return err
 		}
 
-		g.nextTerm()
+		err = g.nextTerm()
+		if err != nil {
+			return err
+		}
 	}
 
-	return nil
+	// A character who reaches the term limit is still in a career, and
+	// leaving it is what mustering out is for.
+	return g.leaveCareer(g.log.Len(), "character generation ended")
 }
 
 // nextTerm is Step 18 (p. 125): continue, change assignment, change career,
 // or stop. A character ejected by a mishap cannot continue in the career
 // they were ejected from (p. 126); one who rolled a natural twelve on
 // survival must (p. 113).
-func (g *Generator) nextTerm() {
+func (g *Generator) nextTerm() error {
 	step := g.log.Step("Step 18: Determining the Next Term", "p. 125")
 
 	switch {
 	case g.ejected:
-		g.leaveCareer(step, "ejected by a mishap")
+		return g.leaveCareer(step, "ejected by a mishap")
 	case g.transfer != nil:
-		g.leaveCareer(step, "sent to another career by a table result")
+		return g.leaveCareer(step, "sent to another career by a table result")
 	case g.forcedTerms > 0 && g.termsInCareer >= g.forcedTerms:
-		g.leaveCareer(step, "the sentence is served")
+		return g.leaveCareer(step, "the sentence is served")
 	case g.mustContinue:
 		g.mustContinue = false
 	}
+
+	return nil
 }
 
-// leaveCareer ends the current service, leaving any benefit rolls it
-// accumulated queued for mustering out.
-func (g *Generator) leaveCareer(cause int, why string) {
+// leaveCareer ends the current service. Mustering out happens here, and
+// only here: "When a player decides that a character will leave their
+// current career, whether to enter a new career or to conclude character
+// generation, the character must first Muster Out" (p. 126). A character
+// who changes career twice musters out twice, and each career's cash cap
+// is its own.
+func (g *Generator) leaveCareer(cause int, why string) error {
 	if g.career == nil {
-		return
+		return nil
 	}
 
 	if service, found := g.char.State.Service(g.career.Name); found {
@@ -215,12 +226,19 @@ func (g *Generator) leaveCareer(cause int, why string) {
 
 	g.consequence(ConsequenceCareer, cause, "left the "+g.career.Name+" career: "+why, g.career.Name)
 
+	err := g.musterOut(*g.career, g.termsInCareer)
+	if err != nil {
+		return err
+	}
+
 	g.career = nil
 	g.ejected = false
 	g.mustContinue = false
 	g.mayChangeAssignment = false
 	g.forcedTerms = 0
 	g.termsInCareer = 0
+
+	return nil
 }
 
 // choose puts a choice point to the decider and returns a checked index.
