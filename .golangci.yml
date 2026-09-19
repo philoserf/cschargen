@@ -113,6 +113,42 @@ linters:
       # Every check, not the default subset.
       default: all
 
+  exclusions:
+    rules:
+      # A transcribed table is a literal of printed numbers, and career/ is
+      # nothing else. 51 findings: 25 of them the target number 8, which is
+      # common but is not one concept -- the book prints 6, 7, 8 and 10 as
+      # targets in different places, so naming 8 would assert a rule it does
+      # not have. The rest are cash values and characteristic deltas, each
+      # of which is the cell it sits in.
+      - linters: [mnd]
+        path: career/
+
+      # 27 findings, every one a skill name, a table heading or a mishap
+      # summary that recurs because the book prints it in several places.
+      # Collapsing a repeated cell into a constant is exactly the coupling
+      # the transcription exists to prevent: one constant means one typo
+      # reaches every cell that shares it, and the second reading stops
+      # being independent of the first.
+      - linters: [goconst]
+        path: career/
+
+      # 4 findings: three d66 event tables of 36 rows each, and one block of
+      # three assignments. They are data, written as functions because Go
+      # has no other way to build a map of literals. Splitting a table into
+      # six functions of six rows would make it harder to check against the
+      # page, which is the only thing that matters about it.
+      - linters: [funlen]
+        path: career/
+
+      # 4 findings, all in career/'s own tests. A test that checks a table
+      # cell by cell has the complexity of the table it checks: the shape
+      # test walks three careers' events, mishaps, benefits and assignments,
+      # and the transcription tests read a page's numbers a second time.
+      # Splitting one into three would hide that they are one check.
+      - linters: [cyclop, gocognit]
+        path: career/.*_test\.go
+
 # gofumpt rather than gofmt: a strict superset, so enabling it makes gofmt
 # redundant rather than contradictory. It ships inside golangci-lint, so it
 # costs the gate no separate install and moves when golangci-lint moves.

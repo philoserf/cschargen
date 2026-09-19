@@ -92,17 +92,25 @@ that would otherwise compile.
 
 `.golangci.yml` runs `default: all`. Three of its disables are linters deprecated
 upstream and replaced by one that is enabled, so they disable no check that is not
-still being made. **Two are real disables and each carries its count:**
-`exhaustruct_v5` (26 findings, all on types whose unset fields are the design —
-`Event` is a discriminated union where three of four payload pointers are nil by
-construction) and `gochecknoglobals` (2, both immutable tables Go has no const form
-for). Three linters are configured rather than disabled, each for a measured
-reason: `gosec` waives G404 and G304, `godot` accepts a comment ending in a
-quotation mark.
+still being made. Everything else carries a measured count:
+
+- **Disabled outright:** `exhaustruct_v5` (26 findings, all on types whose unset
+  fields are the design — `Event` is a discriminated union where three of four
+  payload pointers are nil by construction) and `gochecknoglobals` (2, immutable
+  tables Go has no const form for).
+- **Scoped to `career/`:** `mnd` (51) and `goconst` (27) and `funlen` (4). A
+  transcribed table is a literal of printed numbers and repeated cells, and
+  collapsing a repeated cell into a constant is exactly the coupling the
+  transcription exists to prevent — one constant means one typo reaches every cell
+  that shares it, and the second reading stops being independent of the first.
+- **Scoped to `career/*_test.go`:** `cyclop` and `gocognit` (4). A test that checks
+  a table cell by cell has the complexity of the table.
+- **Configured, not disabled:** `gosec` waives G404 and G304, `godot` accepts a
+  comment ending in a quotation mark.
 
 That is the bar for adding another: count the findings, read them, and write down
-why they are wrong here. Every other finding the gate has produced — seventy-nine
-so far — was answered in the code.
+why they are wrong here. Every other finding the gate has produced — a hundred and
+thirty so far — was answered in the code.
 
 `nolintlint` requires a specific linter and an explanation and fails on an unused
 `//nolint`, so a blanket directive will not pass.
