@@ -39,8 +39,12 @@ Identity — quoting the book's own OGL section 16, p. 335 —
 
 > all subsector names, world maps, world names, system names, system maps,
 > vehicle names, starship names, starship classes, artistic depictions of ships
-> and vehicles, and organizations. Please note that the term "altrant" is not
-> open content.
+> and vehicles, and organizations.
+
+The same notice goes on to single out one further term — the book's word for a
+genetically engineered human — and says it too is not open content. This project
+therefore uses "engineered human" in its place, everywhere, including in the data
+format's own keys.
 
 That lands squarely on Steps 3–4, whose tables are tables of world names, and on
 the engineered-species names in Step 1. Those tables are also load-bearing: a
@@ -120,7 +124,7 @@ Characteristic zero is a real state, not an error: all three physical at 0 is
 death during generation (p. 14), and the aging rules in FR9 attach further
 consequences.
 
-**FR2 — Species (Step 1, pp. 21–38).** Human, altrant, or uplift. The book prints
+**FR2 — Species (Step 1, pp. 21–38).** Human, engineered human, or uplift. The book prints
 five engineered-human types and five uplift types, each with its own
 characteristic-generation method, characteristic caps, and age restrictions.
 Species definitions are **external data** (FR14), because the names are Product
@@ -131,13 +135,13 @@ rules and aging-table key. Human is the built-in default and needs no data file.
 homeworld supplies: background skills at level 1, with `and`/`or` composition and
 specialty choices (p. 40); primary language, possibly a ranked list, where a
 homeworld granting the Language skill must take a specialty other than the primary
-(p. 41); maximum age and maximum terms (pp. 41–42); and whether altrants and
+(p. 41); maximum age and maximum terms (pp. 41–42); and whether engineered humans and
 uplifts may live openly there, plus their legal status (p. 42). Every character
 additionally gains Electronics 0 (p. 41).
 
 If a homeworld enslaves engineered people and the character is one, the character
-**must** take the Altrant/Uplift Slave career as their first career (p. 42).
-Maximum age and maximum terms do not apply to altrants and uplifts, who carry
+**must** take the Engineered/Uplift Slave career as their first career (p. 42).
+Maximum age and maximum terms do not apply to engineered humans and uplifts, who carry
 their own restrictions from FR2 (p. 42).
 
 Homeworld is **not fixed after Step 4.** Six of the Colonist career's eleven
@@ -148,7 +152,7 @@ All origin tables are external data.
 
 **FR4 — Family (Step 5, pp. 57–66).** Parents with a birth-situation chart, parent
 ages, siblings with ages, grandparents, uncles, aunts and cousins, each carrying
-quirk and relationship rolls. Altrants instead roll genetic status — purebred
+quirk and relationship rolls. Engineered humans instead roll genetic status — purebred
 first generation, purebred later generation, compound, hybrid — on the random
 genetics tables (p. 62). Uplifts roll class and origin (pp. 65–67).
 
@@ -266,14 +270,14 @@ book does.
 - **Setting data** — the external, user-supplied file, with `worlds` and `species`
   sections. The printed origin charts (pp. 43–56) give the world columns directly:
   D100 range, planet of origin, background skills, primary language, maximum
-  age/terms, altrant/uplift status, tech level. Two need more structure than the
+  age/terms, engineered-human and uplift status, tech level. Two need more structure than the
   page shows. Background skills are an expression, not a list — `and`/`or`
-  composition with specialty choices (p. 40). Altrant/uplift status is not a
+  composition with specialty choices (p. 40). Engineered human/uplift status is not a
   boolean: entries read like "Achilles banned. Others are allowed and free", so it
   is a per-species permission plus a free/enslaved status. Settlement age is
   additionally required by FR5's teenage-path gate and is not a printed column, so
-  the schema carries it as its own field. The repo ships `data/setting.sample.json`
-  with invented worlds and `data/setting.schema.json`.
+  the schema carries it as its own field. The repo ships `setting/sample.json`
+  with invented worlds and `setting/sample.json`.
 - **Careers** — in the repo, as open content. Per career: enlistment
   characteristic and target, modifiers, prerequisites, assignments, per-assignment
   survival and advancement targets, the four-or-more skill tables, rank tables per
@@ -407,12 +411,12 @@ impose no such limit and the PRD should not pretend otherwise.
 3. **All thirty-four careers** (FR7, FR8), with the career data format proven
    against the awkward ones first, since they are what sets the format: Vagabond
    (no enlistment, no Advanced Education table), Prisoner (unenterable by choice),
-   National Navy (commission, officer table, military events), Altrant/Uplift Slave.
+   National Navy (commission, officer table, military events), Engineered/Uplift Slave.
 4. **Aging** (FR9) — the aging tables, the crisis rules, apparent age.
 5. **Pre-career.** Family (FR4), youth and teenage events (FR5), higher education
    (FR6). Roughly ninety pages of tables; the largest milestone by volume and the
    one that can be deferred longest without the tool being useless.
-6. **Species** (FR2) — altrants and uplifts, their characteristic methods, caps,
+6. **Species** (FR2) — engineered humans and uplifts, their characteristic methods, caps,
    aging tables, and the homeworld permission and slavery interactions.
 7. **Finishing** (FR12), interactive mode, batch, beta.
 

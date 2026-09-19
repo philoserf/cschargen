@@ -45,13 +45,21 @@ blocks, so a refactor can move these counts without changing what the tests reac
 The book declares its mechanics Open Game Content and declares as Product Identity
 "all subsector names, world maps, world names, system names, system maps, vehicle
 names, starship names, starship classes, artistic depictions of ships and vehicles,
-and organizations", adding that the term "altrant" is not open content (OGL §16,
-p. 335).
+and organizations" (OGL §16, p. 335). The same notice singles out one further term
+— the book's word for a genetically engineered human — and says it too is not open
+content.
 
 **No Product Identity is committed to this repository.** World names, subsector
 names and engineered-species names live in an external data file the user supplies;
-`data/setting.sample.json` is invented. Career tables are here, because they are
+`setting/sample.json` is invented. Career tables are here, because they are
 mechanics rather than names.
+
+**That includes the word.** This repository says "engineered human" throughout —
+in its prose, its Go identifiers and its JSON keys — rather than the book's term,
+which the notice names. A data file is something a user types, and a key is a
+worse place to put a word we are not entitled to use than a comment is. The one
+place the term appears is `setting/setting_test.go`, in the list of strings that
+must never reach `sample.json`.
 
 This is a hard rule, not a preference. Before committing a table, ask whether it
 names a place, a person, a ship or an organization from the setting. If it does, it

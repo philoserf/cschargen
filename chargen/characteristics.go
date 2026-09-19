@@ -55,7 +55,7 @@ func (c Characteristic) String() string {
 
 // HumanMaximum is the ceiling on an unaltered human's characteristics: "For
 // an unaltered human, these characteristics may never rise higher than 15.
-// Some uplifts and altrants will have higher maximums" (p. 14).
+// Some uplifts and engineered humans will have higher maximums" (p. 14).
 const HumanMaximum = 15
 
 // modifierBands is the table of p. 14, as upper bounds. A score at or below

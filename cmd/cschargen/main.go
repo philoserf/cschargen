@@ -47,6 +47,8 @@ func run(args []string, out *os.File) error {
 	switch args[0] {
 	case "new":
 		return newCommand(args[1:], out)
+	case "data":
+		return dataCommand(args[1:], out)
 	case "render":
 		return renderCommand(args[1:], out)
 	case "replay":
@@ -67,6 +69,7 @@ func run(args []string, out *os.File) error {
 
 const commands = `commands:
   new       generate a character
+  data      validate a setting data file
   render    turn a record into a character sheet, or its lifepath
   replay    re-run a record from its seed and recorded choices
   version   report the build and the versions a record stamps`
