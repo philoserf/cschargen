@@ -18,7 +18,7 @@ Milestone 1 is built: characteristics, career entry, the term loop, mustering
 out, and three careers — Colonist, Vagabond and Prisoner. `docs/PRD.md` is the v1
 contract and `docs/MILESTONE-1.md` is what this milestone turned out to be.
 
-Not yet built: species (altrants and uplifts), the origin charts and the setting
+Not yet built: species (engineered humans and uplifts), the origin charts and the setting
 data they need, family, youth and teenage events, higher education, the aging
 throws, and the other thirty-one careers.
 
@@ -55,8 +55,10 @@ or baseline Cepheus:
 The book declares its game mechanics Open Game Content and declares as Product
 Identity "all subsector names, world maps, world names, system names, system
 maps, vehicle names, starship names, starship classes, artistic depictions of
-ships and vehicles, and organizations", adding that the term "altrant" is not
-open content (OGL §16, p. 335).
+ships and vehicles, and organizations" (OGL §16, p. 335). The same notice names
+one further term — the book's word for a genetically engineered human — and says
+it too is not open content, so this project says "engineered human" instead,
+including in the data format's keys.
 
 Those names are load-bearing here: a homeworld determines background skills,
 primary language, maximum age, maximum terms, and whether engineered characters
@@ -69,7 +71,7 @@ names live in an external data file you supply from your own copy of the book:
 cschargen new --data ~/path/to/setting.json --seed 7
 ```
 
-A small invented sample (`data/setting.sample.json`) ships with the repo so the
+A small invented sample (`setting/sample.json`) ships with the repo so the
 tests and the demo run without it. Characters generated against the sample are
 valid and replayable, and are stamped as such in their record so they are never
 mistaken for characters set on real worlds.

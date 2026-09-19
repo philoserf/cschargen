@@ -14,7 +14,12 @@ import (
 // a file rather than a pipe so nothing can block.
 // cmdNew is the subcommand the tests drive, named because several cases
 // spell it.
-const cmdNew = "new"
+const (
+	cmdNew  = "new"
+	cmdData = "data"
+	fileA   = "a.json"
+	fileB   = "b.json"
+)
 
 func capture(t *testing.T, args ...string) (string, error) {
 	t.Helper()
@@ -426,9 +431,9 @@ func TestRenderAndReplayUsageErrors(t *testing.T) {
 
 	tests := [][]string{
 		{"render"},
-		{"render", "a.json", "b.json"},
+		{"render", fileA, fileB},
 		{"replay"},
-		{"replay", "a.json", "b.json"},
+		{"replay", fileA, fileB},
 	}
 
 	for _, args := range tests {
@@ -469,5 +474,67 @@ func TestReadingSomethingThatIsNotARecord(t *testing.T) {
 	_, err = capture(t, "render", filepath.Join(t.TempDir(), "absent.json"))
 	if err == nil {
 		t.Fatal("a file that does not exist rendered")
+	}
+}
+
+func TestDataValidateReportsTheSample(t *testing.T) {
+	t.Parallel()
+
+	out, err := capture(t, cmdData, "validate", filepath.Join("..", "..", "setting", "sample.json"))
+	if err != nil {
+		t.Fatalf("data validate: %v", err)
+	}
+
+	for _, want := range []string{"subsectors", "worlds", "species", "sha256"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("the summary does not mention %q:\n%s", want, out)
+		}
+	}
+}
+
+// TestDataValidateReportsAProblemRatherThanPanicking is why the command
+// exists: the file is the user's own transcription, and a mistake in it
+// should be named rather than surfacing halfway through a lifepath.
+func TestDataValidateReportsAProblemRatherThanPanicking(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "broken.json")
+
+	err := os.WriteFile(path, []byte(`{"schemaVersion":1,"name":"x","subsectors":[]}`), 0o600)
+	if err != nil {
+		t.Fatalf("writing: %v", err)
+	}
+
+	_, err = capture(t, cmdData, "validate", path)
+	if err == nil {
+		t.Fatal("a file with no subsectors validated")
+	}
+
+	if !strings.Contains(err.Error(), "no subsectors") {
+		t.Errorf("the error does not name the problem: %v", err)
+	}
+}
+
+func TestDataUsageErrors(t *testing.T) {
+	t.Parallel()
+
+	for _, args := range [][]string{
+		{cmdData},
+		{cmdData, "inspect"},
+		{cmdData, "validate"},
+		{cmdData, "validate", fileA, fileB},
+	} {
+		t.Run(strings.Join(args, " "), func(t *testing.T) {
+			t.Parallel()
+
+			_, err := capture(t, args...)
+			if err == nil {
+				t.Fatal("no error")
+			}
+
+			if !strings.HasPrefix(err.Error(), "usage:") {
+				t.Errorf("error %q does not begin with usage:", err)
+			}
+		})
 	}
 }

@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 1,
+  "name": "sample",
+  "species": [
+    {
+      "name": "Deepwalker",
+      "kind": "engineered"
+    },
+    {
+      "name": "Sunstruck",
+      "kind": "engineered"
+    },
+    {
+      "name": "Corvid",
+      "kind": "uplift"
+    },
+    {
+      "name": "Otter",
+      "kind": "uplift"
+    }
+  ],
+  "subsectors": [
+    {
+      "name": "The Verge",
+      "originRoll": 1,
+      "offworld": true,
+      "worlds": [
+        {
+          "name": "Ninefold Gate",
+          "roll": [1, 30],
+          "techLevel": 12,
+          "maximumAge": 180,
+          "maximumTerms": 40,
+          "settledYear": 2088,
+          "primaryLanguages": ["Rivertongue", "Old Signal"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Suit",
+                  "specialties": ["Vacc Suit"]
+                },
+                {
+                  "skill": "Survival",
+                  "specialties": ["Freefall"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free"
+          }
+        },
+        {
+          "name": "Harrowmere",
+          "roll": [31, 60],
+          "techLevel": 11,
+          "maximumAge": 165,
+          "maximumTerms": 37,
+          "settledYear": 2101,
+          "primaryLanguages": ["Old Signal"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Survival",
+                  "specialties": ["Cold", "Mountains", "Plains"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free"
+          }
+        },
+        {
+          "name": "Quillon",
+          "roll": [61, 85],
+          "techLevel": 11,
+          "maximumAge": 150,
+          "maximumTerms": 33,
+          "settledYear": 2119,
+          "primaryLanguages": ["Rivertongue", "Marsh Creole"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Animals"
+                }
+              ]
+            },
+            {
+              "oneOf": [
+                {
+                  "skill": "Language",
+                  "specialties": ["Marsh Creole", "Old Signal"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free"
+          }
+        },
+        {
+          "name": "Tessellate",
+          "roll": [86, 100],
+          "techLevel": 12,
+          "maximumAge": 175,
+          "maximumTerms": 39,
+          "settledYear": 2094,
+          "primaryLanguages": ["Old Signal"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Electronics",
+                  "specialties": ["Computers"]
+                }
+              ]
+            },
+            {
+              "oneOf": [
+                {
+                  "item": "a neural companion"
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kestrel Reach",
+      "originRoll": 2,
+      "worlds": [
+        {
+          "name": "Ambergrass",
+          "roll": [1, 28],
+          "techLevel": 11,
+          "maximumAge": 140,
+          "maximumTerms": 30,
+          "settledYear": 2196,
+          "primaryLanguages": ["Rivertongue"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Survival",
+                  "specialties": ["Plains", "Desert"]
+                }
+              ]
+            },
+            {
+              "oneOf": [
+                {
+                  "skill": "Animals",
+                  "specialties": ["Herding"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free"
+          }
+        },
+        {
+          "name": "Sablecourt",
+          "roll": [29, 55],
+          "techLevel": 10,
+          "maximumAge": 128,
+          "maximumTerms": 27,
+          "settledYear": 2211,
+          "primaryLanguages": ["Court Speech", "Rivertongue"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Advocate",
+                  "specialties": ["Oratory"]
+                },
+                {
+                  "skill": "Etiquette"
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free",
+            "banned": ["Sunstruck"]
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free"
+          }
+        },
+        {
+          "name": "Pellucid",
+          "roll": [56, 80],
+          "techLevel": 10,
+          "maximumAge": 120,
+          "maximumTerms": 25,
+          "settledYear": 2223,
+          "primaryLanguages": ["Rivertongue"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Survival",
+                  "specialties": ["Ocean"]
+                }
+              ]
+            },
+            {
+              "oneOf": [
+                {
+                  "skill": "Seafarer",
+                  "specialties": ["Sail", "Submarine"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free",
+            "banned": ["Corvid"]
+          }
+        },
+        {
+          "name": "Ironpsalm",
+          "roll": [81, 100],
+          "techLevel": 9,
+          "maximumAge": 96,
+          "maximumTerms": 19,
+          "settledYear": 2247,
+          "primaryLanguages": ["Litany Cant"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Melee",
+                  "specialties": ["Blade"]
+                },
+                {
+                  "skill": "Gun Combat",
+                  "specialties": ["Slug"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": false
+          },
+          "uplifts": {
+            "allowed": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tallow Drift",
+      "originRoll": 3,
+      "worlds": [
+        {
+          "name": "Candleward",
+          "roll": [1, 40],
+          "techLevel": 10,
+          "maximumAge": 116,
+          "maximumTerms": 24,
+          "settledYear": 2229,
+          "primaryLanguages": ["Rivertongue", "Drift Pidgin"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Survival",
+                  "specialties": ["Cold"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free"
+          }
+        },
+        {
+          "name": "Sixteen Bells",
+          "roll": [41, 74],
+          "techLevel": 10,
+          "maximumAge": 108,
+          "maximumTerms": 22,
+          "settledYear": 2238,
+          "primaryLanguages": ["Drift Pidgin"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Suit",
+                  "specialties": ["Vacc Suit"]
+                }
+              ]
+            },
+            {
+              "oneOf": [
+                {
+                  "skill": "Mechanic"
+                },
+                {
+                  "skill": "Electronics",
+                  "specialties": ["Any"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free"
+          }
+        },
+        {
+          "name": "Lowwater",
+          "roll": [75, 100],
+          "techLevel": 9,
+          "maximumAge": 88,
+          "maximumTerms": 17,
+          "settledYear": 2255,
+          "primaryLanguages": ["Drift Pidgin"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Survival",
+                  "specialties": ["Barren", "Ocean"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "enslaved"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "enslaved"
+          }
+        }
+      ]
+    },
+    {
+      "name": "New Holdings",
+      "worlds": [
+        {
+          "name": "Tinderfall",
+          "techLevel": 11,
+          "maximumAge": 32,
+          "maximumTerms": 3,
+          "settledYear": 2318,
+          "primaryLanguages": ["Rivertongue"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Survival",
+                  "specialties": ["Forest", "Mountains"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free"
+          }
+        },
+        {
+          "name": "Wake",
+          "techLevel": 10,
+          "maximumAge": 24,
+          "maximumTerms": 1,
+          "settledYear": 2331,
+          "primaryLanguages": ["Drift Pidgin", "Rivertongue"],
+          "backgroundSkills": [
+            {
+              "oneOf": [
+                {
+                  "skill": "Survival",
+                  "specialties": ["Freefall"]
+                }
+              ]
+            },
+            {
+              "oneOf": [
+                {
+                  "skill": "Suit",
+                  "specialties": ["Vacc Suit"]
+                }
+              ]
+            }
+          ],
+          "engineered": {
+            "allowed": true,
+            "status": "free"
+          },
+          "uplifts": {
+            "allowed": true,
+            "status": "free"
+          }
+        }
+      ]
+    }
+  ]
+}
