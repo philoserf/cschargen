@@ -208,6 +208,12 @@ func TestTheHomeworldCapsTheTerms(t *testing.T) {
 // TestReassignmentChangesTheTechLevelAndNothingElse is ERRATA E-9. A
 // character deported in adulthood ages by the medicine of where they now
 // live, but did not acquire a second childhood.
+//
+// It forces the Colonist career, six of whose eleven mishaps reassign the
+// homeworld (p. 174). It did not, until the career list grew past the point
+// where the auto policy happened to pick Colonist -- and the test then
+// failed rather than passing vacuously, which is what the closing check is
+// for.
 func TestReassignmentChangesTheTechLevelAndNothingElse(t *testing.T) {
 	t.Parallel()
 
@@ -215,7 +221,12 @@ func TestReassignmentChangesTheTechLevelAndNothingElse(t *testing.T) {
 	moved := 0
 
 	for seed := range uint64(sample) {
-		character := lifepath(t, seed, 8)
+		opts := options(t, seed)
+
+		opts.Inputs.TermLimit = 8
+		opts.Inputs.Career = careerColonist
+
+		character := generate(t, opts)
 
 		if len(character.State.Homeworlds) < 2 {
 			continue

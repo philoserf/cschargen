@@ -17,6 +17,11 @@ func lifepath(t *testing.T, seed uint64, terms int) *chargen.Character {
 	return generate(t, opts)
 }
 
+// careerColonist is the career the tests force where they need a specific
+// one: it is the book's worked example, and six of its eleven mishaps
+// reassign the homeworld.
+const careerColonist = "Colonist"
+
 // sample is how many seeds the properties below are checked over. Large
 // enough that the uncommon branches -- a failed enlistment, a mishap, a
 // forced transfer -- show up; small enough to keep the suite quick.
@@ -160,7 +165,7 @@ func TestFirstTermGrantsTheServiceSkillsAtLevelZero(t *testing.T) {
 	opts := options(t, 5)
 
 	opts.Inputs.TermLimit = 1
-	opts.Inputs.Career = "Colonist"
+	opts.Inputs.Career = careerColonist
 
 	character := generate(t, opts)
 
@@ -182,7 +187,7 @@ func TestRankZeroBenefitAppliesOnEntry(t *testing.T) {
 	opts := options(t, 5)
 
 	opts.Inputs.TermLimit = 1
-	opts.Inputs.Career = "Colonist"
+	opts.Inputs.Career = careerColonist
 
 	character := generate(t, opts)
 

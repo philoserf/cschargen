@@ -115,8 +115,11 @@ func TestMishapEjectsMatchesThePage(t *testing.T) {
 	// test rather than defaulting -- the two exceptions are the whole point.
 	want := map[string]bool{
 		"Colonist":                         true,
+		"Adventurer":                       true,
 		"Arts":                             true,
 		"Belter":                           true,
+		"Celebrity":                        true,
+		"Clergy":                           true,
 		"Corporate Shipper":                true,
 		"Craftsperson":                     true,
 		"Instructor":                       true,
@@ -224,9 +227,12 @@ func TestLookups(t *testing.T) {
 			settler.Survival.Characteristic, settler.Survival.Number)
 	}
 
-	_, ok = career.ByName("Celebrity")
+	// A career the book names and this repository has not transcribed. The
+	// list shrinks as milestone 3 proceeds; when it is empty this
+	// assertion changes to "every career the book names is found".
+	_, ok = career.ByName("Thief")
 	if ok {
-		t.Error("Celebrity is not implemented in this milestone but was found")
+		t.Error("Thief is not transcribed yet but was found")
 	}
 
 	_, ok = colonist.Assignment("Ambassador")

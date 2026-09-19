@@ -1,6 +1,6 @@
 # Lifepath: Vela Ashgrove
 
-Seed 7, 131 events.
+Seed 7, 126 events.
 
 
 ## Step 2: Roll Characteristics (p. 39)
@@ -41,149 +41,146 @@ Seed 7, 131 events.
 
 ## Step 9: Choose a Career (p. 104)
 
--   32  choice Choose a career to attempt: Arts (policy)
+-   32  choice Choose a career to attempt: Adventurer (policy)
 
 ## Step 10: Enlist in a Career (p. 110)
 
--   34  throw  2d6 [6 2] = 9 +1(INT) vs 8+ -- made it  (p. 110)
--   35  -> accepted into Arts [career, from 34]
+-   34  -> this career modifies enlistment on apparent age, which arrives with the aging rules (p. 125) [unimplemented, from 33]
+-   35  throw  2d6 [6 2] = 9 +1(DEX) vs 8+ -- made it  (p. 110)
+-   36  -> accepted into Adventurer [career, from 35]
 
 ## Step 11: Choose an Assignment (p. 112)
 
--   37  choice Choose an assignment within Arts: Artist (policy)
--   38  -> first term in the career: Persuade at level 0 [skill, from 36]
--   39  -> first term in the career: Art (Any) at level 0 [skill, from 36]
--   40  -> first term in the career: Carouse at level 0 [skill, from 36]
--   41  -> first term in the career: Language (Any) at level 0 [skill, from 36]
--   42  -> first term in the career: Advocate (Any) at level 0 [skill, from 36]
--   43  -> first term in the career: Investigate at level 0 [skill, from 36]
--   44  -> Art (Any) 1 [skill, from 36]
+-   38  choice Choose an assignment within Adventurer: Hunter (policy)
+-   39  -> first term in the career: Drive (Any) at level 0 [skill, from 37]
+-   40  -> first term in the career: Investigate at level 0 [skill, from 37]
+-   41  -> first term in the career: Survival (Any) at level 0 [skill, from 37]
+-   42  -> first term in the career: Recon at level 0 [skill, from 37]
+-   43  -> first term in the career: Navigation at level 0 [skill, from 37]
+-   44  -> first term in the career: Flyer (Any) at level 0 [skill, from 37]
+-   45  -> Survival (Any) 1 [skill, from 37]
 
 ## Step 12: Roll for Survival (p. 112)
 
--   46  throw  2d6 [6 4] = 11 +1(INT) vs 8+ -- made it  (p. 112)
+-   47  throw  2d6 [6 4] = 10 +0(END) vs 8+ -- made it  (p. 112)
 
 ## Step 14: Roll for Advancement (p. 114)
 
--   48  throw  2d6 [3 3] = 7 +1(EDU) vs 8+ -- failed  (p. 115)
+-   49  throw  2d6 [3 3] = 7 +1(INT) vs 8+ -- failed  (p. 115)
 
 ## Step 15: Roll for Skills (p. 117)
 
--   50  choice Choose a skill table to roll on: Personal Development (policy)
--   51  throw  1d6 [5] = 5  (p. 117)
--   52  -> +1 EDU [characteristic, from 51]
+-   51  choice Choose a skill table to roll on: Personal Development (policy)
+-   52  throw  1d6 [5] = 5  (p. 117)
+-   53  -> +1 EDU [characteristic, from 52]
 
 ## Step 16: Roll for Events (p. 118)
 
--   54  throw  d66 [6 6] = 66  (p. 118)
--   55  -> event: the most prestigious award in your field [career, from 54]
--   56  -> +2 CHA [characteristic, from 54]
--   57  -> gain 3 benefit rolls [benefit_rolls, from 54]
--   58  -> a +6 modifier, spent in increments of no more than +2 on survival or advancement rolls until depleted [unimplemented, from 54]
+-   55  throw  d66 [6 6] = 66  (p. 118)
+-   56  -> event: the tales of your exploits have made you famous [career, from 55]
+-   57  -> enter the Celebrity career [career, from 55]
 
 ## Step 17: Aging (p. 121)
 
--   60  -> age 22 [age, from 59]
+-   59  -> age 22 [age, from 58]
 
 ## Step 18: Determining the Next Term (p. 125)
 
-
-## Step 12: Roll for Survival (p. 112)
-
--   63  throw  2d6 [3 1] = 5 +1(INT) vs 8+ -- failed  (p. 112)
--   64  -> the survival roll failed [career, from 63]
-
-## Step 13: Roll A Mishap (p. 113)
-
--   66  throw  2d6 [3 4] = 7  (p. 113)
--   67  -> mishap: injured [career, from 66]
--   68  throw  1d6 [3] = 3  (p. 119)
--   69  -> heavily injured: an eye or a limb is gone [injury, from 68]
--   70  choice what was lost: an arm or hand (policy)
--   71  -> -2 STR [characteristic, from 70]
-
-## Step 17: Aging (p. 121)
-
--   73  throw  1d3 [1] = 1  (p. 121)
--   74  -> age 23 [age, from 73]
-
-## Step 18: Determining the Next Term (p. 125)
-
--   76  -> left the Arts career: ejected by a mishap [career, from 75]
+-   61  -> left the Adventurer career: sent to another career by a table result [career, from 60]
 
 ## Step 19: Muster Out (p. 126)
 
--   78  choice Choose a mustering out table for Arts: Cash (policy)
--   79  throw  1d6 [6] = 6  (p. 127)
--   80  -> mustering out of Arts: 20000 credits [credits, from 79]
--   81  choice Choose a mustering out table for Arts: Cash (policy)
--   82  throw  1d6 [1] = 1  (p. 127)
--   83  -> mustering out of Arts: 1000 credits [credits, from 82]
--   84  choice Choose a mustering out table for Arts: Cash (policy)
--   85  throw  1d6 [4] = 4  (p. 127)
--   86  -> mustering out of Arts: 10000 credits [credits, from 85]
--   87  choice Choose a mustering out table for Arts: Other Benefits (policy)
--   88  throw  1d6 [1] = 1  (p. 127)
--   89  -> +1 END [characteristic, from 88]
--   90  choice Choose a mustering out table for Arts: Other Benefits (policy)
--   91  throw  1d6 [2] = 2  (p. 127)
--   92  -> +1 DEX [characteristic, from 91]
--   93  choice Choose a mustering out table for Arts: Other Benefits (policy)
--   94  throw  1d6 [3] = 3  (p. 127)
--   95  -> +1 EDU [characteristic, from 94]
--   96  choice Choose a mustering out table for Arts: Other Benefits (policy)
--   97  throw  1d6 [4] = 4  (p. 127)
--   98  -> +1 INT [characteristic, from 97]
+-   63  choice Choose a mustering out table for Adventurer: Cash (policy)
+-   64  throw  1d6 [3] = 3  (p. 127)
+-   65  -> mustering out of Adventurer: 2000 credits [credits, from 64]
+-   66  choice Choose a mustering out table for Adventurer: Cash (policy)
+-   67  throw  1d6 [1] = 1  (p. 127)
+-   68  -> mustering out of Adventurer: 500 credits [credits, from 67]
 
 ## Step 9: Choose a Career (p. 104)
 
--  100  choice Choose a career to attempt: Arts (policy)
-
-## Step 10: Enlist in a Career (p. 110)
-
--  102  throw  2d6 [6 3] = 10 +1(INT) vs 8+ -- made it  (p. 110)
--  103  -> accepted into Arts [career, from 102]
 
 ## Step 11: Choose an Assignment (p. 112)
 
--  105  choice Choose an assignment within Arts: Artist (policy)
--  106  -> Art (Any) 2 [skill, from 104]
+-   71  choice Choose an assignment within Celebrity: Actor (policy)
+-   72  -> first term in the career: Advocate (Oratory) at level 0 [skill, from 70]
+-   73  -> first term in the career: Persuade at level 0 [skill, from 70]
+-   74  -> first term in the career: Art (Any) at level 0 [skill, from 70]
+-   75  -> first term in the career: Carouse at level 0 [skill, from 70]
+-   76  -> first term in the career: Etiquette at level 0 [skill, from 70]
+-   77  -> first term in the career: Broker at level 0 [skill, from 70]
+-   78  -> Art (Acting) 1 [skill, from 70]
 
 ## Step 12: Roll for Survival (p. 112)
 
--  108  throw  2d6 [3 6] = 10 +1(INT) vs 8+ -- made it  (p. 112)
+-   80  throw  2d6 [3 4] = 8 +1(CHA) vs 8+ -- made it  (p. 112)
 
 ## Step 14: Roll for Advancement (p. 114)
 
--  110  throw  2d6 [6 1] = 9 +2(EDU) vs 8+ -- made it  (p. 115)
--  111  -> advanced to rank 1 in Artist [rank, from 110]
+-   82  throw  2d6 [3 2] = 6 +1(INT) vs 8+ -- failed  (p. 115)
 
 ## Step 15: Roll for Skills (p. 117)
 
--  113  choice Choose a skill table to roll on: Personal Development (policy)
--  114  throw  1d6 [3] = 3  (p. 117)
--  115  -> +1 END [characteristic, from 114]
+-   84  choice Choose a skill table to roll on: Personal Development (policy)
+-   85  throw  1d6 [6] = 6  (p. 117)
+-   86  -> +1 CHA [characteristic, from 85]
 
 ## Step 16: Roll for Events (p. 118)
 
--  117  throw  d66 [2 2] = 22  (p. 118)
--  118  -> event: a criminal wants fake art made to sell offworld [career, from 117]
--  119  choice take the commission or decline: decline (policy)
--  120  -> gain 1 enemy [relationship, from 119]
+-   88  throw  d66 [1 4] = 14  (p. 118)
+-   89  -> event: a sex scandal [career, from 88]
+-   90  choice manage it however you can: Persuade (policy)
+-   91  throw  2d6 [1 2] = 3 +0(Persuade) vs 8+ -- failed  (pp. 164-168)
+-   92  -> lose 1 benefit rolls [benefit_rolls, from 91]
+-   93  -> -2 to the next survival roll [modifier, from 91]
 
 ## Step 17: Aging (p. 121)
 
--  122  -> age 27 [age, from 121]
+-   95  -> age 26 [age, from 94]
 
 ## Step 18: Determining the Next Term (p. 125)
 
--  124  -> left the Arts career: character generation ended [career, from 123]
+
+## Step 12: Roll for Survival (p. 112)
+
+-   98  throw  2d6 [3 4] = 8 +1(CHA) vs 8+ -- made it  (p. 112)
+
+## Step 14: Roll for Advancement (p. 114)
+
+-  100  throw  2d6 [6 3] = 10 +1(INT) vs 8+ -- made it  (p. 115)
+-  101  -> advanced to rank 1 in Actor [rank, from 100]
+-  102  -> Art (Writing) 1 [skill, from 100]
+
+## Step 15: Roll for Skills (p. 117)
+
+-  104  choice Choose a skill table to roll on: Personal Development (policy)
+-  105  throw  1d6 [3] = 3  (p. 117)
+-  106  -> +1 END [characteristic, from 105]
+
+## Step 16: Roll for Events (p. 118)
+
+-  108  throw  d66 [6 6] = 66  (p. 118)
+-  109  -> event: recognized as one of the best at what you do [career, from 108]
+-  110  -> remain in this career for another term [career, from 108]
+-  111  -> an automatic success on the next survival roll [modifier, from 108]
+-  112  -> an automatic success on the next advancement roll [modifier, from 108]
+
+## Step 17: Aging (p. 121)
+
+-  114  -> age 30 [age, from 113]
+
+## Step 18: Determining the Next Term (p. 125)
+
+-  116  -> left the Celebrity career: character generation ended [career, from 115]
 
 ## Step 19: Muster Out (p. 126)
 
--  126  choice Choose a mustering out table for Arts: Cash (policy)
--  127  throw  1d6 [3] = 3  (p. 127)
--  128  -> mustering out of Arts: 5000 credits [credits, from 127]
--  129  choice Choose a mustering out table for Arts: Cash (policy)
--  130  throw  1d6 [4] = 4  (p. 127)
--  131  -> mustering out of Arts: 10000 credits [credits, from 130]
+-  118  choice Choose a mustering out table for Celebrity: Cash (policy)
+-  119  throw  1d6 [1] = 1  (p. 127)
+-  120  -> mustering out of Celebrity: 0 credits [credits, from 119]
+-  121  choice Choose a mustering out table for Celebrity: Cash (policy)
+-  122  throw  1d6 [3] = 3  (p. 127)
+-  123  -> mustering out of Celebrity: 10000 credits [credits, from 122]
+-  124  choice Choose a mustering out table for Celebrity: Cash (policy)
+-  125  throw  1d6 [2] = 2  (p. 127)
+-  126  -> mustering out of Celebrity: 0 credits [credits, from 125]

@@ -267,8 +267,11 @@ func (c Career) Table(kind SkillTableKind) (SkillTable, bool) {
 // lists them (p. 107).
 func All() []Career {
 	return []Career{
+		Adventurer(),
 		Arts(),
 		Belter(),
+		Celebrity(),
+		Clergy(),
 		Colonist(),
 		CorporateShipper(),
 		Craftsperson(),
