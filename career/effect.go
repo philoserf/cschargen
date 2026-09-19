@@ -101,6 +101,12 @@ const (
 	// than your own and roll once".
 	EffectRollTable
 
+	// EffectAutoSuccess makes a named future throw succeed without rolling:
+	// "Gain an automatic success on your next Survival roll" (p. 176). It is
+	// not a large modifier -- a modifier can still fail, and the book says
+	// the throw succeeds.
+	EffectAutoSuccess
+
 	// EffectMilitaryEvent sends the character to the Military Events table
 	// (p. 121), which the military careers' d66 tables reach at 41-46.
 	EffectMilitaryEvent

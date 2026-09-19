@@ -202,3 +202,47 @@ a much-deported Colonist the most broadly skilled character in the game, from
 mishaps. Carrying the birth world's tech level instead would make a character's
 aging independent of where they actually live, which is the opposite of what
 p. 121 says.
+
+---
+
+## E-10 (reading) — System Defense Forces (Navy) prints no Mishap table
+
+**Where:** pp. 278-281, against Troopers (p. 284) and Wet Navy (p. 289).
+
+Every career in the book prints a 2d6 Mishap table. This one does not: p. 279 ends
+with its rank tables and a note about rank titles, and p. 280 begins its d66
+events. Both of its sibling System Defense Forces careers print one.
+
+A failed survival throw sends a character to the Mishap table (p. 113), so
+without one the career has no failure path at all.
+
+**Reading:** the career uses National Navy's mishap table (p. 235).
+
+The two careers are otherwise the same tables cell for cell — the same four
+assignments with the same skill rows, the same Service, Advanced Education and
+Officer tables, and the same two rank tables (compare pp. 233-234 with pp.
+278-279). What differs is the enlistment throw, the commission target and cash
+figures at roughly half. A career that shares every other table with National
+Navy almost certainly shares the missing one.
+
+**If this is wrong:** the alternative is that the omission is deliberate and the
+career cannot suffer a mishap, which would make it the only career in the book
+where failing survival costs nothing — a strictly better career than its two
+siblings, for no stated reason.
+
+---
+
+## E-11 (limit) — one career's prerequisite cannot be checked
+
+**Where:** System Defense Forces (Wet Navy), p. 287.
+
+"Your homeworld must have a Hydrographics score of 4+ to join this career."
+
+Hydrographics is a digit of a world's Universal World Profile, which the origin
+charts of pp. 43-56 do not print — they carry tech level and nothing else of the
+UWP. The setting data therefore has no hydrographics figure to check against.
+
+**The engine records the prerequisite on the career and does not enforce it.**
+Refusing a career on a rule this engine cannot evaluate would be worse than
+admitting it cannot. This is a limit rather than a reading: nothing is being
+interpreted, and it closes when the setting data carries a UWP.

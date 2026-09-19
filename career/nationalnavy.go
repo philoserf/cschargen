@@ -29,7 +29,7 @@ func navyAssignments() []Assignment {
 				skill("Admin"), skill("Astrogation"), skill("Pilot", "Any"),
 				skill("Electronics", "Any"), skill("Mechanic"), skill("Gunner", "Any"),
 			},
-			[7][]Effect{
+			[][]Effect{
 				{skill("Electronics", "Any")},
 				{skill("Discipline")},
 				nil,
@@ -38,7 +38,7 @@ func navyAssignments() []Assignment {
 				{skill("Pilot", "Spacecraft")},
 				{skill("Jack of All Trades")},
 			},
-			[7][]Effect{
+			[][]Effect{
 				{skill("Admin")},
 				{skill("Electronics", "Any")},
 				nil,
@@ -53,7 +53,7 @@ func navyAssignments() []Assignment {
 				skill("Electronics", "Any"), skill("Mechanic"), skill("Engineer", "Any"),
 				skill("Engineer", "Any"), skill("Science", "Any"), skill("Jack of All Trades"),
 			},
-			[7][]Effect{
+			[][]Effect{
 				{skill("Mechanic")},
 				{skill("Discipline")},
 				nil,
@@ -62,7 +62,7 @@ func navyAssignments() []Assignment {
 				{skill("Engineer", "Power")},
 				{skill("Engineer", "Life Support")},
 			},
-			[7][]Effect{
+			[][]Effect{
 				{skill("Admin")},
 				{skill("Mechanic")},
 				{skill("Engineer", "Z-Drive")},
@@ -77,7 +77,7 @@ func navyAssignments() []Assignment {
 				skill("Mechanic"), skill("Electronics", "Any"), skill("Gunner", "Any"),
 				skill("Gunner", "Any"), skill("Tactics", "Naval"), skill("Gun Combat", "Any"),
 			},
-			[7][]Effect{
+			[][]Effect{
 				{skill("Gunner", "Turrets")},
 				{skill("Discipline")},
 				nil,
@@ -86,7 +86,7 @@ func navyAssignments() []Assignment {
 				{skill("Mechanic")},
 				nil,
 			},
-			[7][]Effect{
+			[][]Effect{
 				{skill("Admin")},
 				{skill("Gunner", "Any")},
 				nil,
@@ -101,7 +101,7 @@ func navyAssignments() []Assignment {
 				skill("Tactics", "Naval"), skill("Astrogation"), skill("Pilot", "Any"),
 				skill("Pilot", "Any"), skill("Electronics", "Any"), skill("Flyer", "Any"),
 			},
-			[7][]Effect{
+			[][]Effect{
 				{skill("Mechanic")},
 				{skill("Discipline")},
 				nil,
@@ -110,7 +110,7 @@ func navyAssignments() []Assignment {
 				{skill("Pilot", "Small Craft")},
 				nil,
 			},
-			[7][]Effect{
+			[][]Effect{
 				{skill("Admin")},
 				{skill("Pilot", "Small Craft")},
 				nil,
@@ -127,10 +127,8 @@ func navyAssignment(
 	name, description string,
 	survival, advancement Check,
 	skills [6]Effect,
-	enlisted, officer [7][]Effect,
+	enlisted, officer [][]Effect,
 ) Assignment {
-	ranks := officer
-
 	return Assignment{
 		Name:         name,
 		Description:  description,
@@ -138,7 +136,7 @@ func navyAssignment(
 		Advancement:  advancement,
 		Skills:       SkillTable{Kind: AssignmentSkills, Name: name, Rows: skills},
 		Ranks:        enlisted,
-		OfficerRanks: &ranks,
+		OfficerRanks: officer,
 	}
 }
 

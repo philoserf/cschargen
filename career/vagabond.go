@@ -43,7 +43,7 @@ func vagabondAssignments() []Assignment {
 					skill("Jack of All Trades"),
 				},
 			},
-			Ranks: [7][]Effect{
+			Ranks: [][]Effect{
 				{skill("Survival", "Any")},
 				{stashItem("a stash")},
 				nil,
@@ -70,7 +70,7 @@ func vagabondAssignments() []Assignment {
 					skill("Jack of All Trades"),
 				},
 			},
-			Ranks: [7][]Effect{
+			Ranks: [][]Effect{
 				{skill("Suit", "Vacc Suit")},
 				{stashItem("a stash")},
 				nil,

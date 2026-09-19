@@ -41,7 +41,7 @@ func colonistAssignments() []Assignment {
 					skill("Tactics", "Military"),
 				},
 			},
-			Ranks: [7][]Effect{
+			Ranks: [][]Effect{
 				{skill("Animals", "Farming")},
 				{skill("Animals", "Veterinary")},
 				nil,
@@ -68,7 +68,7 @@ func colonistAssignments() []Assignment {
 					skill("Carouse"),
 				},
 			},
-			Ranks: [7][]Effect{
+			Ranks: [][]Effect{
 				{skill("Persuade")},
 				{skill("Advocate", "Politics")},
 				nil,
@@ -95,7 +95,7 @@ func colonistAssignments() []Assignment {
 					skill("Deception", "Any"),
 				},
 			},
-			Ranks: [7][]Effect{
+			Ranks: [][]Effect{
 				{skill("Broker")},
 				{skill("Admin")},
 				nil,

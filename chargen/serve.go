@@ -68,7 +68,14 @@ func (g *Generator) resolveTerm(assignment career.Assignment, survived bool) err
 // rollSurvival is Step 12 (p. 112). A natural twelve before modifiers
 // requires another term in the same career (p. 113).
 func (g *Generator) rollSurvival(assignment career.Assignment) bool {
-	g.log.Step("Step 12: Roll for Survival", "p. 112")
+	step := g.log.Step("Step 12: Roll for Survival", "p. 112")
+
+	if g.takeAutomatic("next survival roll") {
+		g.consequence(ConsequenceCareer, step,
+			"an automatic success on the survival roll, granted earlier", g.career.Name)
+
+		return true
+	}
 
 	throw := g.characteristicThrow(assignment.Survival)
 	cause := g.log.Throw(throw, "p. 112")
@@ -169,6 +176,10 @@ func (g *Generator) attemptCommission(modifier, cause int) error {
 		return nil
 	}
 
+	if g.takeAutomatic("next commission roll") {
+		return g.grantCommission(cause)
+	}
+
 	mods := []dice.Mod{}
 	if modifier != 0 {
 		mods = append(mods, dice.Mod{Name: "event", Value: modifier})
@@ -189,6 +200,12 @@ func (g *Generator) attemptCommission(modifier, cause int) error {
 		return nil
 	}
 
+	return g.grantCommission(thrown)
+}
+
+// grantCommission moves the character onto the officer track, whether the
+// throw made it or a table result decided it.
+func (g *Generator) grantCommission(thrown int) error {
 	g.commissioned = true
 
 	if service, found := g.char.State.Service(g.career.Name); found {
@@ -206,15 +223,15 @@ func (g *Generator) attemptCommission(modifier, cause int) error {
 		return nil
 	}
 
-	return g.applyAll(officerRanks(assignment)[0], thrown)
+	return g.applyAll(ranksFor(assignment, true)[0], thrown)
 }
 
-// officerRanks is the assignment's officer rank table where it has one, and
-// its ordinary ranks otherwise. A career with a commission prints two rank
-// tables per assignment (p. 234).
-func officerRanks(assignment career.Assignment) [7][]career.Effect {
-	if assignment.OfficerRanks != nil {
-		return *assignment.OfficerRanks
+// ranksFor is the rank table that applies: the officer track once the
+// character is commissioned, the enlisted one otherwise. A career with a
+// commission prints two per assignment (pp. 225, 234).
+func ranksFor(assignment career.Assignment, commissioned bool) [][]career.Effect {
+	if commissioned && assignment.OfficerRanks != nil {
+		return assignment.OfficerRanks
 	}
 
 	return assignment.Ranks
@@ -299,7 +316,9 @@ func (g *Generator) namedTable(
 // promote raises the rank by one and applies that rank's benefit, which is
 // granted "immediately upon achieving that Rank" (p. 116).
 func (g *Generator) promote(cause int, assignment career.Assignment) error {
-	if g.rank >= len(assignment.Ranks)-1 {
+	ranks := ranksFor(assignment, g.commissioned)
+
+	if g.rank >= len(ranks)-1 {
 		g.consequence(ConsequenceRank, cause,
 			"already at the highest printed rank in this assignment", g.career.Name)
 
@@ -311,7 +330,7 @@ func (g *Generator) promote(cause int, assignment career.Assignment) error {
 	g.consequence(ConsequenceRank, cause,
 		"advanced to rank "+itoa(g.rank)+" in "+assignment.Name, g.career.Name)
 
-	return g.applyAll(assignment.Ranks[g.rank], cause)
+	return g.applyAll(ranks[g.rank], cause)
 }
 
 // rollSkill is Step 15 (p. 117): "The Player should choose one of the
@@ -414,6 +433,20 @@ func (g *Generator) characteristicThrow(check career.Check) dice.Throw {
 		Name:  check.Characteristic,
 		Value: g.char.State.Characteristics.Modifier(which),
 	})
+}
+
+// takeAutomatic reports whether a named throw has already been decided by a
+// table result, and spends it if so.
+func (g *Generator) takeAutomatic(applies string) bool {
+	for i, pending := range g.automatic {
+		if pending == applies {
+			g.automatic = append(g.automatic[:i], g.automatic[i+1:]...)
+
+			return true
+		}
+	}
+
+	return false
 }
 
 // takeModifiers consumes every pending modifier that applies to a named

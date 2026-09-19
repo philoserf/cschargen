@@ -73,7 +73,12 @@ type Generator struct {
 	// carries the unimplemented consequence naming where they went.
 	stopped bool
 
-	pending          []PendingModifier
+	pending []PendingModifier
+
+	// automatic holds throws a table result has already decided: "Gain an
+	// automatic success on your next Survival roll" (p. 176). Each is
+	// spent by the throw it names.
+	automatic        []string
 	careerBenefitMod int
 	termLimit        int
 

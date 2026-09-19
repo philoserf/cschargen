@@ -1,6 +1,6 @@
 # Lifepath: Vela Ashgrove
 
-Seed 7, 127 events.
+Seed 7, 114 events.
 
 
 ## Step 2: Roll Characteristics (p. 39)
@@ -80,8 +80,8 @@ Seed 7, 127 events.
 -   56  throw  d66 [6 6] = 66  (p. 118)
 -   57  -> event: you are recognized as one of the best at what you do [career, from 56]
 -   58  -> remain in this career for another term [career, from 56]
--   59  -> an automatic success on the next Survival roll [unimplemented, from 56]
--   60  -> an automatic success on the next Advancement roll [unimplemented, from 56]
+-   59  -> an automatic success on the next survival roll [modifier, from 56]
+-   60  -> an automatic success on the next advancement roll [modifier, from 56]
 
 ## Step 17: Aging (p. 121)
 
@@ -92,94 +92,77 @@ Seed 7, 127 events.
 
 ## Step 12: Roll for Survival (p. 112)
 
--   65  throw  2d6 [3 1] = 4 +0(END) vs 7+ -- failed  (p. 112)
--   66  -> the survival roll failed [career, from 65]
-
-## Step 13: Roll A Mishap (p. 113)
-
--   68  throw  2d6 [3 4] = 7  (p. 113)
--   69  -> mishap: injured [career, from 68]
--   70  throw  1d6 [3] = 3  (p. 119)
--   71  -> heavily injured: an eye or a limb is gone [injury, from 70]
--   72  choice what was lost: an arm or hand (policy)
--   73  -> -2 STR [characteristic, from 72]
-
-## Step 17: Aging (p. 121)
-
--   75  throw  1d3 [1] = 1  (p. 121)
--   76  -> age 23 [age, from 75]
-
-## Step 18: Determining the Next Term (p. 125)
-
--   78  -> left the Colonist career: ejected by a mishap [career, from 77]
-
-## Step 19: Muster Out (p. 126)
-
--   80  choice Choose a mustering out table for Colonist: Cash (policy)
--   81  throw  1d6 [6] = 6  (p. 127)
--   82  -> mustering out of Colonist: 5000 credits [credits, from 81]
--   83  choice Choose a mustering out table for Colonist: Cash (policy)
--   84  throw  1d6 [1] = 1  (p. 127)
--   85  -> mustering out of Colonist: 0 credits [credits, from 84]
--   86  choice Choose a mustering out table for Colonist: Cash (policy)
--   87  throw  1d6 [4] = 4  (p. 127)
--   88  -> mustering out of Colonist: 1000 credits [credits, from 87]
--   89  choice Choose a mustering out table for Colonist: Other Benefits (policy)
--   90  throw  1d6 [1] = 1  (p. 127)
--   91  -> +1 END [characteristic, from 90]
-
-## Step 9: Choose a Career (p. 104)
-
--   93  choice Choose a career to attempt: Colonist (policy)
-
-## Step 10: Enlist in a Career (p. 110)
-
--   95  throw  2d6 [2 3] = 6 +1(END) vs 6+ -- made it  (p. 110)
--   96  -> accepted into Colonist [career, from 95]
-
-## Step 11: Choose an Assignment (p. 112)
-
--   98  choice Choose an assignment within Colonist: Settler (policy)
--   99  -> Animals (Farming) 2 [skill, from 97]
-
-## Step 12: Roll for Survival (p. 112)
-
--  101  throw  2d6 [4 6] = 11 +1(END) vs 7+ -- made it  (p. 112)
+-   65  -> an automatic success on the survival roll, granted earlier [career, from 64]
 
 ## Step 14: Roll for Advancement (p. 114)
 
--  103  throw  2d6 [3 3] = 7 +1(INT) vs 7+ -- made it  (p. 115)
--  104  -> advanced to rank 1 in Settler [rank, from 103]
--  105  -> Animals (Veterinary) 2 [skill, from 103]
+-   67  throw  2d6 [3 1] = 5 +1(INT) vs 7+ -- failed  (p. 115)
 
 ## Step 15: Roll for Skills (p. 117)
 
--  107  choice Choose a skill table to roll on: Personal Development (policy)
--  108  throw  1d6 [6] = 6  (p. 117)
--  109  -> Athletics (Any) 1 [skill, from 108]
+-   69  choice Choose a skill table to roll on: Personal Development (policy)
+-   70  throw  1d6 [3] = 3  (p. 117)
+-   71  -> +1 END [characteristic, from 70]
 
 ## Step 16: Roll for Events (p. 118)
 
--  111  throw  d66 [6 1] = 61  (p. 118)
--  112  -> event: you are recognized as a valuable member of the community [career, from 111]
--  113  -> gain 1 benefit rolls [benefit_rolls, from 111]
+-   73  throw  d66 [4 3] = 43  (p. 118)
+-   74  -> event: you help with the day-to-day administration of the colony [career, from 73]
+-   75  choice administer or advocate: Admin (policy)
+-   76  -> Admin 1 [skill, from 75]
 
 ## Step 17: Aging (p. 121)
 
--  115  -> age 27 [age, from 114]
+-   78  -> age 26 [age, from 77]
 
 ## Step 18: Determining the Next Term (p. 125)
 
--  117  -> left the Colonist career: character generation ended [career, from 116]
+
+## Step 12: Roll for Survival (p. 112)
+
+-   81  throw  2d6 [2 6] = 9 +1(END) vs 7+ -- made it  (p. 112)
+
+## Step 14: Roll for Advancement (p. 114)
+
+-   83  throw  2d6 [1 4] = 6 +1(INT) vs 7+ -- failed  (p. 115)
+
+## Step 15: Roll for Skills (p. 117)
+
+-   85  choice Choose a skill table to roll on: Personal Development (policy)
+-   86  throw  1d6 [1] = 1  (p. 117)
+-   87  -> +1 STR [characteristic, from 86]
+
+## Step 16: Roll for Events (p. 118)
+
+-   89  throw  d66 [2 3] = 23  (p. 118)
+-   90  -> event: colonists work hard by day and relieve the stress at night [career, from 89]
+-   91  -> Carouse 1 [skill, from 89]
+
+## Step 17: Aging (p. 121)
+
+-   93  -> age 30 [age, from 92]
+
+## Step 18: Determining the Next Term (p. 125)
+
+-   95  -> left the Colonist career: character generation ended [career, from 94]
 
 ## Step 19: Muster Out (p. 126)
 
--  119  choice Choose a mustering out table for Colonist: Cash (policy)
--  120  throw  1d6 [3] = 3  (p. 127)
--  121  -> mustering out of Colonist: 500 credits [credits, from 120]
--  122  choice Choose a mustering out table for Colonist: Cash (policy)
--  123  throw  1d6 [2] = 2  (p. 127)
--  124  -> mustering out of Colonist: 0 credits [credits, from 123]
--  125  choice Choose a mustering out table for Colonist: Cash (policy)
--  126  throw  1d6 [2] = 2  (p. 127)
--  127  -> mustering out of Colonist: 0 credits [credits, from 126]
+-   97  choice Choose a mustering out table for Colonist: Cash (policy)
+-   98  throw  1d6 [4] = 4  (p. 127)
+-   99  -> mustering out of Colonist: 1000 credits [credits, from 98]
+-  100  choice Choose a mustering out table for Colonist: Cash (policy)
+-  101  throw  1d6 [6] = 6  (p. 127)
+-  102  -> mustering out of Colonist: 5000 credits [credits, from 101]
+-  103  choice Choose a mustering out table for Colonist: Cash (policy)
+-  104  throw  1d6 [3] = 3  (p. 127)
+-  105  -> mustering out of Colonist: 500 credits [credits, from 104]
+-  106  choice Choose a mustering out table for Colonist: Other Benefits (policy)
+-  107  throw  1d6 [3] = 3  (p. 127)
+-  108  -> +1 INT [characteristic, from 107]
+-  109  choice Choose a mustering out table for Colonist: Other Benefits (policy)
+-  110  throw  1d6 [6] = 6  (p. 127)
+-  111  -> gain 1 ally [relationship, from 110]
+-  112  choice Choose a mustering out table for Colonist: Other Benefits (policy)
+-  113  throw  1d6 [6] = 6  (p. 127)
+-  114  -> gain 1 ally [relationship, from 113]
