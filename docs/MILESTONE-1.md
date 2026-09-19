@@ -1,6 +1,38 @@
 # Milestone 1: the walking skeleton
 
-2026-09-19. Status: plan, not yet started. Tracks [#1](https://github.com/philoserf/cschargen/issues/1).
+2026-09-19. Status: **shipped**, in seven pull requests (#2 through #8). Tracks
+[#1](https://github.com/philoserf/cschargen/issues/1).
+
+## What it turned out to be
+
+The plan below is the one that was followed, including the scope finding that
+opens it. Seven PRs, in the order listed, each leaving the gate green.
+
+Five things the plan did not know:
+
+1. **A test that generates from a random seed makes the coverage ratchet
+   unreproducible.** CI and a developer's machine disagreed by six statements with
+   nothing in the diff to explain it, because a command test rolled eight whole
+   lifepaths from `rand.Uint64()` and under `-coverpkg` those reached different
+   engine branches every run. The test now asks for characteristics alone.
+2. **A career a character re-enters is a second spell of service, not a
+   continuation.** `State.Service` returned the first match, so every update after
+   an ejection-and-return landed on the spell that was already over.
+3. **A career with no benefit rolls left to spend was not clearing its queue**, so
+   a mishap's "lose two benefit rolls" stayed behind as a debt and would have been
+   charged again the next time the character joined that career.
+4. **Two more readings were forced** and are in `ERRATA.md`: an event's skill check
+   is stated nowhere in this book (E-7), and the Rank 0 row of every rank table is
+   unreachable unless entering a career counts as achieving Rank 0 (E-8).
+5. **"Every consequence names a step, a throw or a choice as its cause"** is worth
+   writing as a test. It caught three places where the cause was whatever happened
+   to be logged last, which in a nested effect tree is often another consequence.
+
+Measured after the fact: across 120 generated characters, all three careers are
+reached in play -- 203 spells of Colonist, 92 of Vagabond, 6 of Prisoner -- and 14
+runs end at an unimplemented career, each with the consequence that names it.
+
+---
 
 ## The scope finding that came first
 
