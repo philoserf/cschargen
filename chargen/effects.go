@@ -37,9 +37,7 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 	case career.EffectSkill:
 		return g.applySkill(effect, cause)
 	case career.EffectCharacteristic:
-		g.adjust(effect.Characteristic, effect.Delta, effect.Detail, cause)
-
-		return nil
+		return g.adjustBy(effect, cause)
 	case career.EffectChoice:
 		return g.applyChoice(effect)
 	case career.EffectCheck:
@@ -158,6 +156,30 @@ func (g *Generator) applySkill(effect career.Effect, cause int) error {
 		Level:  got.Level,
 		Cite:   g.cite,
 	})
+
+	return nil
+}
+
+// adjustBy moves a characteristic by a fixed amount, or by one the book
+// rolls for: "Lose 1d3 from your choice of STR or END" (p. 156). Delta
+// carries the sign and Dice the magnitude.
+func (g *Generator) adjustBy(effect career.Effect, cause int) error {
+	delta := effect.Delta
+
+	if effect.Dice != "" {
+		rolled, err := g.rollExpression(effect.Dice, g.cite)
+		if err != nil {
+			return err
+		}
+
+		if delta < 0 {
+			rolled = -rolled
+		}
+
+		delta = rolled
+	}
+
+	g.adjust(effect.Characteristic, delta, effect.Detail, cause)
 
 	return nil
 }

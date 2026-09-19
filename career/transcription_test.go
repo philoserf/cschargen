@@ -201,11 +201,14 @@ func TestTheImplementedCareersCoverTheForcedTransfers(t *testing.T) {
 
 	walk(career.LifeEvents()[1].Effects)
 
-	// Celebrity is the one career the three reach that milestone 1 does not
-	// implement, and both Colonist event 56 and Vagabond event 66 go there.
-	// Recording it here means a fourth destination appearing would fail
-	// this test rather than pass unnoticed.
-	want := map[string]bool{"Celebrity": true}
+	// The careers the implemented ones send characters to and that are not
+	// built yet. The list shrinks as milestone 3 proceeds and should reach
+	// zero; a destination appearing that is not here fails the test rather
+	// than passing unnoticed.
+	want := map[string]bool{
+		"Celebrity":            true,
+		"Independent Merchant": true,
+	}
 	for name := range stubbed {
 		if !want[name] {
 			t.Errorf("a transfer to %s is stubbed, and this test did not know about it", name)
