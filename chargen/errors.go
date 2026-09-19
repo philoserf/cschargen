@@ -20,4 +20,9 @@ const (
 	// ErrReplayDiverged is a replay whose recorded choice does not answer
 	// the question the engine asked.
 	ErrReplayDiverged stringError = "replay diverged from the record"
+
+	// ErrChoiceOutOfRange is a decider that answered with an index the
+	// option list cannot hold. That is a decider answering wrongly, which
+	// is distinct from one declining to answer.
+	ErrChoiceOutOfRange stringError = "decider chose an option that was not offered"
 )

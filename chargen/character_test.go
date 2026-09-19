@@ -56,7 +56,7 @@ func TestRecordRoundTrips(t *testing.T) {
 			EngineVersion: "0.1.0",
 			PolicyVersion: "0.1.0",
 			RNG:           chargen.RNG{Algorithm: "math/rand/v2 PCG", Seed: 7},
-			SettingData:   chargen.SettingData{Name: "sample", Sample: true},
+			SettingData:   chargen.SettingData{Name: sampleData, Sample: true},
 			Inputs:        chargen.Inputs{Species: "human", TechLevel: 11, MaxTerms: 28},
 			Deviations:    []string{"E-3"},
 		},
@@ -98,7 +98,7 @@ func TestRecordRoundTrips(t *testing.T) {
 func TestSampleDataIsAlwaysVisible(t *testing.T) {
 	t.Parallel()
 
-	out, err := json.Marshal(chargen.SettingData{Name: "sample", Sample: true})
+	out, err := json.Marshal(chargen.SettingData{Name: sampleData, Sample: true})
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
