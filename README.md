@@ -28,8 +28,10 @@ or baseline Cepheus:
   four tracks of higher education.
 - Thirty-four careers, each with assignment tracks, a 2d6 mishap table, a d66
   event table, rank tables, and four or more skill tables.
-- Aging indexed by **term number** and gated by the homeworld's tech level, so a
-  high-tech character makes no aging check until term 44 and may serve 58 terms.
+- Aging indexed by **term number** and gated by the homeworld's tech level. Term
+  caps are a property of the homeworld and most fall between 26 and 38; a
+  character from the longest-settled, highest-tech world makes no aging check
+  until term 44 and may serve 58 terms.
 - Apparent age tracked separately from actual age — the setting's signature
   number, derived rather than rolled.
 
