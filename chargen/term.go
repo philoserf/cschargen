@@ -181,6 +181,7 @@ func (g *Generator) beginService(entered career.Career) error {
 	g.career = &entered
 	g.assignment = assignment
 	g.rank = 0
+	g.commissioned = false
 	g.termsInCareer = 0
 	g.careerBenefitMod = 0
 	g.cite = entered.Cite

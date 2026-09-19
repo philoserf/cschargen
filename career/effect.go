@@ -95,6 +95,23 @@ const (
 	// reassign it to, so the engine records the demand and moves on.
 	EffectNewHomeworld
 
+	// EffectRollTable rolls on one of the career's skill tables by name,
+	// which several events ask for: "Make a roll on the Advanced Education
+	// table", "Choose an Assignment skill table for an assignment other
+	// than your own and roll once".
+	EffectRollTable
+
+	// EffectMilitaryEvent sends the character to the Military Events table
+	// (p. 121), which the military careers' d66 tables reach at 41-46.
+	EffectMilitaryEvent
+
+	// EffectCommission attempts a commission outside the ordinary Step 14
+	// offer, which the Military Events table's tenth result does: "If you
+	// are enlisted, roll to be Commissioned and take +2 DM. If you are
+	// currently an Officer, roll once on the Officer Skills Table and take
+	// a +2 DM to your next Advancement roll" (p. 121).
+	EffectCommission
+
 	// EffectUnimplemented is a result this milestone cannot carry out. It
 	// carries the book's demand in Detail.
 	EffectUnimplemented
@@ -186,4 +203,10 @@ type Effect struct {
 
 	// Applies names the throw an [EffectModifier] attaches to.
 	Applies string
+
+	// Table names the skill table an [EffectRollTable] rolls on, and
+	// OtherAssignment asks for an assignment other than the character's
+	// own, which two events do.
+	Table           SkillTableKind
+	OtherAssignment bool
 }

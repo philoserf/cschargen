@@ -111,7 +111,14 @@ func TestTheTwoCareersWithoutEnlistmentSayWhy(t *testing.T) {
 func TestMishapEjectsMatchesThePage(t *testing.T) {
 	t.Parallel()
 
-	want := map[string]bool{"Colonist": true, "Vagabond": false, "Prisoner": false}
+	// Every career states this, and a career missing from the map fails the
+	// test rather than defaulting -- the two exceptions are the whole point.
+	want := map[string]bool{
+		"Colonist":      true,
+		"National Navy": true,
+		"Prisoner":      false,
+		"Vagabond":      false,
+	}
 
 	for _, def := range career.All() {
 		expected, known := want[def.Name]

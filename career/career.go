@@ -67,6 +67,10 @@ type Assignment struct {
 	// benefit holds a zero Effect, which the engine reads as nothing
 	// granted rather than as a missing row.
 	Ranks [7][]Effect
+
+	// OfficerRanks is the second rank table a commissioned career prints
+	// per assignment (p. 234). Nil where the career has no commission.
+	OfficerRanks *[7][]Effect
 }
 
 // BenefitRow is one row of a career's Mustering Out Benefits table
@@ -174,7 +178,7 @@ func (c Career) Table(kind SkillTableKind) (SkillTable, bool) {
 // All returns every career this milestone implements, in the order the book
 // lists them (p. 107).
 func All() []Career {
-	return []Career{Colonist(), Prisoner(), Vagabond()}
+	return []Career{Colonist(), NationalNavy(), Prisoner(), Vagabond()}
 }
 
 // ByName finds an implemented career.

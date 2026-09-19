@@ -92,11 +92,15 @@ func (g *Generator) rollSurvival(assignment career.Assignment) bool {
 // its own right (p. 113).
 const naturalTwelve = 12
 
-// advance is Step 14 (pp. 114-116). None of this milestone's three careers
-// offers a commission, so the commission branch is a recorded absence
-// rather than an implementation.
+// advance is Step 14 (pp. 114-116): the optional commission, then the
+// advancement throw.
 func (g *Generator) advance(assignment career.Assignment) error {
 	step := g.log.Step("Step 14: Roll for Advancement", "p. 114")
+
+	err := g.offerCommission(step)
+	if err != nil {
+		return err
+	}
 
 	if g.autoAdvance {
 		g.autoAdvance = false
@@ -122,6 +126,174 @@ func (g *Generator) advance(assignment career.Assignment) error {
 	}
 
 	return g.promote(cause, assignment)
+}
+
+// offerCommission is the commission half of Step 14 (p. 114). "This step is
+// optional. If the character has already received a Commission ... or does
+// not wish to pursue officer rank, this step is skipped", and "If the
+// Commission roll fails, there is no penalty."
+func (g *Generator) offerCommission(step int) error {
+	if g.career.Commission == nil || g.commissioned {
+		return nil
+	}
+
+	index, err := g.choose(Choice{
+		Point:   "commission",
+		Prompt:  "Attempt a commission in " + g.career.Name + "?",
+		Options: []string{"attempt it", "stay enlisted"},
+		Cite:    "p. 114",
+	})
+	if err != nil {
+		return err
+	}
+
+	if index != 0 {
+		return nil
+	}
+
+	_ = step
+
+	return g.attemptCommission(0, g.log.Len())
+}
+
+// attemptCommission makes the throw, whether Step 14 offered it or an event
+// granted one with a modifier.
+func (g *Generator) attemptCommission(modifier, cause int) error {
+	if g.career == nil || g.career.Commission == nil {
+		g.unimplemented(cause, "a commission in a career that offers none")
+
+		return nil
+	}
+
+	if g.commissioned {
+		return nil
+	}
+
+	mods := []dice.Mod{}
+	if modifier != 0 {
+		mods = append(mods, dice.Mod{Name: "event", Value: modifier})
+	}
+
+	which, ok := characteristicByName(g.career.Commission.Characteristic)
+	if ok {
+		mods = append(mods, dice.Mod{
+			Name:  g.career.Commission.Characteristic,
+			Value: g.char.State.Characteristics.Modifier(which),
+		})
+	}
+
+	throw := g.dice.Throw(g.career.Commission.Number, mods...)
+	thrown := g.log.Throw(throw, "p. 114")
+
+	if !throw.Success {
+		return nil
+	}
+
+	g.commissioned = true
+
+	if service, found := g.char.State.Service(g.career.Name); found {
+		service.Commissioned = true
+	}
+
+	g.consequence(ConsequenceRank, thrown, "commissioned in "+g.career.Name, g.career.Name)
+
+	// A commission resets rank to the officer track's Rank 0, whose benefit
+	// is granted like any other (p. 116).
+	g.rank = 0
+
+	assignment, found := g.career.Assignment(g.assignment.Name)
+	if !found {
+		return nil
+	}
+
+	return g.applyAll(officerRanks(assignment)[0], thrown)
+}
+
+// officerRanks is the assignment's officer rank table where it has one, and
+// its ordinary ranks otherwise. A career with a commission prints two rank
+// tables per assignment (p. 234).
+func officerRanks(assignment career.Assignment) [7][]career.Effect {
+	if assignment.OfficerRanks != nil {
+		return *assignment.OfficerRanks
+	}
+
+	return assignment.Ranks
+}
+
+// rollNamedTable carries out "make a roll on the <named> table".
+func (g *Generator) rollNamedTable(effect career.Effect, cause int) error {
+	if g.career == nil {
+		return ErrNoCareer
+	}
+
+	assignment, found := g.career.Assignment(g.assignment.Name)
+	if !found {
+		return ErrNoCareer
+	}
+
+	table, found, err := g.namedTable(effect, assignment)
+	if err != nil {
+		return err
+	}
+
+	if !found {
+		g.unimplemented(cause, effect.Detail+" -- this career prints no such table")
+
+		return nil
+	}
+
+	roll := g.dice.D6()
+	thrown := g.log.Roll(roll, skillStepCite)
+
+	return g.apply(table.Rows[roll.Total-1], thrown)
+}
+
+// namedTable finds the table an effect asks for, including "an assignment
+// other than your own", which is a choice where the career has more than
+// two assignments.
+func (g *Generator) namedTable(
+	effect career.Effect, own career.Assignment,
+) (career.SkillTable, bool, error) {
+	if !effect.OtherAssignment {
+		table, found := g.career.Table(effect.Table)
+
+		return table, found, nil
+	}
+
+	var others []career.Assignment
+
+	for _, other := range g.career.Assignments {
+		if other.Name != own.Name {
+			others = append(others, other)
+		}
+	}
+
+	if len(others) == 0 {
+		return career.SkillTable{}, false, nil
+	}
+
+	index := 0
+
+	if len(others) > 1 {
+		names := make([]string, len(others))
+		for i, other := range others {
+			names[i] = other.Name
+		}
+
+		chosen, err := g.choose(Choice{
+			Point:   "other_assignment",
+			Prompt:  "Choose another assignment's skill table",
+			Options: names,
+			Cite:    skillStepCite,
+		})
+		if err != nil {
+			return career.SkillTable{}, false, err
+		}
+
+		index = chosen
+	}
+
+	return others[index].Skills, true, nil
 }
 
 // promote raises the rank by one and applies that rank's benefit, which is
