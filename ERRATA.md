@@ -118,11 +118,14 @@ Five Colonist mishaps end "choose another career and a new homeworld". They do
 not name a career, and they are not the same as the mishaps that do — Colonist 10
 and 12 send the character to Vagabond by name.
 
-**Reading:** an unnamed career change is a choice point offered to the Decider,
-resolved against the careers the engine implements. While only three are
-implemented it will usually have nothing to offer, and the engine records a
-`career_transfer_unimplemented` consequence rather than silently picking one.
-This distinction is why the two shapes are separate effects in the career data.
+**Reading:** an unnamed career change is a choice point, distinct from a named
+transfer, and the two are separate effects in the career data for that reason.
+
+**Not yet applied.** With three careers implemented, offering the choice would
+offer almost nothing, so the engine records these as unimplemented and leaves the
+character where they are. The entry is here because the distinction is already in
+the data and will be acted on in milestone 3, when there are careers to choose
+between. No record stamps E-6, and none should until then.
 
 ---
 
