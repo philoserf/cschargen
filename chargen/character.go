@@ -66,8 +66,9 @@ type Provenance struct {
 // Character is the generation record. The JSON is the source of truth; the
 // Markdown sheet is a render of it.
 type Character struct {
-	Provenance Provenance `json:"provenance"`
-	Events     []Event    `json:"events"`
+	Provenance      Provenance      `json:"provenance"`
+	Characteristics Characteristics `json:"characteristics"`
+	Events          []Event         `json:"events"`
 }
 
 // Deviate records that an ERRATA.md reading applied to this character,

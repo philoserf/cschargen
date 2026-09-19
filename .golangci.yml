@@ -29,6 +29,14 @@ linters:
     # stages as generation proceeds.
     - exhaustruct_v5
 
+    # 2 findings, and the linter takes no settings, so the choice is all or
+    # nothing. Both are immutable tables: the six characteristics in the
+    # order the book prints them, and the modifier bands of p. 14. Go has no
+    # const for an array, so the alternative is an accessor that clones on
+    # every call -- in the engine's assignment loop, to prevent a mutation
+    # nothing in this module performs and the tests would catch.
+    - gochecknoglobals
+
   settings:
     depguard:
       # depguard's own default is a deny-all list that flags this module's
@@ -52,12 +60,24 @@ linters:
       default-signifies-exhaustive: false
       check: [switch, map]
 
+    godot:
+      # Doc comments here end in a quotation from the page, and a quotation
+      # ends with its closing quotation mark. This linter's autofix appends
+      # a period after the quote, putting punctuation outside the quotation
+      # it belongs to.
+      exclude: ['"$']
+
     gosec:
       excludes:
         # The dice are meant to be predictable from a seed: that is the
         # whole determinism contract. A cryptographic source would defeat
         # the tool rather than harden it.
         - G404
+        # 5 findings, every one a test reading back a file it just wrote
+        # inside its own t.TempDir(). The path is a variable because the
+        # directory is a fresh one per test; a constant path would be the
+        # bug this rule exists to catch.
+        - G304
 
     govet:
       enable-all: true

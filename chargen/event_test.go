@@ -135,7 +135,7 @@ func TestRollRecordsNoTarget(t *testing.T) {
 		t.Errorf("Success = %v, want nil", *got.Success)
 	}
 
-	if got.Expr != "3d6 drop lowest" {
+	if got.Expr != characteristicRoll {
 		t.Errorf("Expr = %q", got.Expr)
 	}
 }
@@ -145,7 +145,7 @@ func TestThrowRecordsTargetAndOutcome(t *testing.T) {
 
 	var log chargen.Log
 
-	throw := dice.New(5).Throw(8, dice.Mod{Name: "END", Value: 1})
+	throw := dice.New(5).Throw(8, dice.Mod{Name: modEND, Value: 1})
 	log.Throw(throw, "p. 173")
 
 	got := log.Events()[0].Throw
@@ -157,7 +157,7 @@ func TestThrowRecordsTargetAndOutcome(t *testing.T) {
 		t.Fatalf("Success = %v, want %v", got.Success, throw.Success)
 	}
 
-	if len(got.Mods) != 1 || got.Mods[0].Name != "END" {
+	if len(got.Mods) != 1 || got.Mods[0].Name != modEND {
 		t.Errorf("mods = %v, want the one END mod", got.Mods)
 	}
 
