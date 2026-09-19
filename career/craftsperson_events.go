@@ -109,17 +109,7 @@ func craftEvents() EventTable {
 		},
 		56: {
 			Summary: "shoddy practices by your project manager, in violation of the codes",
-			Effects: []Effect{pick("report it or ignore it",
-				opt("report it",
-					skill("Advocate", "Legal"),
-					throwModifier("next advancement roll", -4)),
-				opt("ignore it",
-					relationship(Ally, 1, ""),
-					throwModifier("next advancement roll", 4),
-					benefitRolls(2, 0, ScopeBatch),
-					unimplemented(
-						"on a 1d6 of 3 or less, the practice kills several people years later "+
-							"and a world bars the character from returning")))},
+			Effects: []Effect{shoddyPractices()},
 		},
 		61: {Summary: "friends in this business", Effects: []Effect{relationship(Contact, 0, "1d3")}},
 		62: {
@@ -137,10 +127,7 @@ func craftEvents() EventTable {
 		},
 		65: {
 			Summary: "extremely talented in your field",
-			Effects: []Effect{pick("what the talent earned",
-				opt("a level in a skill you already have",
-					unimplemented("raise a skill the character already holds")),
-				opt("a promotion", Effect{Kind: EffectRank, Detail: "gain a rank"}))},
+			Effects: []Effect{talentedInYourField()},
 		},
 		66: {
 			Summary: "excellent work",

@@ -8,16 +8,17 @@ package career
 // to the Military Events table (p. 121).
 func NationalNavy() Career {
 	return Career{
-		Name:         "National Navy",
-		Cite:         "pp. 233-241",
-		Enlistment:   &Check{Characteristic: "INT", Number: 7},
-		Commission:   &Check{Characteristic: "EDU", Number: 8},
-		MishapEjects: true,
-		Assignments:  navyAssignments(),
-		Tables:       navyTables(),
-		Benefits:     navyBenefits(),
-		Mishaps:      navyMishaps(),
-		Events:       navyEvents(),
+		Name:           "National Navy",
+		Cite:           "pp. 233-241",
+		Enlistment:     &Check{Characteristic: "INT", Number: 7},
+		EnlistmentMods: []EnlistmentMod{apparentAgeOver40(), perPreviousCareer()},
+		Commission:     &Check{Characteristic: "EDU", Number: 8},
+		MishapEjects:   true,
+		Assignments:    navyAssignments(),
+		Tables:         navyTables(),
+		Benefits:       navyBenefits(),
+		Mishaps:        navyMishaps(),
+		Events:         navyEvents(),
 	}
 }
 

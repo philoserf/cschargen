@@ -8,10 +8,11 @@ package career
 // to O7 (p. 225).
 func Marine() Career {
 	return Career{
-		Name:       "Marine",
-		Cite:       "pp. 224-228",
-		Enlistment: &Check{Characteristic: "END", Number: 8},
-		Commission: &Check{Characteristic: "EDU", Number: 8},
+		Name:           "Marine",
+		Cite:           "pp. 224-228",
+		Enlistment:     &Check{Characteristic: "END", Number: 8},
+		EnlistmentMods: []EnlistmentMod{apparentAgeOver40(), perPreviousCareer()},
+		Commission:     &Check{Characteristic: "EDU", Number: 8},
 		RankTitles: []string{
 			"Private", "Private First Class", "Lance Corporal", "Corporal", "Sergeant",
 			"Staff Sergeant", "Gunnery Sergeant", "Master Sergeant", "Sergeant Major",

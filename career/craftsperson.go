@@ -23,10 +23,11 @@ func Craftsperson() Career {
 	}
 
 	return Career{
-		Name:         "Craftsperson",
-		Cite:         "pp. 181-184",
-		Enlistment:   &Check{Characteristic: "END", Number: 8},
-		MishapEjects: true,
+		Name:           "Craftsperson",
+		Cite:           "pp. 181-184",
+		Enlistment:     &Check{Characteristic: "END", Number: 8},
+		EnlistmentMods: []EnlistmentMod{apparentAgeOver40()},
+		MishapEjects:   true,
 		Assignments: []Assignment{
 			{
 				Name:        "Architect",

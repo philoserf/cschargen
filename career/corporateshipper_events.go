@@ -120,10 +120,7 @@ func shipperEvents() EventTable {
 		64: {Summary: "downtime spent working on yourself", Effects: []Effect{rollTable(PersonalDevelopment)}},
 		65: {
 			Summary: "extremely talented in your field",
-			Effects: []Effect{pick("what the talent earned",
-				opt("a level in a skill you already have",
-					unimplemented("raise a skill the character already holds")),
-				opt("a promotion", Effect{Kind: EffectRank, Detail: "gain a rank"}))},
+			Effects: []Effect{talentedInYourField()},
 		},
 		66: {
 			Summary: "excellent work",

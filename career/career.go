@@ -1,5 +1,63 @@
 package career
 
+// EnlistmentModKind names a situational modifier on an enlistment throw.
+type EnlistmentModKind int
+
+// The kinds. Which the engine can evaluate depends on what it knows: the
+// number of careers entered it knows, apparent age it will know at
+// milestone 4, and a degree at milestone 5.
+const (
+	// PerPreviousCareer is "-1 for each career you have entered before this
+	// one", multiplied by the count.
+	PerPreviousCareer EnlistmentModKind = iota
+
+	// ApparentAgeOver40 is "-2 if the character's apparent age is 40+".
+	ApparentAgeOver40
+
+	// UndergraduateDegree and GraduateDegree are the education bonuses the
+	// Instructor career prints (p. 212).
+	UndergraduateDegree
+	GraduateDegree
+
+	// MedicalSchool is the Medic career's own, and the largest in the book
+	// (p. 229).
+	MedicalSchool
+)
+
+// EnlistmentMod is one such modifier.
+type EnlistmentMod struct {
+	Kind  EnlistmentModKind
+	Value int
+}
+
+// perPreviousCareer and the rest build the modifiers a career prints. The
+// two military ones take no value because every career that prints them
+// prints the same number: -1 for each previous career, -2 for apparent age
+// over forty. A career that printed a different figure would take a value,
+// and none does.
+func perPreviousCareer() EnlistmentMod {
+	return EnlistmentMod{Kind: PerPreviousCareer, Value: -1}
+}
+
+func apparentAgeOver40() EnlistmentMod {
+	return EnlistmentMod{Kind: ApparentAgeOver40, Value: -2}
+}
+
+func undergraduateDegree(value int) EnlistmentMod {
+	return EnlistmentMod{Kind: UndergraduateDegree, Value: value}
+}
+
+func graduateDegree(value int) EnlistmentMod {
+	return EnlistmentMod{Kind: GraduateDegree, Value: value}
+}
+
+// medicalSchool is the largest modifier in the book: the Medic career
+// enlists on EDU 11+, "dropping to EDU 5+" for a character who attended
+// medical school (p. 229).
+func medicalSchool() EnlistmentMod {
+	return EnlistmentMod{Kind: MedicalSchool, Value: 6}
+}
+
 // Check is a throw of 2d6 plus a characteristic modifier against a target
 // (p. 110).
 type Check struct {
@@ -134,6 +192,16 @@ type Career struct {
 	// data is not left to infer why the throw is missing.
 	EnlistmentNote string
 
+	// EnlistmentMods are the situational modifiers a career prints on its
+	// enlistment throw: "Take a -1 modifier for each career you have
+	// entered before this one", "If the character's apparent age is 40+,
+	// take a -2 modifier" (p. 111).
+	//
+	// They are carried as a list of kinds rather than as prose because the
+	// engine can evaluate some of them and not others, and a modifier it
+	// cannot evaluate has to be recorded rather than quietly dropped.
+	EnlistmentMods []EnlistmentMod
+
 	// Prerequisite is a condition the book puts on entering the career that
 	// the engine cannot check. It is recorded on the character rather than
 	// enforced, because refusing a career on a rule this engine cannot
@@ -199,8 +267,22 @@ func (c Career) Table(kind SkillTableKind) (SkillTable, bool) {
 // lists them (p. 107).
 func All() []Career {
 	return []Career{
-		Arts(), Belter(), Colonist(), CorporateShipper(), Craftsperson(), Marine(), NationalNavy(), Prisoner(),
-		SystemDefenceNavy(), SystemDefenceTroopers(), SystemDefenceWetNavy(), Vagabond(),
+		Arts(),
+		Belter(),
+		Colonist(),
+		CorporateShipper(),
+		Craftsperson(),
+		Instructor(),
+		Marine(),
+		Medic(),
+		NationalNavy(),
+		OrbitalConstruction(),
+		Prisoner(),
+		Scientist(),
+		SystemDefenceNavy(),
+		SystemDefenceTroopers(),
+		SystemDefenceWetNavy(),
+		Vagabond(),
 	}
 }
 

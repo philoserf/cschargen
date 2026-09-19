@@ -4,10 +4,11 @@ package career
 // or processing what the miners bring back.
 func Belter() Career {
 	return Career{
-		Name:         "Belter",
-		Cite:         "pp. 160-163",
-		Enlistment:   &Check{Characteristic: "END", Number: 8},
-		MishapEjects: true,
+		Name:           "Belter",
+		Cite:           "pp. 160-163",
+		Enlistment:     &Check{Characteristic: "END", Number: 8},
+		EnlistmentMods: []EnlistmentMod{apparentAgeOver40()},
+		MishapEjects:   true,
 		Assignments: []Assignment{
 			{
 				Name:        "Miner",

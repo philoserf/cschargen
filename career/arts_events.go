@@ -166,10 +166,7 @@ func artsEvents() EventTable {
 		},
 		64: {
 			Summary: "very talented in your field",
-			Effects: []Effect{pick("what the talent earned",
-				opt("a level in a skill you already have",
-					unimplemented("raise a skill the character already holds")),
-				opt("a promotion", Effect{Kind: EffectRank, Detail: "gain a rank"}))},
+			Effects: []Effect{talentedInYourField()},
 		},
 		65: {
 			Summary: "the planetary government wants to feature you and buy from your portfolio",
