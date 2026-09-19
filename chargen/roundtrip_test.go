@@ -37,13 +37,42 @@ func TestARecordReloadsWithoutLoss(t *testing.T) {
 			t.Errorf("seed %d: the record changed on reload", seed)
 		}
 
-		if reloaded.State.Age != original.State.Age ||
-			len(reloaded.State.Skills) != len(original.State.Skills) ||
-			len(reloaded.State.Services) != len(original.State.Services) ||
-			len(reloaded.State.Ties) != len(original.State.Ties) ||
-			len(reloaded.State.Injuries) != len(original.State.Injuries) ||
-			len(reloaded.Events) != len(original.Events) {
-			t.Errorf("seed %d: state did not survive the reload", seed)
+		for _, part := range differences(original, &reloaded) {
+			t.Errorf("seed %d: %s did not survive the reload", seed, part)
 		}
 	}
+}
+
+// differences names the parts of a record that did not survive a reload.
+// Counting each separately is the point: "the record changed" says nothing
+// about which field lost its tag.
+func differences(original, reloaded *chargen.Character) []string {
+	var changed []string
+
+	counts := []struct {
+		part        string
+		want, found int
+	}{
+		{"age", original.State.Age, reloaded.State.Age},
+		{"skills", len(original.State.Skills), len(reloaded.State.Skills)},
+		{"services", len(original.State.Services), len(reloaded.State.Services)},
+		{"terms", len(original.State.Terms), len(reloaded.State.Terms)},
+		{"ties", len(original.State.Ties), len(reloaded.State.Ties)},
+		{"injuries", len(original.State.Injuries), len(reloaded.State.Injuries)},
+		{"stash", len(original.State.Stash), len(reloaded.State.Stash)},
+		{"credits", original.State.Credits, reloaded.State.Credits},
+		{"events", len(original.Events), len(reloaded.Events)},
+	}
+
+	for _, count := range counts {
+		if count.want != count.found {
+			changed = append(changed, count.part)
+		}
+	}
+
+	if original.State.Characteristics != reloaded.State.Characteristics {
+		changed = append(changed, "characteristics")
+	}
+
+	return changed
 }
