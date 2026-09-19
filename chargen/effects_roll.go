@@ -95,6 +95,20 @@ func (g *Generator) rollLifeEvent(cause int) error {
 	return g.applyAll(row.Effects, throw)
 }
 
+// rollMilitaryEvent is the shared table of p. 121, which the military
+// careers' d66 tables reach at 41-46.
+func (g *Generator) rollMilitaryEvent(cause int) error {
+	roll := g.dice.TwoD6()
+	throw := g.log.Roll(roll, "p. 121")
+	row := career.MilitaryEvents()[roll.Total-2]
+
+	g.consequence(ConsequenceCareer, throw, "military event: "+row.Summary, "")
+
+	_ = cause
+
+	return g.applyAll(row.Effects, throw)
+}
+
 // rollMishap rolls the current career's mishap table. eject is false when
 // an event sent the character here rather than a failed survival throw, and
 // false again for the two careers that say in print that a mishap does not

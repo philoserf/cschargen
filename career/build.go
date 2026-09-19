@@ -56,6 +56,20 @@ func checkSkill(name string, number int, success, failure []Effect) Effect {
 	}
 }
 
+// checkChr is "roll <characteristic> <n>+", with the two branches the book
+// gives.
+//
+//nolint:unparam // the target is the page's, not a constant; 8+ is merely what every one so far says
+func checkChr(which string, number int, success, failure []Effect) Effect {
+	return Effect{
+		Kind:    EffectCheck,
+		Detail:  "roll " + which + " " + itoa(number) + "+",
+		Check:   &Target{Characteristic: which, Number: number},
+		Success: success,
+		Failure: failure,
+	}
+}
+
 // injury sends the character to the Injury table (p. 119). ERRATA E-1: three
 // references in the book cite p. 136, which carries no table.
 func injury(times int) Effect {
@@ -180,6 +194,35 @@ func transfer(name, assignment string, terms int) Effect {
 // to, so the engine records the demand.
 func newHomeworld() Effect {
 	return Effect{Kind: EffectNewHomeworld, Detail: "take a new homeworld"}
+}
+
+// rollTable rolls on one of the career's skill tables by name.
+func rollTable(kind SkillTableKind) Effect {
+	return Effect{
+		Kind:   EffectRollTable,
+		Detail: "roll once on the " + kind.String() + " table",
+		Table:  kind,
+	}
+}
+
+// rollOtherAssignment rolls on the skill table of an assignment the
+// character is not in, which two careers' events ask for.
+func rollOtherAssignment() Effect {
+	return Effect{
+		Kind:            EffectRollTable,
+		Detail:          "roll once on the skill table of an assignment other than your own",
+		Table:           AssignmentSkills,
+		OtherAssignment: true,
+	}
+}
+
+// commission attempts a commission outside the ordinary Step 14 offer.
+func commission(modifier int) Effect {
+	return Effect{
+		Kind:     EffectCommission,
+		Detail:   "attempt a commission at +" + itoa(modifier),
+		Modifier: modifier,
+	}
 }
 
 // unimplemented is a result this milestone cannot carry out, carrying the

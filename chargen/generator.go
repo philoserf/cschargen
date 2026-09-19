@@ -42,6 +42,7 @@ type Generator struct {
 	career        *career.Career
 	assignment    career.Assignment
 	rank          int
+	commissioned  bool
 	termsInCareer int
 	cite          string
 

@@ -117,3 +117,74 @@ func LifeEvents() MishapTable {
 		},
 	}
 }
+
+// MilitaryEvents is the table of p. 121, indexed 0-10 for a 2d6 result of
+// 2-12. Several careers' d66 tables route to it.
+//
+// The book prints this table twice. p. 241's "Naval Events Table" is the
+// same twelve results with naval wording -- "one of your crewmates" for
+// "another force member", "shore leave" for "leave" -- and identical
+// mechanics throughout. One table, transcribed once.
+func MilitaryEvents() MishapTable {
+	return MishapTable{
+		{Summary: "injured", Effects: []Effect{injury(1)}},
+		{
+			Summary: "selected for special training",
+			Effects: []Effect{rollTable(AdvancedEducation)},
+		},
+		{
+			Summary: "a special bond with another member of the service",
+			Effects: []Effect{relationship(Ally, 1, "")},
+		},
+		{
+			Summary: "stuck at the base, with time to study",
+			Effects: []Effect{checkChr("EDU", 8,
+				[]Effect{pick("what the studying gave you",
+					opt("Art", skill("Art", "Any")),
+					opt("Science", skill("Science", "Any")))},
+				nil)},
+		},
+		{
+			Summary: "the government pays a military bonus",
+			Effects: []Effect{benefitRolls(2, 0, ScopeBatch)},
+		},
+		{
+			Summary: "good friends made in the service",
+			Effects: []Effect{relationship(Contact, 1, "")},
+		},
+		{
+			Summary: "a great time on leave",
+			Effects: []Effect{pick("what the leave taught you",
+				opt("Carouse", skill("Carouse")),
+				opt("Gambler", skill("Gambler")),
+				opt("Streetwise", skill("Streetwise")))},
+		},
+		{
+			Summary: "you have greatly angered a superior",
+			Effects: []Effect{
+				relationship(Enemy, 1, ""),
+				throwModifier("next advancement roll", -2),
+			},
+		},
+		{
+			// The branch turns on whether the character is commissioned,
+			// which the engine knows and the table cannot express: the
+			// commission effect is a no-op for an officer, and the officer
+			// branch is the alternative.
+			Summary: "time spent studying for a promotion",
+			Effects: []Effect{pick("what the study was for",
+				opt("a commission, if still enlisted", commission(2)),
+				opt("officer skills, if already commissioned",
+					rollTable(OfficerSkills),
+					throwModifier("next advancement roll", 2)))},
+		},
+		{
+			Summary: "a rivalry with someone in your unit",
+			Effects: []Effect{relationship(Rival, 1, "")},
+		},
+		{
+			Summary: "a special commendation for actions above and beyond the call of duty",
+			Effects: []Effect{throwModifier("next advancement roll", 2)},
+		},
+	}
+}

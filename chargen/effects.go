@@ -99,6 +99,12 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		return nil
 	case career.EffectNewHomeworld:
 		return g.reassignHomeworld(cause, effect.Detail)
+	case career.EffectMilitaryEvent:
+		return g.rollMilitaryEvent(cause)
+	case career.EffectRollTable:
+		return g.rollNamedTable(effect, cause)
+	case career.EffectCommission:
+		return g.attemptCommission(effect.Modifier, cause)
 	case career.EffectUnimplemented:
 		g.unimplemented(cause, effect.Detail)
 
