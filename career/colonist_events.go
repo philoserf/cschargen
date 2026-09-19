@@ -190,8 +190,8 @@ func colonistEvents() EventTable {
 			Summary: "you are recognized as one of the best at what you do",
 			Effects: []Effect{
 				mustContinue(),
-				unimplemented("an automatic success on the next Survival roll"),
-				unimplemented("an automatic success on the next Advancement roll"),
+				autoSuccess("next survival roll"),
+				autoSuccess("next advancement roll"),
 			},
 		},
 	}

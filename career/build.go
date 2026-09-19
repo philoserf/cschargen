@@ -196,6 +196,15 @@ func newHomeworld() Effect {
 	return Effect{Kind: EffectNewHomeworld, Detail: "take a new homeworld"}
 }
 
+// autoSuccess makes a named future throw succeed without rolling.
+func autoSuccess(applies string) Effect {
+	return Effect{
+		Kind:    EffectAutoSuccess,
+		Detail:  "an automatic success on the " + applies,
+		Applies: applies,
+	}
+}
+
 // rollTable rolls on one of the career's skill tables by name.
 func rollTable(kind SkillTableKind) Effect {
 	return Effect{
@@ -222,6 +231,20 @@ func commission(modifier int) Effect {
 		Kind:     EffectCommission,
 		Detail:   "attempt a commission at +" + itoa(modifier),
 		Modifier: modifier,
+	}
+}
+
+// personalDevelopment is the Personal Development table. Every career
+// transcribed so far prints the same six rows -- five characteristics and
+// Athletics -- and a career that prints different ones writes its own.
+func personalDevelopment() SkillTable {
+	return SkillTable{
+		Kind: PersonalDevelopment,
+		Name: "Personal Development",
+		Rows: [6]Effect{
+			chr("STR", 1), chr("DEX", 1), chr("END", 1),
+			chr("INT", 1), chr("EDU", 1), skill("Athletics", "Any"),
+		},
 	}
 }
 

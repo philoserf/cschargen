@@ -99,6 +99,11 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		return nil
 	case career.EffectNewHomeworld:
 		return g.reassignHomeworld(cause, effect.Detail)
+	case career.EffectAutoSuccess:
+		g.automatic = append(g.automatic, effect.Applies)
+		g.consequence(ConsequenceModifier, cause, effect.Detail, "")
+
+		return nil
 	case career.EffectMilitaryEvent:
 		return g.rollMilitaryEvent(cause)
 	case career.EffectRollTable:

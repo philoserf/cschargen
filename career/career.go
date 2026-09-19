@@ -63,14 +63,20 @@ type Assignment struct {
 	Advancement Check
 	Skills      SkillTable
 
-	// Ranks is indexed 0-6 for ranks 0 through 6. A rank with no printed
-	// benefit holds a zero Effect, which the engine reads as nothing
-	// granted rather than as a missing row.
-	Ranks [7][]Effect
+	// Ranks is indexed from 0. A rank with no printed benefit holds a nil
+	// entry, which the engine reads as nothing granted rather than as a
+	// missing row.
+	//
+	// The length varies by career and is not seven. Colonist prints ranks 0
+	// to 6 (p. 174); Marine prints nine enlisted ranks, E0 to E8, and eight
+	// officer ranks, O0 to O7 (p. 225). A fixed array was the first thing
+	// this milestone's transcription broke.
+	Ranks [][]Effect
 
 	// OfficerRanks is the second rank table a commissioned career prints
-	// per assignment (p. 234). Nil where the career has no commission.
-	OfficerRanks *[7][]Effect
+	// per assignment (pp. 225, 234). Nil where the career has no
+	// commission.
+	OfficerRanks [][]Effect
 }
 
 // BenefitRow is one row of a career's Mustering Out Benefits table
@@ -128,6 +134,12 @@ type Career struct {
 	// data is not left to infer why the throw is missing.
 	EnlistmentNote string
 
+	// Prerequisite is a condition the book puts on entering the career that
+	// the engine cannot check. It is recorded on the character rather than
+	// enforced, because refusing a career on a rule this engine cannot
+	// evaluate would be worse than admitting it cannot.
+	Prerequisite string
+
 	// Commission is the throw to be commissioned, where the career has one
 	// (p. 114). Nil otherwise.
 	Commission *Check
@@ -139,8 +151,16 @@ type Career struct {
 	// Assignment tables live on their assignments.
 	Tables []SkillTable
 
-	// Benefits is the Mustering Out Benefits table, rows 1 through 7.
+	// Benefits is the Mustering Out Benefits table, rows 1 through 7. This
+	// one really is seven everywhere: the roll is 1d6 and the seventh row
+	// is reached only through an event's modifier (ERRATA E-3).
 	Benefits [7]BenefitRow
+
+	// RankTitles and OfficerTitles name the ranks where the career prints
+	// them (p. 115). Descriptive rather than mechanical, and absent from
+	// the careers that use no formal titles.
+	RankTitles    []string
+	OfficerTitles []string
 
 	Mishaps MishapTable
 	Events  EventTable
@@ -178,7 +198,10 @@ func (c Career) Table(kind SkillTableKind) (SkillTable, bool) {
 // All returns every career this milestone implements, in the order the book
 // lists them (p. 107).
 func All() []Career {
-	return []Career{Colonist(), NationalNavy(), Prisoner(), Vagabond()}
+	return []Career{
+		Colonist(), Marine(), NationalNavy(), Prisoner(),
+		SystemDefenceNavy(), SystemDefenceTroopers(), SystemDefenceWetNavy(), Vagabond(),
+	}
 }
 
 // ByName finds an implemented career.

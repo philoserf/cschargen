@@ -114,10 +114,14 @@ func TestMishapEjectsMatchesThePage(t *testing.T) {
 	// Every career states this, and a career missing from the map fails the
 	// test rather than defaulting -- the two exceptions are the whole point.
 	want := map[string]bool{
-		"Colonist":      true,
-		"National Navy": true,
-		"Prisoner":      false,
-		"Vagabond":      false,
+		"Colonist":                         true,
+		"Marine":                           true,
+		"National Navy":                    true,
+		"System Defense Forces (Navy)":     true,
+		"System Defense Forces (Troopers)": true,
+		"System Defense Forces (Wet Navy)": true,
+		"Prisoner":                         false,
+		"Vagabond":                         false,
 	}
 
 	for _, def := range career.All() {

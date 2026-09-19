@@ -42,7 +42,7 @@ func prisonerAssignments() []Assignment {
 					skill("Streetwise"),
 				},
 			},
-			Ranks: [7][]Effect{
+			Ranks: [][]Effect{
 				{skill("Melee", "Any"), stashItem("a stash")},
 				{skill("Streetwise")},
 				{chr("END", 1)},
