@@ -25,6 +25,8 @@ type newFlags struct {
 	species   *string
 	techLevel *int
 	maxTerms  *int
+	terms     *int
+	forceCar  *string
 	output    *string
 	force     *bool
 
@@ -41,6 +43,8 @@ func bindNewFlags() newFlags {
 		species:   flags.String("species", "human", "human, or an engineered species from the setting data"),
 		techLevel: flags.Int("tech-level", 0, "the homeworld's tech level, which gates the aging tables (p. 122)"),
 		maxTerms:  flags.Int("max-terms", 0, "the homeworld's maximum terms (p. 42)"),
+		terms:     flags.Int("terms", 0, "how many terms to serve; the rules impose no limit, so this is policy (POLICY.md)"),
+		forceCar:  flags.String("career", "", "attempt only this career"),
 		output:    flags.String("o", "", "write the record here instead of stdout"),
 		force:     flags.Bool("force", false, "overwrite the output file if it exists"),
 		set:       flags,
@@ -92,6 +96,8 @@ func newCommand(args []string, out *os.File) error {
 			Species:   *flags.species,
 			TechLevel: *flags.techLevel,
 			MaxTerms:  *flags.maxTerms,
+			TermLimit: *flags.terms,
+			Career:    *flags.forceCar,
 		},
 	}).Run()
 	if err != nil {

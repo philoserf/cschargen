@@ -121,8 +121,10 @@ func TestNewWritesARecord(t *testing.T) {
 				TechLevel int    `json:"techLevel"`
 			} `json:"inputs"`
 		} `json:"provenance"`
-		Characteristics map[string]int `json:"characteristics"`
-		Events          []struct {
+		State struct {
+			Characteristics map[string]int `json:"characteristics"`
+		} `json:"state"`
+		Events []struct {
 			Seq  int    `json:"seq"`
 			Kind string `json:"kind"`
 		} `json:"events"`
@@ -145,8 +147,8 @@ func TestNewWritesARecord(t *testing.T) {
 		t.Errorf("techLevel = %d", record.Provenance.Inputs.TechLevel)
 	}
 
-	if len(record.Characteristics) != 6 {
-		t.Errorf("%d characteristics", len(record.Characteristics))
+	if len(record.State.Characteristics) != 6 {
+		t.Errorf("%d characteristics", len(record.State.Characteristics))
 	}
 
 	if len(record.Events) == 0 {
@@ -157,13 +159,19 @@ func TestNewWritesARecord(t *testing.T) {
 // TestASeedNobodyChoseIsStillRecorded: a character generated without a seed
 // has to be reproducible afterwards, so the one the tool picked is in the
 // record.
+//
+// It asks for no career terms. A random seed running a whole lifepath would
+// reach different branches of the engine on every run, and under -coverpkg
+// that makes the coverage ratchet depend on what the dice did -- which is
+// how this test made the ratchet disagree between a developer's machine and
+// CI. The seed is what is under test here, not the lifepath.
 func TestASeedNobodyChoseIsStillRecorded(t *testing.T) {
 	t.Parallel()
 
 	seeds := map[uint64]bool{}
 
 	for range 8 {
-		out, err := capture(t, cmdNew, "--auto")
+		out, err := capture(t, cmdNew, "--auto", "--terms", "-1")
 		if err != nil {
 			t.Fatalf("new: %v", err)
 		}

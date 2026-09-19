@@ -123,3 +123,46 @@ resolved against the careers the engine implements. While only three are
 implemented it will usually have nothing to offer, and the engine records a
 `career_transfer_unimplemented` consequence rather than silently picking one.
 This distinction is why the two shapes are separate effects in the career data.
+
+---
+
+## E-7 (reading) — an event's skill check is 2d6 plus the skill's level
+
+**Where:** every career's event and mishap tables, e.g. "Roll Gambler 8+"
+(Colonist event 24, p. 175), "Roll Melee (Any) 8+" (Prisoner mishap 3, p. 262).
+
+Dozens of table results turn on a skill check, and this book never says how to
+roll one. It states the _characteristic_ check plainly — "the player rolls 2d6 and
+adds the Characteristic Modifier associated with the relevant characteristic"
+(p. 110) — and for anything more points at another book: "See p.20-27 of the
+Clement Sector Core Rulebook for more detail on the task system" (p. 13).
+
+**Reading:** the engine rolls 2d6 and adds the character's level in the named
+skill, taking the best level across specialties where the book writes "(Any)". A
+skill the character does not hold contributes nothing.
+
+**If this is wrong:** the Core Rulebook's task system almost certainly adds a
+characteristic modifier as well, which would raise the success rate of every
+event check by roughly the average characteristic modifier. It may also apply an
+unskilled penalty, which would lower it for a skill the character lacks. Both
+would change outcomes without changing the shape of the engine — `rollCheck` is
+one function.
+
+---
+
+## E-8 (reading) — the Rank 0 benefit applies on entering a career
+
+**Where:** rank benefits (p. 116); starting rank (p. 115).
+
+Every career's rank table prints a Rank 0 row with a benefit in it. p. 116 says
+benefits "are applied immediately upon achieving that Rank", and lists four ways
+of achieving one — an advancement roll, an event, a mishap, a career transfer
+that retains rank. Entering a career is not among them. But p. 115 says "All
+characters begin a career at Rank 0 unless otherwise stated", and the printed
+Rank 0 row would otherwise be unreachable.
+
+**Reading:** beginning a career at Rank 0 is achieving Rank 0, so the row applies
+on entry.
+
+**If this is wrong:** every character would be one rank benefit poorer per career
+entered — for a Colonist Settler, Animals (Farming) 1.

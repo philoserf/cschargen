@@ -15,6 +15,9 @@ const (
 	characteristicRoll = "3d6 drop lowest"
 )
 
+// options generates characteristics and nothing else: a negative term limit
+// asks for no career terms, which keeps the tests in this file about Step 2.
+// The whole lifepath is exercised in term_test.go.
 func options(seed uint64) chargen.Options {
 	return chargen.Options{
 		Seed:          seed,
@@ -22,7 +25,7 @@ func options(seed uint64) chargen.Options {
 		EngineVersion: "test",
 		PolicyVersion: "test",
 		SettingData:   chargen.SettingData{Name: sampleData, Sample: true},
-		Inputs:        chargen.Inputs{Species: "human"},
+		Inputs:        chargen.Inputs{Species: "human", TermLimit: -1},
 	}
 }
 
@@ -46,8 +49,8 @@ func TestSameSeedSameCharacter(t *testing.T) {
 	first := generate(t, options(7))
 	second := generate(t, options(7))
 
-	if first.Characteristics != second.Characteristics {
-		t.Errorf("seed 7 gave %+v then %+v", first.Characteristics, second.Characteristics)
+	if first.State.Characteristics != second.State.Characteristics {
+		t.Errorf("seed 7 gave %+v then %+v", first.State.Characteristics, second.State.Characteristics)
 	}
 
 	if len(first.Events) != len(second.Events) {
@@ -61,7 +64,7 @@ func TestDifferentSeedsDivergeSomewhere(t *testing.T) {
 	same := 0
 
 	for seed := range uint64(40) {
-		if generate(t, options(seed)).Characteristics == generate(t, options(0)).Characteristics {
+		if generate(t, options(seed)).State.Characteristics == generate(t, options(0)).State.Characteristics {
 			same++
 		}
 	}
@@ -93,7 +96,7 @@ func TestCharacteristicsArePermutationOfTheRolls(t *testing.T) {
 
 		assigned := make([]int, 0, len(chargen.CharacteristicOrder))
 		for _, which := range chargen.CharacteristicOrder {
-			assigned = append(assigned, character.Characteristics.Get(which))
+			assigned = append(assigned, character.State.Characteristics.Get(which))
 		}
 
 		slices.Sort(rolled)
@@ -116,7 +119,7 @@ func TestEveryScoreIsReachable(t *testing.T) {
 	for seed := range uint64(400) {
 		character := generate(t, options(seed))
 		for _, which := range chargen.CharacteristicOrder {
-			seen[character.Characteristics.Get(which)] = true
+			seen[character.State.Characteristics.Get(which)] = true
 		}
 	}
 
@@ -148,7 +151,7 @@ func TestPolicyAssignsInRollOrder(t *testing.T) {
 	}
 
 	for i, which := range chargen.CharacteristicOrder {
-		if got := character.Characteristics.Get(which); got != rolled[i] {
+		if got := character.State.Characteristics.Get(which); got != rolled[i] {
 			t.Errorf("%s = %d, want roll %d which was %d", which, got, i+1, rolled[i])
 		}
 	}
@@ -360,8 +363,8 @@ func TestReplayReproducesTheCharacter(t *testing.T) {
 
 	replayed := generate(t, opts)
 
-	if original.Characteristics != replayed.Characteristics {
-		t.Errorf("replay gave %+v, record holds %+v", replayed.Characteristics, original.Characteristics)
+	if original.State.Characteristics != replayed.State.Characteristics {
+		t.Errorf("replay gave %+v, record holds %+v", replayed.State.Characteristics, original.State.Characteristics)
 	}
 
 	if len(original.Events) != len(replayed.Events) {

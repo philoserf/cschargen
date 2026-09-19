@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strconv"
 
+	"github.com/philoserf/cschargen/career"
 	"github.com/philoserf/cschargen/dice"
 )
 
@@ -35,14 +36,54 @@ type Generator struct {
 	log     *Log
 	decider Decider
 	char    *Character
+
+	// The current career, and where the character stands in it.
+	career        *career.Career
+	assignment    career.Assignment
+	rank          int
+	termsInCareer int
+	cite          string
+
+	// Flags a table result sets for the loop to read. Each is consumed
+	// where it is acted on, so a result that fires twice is two effects
+	// rather than a latch nobody cleared.
+	autoAdvance         bool
+	mustContinue        bool
+	mayChangeAssignment bool
+	ejected             bool
+
+	// A transfer the rules named -- Colonist's mishap 10 sends a character
+	// to Vagabond with the Transient assignment -- waiting for the next
+	// career decision.
+	transfer         *career.Effect
+	forcedAssignment string
+	forcedTerms      int
+
+	// Enlistment history. Three consecutive failures force Vagabond
+	// (p. 110), and a career that turned the character down is closed to
+	// them for two terms.
+	failedEnlistments int
+	lockout           map[string]int
+	forced            string
+
+	// stopped is set when a table result sends the character to a career
+	// milestone 1 does not implement. Generation ends cleanly; the record
+	// carries the unimplemented consequence naming where they went.
+	stopped bool
+
+	pending          []PendingModifier
+	careerBenefitMod int
+	termLimit        int
 }
 
 // New returns a Generator ready to run.
 func New(opts Options) *Generator {
 	return &Generator{
-		dice:    dice.New(opts.Seed),
-		log:     &Log{},
-		decider: opts.Decider,
+		dice:      dice.New(opts.Seed),
+		log:       &Log{},
+		decider:   opts.Decider,
+		forced:    opts.Inputs.Career,
+		termLimit: termLimit(opts.Inputs.TermLimit),
 		char: &Character{
 			Provenance: Provenance{
 				SchemaVersion: SchemaVersion,
@@ -57,13 +98,45 @@ func New(opts Options) *Generator {
 	}
 }
 
+// defaultTermLimit is how many terms auto mode serves when nothing says
+// otherwise.
+//
+// The rules impose no such limit: a character from a long-settled world may
+// serve thirty-five terms, and Earth allows fifty-eight (p. 43). Thirty-five
+// terms of Colonist is not a usable NPC, so this is a policy decision rather
+// than a rule, and POLICY.md records it as one.
+const defaultTermLimit = 4
+
+// termLimit reads the requested number of terms. Zero means the flag was
+// not given and the policy default applies; a negative number means no
+// career terms at all, which is how a caller asks for characteristics
+// alone.
+func termLimit(requested int) int {
+	switch {
+	case requested > 0:
+		return requested
+	case requested < 0:
+		return 0
+	default:
+		return defaultTermLimit
+	}
+}
+
 // Run walks the steps this milestone implements and returns the record.
 //
-// Milestone 1 implements Step 2 and Steps 9-19; Steps 1 and 3-8 are stubbed
-// (docs/MILESTONE-1.md). The order here is the book's, so that adding a
-// step is adding a line rather than rearranging one.
+// Milestone 1 implements Step 2 and Steps 9-18; Steps 1 and 3-8 are stubbed,
+// and Step 19 arrives with mustering out (docs/MILESTONE-1.md). The order
+// here is the book's, so that adding a step is adding a line rather than
+// rearranging one.
 func (g *Generator) Run() (*Character, error) {
+	g.char.State.Age = startingAge
+
 	err := g.rollCharacteristics()
+	if err != nil {
+		return nil, err
+	}
+
+	err = g.runCareers()
 	if err != nil {
 		return nil, err
 	}
@@ -71,6 +144,106 @@ func (g *Generator) Run() (*Character, error) {
 	g.char.Events = g.log.Events()
 
 	return g.char, nil
+}
+
+// runCareers is the loop of Steps 9 through 18: enter a career, serve
+// terms, and decide each time whether to go on.
+func (g *Generator) runCareers() error {
+	for len(g.char.State.Terms) < g.termLimit {
+		if g.stopped {
+			return nil
+		}
+
+		if g.career == nil {
+			err := g.enterCareer()
+			if err != nil {
+				return err
+			}
+
+			if g.stopped {
+				return nil
+			}
+
+			if g.career == nil {
+				// The enlistment failed. That consumed no term, so the
+				// loop tries again -- three failures in a row is what
+				// sends a character to Vagabond, not one.
+				continue
+			}
+		}
+
+		err := g.serveTerm()
+		if err != nil {
+			return err
+		}
+
+		g.nextTerm()
+	}
+
+	return nil
+}
+
+// nextTerm is Step 18 (p. 125): continue, change assignment, change career,
+// or stop. A character ejected by a mishap cannot continue in the career
+// they were ejected from (p. 126); one who rolled a natural twelve on
+// survival must (p. 113).
+func (g *Generator) nextTerm() {
+	step := g.log.Step("Step 18: Determining the Next Term", "p. 125")
+
+	switch {
+	case g.ejected:
+		g.leaveCareer(step, "ejected by a mishap")
+	case g.transfer != nil:
+		g.leaveCareer(step, "sent to another career by a table result")
+	case g.forcedTerms > 0 && g.termsInCareer >= g.forcedTerms:
+		g.leaveCareer(step, "the sentence is served")
+	case g.mustContinue:
+		g.mustContinue = false
+	}
+}
+
+// leaveCareer ends the current service, leaving any benefit rolls it
+// accumulated queued for mustering out.
+func (g *Generator) leaveCareer(cause int, why string) {
+	if g.career == nil {
+		return
+	}
+
+	if service, found := g.char.State.Service(g.career.Name); found {
+		service.LeftBecause = why
+	}
+
+	g.consequence(ConsequenceCareer, cause, "left the "+g.career.Name+" career: "+why, g.career.Name)
+
+	g.career = nil
+	g.ejected = false
+	g.mustContinue = false
+	g.mayChangeAssignment = false
+	g.forcedTerms = 0
+	g.termsInCareer = 0
+}
+
+// choose puts a choice point to the decider and returns a checked index.
+func (g *Generator) choose(ask Choice) (int, error) {
+	chosen, err := g.decider.Choose(ask)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", ask.Point, err)
+	}
+
+	if chosen < 0 || chosen >= len(ask.Options) {
+		return 0, ErrChoiceOutOfRange
+	}
+
+	g.log.Choice(ChoiceEvent{
+		Decider: g.decider.Kind(),
+		Point:   ask.Point,
+		Prompt:  ask.Prompt,
+		Options: ask.Options,
+		Chosen:  chosen,
+		Cite:    ask.Cite,
+	})
+
+	return chosen, nil
 }
 
 // rollCharacteristics is Step 2 (p. 39), whose rule is on p. 13: "Roll 3d6.
@@ -112,7 +285,7 @@ func (g *Generator) assignCharacteristics(rolled []int) error {
 
 		prompt := "Assign a rolled score to " + which.String()
 
-		chosen, err := g.decider.Choose(Choice{
+		chosen, err := g.choose(Choice{
 			Point:   pointAssignCharacteristics,
 			Prompt:  prompt,
 			Options: options,
@@ -121,27 +294,18 @@ func (g *Generator) assignCharacteristics(rolled []int) error {
 			Of:      len(CharacteristicOrder),
 		})
 		if err != nil {
-			return fmt.Errorf("assigning %s: %w", which, err)
-		}
-
-		if chosen < 0 || chosen >= len(remaining) {
-			return ErrChoiceOutOfRange
+			return err
 		}
 
 		score := remaining[chosen]
 
 		remaining = slices.Delete(remaining, chosen, chosen+1)
 
-		g.char.Characteristics.Set(which, score)
+		g.char.State.Characteristics.Set(which, score)
 
-		cause := g.log.Choice(ChoiceEvent{
-			Decider: g.decider.Kind(),
-			Point:   pointAssignCharacteristics,
-			Prompt:  prompt,
-			Options: options,
-			Chosen:  chosen,
-			Cite:    characteristicCite,
-		})
+		// The choice event g.choose just logged is the cause: the score
+		// landed where it did because the decider put it there.
+		cause := g.log.Len()
 
 		g.log.Consequence(ConsequenceEvent{
 			Kind:           ConsequenceCharacteristic,

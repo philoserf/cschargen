@@ -123,6 +123,13 @@ repository's documents quote their own examples.
 
 ## Gotchas
 
+- **A test that generates from a random seed makes the coverage ratchet
+  unreproducible.** Under `-coverpkg` every test binary instruments every package,
+  so a command test that rolls a whole lifepath from `rand.Uint64()` reaches
+  different engine branches on every run — and the ratchet then disagrees between
+  a developer's machine and CI for no reason anyone can see. A test that needs an
+  unpredictable seed should ask for `--terms -1`, which generates characteristics
+  and stops.
 - **`d66` is one throw, not two d6 rolls.** The results are 11-16, 21-26 … 61-66,
   so no digit is 0 or above 6. Reading it as 2d6 would collapse thirty-six results
   onto eleven.
