@@ -59,7 +59,7 @@ tests and the demo run without it. Characters generated against the sample are
 valid and replayable, and are stamped as such in their record so they are never
 mistaken for characters set on real worlds.
 
-The career tables *are* here, because they are mechanics rather than names.
+The career tables _are_ here, because they are mechanics rather than names.
 
 ## License
 

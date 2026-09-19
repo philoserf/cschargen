@@ -1,0 +1,122 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+# cschargen
+
+Go CLI that generates rules-accurate Clement Sector characters.
+
+**Ruleset baseline:** _Clement Sector Core Character Creation Book_, © 2026
+Independence Games, author John Watts, 337 pp., held at
+`~/Documents/Traveller/Clement/`. All page cites are to that artifact's **printed**
+page numbers — printed page N is PDF page N+1, which matters when checking one.
+
+Clement Sector is Cepheus Engine-compatible, **not Traveller**: Mongoose Traveller
+SRD (2008) → Cepheus Engine SRD (2016) → _Clement Sector: The Rules_ (2016) → this
+book. Nothing here is shared with `ctchargen` or `t5chargen` beyond house
+conventions; do not reason from those rulesets.
+
+`docs/PRD.md` is the v1 contract. `docs/MILESTONE-1.md` is the current plan.
+`ERRATA.md` carries every place the book is wrong or silent and what the engine
+does about it — **add to it in the same change that implements the reading**, never
+as a later pass.
+
+## Commands
+
+Run `task --list` for the current set.
+
+**CI runs exactly `task`.** Never add a check to CI that the local gate does not
+run, and never add a tool to the gate without also installing it in the workflow.
+The Go toolchain, golangci-lint, nilaway and prettier are deliberately unpinned: a
+red gate on untouched code is the signal working — answer the finding rather than
+pinning the tool.
+
+Coverage is held by a **ratchet**, not a percentage: `coverage.ratchet` records the
+count of uncovered statements per package, and `task ratchet` diffs current counts
+against it, so the gate fails in both directions and on a package appearing or
+vanishing. An integer rather than a percentage because a percentage holds still
+while a guarded branch adds one covered statement and one uncovered, and it grows
+more forgiving as the repository grows. Reflowing blank lines splits coverage
+blocks, so a refactor can move these counts without changing what the tests reach
+— read the diff before assuming a regression.
+
+## The Product Identity boundary
+
+The book declares its mechanics Open Game Content and declares as Product Identity
+"all subsector names, world maps, world names, system names, system maps, vehicle
+names, starship names, starship classes, artistic depictions of ships and vehicles,
+and organizations", adding that the term "altrant" is not open content (OGL §16,
+p. 335).
+
+**No Product Identity is committed to this repository.** World names, subsector
+names and engineered-species names live in an external data file the user supplies;
+`data/setting.sample.json` is invented. Career tables are here, because they are
+mechanics rather than names.
+
+This is a hard rule, not a preference. Before committing a table, ask whether it
+names a place, a person, a ship or an organization from the setting. If it does, it
+belongs in the external file.
+
+## Architecture
+
+| Package         | Holds                                                                                   |
+| --------------- | --------------------------------------------------------------------------------------- |
+| `dice`          | Seeded stream and the shapes of throw: 1d6, 1d3, Nd6, 2d6, 3d6-drop-lowest, d66, target |
+| `chargen`       | The engine: character record, event log, `Decider`, and the rules, a file per step      |
+| `career`        | Career definitions and the shared Injury and Life Events tables                         |
+| `render`        | Record → Markdown sheet and lifepath transcript                                         |
+| `cmd/cschargen` | Flags, subcommands, exit statuses                                                       |
+
+`dice` knows the shapes of throw and nothing about what one means. `career` is data
+consulted by the engine; it does not roll. Most of that layering is enforced by the
+compiler because the reverse edge is an import cycle; `depguard` holds the edges
+that would otherwise compile.
+
+## Key conventions
+
+- **Career definitions are hand-typed Go, not JSON, until milestone 3.** The data
+  format is what milestone 3 proves against thirty-four careers whose shapes
+  genuinely differ — National Navy has nine skill tables and a commission, Vagabond
+  has four and no enlistment throw. Designing a schema against three careers and
+  then meeting the variance means migrating data twice; Go structs make the
+  variance a compile error.
+- **Every throw carries the page it came from.** A `ThrowEvent` without a cite is
+  not auditable, which is the whole reason the log exists.
+- **The event log is written as rules run, never reconstructed afterward.**
+- **Errors are checked on their own line**, never inline: `err := f()` then
+  `if err != nil`.
+- **Every test calls `t.Parallel()`**, top level and subtest.
+- Table-driven tests throughout; expected values from the book, cited.
+
+## Lint posture
+
+`.golangci.yml` runs `default: all`. It disables exactly three linters, and all
+three are deprecated upstream and replaced by one that is enabled — so the file
+disables no check that is not still being made. **There are no repo-specific
+disables.** That is the bar for adding one: count the findings, read them, and
+write down why they are wrong here.
+
+`nolintlint` requires a specific linter and an explanation and fails on an unused
+`//nolint`, so a blanket directive will not pass.
+
+gofumpt and goimports run **inside** golangci-lint, which is the single definition
+of formatted for Go here. prettier is the same for every file that is not Go —
+Markdown, JSON, YAML — run by `task docs`. `embeddedLanguageFormatting: "off"` is
+load-bearing: prettier's default rewrites source inside fenced blocks, and this
+repository's documents quote their own examples.
+
+## Gotchas
+
+- **`d66` is one throw, not two d6 rolls.** The results are 11-16, 21-26 … 61-66,
+  so no digit is 0 or above 6. Reading it as 2d6 would collapse thirty-six results
+  onto eleven.
+- **Careers are a graph.** Colonist alone reaches Vagabond (mishaps 10, 12),
+  Celebrity (event 56), Prisoner (Life Event 3) and a Diplomatic Service skill
+  table (event 54). Adding a career means checking what its tables reach.
+- **A mishap does not eject from every career.** Vagabond (p. 298) and Prisoner
+  (p. 263) each say so explicitly, and they are the two careers a character is most
+  often forced into.
+- **Aging is indexed by term number and gated by homeworld tech level** (pp.
+  122-123), not by age. Apparent age is a derived lookup (p. 125), never rolled.
+- **Homeworld is not fixed after character creation.** Six of Colonist's eleven
+  mishaps reassign it, so the record holds a homeworld history.
