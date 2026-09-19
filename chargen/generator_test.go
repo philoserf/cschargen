@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/philoserf/cschargen/chargen"
+	"github.com/philoserf/cschargen/setting"
 )
 
 // The strings the tests repeat, named so that a typo in one case reads as a
@@ -18,13 +19,15 @@ const (
 // options generates characteristics and nothing else: a negative term limit
 // asks for no career terms, which keeps the tests in this file about Step 2.
 // The whole lifepath is exercised in term_test.go.
-func options(seed uint64) chargen.Options {
+func options(t *testing.T, seed uint64) chargen.Options {
+	t.Helper()
+
 	return chargen.Options{
 		Seed:          seed,
 		Decider:       chargen.Policy{},
 		EngineVersion: "test",
 		PolicyVersion: "test",
-		SettingData:   chargen.SettingData{Name: sampleData, Sample: true},
+		Setting:       sampleSetting(t),
 		Inputs:        chargen.Inputs{Species: "human", TermLimit: -1},
 	}
 }
@@ -46,8 +49,8 @@ func generate(t *testing.T, opts chargen.Options) *chargen.Character {
 func TestSameSeedSameCharacter(t *testing.T) {
 	t.Parallel()
 
-	first := generate(t, options(7))
-	second := generate(t, options(7))
+	first := generate(t, options(t, 7))
+	second := generate(t, options(t, 7))
 
 	if first.State.Characteristics != second.State.Characteristics {
 		t.Errorf("seed 7 gave %+v then %+v", first.State.Characteristics, second.State.Characteristics)
@@ -64,7 +67,7 @@ func TestDifferentSeedsDivergeSomewhere(t *testing.T) {
 	same := 0
 
 	for seed := range uint64(40) {
-		if generate(t, options(seed)).State.Characteristics == generate(t, options(0)).State.Characteristics {
+		if generate(t, options(t, seed)).State.Characteristics == generate(t, options(t, 0)).State.Characteristics {
 			same++
 		}
 	}
@@ -80,7 +83,7 @@ func TestCharacteristicsArePermutationOfTheRolls(t *testing.T) {
 	t.Parallel()
 
 	for seed := range uint64(50) {
-		character := generate(t, options(seed))
+		character := generate(t, options(t, seed))
 
 		rolled := make([]int, 0, len(chargen.CharacteristicOrder))
 
@@ -117,7 +120,7 @@ func TestEveryScoreIsReachable(t *testing.T) {
 	seen := map[int]bool{}
 
 	for seed := range uint64(400) {
-		character := generate(t, options(seed))
+		character := generate(t, options(t, seed))
 		for _, which := range chargen.CharacteristicOrder {
 			seen[character.State.Characteristics.Get(which)] = true
 		}
@@ -136,7 +139,7 @@ func TestEveryScoreIsReachable(t *testing.T) {
 func TestPolicyAssignsInRollOrder(t *testing.T) {
 	t.Parallel()
 
-	character := generate(t, options(11))
+	character := generate(t, options(t, 11))
 
 	rolled := make([]int, 0, len(chargen.CharacteristicOrder))
 
@@ -157,15 +160,46 @@ func TestPolicyAssignsInRollOrder(t *testing.T) {
 	}
 }
 
+// stepEvents returns the events logged under one step, up to the next step
+// header. The tests in this file are about Step 2, and a run now walks
+// Steps 3 and 4 as well.
+func stepEvents(character *chargen.Character, name string) []chargen.Event {
+	var (
+		under  []chargen.Event
+		inStep bool
+	)
+
+	for _, event := range character.Events {
+		if event.Kind == chargen.EventStep {
+			inStep = event.Step.Name == name
+
+			if inStep {
+				under = append(under, event)
+			}
+
+			continue
+		}
+
+		if inStep {
+			under = append(under, event)
+		}
+	}
+
+	return under
+}
+
+const rollCharacteristics = "Step 2: Roll Characteristics"
+
 // TestTheLogNarratesTheStep: six rolls, six choices and six consequences,
 // under one step header, each consequence naming the choice that caused it.
 func TestTheLogNarratesTheStep(t *testing.T) {
 	t.Parallel()
 
-	character := generate(t, options(3))
+	character := generate(t, options(t, 3))
+	events := stepEvents(character, rollCharacteristics)
 
 	counts := map[chargen.EventKind]int{}
-	for _, event := range character.Events {
+	for _, event := range events {
 		counts[event.Kind]++
 	}
 
@@ -182,7 +216,7 @@ func TestTheLogNarratesTheStep(t *testing.T) {
 		}
 	}
 
-	for _, event := range character.Events {
+	for _, event := range events {
 		if event.Kind != chargen.EventConsequence {
 			continue
 		}
@@ -206,11 +240,11 @@ func TestTheLogNarratesTheStep(t *testing.T) {
 func TestChoicesShrinkTheOptionList(t *testing.T) {
 	t.Parallel()
 
-	character := generate(t, options(5))
+	character := generate(t, options(t, 5))
 
 	nth := 0
 
-	for _, event := range character.Events {
+	for _, event := range stepEvents(character, rollCharacteristics) {
 		if event.Kind != chargen.EventChoice {
 			continue
 		}
@@ -250,17 +284,25 @@ func TestChoicesArePlacedInTheirRun(t *testing.T) {
 
 	watcher := &watching{}
 
-	opts := options(5)
+	opts := options(t, 5)
 
 	opts.Decider = watcher
 
 	generate(t, opts)
 
-	if len(watcher.seen) != 6 {
-		t.Fatalf("%d choices put to the decider, want 6", len(watcher.seen))
+	assignments := make([]chargen.Choice, 0, 6)
+
+	for _, asked := range watcher.seen {
+		if asked.Point == "assign_characteristics" {
+			assignments = append(assignments, asked)
+		}
 	}
 
-	for i, asked := range watcher.seen {
+	if len(assignments) != 6 {
+		t.Fatalf("%d characteristic assignments put to the decider, want 6", len(assignments))
+	}
+
+	for i, asked := range assignments {
 		if asked.Nth != i+1 {
 			t.Errorf("choice %d has Nth %d", i+1, asked.Nth)
 		}
@@ -282,7 +324,7 @@ func TestChoicesArePlacedInTheirRun(t *testing.T) {
 func TestProvenanceIsStamped(t *testing.T) {
 	t.Parallel()
 
-	character := generate(t, options(13))
+	character := generate(t, options(t, 13))
 
 	got := character.Provenance
 	if got.SchemaVersion != chargen.SchemaVersion {
@@ -319,7 +361,7 @@ func (refusing) Choose(chargen.Choice) (int, error) { return 0, errRefused }
 func TestARefusedChoiceEndsGeneration(t *testing.T) {
 	t.Parallel()
 
-	opts := options(1)
+	opts := options(t, 1)
 
 	opts.Decider = refusing{}
 
@@ -340,7 +382,7 @@ func (wrong) Choose(chargen.Choice) (int, error) { return 99, nil }
 func TestAnOutOfRangeChoiceIsDistinctFromARefusal(t *testing.T) {
 	t.Parallel()
 
-	opts := options(1)
+	opts := options(t, 1)
 
 	opts.Decider = wrong{}
 
@@ -355,9 +397,9 @@ func TestAnOutOfRangeChoiceIsDistinctFromARefusal(t *testing.T) {
 func TestReplayReproducesTheCharacter(t *testing.T) {
 	t.Parallel()
 
-	original := generate(t, options(23))
+	original := generate(t, options(t, 23))
 
-	opts := options(23)
+	opts := options(t, 23)
 
 	opts.Decider = chargen.NewReplay(original.Events)
 
@@ -370,4 +412,18 @@ func TestReplayReproducesTheCharacter(t *testing.T) {
 	if len(original.Events) != len(replayed.Events) {
 		t.Errorf("replay logged %d events, record holds %d", len(replayed.Events), len(original.Events))
 	}
+}
+
+// sampleSetting is the repository's invented data, which every test in this
+// package generates against. A character built on it is stamped as sample
+// data and can never be mistaken for one set on the published worlds.
+func sampleSetting(t *testing.T) *setting.Data {
+	t.Helper()
+
+	data, err := setting.Sample()
+	if err != nil {
+		t.Fatalf("loading the sample setting: %v", err)
+	}
+
+	return data
 }

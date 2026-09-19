@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/philoserf/cschargen/chargen"
+	"github.com/philoserf/cschargen/setting"
 )
 
 // replayCommand is `cschargen replay`: re-run the engine from a record's
@@ -18,6 +19,7 @@ func replayCommand(args []string, out *os.File) error {
 	flags := flagSet("replay")
 	ignore := flags.Bool("ignore-provenance", false,
 		"replay a record whose engine or schema version does not match this build")
+	data := flags.String("data", "", "setting data file; omitted means the repository's invented sample")
 
 	err := flags.Parse(args)
 	if err != nil {
@@ -33,8 +35,13 @@ func replayCommand(args []string, out *os.File) error {
 		return err
 	}
 
+	world, err := loadSetting(*data)
+	if err != nil {
+		return err
+	}
+
 	if !*ignore {
-		err = checkProvenance(original)
+		err = checkProvenance(original, world)
 		if err != nil {
 			return err
 		}
@@ -45,7 +52,7 @@ func replayCommand(args []string, out *os.File) error {
 		Decider:       chargen.NewReplay(original.Events),
 		EngineVersion: version(),
 		PolicyVersion: policyVersion,
-		SettingData:   original.Provenance.SettingData,
+		Setting:       world,
 		Inputs:        original.Provenance.Inputs,
 	}).Run()
 	if err != nil {
@@ -71,7 +78,13 @@ func replayCommand(args []string, out *os.File) error {
 // policy_version is deliberately not among the checks: replay reapplies
 // recorded choices and never consults the policy, so a record made under
 // one policy replays under any other.
-func checkProvenance(original *chargen.Character) error {
+func checkProvenance(original *chargen.Character, world *setting.Data) error {
+	if world.Hash != original.Provenance.SettingData.Hash {
+		return fmt.Errorf(
+			"%w: the record was generated against setting data hashed %.12s, this is %.12s",
+			errProvenance, original.Provenance.SettingData.Hash, world.Hash)
+	}
+
 	if original.Provenance.SchemaVersion != chargen.SchemaVersion {
 		return fmt.Errorf("%w: record is schema %d, this build writes %d",
 			errProvenance, original.Provenance.SchemaVersion, chargen.SchemaVersion)

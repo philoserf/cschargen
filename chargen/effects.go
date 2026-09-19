@@ -98,10 +98,7 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 
 		return nil
 	case career.EffectNewHomeworld:
-		g.unimplemented(cause, effect.Detail+
-			" -- the origin charts are setting data, which milestone 2 brings in")
-
-		return nil
+		return g.reassignHomeworld(cause, effect.Detail)
 	case career.EffectUnimplemented:
 		g.unimplemented(cause, effect.Detail)
 

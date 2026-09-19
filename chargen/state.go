@@ -86,12 +86,13 @@ type PendingModifier struct {
 // distinct from how it was established -- which is the event log's job.
 type State struct {
 	Characteristics Characteristics `json:"characteristics"`
+	Language        string          `json:"language,omitempty"`
 	Skills          []Skill         `json:"skills"`
 	Ties            []Tie           `json:"ties,omitempty"`
 	Credits         int             `json:"credits"`
 	Stash           []string        `json:"stash,omitempty"`
 	Injuries        []Injury        `json:"injuries,omitempty"`
-	Homeworlds      []string        `json:"homeworlds,omitempty"`
+	Homeworlds      []Homeworld     `json:"homeworlds,omitempty"`
 	Services        []Service       `json:"services,omitempty"`
 	Terms           []Term          `json:"terms,omitempty"`
 	Benefits        []BenefitBatch  `json:"benefits,omitempty"`

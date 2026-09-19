@@ -43,6 +43,21 @@ const (
 	// errors rather than guessing what the page meant.
 	ErrBadExpression stringError = "table carries a dice expression the engine cannot read"
 
+	// ErrNoSetting is a run with no setting data. Steps 3 and 4 have
+	// nothing to read without it, and a character with no homeworld has no
+	// background skills, no language, no tech level and no term cap.
+	ErrNoSetting stringError = "no setting data; pass --data or use the sample"
+
+	// ErrNoSubsectors and ErrNoWorlds are setting data with nothing to be
+	// from. The validator refuses both, so reaching one means the engine
+	// was handed data that never went through it.
+	ErrNoSubsectors stringError = "the setting data has no subsectors"
+	ErrNoWorlds     stringError = "the subsector has no worlds"
+
+	// ErrNoLanguage is a world with no primary language, which the
+	// validator also refuses.
+	ErrNoLanguage stringError = "the homeworld lists no primary language"
+
 	// ErrMissingEventRow is a d66 result with no row, which the career
 	// package's completeness test exists to prevent.
 	ErrMissingEventRow stringError = "no event row for that d66 result"

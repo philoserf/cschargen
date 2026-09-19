@@ -213,7 +213,7 @@ func TestMusterOutReplays(t *testing.T) {
 	for seed := range uint64(20) {
 		original := lifepath(t, seed, 6)
 
-		opts := options(seed)
+		opts := options(t, seed)
 
 		opts.Inputs.TermLimit = 6
 		opts.Decider = chargen.NewReplay(original.Events)

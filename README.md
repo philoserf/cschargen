@@ -23,11 +23,15 @@ data they need, family, youth and teenage events, higher education, the aging
 throws, and the other thirty-one careers.
 
 ```sh
-cschargen new --auto --seed 7 --terms 3 -o character.json
+cschargen data validate setting.json        # check your own setting data
+cschargen new --auto --seed 7 --terms 3 --data setting.json -o character.json
 cschargen render character.json             # the character sheet
 cschargen render --history character.json   # the lifepath, throw by throw
 cschargen replay character.json             # re-run it from the seed
 ```
+
+Omit `--data` and the invented sample is used, stamped in the record and named
+on the sheet so it cannot be mistaken for the published worlds.
 
 A result the engine cannot yet carry out is recorded rather than skipped, so a
 record always says what it could not do.

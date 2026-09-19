@@ -2,9 +2,12 @@ package chargen
 
 import (
 	"errors"
+	"slices"
+	"strings"
 	"testing"
 
 	"github.com/philoserf/cschargen/career"
+	"github.com/philoserf/cschargen/setting"
 )
 
 // The tests here reach the engine's own helpers. They are the paths a
@@ -12,15 +15,23 @@ import (
 // characteristic, a rank already at its ceiling -- and each of them is a
 // branch that would otherwise be reasoned about rather than run.
 
+// The strings these fixtures repeat, named once.
+const (
+	testSubsector = "Only"
+	testLanguage  = "Trade"
+	testHuman     = "human"
+	testVersion   = "test"
+)
+
 func engine(t *testing.T, seed uint64) *Generator {
 	t.Helper()
 
 	return New(Options{
 		Seed:          seed,
 		Decider:       Policy{},
-		EngineVersion: "test",
-		PolicyVersion: "test",
-		Inputs:        Inputs{Species: "human", TermLimit: -1},
+		EngineVersion: testVersion,
+		PolicyVersion: testVersion,
+		Inputs:        Inputs{Species: testHuman, TermLimit: -1},
 	})
 }
 
@@ -335,5 +346,152 @@ func TestSkillTableKindNames(t *testing.T) {
 
 	if got := career.SkillTableKind(99).String(); got != "unknown" {
 		t.Errorf("an unnamed kind stringed as %q", got)
+	}
+}
+
+// settingWith builds a one-subsector file for a test to reach a branch a
+// generated character rarely takes.
+func settingWith(sub setting.Subsector) *setting.Data {
+	return &setting.Data{
+		SchemaVersion: setting.SchemaVersion,
+		Name:          testVersion,
+		Hash:          testVersion,
+		Subsectors:    []setting.Subsector{sub},
+	}
+}
+
+func testWorld(name string, roll *[2]int) setting.World {
+	return setting.World{
+		Name: name, Roll: roll, TechLevel: 10, MaximumAge: 100, MaximumTerms: 20,
+		PrimaryLanguages: []string{testLanguage},
+		Engineered:       setting.Permission{Allowed: true, Status: setting.Free},
+		Uplifts:          setting.Permission{Allowed: true, Status: setting.Free},
+	}
+}
+
+// TestAChooseOnlySubsectorIsChosenFrom is the Recently Colonized Worlds
+// case: "you cannot randomly be assigned one of these worlds, you may
+// choose them" (p. 40). A subsector whose worlds all lack a d100 range
+// becomes a choice rather than an error.
+func TestAChooseOnlySubsectorIsChosenFrom(t *testing.T) {
+	t.Parallel()
+
+	data := settingWith(setting.Subsector{
+		Name: "New Holdings", OriginRoll: 0,
+		Worlds: []setting.World{testWorld("Tinderfall", nil), testWorld("Wake", nil)},
+	})
+
+	character, err := New(Options{
+		Seed: 3, Decider: Policy{}, Setting: data,
+		Inputs: Inputs{Species: testHuman, TermLimit: 1},
+	}).Run()
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	if len(character.State.Homeworlds) == 0 {
+		t.Fatal("no homeworld")
+	}
+
+	// The policy takes the first option at every choice point.
+	if got := character.State.Homeworlds[0].World; got != "Tinderfall" {
+		t.Errorf("homeworld = %q, want the first world offered", got)
+	}
+}
+
+// TestASubsectorRollThatLandsNowhereBecomesAChoice: the book's chart has a
+// subsector for every 1d6 result, but a setting may have fewer than six, and
+// a throw into the gap must not leave the character nowhere.
+func TestASubsectorRollThatLandsNowhereBecomesAChoice(t *testing.T) {
+	t.Parallel()
+
+	rolls := [2]int{1, 100}
+	data := settingWith(setting.Subsector{
+		Name: testSubsector, OriginRoll: 6, // a 1d6 rarely lands here
+		Worlds: []setting.World{testWorld("Somewhere", &rolls)},
+	})
+
+	for seed := range uint64(12) {
+		character, err := New(Options{
+			Seed: seed, Decider: Policy{}, Setting: data,
+			Inputs: Inputs{Species: testHuman, TermLimit: 1},
+		}).Run()
+		if err != nil {
+			t.Fatalf("seed %d: %v", seed, err)
+		}
+
+		if len(character.State.Homeworlds) == 0 {
+			t.Fatalf("seed %d: no homeworld", seed)
+		}
+	}
+}
+
+// TestALanguageWithNoAlternativeIsRecorded: p. 41 requires the Language
+// specialty to differ from the primary language, and a homeworld that
+// offers only the primary leaves nothing to grant.
+func TestALanguageWithNoAlternativeIsRecorded(t *testing.T) {
+	t.Parallel()
+
+	rolls := [2]int{1, 100}
+	world := testWorld("Monoglot", &rolls)
+
+	world.PrimaryLanguages = []string{testLanguage}
+	world.BackgroundSkills = []setting.Requirement{{
+		OneOf: []setting.Alternative{{Skill: "Language", Specialties: []string{testLanguage}}},
+	}}
+
+	data := settingWith(setting.Subsector{
+		Name: testSubsector, OriginRoll: 1, Worlds: []setting.World{world},
+	})
+
+	character, err := New(Options{
+		Seed: 1, Decider: Policy{}, Setting: data,
+		Inputs: Inputs{Species: testHuman, TermLimit: -1},
+	}).Run()
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	said := false
+
+	for _, event := range character.Events {
+		if event.Kind == EventConsequence &&
+			event.Consequence.Kind == ConsequenceUnimplemented &&
+			strings.Contains(event.Consequence.Detail, "no specialty other than the primary") {
+			said = true
+		}
+	}
+
+	if !said {
+		t.Error("the record says nothing about a Language with no alternative specialty")
+	}
+}
+
+// TestAHomeworldItemGoesToTheStash: Kingston grants a mindcomp alongside
+// its skills (p. 41), and an item is not a skill.
+func TestAHomeworldItemGoesToTheStash(t *testing.T) {
+	t.Parallel()
+
+	rolls := [2]int{1, 100}
+	world := testWorld("Workshop", &rolls)
+
+	world.BackgroundSkills = []setting.Requirement{{
+		OneOf: []setting.Alternative{{Item: "a neural companion"}},
+	}}
+
+	data := settingWith(setting.Subsector{
+		Name: testSubsector, OriginRoll: 1, Worlds: []setting.World{world},
+	})
+
+	character, err := New(Options{
+		Seed: 1, Decider: Policy{}, Setting: data,
+		Inputs: Inputs{Species: testHuman, TermLimit: -1},
+	}).Run()
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	if !slices.Contains(character.State.Stash, "a neural companion") {
+		t.Errorf("the item is not in the stash: %v", character.State.Stash)
 	}
 }
