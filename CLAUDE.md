@@ -90,11 +90,16 @@ that would otherwise compile.
 
 ## Lint posture
 
-`.golangci.yml` runs `default: all`. It disables exactly three linters, and all
-three are deprecated upstream and replaced by one that is enabled — so the file
-disables no check that is not still being made. **There are no repo-specific
-disables.** That is the bar for adding one: count the findings, read them, and
-write down why they are wrong here.
+`.golangci.yml` runs `default: all`. Three of its disables are linters deprecated
+upstream and replaced by one that is enabled, so they disable no check that is not
+still being made. **One is a real disable, and it carries its count:**
+`exhaustruct_v5`, 26 findings, all on types whose unset fields are the design —
+`Event` is a discriminated union where three of four payload pointers are nil by
+construction, and `ConsequenceEvent`'s payload is deliberately ragged.
+
+That is the bar for adding another: count the findings, read them, and write down
+why they are wrong here. Every other finding the gate has produced so far — thirty
+across two packages — was answered in the code.
 
 `nolintlint` requires a specific linter and an explanation and fails on an unused
 `//nolint`, so a blanket directive will not pass.

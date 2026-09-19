@@ -12,6 +12,23 @@ linters:
     - wsl # replaced by wsl_v5, which is on
     - gomodguard # replaced by gomodguard_v2, which is on
 
+    # 26 findings, and the linter takes no settings in this release, so the
+    # choice is all or nothing. Every one is on a type whose unset fields
+    # are the design rather than an omission.
+    #
+    # Event is a discriminated union: exactly one of its four payload
+    # pointers is non-nil, and which one is what Kind means. Naming all four
+    # at every construction would write three explicit nils per event to say
+    # what the kind already says, and would make the one field that differs
+    # the hardest thing to see.
+    #
+    # ConsequenceEvent's payload is deliberately ragged -- a kind fills the
+    # fields it needs and no others -- which the type's own doc comment
+    # explains, and which a struct per kind would turn into thirteen types
+    # differing by two fields each. Provenance and Inputs are filled in
+    # stages as generation proceeds.
+    - exhaustruct_v5
+
   settings:
     depguard:
       # depguard's own default is a deny-all list that flags this module's
