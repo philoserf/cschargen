@@ -7,3 +7,7 @@
 coverage.ratchet
 coverage.out
 coverage.counts.out
+
+# Golden renders, compared byte for byte by `go test ./render/`. Prettier
+# would reformat the tables and every comparison would fail.
+render/testdata/
