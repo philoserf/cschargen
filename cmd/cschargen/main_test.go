@@ -121,8 +121,10 @@ func TestNewWritesARecord(t *testing.T) {
 				TechLevel int    `json:"techLevel"`
 			} `json:"inputs"`
 		} `json:"provenance"`
-		Characteristics map[string]int `json:"characteristics"`
-		Events          []struct {
+		State struct {
+			Characteristics map[string]int `json:"characteristics"`
+		} `json:"state"`
+		Events []struct {
 			Seq  int    `json:"seq"`
 			Kind string `json:"kind"`
 		} `json:"events"`
@@ -145,8 +147,8 @@ func TestNewWritesARecord(t *testing.T) {
 		t.Errorf("techLevel = %d", record.Provenance.Inputs.TechLevel)
 	}
 
-	if len(record.Characteristics) != 6 {
-		t.Errorf("%d characteristics", len(record.Characteristics))
+	if len(record.State.Characteristics) != 6 {
+		t.Errorf("%d characteristics", len(record.State.Characteristics))
 	}
 
 	if len(record.Events) == 0 {
