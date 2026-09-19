@@ -1,6 +1,33 @@
 # Milestone 2: the setting data, and where a character comes from
 
-2026-09-19. Status: plan. Tracks [#9](https://github.com/philoserf/cschargen/issues/9).
+2026-09-19. Status: **shipped**, in two pull requests (#10 and #11). Tracks
+[#9](https://github.com/philoserf/cschargen/issues/9).
+
+## What it turned out to be
+
+The plan below is the one that was followed. Three things it did not know:
+
+1. **The sample data failed its own Product Identity test, on a word this
+   repository had been using since the first commit.** The book's OGL notice names
+   one term — its word for a genetically engineered human — and says it is not open
+   content. That term was in the prose, in the Go identifiers, and was about to
+   become a JSON key every user would have to type. Forty-nine occurrences across
+   nine files, now replaced by "engineered human". Three places had also come to
+   present a **doctored quotation** of the notice, with the term swapped inside the
+   quotation marks; those now quote what it says and paraphrase the rest.
+2. **A homeworld reassigned in adulthood needed a reading** the plan had not
+   anticipated (E-9): it changes the tech level and nothing else, because
+   background skills are a childhood and maximum terms is drawn from where the
+   character was born, but the aging tables say "the tech level of the character's
+   homeworld" in the present tense.
+3. **The Step 2 tests had to be scoped to Step 2.** They had been asserting on the
+   whole event log, which was fine when a run was six rolls and is not once a run
+   walks Steps 3 and 4 as well.
+
+Measured after the fact: a six-term character now generates, replays identically
+across 206 events, and carries a homeworld history the sheet prints.
+
+---
 
 Milestone 1 takes the homeworld's two load-bearing numbers — tech level and term
 cap — as flags. This milestone replaces that seam with the external file the
