@@ -21,13 +21,14 @@ package career
 // to its events. It uses National Navy's, for the reason in ERRATA.md.
 func SystemDefenceNavy() Career {
 	return Career{
-		Name:         "System Defense Forces (Navy)",
-		Cite:         "pp. 278-281",
-		Enlistment:   &Check{Characteristic: "INT", Number: 6},
-		Commission:   &Check{Characteristic: "EDU", Number: 7},
-		MishapEjects: true,
-		Assignments:  navyAssignments(),
-		Tables:       navyTables(),
+		Name:           "System Defense Forces (Navy)",
+		Cite:           "pp. 278-281",
+		Enlistment:     &Check{Characteristic: "INT", Number: 6},
+		EnlistmentMods: []EnlistmentMod{apparentAgeOver40(), perPreviousCareer()},
+		Commission:     &Check{Characteristic: "EDU", Number: 7},
+		MishapEjects:   true,
+		Assignments:    navyAssignments(),
+		Tables:         navyTables(),
 		Benefits: [7]BenefitRow{
 			{Cash: 125, Other: chr("END", 1)},
 			{Cash: 250, Other: chr("DEX", 1)},
@@ -46,10 +47,11 @@ func SystemDefenceNavy() Career {
 // forces.
 func SystemDefenceTroopers() Career {
 	return Career{
-		Name:       "System Defense Forces (Troopers)",
-		Cite:       "pp. 282-286",
-		Enlistment: &Check{Characteristic: "END", Number: 8},
-		Commission: &Check{Characteristic: "EDU", Number: 7},
+		Name:           "System Defense Forces (Troopers)",
+		Cite:           "pp. 282-286",
+		Enlistment:     &Check{Characteristic: "END", Number: 8},
+		EnlistmentMods: []EnlistmentMod{apparentAgeOver40(), perPreviousCareer()},
+		Commission:     &Check{Characteristic: "EDU", Number: 7},
 		RankTitles: []string{
 			"Recruit", "Trooper", "Corporal", "Sergeant",
 			"Staff Sergeant", "Sergeant Major", "Command Sergeant Major",
@@ -85,10 +87,11 @@ func SystemDefenceTroopers() Career {
 // -- so the prerequisite is recorded and not enforced.
 func SystemDefenceWetNavy() Career {
 	return Career{
-		Name:       "System Defense Forces (Wet Navy)",
-		Cite:       "pp. 287-291",
-		Enlistment: &Check{Characteristic: "END", Number: 8},
-		Commission: &Check{Characteristic: "EDU", Number: 9},
+		Name:           "System Defense Forces (Wet Navy)",
+		Cite:           "pp. 287-291",
+		Enlistment:     &Check{Characteristic: "END", Number: 8},
+		EnlistmentMods: []EnlistmentMod{apparentAgeOver40(), perPreviousCareer()},
+		Commission:     &Check{Characteristic: "EDU", Number: 9},
 		Prerequisite: "the homeworld must have a Hydrographics score of 4+ (p. 287), " +
 			"which the origin charts do not carry",
 		RankTitles: []string{

@@ -135,6 +135,8 @@ func (g *Generator) enlist(target career.Career) bool {
 
 	mods := g.takeModifiers("next enlistment attempt")
 
+	mods = append(mods, g.enlistmentMods(target, step)...)
+
 	which, ok := characteristicByName(target.Enlistment.Characteristic)
 	if ok {
 		mods = append(mods, dice.Mod{
@@ -165,6 +167,35 @@ func (g *Generator) enlist(target career.Career) bool {
 		"rejected by "+target.Name+"; it cannot be attempted again for two terms", target.Name)
 
 	return false
+}
+
+// enlistmentMods applies the situational modifiers a career prints on its
+// enlistment throw (p. 111). A modifier the engine cannot yet evaluate is
+// recorded rather than dropped, so a record says which rule was not applied
+// rather than looking as though the career had none.
+func (g *Generator) enlistmentMods(target career.Career, step int) []dice.Mod {
+	var mods []dice.Mod
+
+	for _, mod := range target.EnlistmentMods {
+		switch mod.Kind {
+		case career.PerPreviousCareer:
+			entered := len(g.char.State.Services)
+			if entered > 0 {
+				mods = append(mods, dice.Mod{
+					Name:  "previous careers",
+					Value: mod.Value * entered,
+				})
+			}
+		case career.ApparentAgeOver40:
+			g.unimplemented(step,
+				"this career modifies enlistment on apparent age, which arrives with the aging rules (p. 125)")
+		case career.UndergraduateDegree, career.GraduateDegree, career.MedicalSchool:
+			g.unimplemented(step,
+				"this career modifies enlistment on a degree, which arrives with higher education (p. 86)")
+		}
+	}
+
+	return mods
 }
 
 // beginService is Step 11 (p. 112) plus the two things that happen on

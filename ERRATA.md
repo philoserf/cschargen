@@ -264,3 +264,22 @@ guessing one would be inventing a rule.
 
 Like E-11 this is a limit rather than a reading: nothing is being interpreted,
 and it closes if the difficulty ladder is ever brought into scope.
+
+---
+
+## E-13 (typo) — one d66 result is printed blank
+
+**Where:** Scientist event 26 (p. 271).
+
+The table prints "26" with nothing beside it. Result 25 runs long — it carries a
+1d6 sub-table of its own — and 26 sits on its own line between the end of that
+and the 31-36 Life Event span.
+
+**Engine:** the result is recorded as having no printed effect and nothing
+happens. It is a transcription note rather than a reading: there is no rule to
+interpret, and inventing one for a blank row would be worse than a term in which
+nothing did.
+
+**If this is wrong:** the likeliest explanation is that result 25's sub-table
+overran its row and displaced 26's text, in which case the missing entry is lost
+rather than absent. Either way the engine cannot supply it.

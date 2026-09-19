@@ -18,9 +18,10 @@ func CorporateShipper() Career {
 	}
 
 	return Career{
-		Name:       "Corporate Shipper",
-		Cite:       "pp. 177-180",
-		Enlistment: &Check{Characteristic: "INT", Number: 8},
+		Name:           "Corporate Shipper",
+		Cite:           "pp. 177-180",
+		Enlistment:     &Check{Characteristic: "INT", Number: 8},
+		EnlistmentMods: []EnlistmentMod{perPreviousCareer()},
 		RankTitles: []string{
 			"Crewman", "Senior Crewman", "4th Officer", "3rd Officer",
 			"2nd Officer", "1st Officer", "Captain", "Senior Captain",
