@@ -281,3 +281,193 @@ func TestRecordEndsWithANewline(t *testing.T) {
 		t.Error("the record does not end with a newline")
 	}
 }
+
+// A generated record, written to a temporary file, for the commands that
+// take one.
+func record(t *testing.T, seed string) string {
+	t.Helper()
+
+	path := filepath.Join(t.TempDir(), "character.json")
+
+	_, err := capture(t, cmdNew, "--auto", "--seed", seed, "--terms", "3", "-o", path)
+	if err != nil {
+		t.Fatalf("new: %v", err)
+	}
+
+	return path
+}
+
+func TestRenderWritesASheet(t *testing.T) {
+	t.Parallel()
+
+	out, err := capture(t, "render", record(t, "7"))
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+
+	for _, want := range []string{"## Characteristics", "## Skills", "## Career history"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("the sheet has no %q section:\n%s", want, out)
+		}
+	}
+}
+
+func TestRenderHistoryWritesATranscript(t *testing.T) {
+	t.Parallel()
+
+	out, err := capture(t, "render", "--history", record(t, "7"))
+	if err != nil {
+		t.Fatalf("render --history: %v", err)
+	}
+
+	if !strings.Contains(out, "# Lifepath") {
+		t.Errorf("the transcript has no heading:\n%s", out)
+	}
+}
+
+// TestFlagsPrecedeTheFilename: Go's flag package stops parsing at the first
+// non-flag argument, so `render char.json --history` leaves --history
+// standing as a second positional. That is a usage error, not a silent
+// sheet where a transcript was asked for.
+func TestFlagsPrecedeTheFilename(t *testing.T) {
+	t.Parallel()
+
+	_, err := capture(t, "render", record(t, "7"), "--history")
+	if err == nil {
+		t.Fatal("no error")
+	}
+
+	if !strings.HasPrefix(err.Error(), "usage:") {
+		t.Errorf("error %q does not begin with usage:", err)
+	}
+}
+
+func TestReplayReproducesARecord(t *testing.T) {
+	t.Parallel()
+
+	out, err := capture(t, "replay", record(t, "23"))
+	if err != nil {
+		t.Fatalf("replay: %v", err)
+	}
+
+	if !strings.Contains(out, "identical") {
+		t.Errorf("replay did not report a match: %q", out)
+	}
+}
+
+// TestReplayCatchesATamperedRecord: the log is verification data, so
+// altering it has to be caught rather than reapplied.
+func TestReplayCatchesATamperedRecord(t *testing.T) {
+	t.Parallel()
+
+	path := record(t, "23")
+
+	content, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading: %v", err)
+	}
+
+	// Change a recorded choice to one the engine did not make.
+	tampered := strings.Replace(string(content), `"chosen": 0`, `"chosen": 1`, 1)
+	if tampered == string(content) {
+		t.Skip("the record carries no choice at index 0 to tamper with")
+	}
+
+	err = os.WriteFile(path, []byte(tampered), 0o600)
+	if err != nil {
+		t.Fatalf("writing: %v", err)
+	}
+
+	_, err = capture(t, "replay", path)
+	if err == nil {
+		t.Fatal("a tampered record replayed clean")
+	}
+}
+
+func TestReplayRefusesARecordThisBuildDidNotWrite(t *testing.T) {
+	t.Parallel()
+
+	path := record(t, "23")
+
+	content, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading: %v", err)
+	}
+
+	stale := strings.Replace(string(content),
+		`"engineVersion": "`+version()+`"`, `"engineVersion": "0.0.1-ancient"`, 1)
+	if stale == string(content) {
+		t.Skipf("the record does not carry engineVersion %q", version())
+	}
+
+	err = os.WriteFile(path, []byte(stale), 0o600)
+	if err != nil {
+		t.Fatalf("writing: %v", err)
+	}
+
+	_, err = capture(t, "replay", path)
+	if err == nil {
+		t.Fatal("a record from another engine replayed without complaint")
+	}
+
+	// ...and the flag waives that one check and no others.
+	out, err := capture(t, "replay", "--ignore-provenance", path)
+	if err != nil {
+		t.Fatalf("--ignore-provenance: %v", err)
+	}
+
+	if !strings.Contains(out, "identical") {
+		t.Errorf("--ignore-provenance did not then replay: %q", out)
+	}
+}
+
+func TestRenderAndReplayUsageErrors(t *testing.T) {
+	t.Parallel()
+
+	tests := [][]string{
+		{"render"},
+		{"render", "a.json", "b.json"},
+		{"replay"},
+		{"replay", "a.json", "b.json"},
+	}
+
+	for _, args := range tests {
+		t.Run(strings.Join(args, " "), func(t *testing.T) {
+			t.Parallel()
+
+			_, err := capture(t, args...)
+			if err == nil {
+				t.Fatal("no error")
+			}
+
+			if !strings.HasPrefix(err.Error(), "usage:") {
+				t.Errorf("error %q does not begin with usage:", err)
+			}
+		})
+	}
+}
+
+func TestReadingSomethingThatIsNotARecord(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "not.json")
+
+	err := os.WriteFile(path, []byte("this is not JSON"), 0o600)
+	if err != nil {
+		t.Fatalf("writing: %v", err)
+	}
+
+	_, err = capture(t, "render", path)
+	if err == nil {
+		t.Fatal("a file that is not a record rendered")
+	}
+
+	if strings.HasPrefix(err.Error(), "usage:") {
+		t.Errorf("a malformed file is not a usage error: %q", err)
+	}
+
+	_, err = capture(t, "render", filepath.Join(t.TempDir(), "absent.json"))
+	if err == nil {
+		t.Fatal("a file that does not exist rendered")
+	}
+}

@@ -14,8 +14,23 @@ Enterprises.
 
 ## Status
 
-Design only. `docs/PRD.md` is the v1 contract; no engine yet. Milestone 1 is a
-walking skeleton — dice engine, characteristics, the term loop for one career.
+Milestone 1 is built: characteristics, career entry, the term loop, mustering
+out, and three careers — Colonist, Vagabond and Prisoner. `docs/PRD.md` is the v1
+contract and `docs/MILESTONE-1.md` is what this milestone turned out to be.
+
+Not yet built: species (altrants and uplifts), the origin charts and the setting
+data they need, family, youth and teenage events, higher education, the aging
+throws, and the other thirty-one careers.
+
+```sh
+cschargen new --auto --seed 7 --terms 3 -o character.json
+cschargen render character.json             # the character sheet
+cschargen render --history character.json   # the lifepath, throw by throw
+cschargen replay character.json             # re-run it from the seed
+```
+
+A result the engine cannot yet carry out is recorded rather than skipped, so a
+record always says what it could not do.
 
 ## What generation involves
 

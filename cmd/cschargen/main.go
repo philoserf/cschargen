@@ -26,6 +26,15 @@ func main() {
 // "usage:" prefix the exit contract is read by.
 var errUsage = errors.New("usage")
 
+// errProvenance is a record this build cannot claim to reproduce, and
+// errDiverged is one whose re-run disagrees with what it says happened.
+// They are separate because the first is a refusal to try and the second
+// is a result.
+var (
+	errProvenance = errors.New("this build did not write that record")
+	errDiverged   = errors.New("replay diverged")
+)
+
 func usagef(format string, args ...any) error {
 	return fmt.Errorf("%w: %s", errUsage, fmt.Sprintf(format, args...))
 }
@@ -38,6 +47,10 @@ func run(args []string, out *os.File) error {
 	switch args[0] {
 	case "new":
 		return newCommand(args[1:], out)
+	case "render":
+		return renderCommand(args[1:], out)
+	case "replay":
+		return replayCommand(args[1:], out)
 	case "version":
 		return versionCommand(out)
 	case "-h", "--help", "help":
@@ -54,6 +67,8 @@ func run(args []string, out *os.File) error {
 
 const commands = `commands:
   new       generate a character
+  render    turn a record into a character sheet, or its lifepath
+  replay    re-run a record from its seed and recorded choices
   version   report the build and the versions a record stamps`
 
 // flagSet builds a flag set that reports its own errors through the usage

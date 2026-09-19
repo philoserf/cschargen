@@ -78,6 +78,10 @@ linters:
         # directory is a fresh one per test; a constant path would be the
         # bug this rule exists to catch.
         - G304
+        # 2 findings, both a test writing a deliberately tampered record
+        # back into its own t.TempDir() to prove replay catches it. The
+        # taint is the test's own fixture.
+        - G703
 
     govet:
       enable-all: true
