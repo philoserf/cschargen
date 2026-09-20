@@ -117,16 +117,21 @@ func undergraduateEvents() []EventRow {
 			Summary: "an attack by a fellow student severe enough to imprison them",
 			Effects: []Effect{
 				relationshipAt(Enemy, 1, -120),
-				unimplemented("roll 1d6: on 1-3 also roll on the Injury table"),
+				rollSub("whether it came to blows",
+					onRange(1, 3, "it did", injury(1)),
+					onRange(4, 6, "it did not")),
 			},
 		},
 		{
 			Summary: "a group of small-time on-campus criminals",
 			Effects: []Effect{
 				skill("Deception", "Intrusion"),
-				unimplemented("roll 1d6: on 1 a caught associate becomes an Enemy at " +
-					"-110; on 2-5 you are forgotten; on 6 one of them becomes a " +
-					"detective and a Contact at 55"),
+				rollSub("what became of them",
+					on(1, "one of them is caught and blames you",
+						relationshipAt(Enemy, 1, -110)),
+					onRange(2, 5, "you are forgotten"),
+					on(6, "one of them goes straight and becomes a detective",
+						relationshipAt(Contact, 1, 55))),
 			},
 		},
 		{

@@ -145,8 +145,6 @@ func chr(which string, delta int) Effect {
 // 1d3 from your choice of STR or END" (p. 156). The sign comes from up,
 // because a table that says "lose 1d3" and one that says "gain 1d6" are the
 // same shape.
-//
-//nolint:unparam // the expression is the page's; 1d3 is merely the only one transcribed so far
 func chrRolled(which, rolled string, up bool) Effect {
 	verb := "lose "
 	delta := -1
@@ -908,6 +906,23 @@ func rejoinPreviousCareer() Effect {
 // destination is "the career you held before this one" rather than a
 // career the page names. The engine resolves it from the service record.
 const PreviousCareer = "\x00previous"
+
+// rollSub is a 1d6 table printed inside a result. The rows are given in
+// the order the page prints them and must cover 1 to 6 exactly once, which
+// TestEverySubTableCoversTheDie holds them to.
+func rollSub(detail string, rows ...SubRow) Effect {
+	return Effect{Kind: EffectSubTable, Detail: detail, Sub: rows}
+}
+
+// on is one row of a rollSub covering a single result of the die.
+func on(result int, summary string, effects ...Effect) SubRow {
+	return SubRow{From: result, To: result, Summary: summary, Effects: effects}
+}
+
+// onRange is one row covering a span: "on a 2-5".
+func onRange(from, to int, summary string, effects ...Effect) SubRow {
+	return SubRow{From: from, To: to, Summary: summary, Effects: effects}
+}
 
 // pool grants a modifier the character spends themselves, a little at a
 // time. total is the whole of it and perThrow the most that may go on one

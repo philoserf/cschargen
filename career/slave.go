@@ -178,17 +178,19 @@ func slaveMishaps() MishapTable {
 			// p. 136 and Vagabond at p. 290, which are the previous
 			// edition's pages.
 			Summary: "an owner who has decided robots can replace you",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1-3 you are sold, and your homeworld moves to the nearest " +
-					"system with a class B or C port; on 4-6 the owner tries to end your " +
-					"suffering, you escape injured -- roll once on the Injury table -- and " +
-					"join the Vagabond career. The stash is kept either way")},
+			Effects: []Effect{rollSub("what the owner does with you",
+				onRange(1, 3, "you are sold on", newHomeworld()),
+				onRange(4, 6, "the owner tries to end your suffering, and you run",
+					injury(1),
+					transfer("Vagabond", "", 0)))},
 		},
 		{
 			Summary: "accused of a crime that will not get the investigation it should",
 			Effects: []Effect{
 				transfer("Prisoner", "Prisoner", 1),
-				unimplemented("roll 1d6: on a 1 the sentence is two terms rather than one"),
+				rollSub("how long the sentence runs",
+					on(1, "two terms rather than one", transfer("Prisoner", "Prisoner", 2)),
+					onRange(2, 6, "the one term already imposed")),
 			},
 		},
 	}

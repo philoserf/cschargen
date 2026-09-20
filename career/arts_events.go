@@ -103,9 +103,11 @@ func artsEvents() EventTable {
 		},
 		45: {
 			Summary: "falling in love",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1-2 it is unrequited and feeds the work, gaining a benefit roll; " +
-					"on 3-4 it ends amicably, gaining a Contact; on 5-6 it is mutual, gaining an Ally")},
+			Effects: []Effect{rollSub("what came of it",
+				onRange(1, 2, "unrequited, and it feeds the work",
+					benefitRolls(1, 0, ScopeBatch)),
+				onRange(3, 4, "it ends amicably", relationship(Contact, 1, "")),
+				onRange(5, 6, "it is mutual", relationship(Ally, 1, "")))},
 		},
 		46: {
 			Summary: "space travel as a necessity",

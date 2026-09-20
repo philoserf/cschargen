@@ -146,12 +146,21 @@ func slaveEvents() EventTable {
 		55: {Summary: "getting very sneaky", Effects: []Effect{skill("Stealth")}},
 		56: {
 			Summary: "an escape attempted",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1 you are caught within moments, at -2 to the next survival " +
-					"roll; on 2-3 you are lost, and Survival 8+ makes the escape; on 4-5 the " +
-					"guards find you, and Gun Combat or Melee 8+ makes it; on 6 you are away. " +
-					"Any escape enlists you in the Vagabond career; any failure is -2 to the " +
-					"next survival roll")},
+			Effects: []Effect{rollSub("how far you get",
+				on(1, "caught within moments", throwModifier(survivalThrow, -2)),
+				onRange(2, 3, "lost, and finding your own way out",
+					checkSkill("Survival", 8,
+						[]Effect{transfer("Vagabond", "", 0)},
+						[]Effect{throwModifier(survivalThrow, -2)})),
+				onRange(4, 5, "found by the guards",
+					pick("fight your way out with a gun or with your hands",
+						opt("Gun Combat", checkSkill("Gun Combat", 8,
+							[]Effect{transfer("Vagabond", "", 0)},
+							[]Effect{throwModifier(survivalThrow, -2)})),
+						opt("Melee", checkSkill("Melee", 8,
+							[]Effect{transfer("Vagabond", "", 0)},
+							[]Effect{throwModifier(survivalThrow, -2)})))),
+				on(6, "away clean", transfer("Vagabond", "", 0)))},
 		},
 		61: {
 			Summary: "a slug pistol found",
@@ -159,11 +168,13 @@ func slaveEvents() EventTable {
 				opt("be rid of it"),
 				opt("keep it",
 					stashItem("a slug pistol"),
-					unimplemented("roll 1d6 for what it is: on 1 it was used in a recent "+
-						"murder and puts you in prison for 1d3 terms until the real killer "+
-						"is found; on 2-3 it is old and unreliable, at -2 to use, with six "+
-						"rounds; on 4-5 it is sound but empty; on 6 it is sound with ten "+
-						"rounds")))},
+					rollSub("what the pistol turns out to be",
+						on(1, "the weapon in a recent murder",
+							stashItem(""),
+							transfer("Prisoner", "Prisoner", 0)),
+						onRange(2, 3, "old and unreliable, with six rounds"),
+						onRange(4, 5, "sound but empty"),
+						on(6, "sound, with ten rounds"))))},
 		},
 		62: {
 			Summary: "the small downtime you have earned, spent on the arts",
@@ -181,9 +192,12 @@ func slaveEvents() EventTable {
 		// ways out of the career.
 		65: {
 			Summary: "slavery outlawed on this world, and your freedom with it",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1-2 enlist automatically in the Vagabond career, keeping the " +
-					"stash; on 3-6 attempt any career, losing the stash")},
+			Effects: []Effect{rollSub("what freedom leaves you with",
+				onRange(1, 2, "nothing but what you carry", transfer("Vagabond", "", 0)),
+				onRange(3, 6, "a clean start and an empty stash",
+					stashItem(""),
+					autoEnlist("attempt any career without an enlistment roll",
+						enlistmentNarrowing{})))},
 		},
 		66: {
 			Summary: "an owner who sets you free, and helps you find another job",

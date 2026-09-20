@@ -153,9 +153,16 @@ func pirateEvents() EventTable {
 		63: {Summary: "first aid, self-taught", Effects: []Effect{skill("Medic", "First Aid")}},
 		64: {
 			Summary: "a hidden compartment, and two bottles of an entrancing green liquid",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1 it is an explosive and goes off; on 2-5 a famous drink to keep " +
-					"or sell on Broker 8+; on 6 the home of a strange alien animal")},
+			Effects: []Effect{rollSub("what was in the bottles",
+				on(1, "an explosive, and it goes off", injury(1)),
+				onRange(2, 5, "a famous and very old drink",
+					pick("keep the bottles or sell them",
+						opt("keep them", stashItem("two bottles of a famous old drink")),
+						opt("sell them", checkSkill("Broker", 8,
+							[]Effect{credits("2d6x1000")},
+							nil)))),
+				on(6, "the home of a strange alien animal",
+					stashItem("a strange alien animal")))},
 		},
 		65: {
 			Summary: "a famous pirate takes you on as a protege",

@@ -81,10 +81,13 @@ func medicEvents() EventTable {
 			Effects: []Effect{
 				benefitRolls(-1, 0, ScopeBatch),
 				relationship(Contact, 1, ""),
-				unimplemented(
-					"roll 1d6: on 1 lose three benefit rolls and -2 to the next survival roll; " +
-						"on 2-5 the case is dismissed; on 6 the plaintiff is shown to be " +
-						"lying and two benefit rolls follow"),
+				rollSub("how the suit goes",
+					on(1, "it is settled against you",
+						benefitRolls(-3, 0, ScopeBatch),
+						throwModifier(survivalThrow, -2)),
+					onRange(2, 5, "it is dismissed"),
+					on(6, "the plaintiff is shown to be lying",
+						benefitRolls(2, 0, ScopeBatch))),
 			},
 		},
 		43: {

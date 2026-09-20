@@ -280,3 +280,56 @@ func TestARefusalDuringAThrowComesBack(t *testing.T) {
 		t.Error("a refusal at the commission offer did not come back")
 	}
 }
+
+// TestASubTableWithAGapSaysSo. TestEverySubTableCoversTheDie keeps the
+// corpus from having one, so this is the guard behind that gate: a table
+// that covers nothing the die rolled records the gap rather than doing
+// nothing quietly.
+func TestASubTableWithAGapSaysSo(t *testing.T) {
+	t.Parallel()
+
+	gen := rankedEngine(t, 0)
+
+	err := gen.rollSubTable(career.Effect{
+		Kind:   career.EffectSubTable,
+		Detail: "a table with no rows at all",
+	}, 0)
+	if err != nil {
+		t.Fatalf("rollSubTable: %v", err)
+	}
+
+	if !strings.Contains(lastDetail(t, gen), "no row covers") {
+		t.Errorf("the record does not name the gap: %q", lastDetail(t, gen))
+	}
+}
+
+// TestASubTableRollsRatherThanChooses is what separates it from a choice:
+// the character has no say in which row comes up, so a decider that
+// refuses every question does not stop it.
+func TestASubTableRollsRatherThanChooses(t *testing.T) {
+	t.Parallel()
+
+	gen := rankedEngine(t, 0)
+
+	gen.decider = refusingDecider{}
+
+	err := gen.rollSubTable(career.Effect{
+		Kind:   career.EffectSubTable,
+		Detail: "the pay",
+		Sub: []career.SubRow{
+			{From: 1, To: 3, Summary: "little", Effects: []career.Effect{
+				{Kind: career.EffectCredits, Dice: "200", Detail: "200 credits"},
+			}},
+			{From: 4, To: 6, Summary: "more", Effects: []career.Effect{
+				{Kind: career.EffectCredits, Dice: "500", Detail: "500 credits"},
+			}},
+		},
+	}, 0)
+	if err != nil {
+		t.Fatalf("rollSubTable: %v", err)
+	}
+
+	if gen.char.State.Credits != 200 && gen.char.State.Credits != 500 {
+		t.Errorf("the table paid %d, which is neither row", gen.char.State.Credits)
+	}
+}

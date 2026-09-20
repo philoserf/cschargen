@@ -146,6 +146,16 @@ const (
 	// is how many to take; ThisCareer narrows them to this career's.
 	EffectLoseTie
 
+	// EffectSubTable is a 1d6 table printed inside a result rather than as
+	// a table of its own: "Roll 1d6. On a 1 ... on a 2-5 ... on a 6 ...".
+	// Forty-two results across the corpus carry one.
+	//
+	// It is a roll rather than a choice, which is what distinguishes it
+	// from [EffectChoice]: the character has no say in which row comes up.
+	// Sub holds the rows, and every result of a d6 falls in exactly one --
+	// TestEverySubTableCoversTheDie is what says so.
+	EffectSubTable
+
 	// EffectPool grants a modifier the character spends themselves, a
 	// little at a time: "gain a modifier of +6 which must be split up into
 	// increments of not more than +2 to use on any Survival or Advancement
@@ -273,6 +283,16 @@ type Target struct {
 
 	// Number is the target to meet or exceed.
 	Number int
+}
+
+// SubRow is one row of a 1d6 table printed inside a result. From and To
+// are the inclusive range of the die it covers, which is one number on most
+// rows and a span on the rest: "on a 2-5".
+type SubRow struct {
+	From    int
+	To      int
+	Summary string
+	Effects []Effect
 }
 
 // Option is one branch of an [EffectChoice].
@@ -494,6 +514,10 @@ type Effect struct {
 	OnSkill           string
 	WhileInThisCareer bool
 	Standing          bool
+
+	// Sub is the rows of an [EffectSubTable], in the order the page prints
+	// them.
+	Sub []SubRow
 
 	// Spendable is the throws an [EffectPool] may be spent on. It is a
 	// list because both results that grant one name two: "any Survival or

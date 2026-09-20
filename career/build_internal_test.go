@@ -208,6 +208,10 @@ func collect(effects []Effect, into map[string]bool) {
 		collect(effect.Group, into)
 		collect(effect.Fallback, into)
 
+		for _, row := range effect.Sub {
+			collect(row.Effects, into)
+		}
+
 		for _, option := range effect.Options {
 			collect(option.Effects, into)
 		}
@@ -350,9 +354,75 @@ func collectThrowNames(t *testing.T, effect Effect, known []string, seen *int) {
 		}
 	}
 
+	for _, row := range effect.Sub {
+		for _, inner := range row.Effects {
+			collectThrowNames(t, inner, known, seen)
+		}
+	}
+
 	for _, option := range effect.Options {
 		for _, inner := range option.Effects {
 			collectThrowNames(t, inner, known, seen)
+		}
+	}
+}
+
+// TestEverySubTableCoversTheDie holds the forty-two 1d6 tables printed
+// inside results: every result of the die falls in exactly one row. A gap
+// would leave the engine with nothing to apply, and an overlap would make
+// the first row printed win silently.
+func TestEverySubTableCoversTheDie(t *testing.T) {
+	t.Parallel()
+
+	seen := 0
+
+	for _, effect := range everyEffect() {
+		checkSubTables(t, effect, &seen)
+	}
+
+	if seen == 0 {
+		t.Fatal("no result in the corpus prints a 1d6 table")
+	}
+}
+
+// checkSubTables walks one effect tree, holding each sub-table it finds to
+// covering 1 through 6 exactly once.
+func checkSubTables(t *testing.T, effect Effect, seen *int) {
+	t.Helper()
+
+	if effect.Kind == EffectSubTable {
+		*seen++
+
+		covered := map[int]int{}
+
+		for _, row := range effect.Sub {
+			for result := row.From; result <= row.To; result++ {
+				covered[result]++
+			}
+		}
+
+		for result := 1; result <= 6; result++ {
+			if covered[result] != 1 {
+				t.Errorf("a 1d6 table covers %d %d times: %s", result, covered[result], effect.Detail)
+			}
+		}
+	}
+
+	for _, nested := range [][]Effect{effect.Success, effect.Failure, effect.Group, effect.Fallback} {
+		for _, inner := range nested {
+			checkSubTables(t, inner, seen)
+		}
+	}
+
+	for _, row := range effect.Sub {
+		for _, inner := range row.Effects {
+			checkSubTables(t, inner, seen)
+		}
+	}
+
+	for _, option := range effect.Options {
+		for _, inner := range option.Effects {
+			checkSubTables(t, inner, seen)
 		}
 	}
 }

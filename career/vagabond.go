@@ -152,9 +152,10 @@ func vagabondMishaps() MishapTable {
 		{Summary: "injured", Effects: []Effect{injury(1)}},
 		{
 			Summary: "a politician decides to clean up the area",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1, a term in the Prisoner career; on 2-5, deportation to a new " +
-					"homeworld; on 6, wounded escaping a culling")},
+			Effects: []Effect{rollSub("what the sweep did to you",
+				on(1, "arrested", transfer("Prisoner", "", 1)),
+				onRange(2, 5, "deported", newHomeworld()),
+				on(6, "wounded escaping a culling", injury(1)))},
 		},
 		{
 			Summary: "you fail to prepare for the weather and suffer exposure",
@@ -170,8 +171,10 @@ func vagabondMishaps() MishapTable {
 		},
 		{
 			Summary: "accused of a crime that gets no investigation",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1, two terms in the Prisoner career; on 2-5, one term; on 6, you escape it")},
+			Effects: []Effect{rollSub("how long they hold you",
+				on(1, "two terms", transfer("Prisoner", "", 2)),
+				onRange(2, 5, "one term", transfer("Prisoner", "", 1)),
+				on(6, "you get away"))},
 		},
 	}
 }
