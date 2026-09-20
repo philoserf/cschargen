@@ -140,7 +140,7 @@ func slaveMishaps() MishapTable {
 		{
 			Summary: "blamed for an accident that cost your owner",
 			Effects: []Effect{
-				unimplemented("lose two ranks, retaining any benefit already gained"),
+				loseRank(2),
 				injury(1),
 			},
 		},

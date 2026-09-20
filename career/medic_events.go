@@ -168,7 +168,7 @@ func medicEvents() EventTable {
 
 func medicCaught() []Effect {
 	return []Effect{
-		unimplemented("lose one rank"),
+		loseRank(1),
 		throwModifier("next advancement roll", -2),
 	}
 }

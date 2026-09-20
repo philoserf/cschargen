@@ -154,7 +154,7 @@ func artsEvents() EventTable {
 			Summary: "an invitation onto the subsector's most popular interview show",
 			Effects: []Effect{pick("accept or refuse",
 				opt("refuse",
-					unimplemented("lose one rank"),
+					loseRank(1),
 					relationship(Enemy, 1, "")),
 				opt("accept", unimplemented(
 					"roll 1d6 for the host's disposition, then a Diplomat check at a difficulty "+

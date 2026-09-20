@@ -91,10 +91,7 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 
 		return nil
 	case career.EffectRank:
-		g.rank++
-		g.consequence(ConsequenceRank, cause, effect.Detail, "")
-
-		return nil
+		return g.changeRank(effect, cause)
 	case career.EffectContinue:
 		g.mustContinue = true
 		g.consequence(ConsequenceCareer, cause, effect.Detail, "")

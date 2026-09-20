@@ -32,7 +32,7 @@ func gamblerEvents() EventTable {
 				relationship(Rival, 1, ""),
 				checkSkill("Gambler", 8,
 					[]Effect{skill("Gambler"), benefitRolls(2, 0, ScopeBatch)},
-					[]Effect{unimplemented("lose one rank")}),
+					[]Effect{loseRank(1)}),
 			},
 		},
 		21: {

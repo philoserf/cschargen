@@ -152,7 +152,7 @@ func organizedCrimeEvents() EventTable {
 			Effects: []Effect{checkSkill("Deception", 8,
 				[]Effect{benefitRolls(3, 0, ScopeBatch)},
 				[]Effect{
-					unimplemented("lose one rank"),
+					loseRank(1),
 					throwModifier("advancement rolls for the rest of this career", -2),
 				})},
 		},

@@ -99,9 +99,23 @@ become 127, 220 occurrences become 180.
   because that is the other way a second skill reaches a sheet. It caught
   `Gun Combat (Slug)` in this repository's own sample data the first time it ran.
 
+### Rank lost, and rank gained
+
+The fifth pass on #42. Fourteen more occurrences resolve — 127 distinct results
+become 121, 180 occurrences become 166.
+
+- **A demotion moves the number and nothing else.** Two of the sixteen results
+  add "retaining any benefit already gained" and fourteen do not; **ERRATA E-36**
+  reads them as the same thing, because the book has no rule anywhere for taking
+  a skill level back. A character at rank 0 loses nothing, and the record says so.
+- **An event promotion grants that rank's benefits.** p. 116 attaches them to
+  holding the rank, not to the advancement throw that usually reaches it, and a
+  bare `EffectRank` had been skipping them.
+
 ### Fixed
 
 - A character dismissed from a career could still muster out of it.
+- An instant promotion from an event granted the rank and none of its benefits.
 - A character could hold both Gambler and Gambling, or both Melee (Unarmed) and
   Melee (Unarmed Combat), as separate skills.
 

@@ -93,7 +93,7 @@ func belterEvents() EventTable {
 				opt("Deception", checkSkill("Deception", 8,
 					[]Effect{cashRollsNow(2)},
 					[]Effect{
-						unimplemented("lose one rank"),
+						loseRank(1),
 						benefitRolls(-2, 0, ScopeBatch),
 					})),
 				opt("Gun Combat", checkSkill("Gun Combat", 8,
@@ -144,8 +144,8 @@ func belterEvents() EventTable {
 			Summary: "a massive deposit uncovered, and the company is grateful",
 			Effects: []Effect{
 				stashCountValued(10, companyShare, companyShareValue),
-				{Kind: EffectRank, Detail: "gain a rank"},
-				{Kind: EffectRank, Detail: "gain a second rank"},
+				gainRank(),
+				gainRank(),
 				relationship(Ally, 1, ""),
 			},
 		},

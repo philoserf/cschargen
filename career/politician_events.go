@@ -88,7 +88,7 @@ func politicianEvents() EventTable {
 			Summary: "a debate over what your party now believes",
 			Effects: []Effect{checkSkill("Advocate", 8,
 				[]Effect{advance()},
-				[]Effect{unimplemented("lose one rank")})},
+				[]Effect{loseRank(1)})},
 		},
 		42: {
 			Summary: "politics is often shady business",

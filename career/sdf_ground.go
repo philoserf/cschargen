@@ -158,7 +158,7 @@ func sharedDefenceEvents(own map[int]EventRow, prisonTerms int) EventTable {
 		66: {
 			Summary: "great heroism in a recent action",
 			Effects: []Effect{pick("what the heroism earned",
-				opt("a promotion", Effect{Kind: EffectRank, Detail: "gain a rank"}),
+				opt("a promotion", gainRank()),
 				opt("a commission", commission(0)))},
 		},
 	}

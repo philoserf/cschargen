@@ -22,7 +22,7 @@ func shipperEvents() EventTable {
 		15: {
 			Summary: "a distress call from a damaged ship in the outer system",
 			Effects: []Effect{distressCall(
-				unimplemented("lose one rank as word gets out"),
+				loseRank(1),
 				chr("CHA", -1))},
 		},
 		16: {Summary: "a great time with your coworkers", Effects: []Effect{skill("Carouse")}},
