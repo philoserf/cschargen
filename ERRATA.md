@@ -283,3 +283,27 @@ nothing did.
 **If this is wrong:** the likeliest explanation is that result 25's sub-table
 overran its row and displaced 26's text, in which case the missing entry is lost
 rather than absent. Either way the engine cannot supply it.
+
+---
+
+## E-14 (typo) — a result that prints a target number with nothing to throw
+
+**Where:** Scavenger event 41 (p. 267).
+
+The row reads "You must stay aware of all the local laws and regulations
+concerning your business. Gain a level in Advocate (Legal) 8+". There is no
+throw in it: nothing succeeds or fails, and no consequence hangs on either.
+Every other result in the book that prints "8+" prints "Roll <skill> 8+" and
+two branches beneath it.
+
+**Engine:** the result grants a level in Advocate (Legal) and the "8+" is
+dropped.
+
+**If this is wrong:** the row lost a check in layout, and the level is the
+reward for passing rather than the result itself. That would make the result
+strictly worse than transcribed, never better, so a character generated under
+this reading is never owed a skill they did not earn.
+
+The same table has a second, smaller slip: result 26 says "Engineering (Any)"
+where the skill list (p. 304) has Engineer. The engine uses Engineer, because
+no skill named Engineering exists to grant.

@@ -1,7 +1,7 @@
 # Uncovered statements per package. The gate fails in both directions:
 # a number that rises is lost coverage, one that falls is coverage to lock in.
 # Regenerate with: task ratchet:update
-github.com/philoserf/cschargen/career 5
+github.com/philoserf/cschargen/career 3
 github.com/philoserf/cschargen/chargen 151
 github.com/philoserf/cschargen/cmd/cschargen 33
 github.com/philoserf/cschargen/dice 0

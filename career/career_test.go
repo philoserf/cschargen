@@ -124,6 +124,7 @@ func TestMishapEjectsMatchesThePage(t *testing.T) {
 		"Craftsperson":                     true,
 		"Diplomatic Service":               true,
 		"Explorer":                         true,
+		"Gambler":                          true,
 		"Independent Merchant":             true,
 		"Instructor":                       true,
 		"Journalist":                       true,
@@ -131,11 +132,13 @@ func TestMishapEjectsMatchesThePage(t *testing.T) {
 		"Medic":                            true,
 		"National Navy":                    true,
 		"Orbital Construction":             true,
+		"Organized Crime":                  true,
 		"System Defense Forces (Navy)":     true,
 		"System Defense Forces (Troopers)": true,
 		"System Defense Forces (Wet Navy)": true,
 		"Pirate":                           true,
 		"Politician":                       true,
+		"Scavenger":                        true,
 		"Scientist":                        true,
 		"Thief":                            true,
 		"Prisoner":                         false,
@@ -237,9 +240,9 @@ func TestLookups(t *testing.T) {
 	// A career the book names and this repository has not transcribed. The
 	// list shrinks as milestone 3 proceeds; when it is empty this
 	// assertion changes to "every career the book names is found".
-	_, ok = career.ByName("Gambler")
+	_, ok = career.ByName("Sports")
 	if ok {
-		t.Error("Gambler is not transcribed yet but was found")
+		t.Error("Sports is not transcribed yet but was found")
 	}
 
 	_, ok = colonist.Assignment("Ambassador")
