@@ -188,11 +188,16 @@ func (g *Generator) gainTies(effect career.Effect, cause int) error {
 		name = g.career.Name
 	}
 
+	start := effect.Rating
+	if start == ratingUnspecified {
+		start = defaultRating(effect.Relationship)
+	}
+
 	for range count {
 		g.char.State.Ties = append(g.char.State.Ties, Tie{
 			Kind:   string(effect.Relationship),
 			Origin: name,
-			Rating: 0,
+			Rating: start,
 		})
 	}
 

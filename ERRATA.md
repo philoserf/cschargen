@@ -108,6 +108,13 @@ exactly 40; Life Event 4 orders the four relationship types for removal.
 first term, because the term loop cannot resolve those four results without one.
 Generating an NPC around a rating stays out of scope.
 
+**The rating is now the mechanic p. 320 describes**, not a field nothing sets.
+Milestone 5 made it one, because the youth and teenage tables move ratings on
+almost every row and could not be transcribed on top of a number that never
+changed. The four Life Events above carry it out rather than recording it. See
+[E-22](#e-22-reading--a-tie-is-born-with-the-kind-its-result-names) and
+[E-23](#e-23-reading--where-a-tie-with-no-printed-rating-starts).
+
 ---
 
 ## E-6 (reading) — "choose another career" is the player's choice, not a transfer
@@ -472,3 +479,87 @@ Sports (p. 273) prints "If the character's apparent age is 40+" where the other
 eleven print "over 40". The engine treats them as one modifier at one bar: 40+
 and "over 40" differ only for a band whose lower bound is exactly 40, and that
 band is 40-45, which both readings catch.
+
+---
+
+## E-22 (reading) — a tie is born with the kind its result names
+
+**Where:** the Relationship Rating bands (p. 320), against the results that grant
+ties (pp. 57-61, 68-84, 120, and every career's tables).
+
+p. 320 divides the scale into four bands and names each: Contacts are 1-100,
+Allies 101-200, Rivals -1 to -100, Enemies -101 and below. Read as a definition,
+the band decides what a tie is.
+
+The results that grant ties do not read that way. Step 5 grants a grandparent
+"as an Ally with a Relationship Rating of 100" (p. 61) — and 100 is the top of the
+Contact band. Youth Path 1 result 18 grants "a Contact with a Relationship Rating
+of 90", which agrees; result 12 grants "an Ally with a Relationship Rating of 125",
+which also agrees. Only the family numbers disagree, and they disagree twice over:
+p. 320 also says "Family members will always begin as Allies with a Relationship
+Rating of 150", where Step 5 says 125 for parents and siblings and 100 for
+everyone else.
+
+**Engine:** the kind is stored, and the result that grants a tie decides it. The
+bands govern movement.
+
+**Reasoning:** every band sentence on p. 320 is about motion — "Contacts which
+fall to", "Allies whose Relationship Rating drops to", "Enemies whose rating
+rises" — and none of them is about creation. A specific instruction beats a
+general rule, and a named kind beats an inferred one. Where the two family
+numbers disagree, the step that grants the tie wins over the summary on p. 320.
+
+**If this is wrong:** a character's grandparents are Contacts rather than Allies,
+one point of Relationship Rating below the line.
+
+---
+
+## E-23 (reading) — where a tie with no printed rating starts
+
+**Where:** most results in the book that grant a relationship, e.g. "Gain an
+Ally" (Adventurer event 13, p. 148).
+
+The book gives a rating for perhaps a dozen ties and not for the rest. A rating
+is now load-bearing — it is what decides whether a Contact survives a bad term —
+so a tie with no printed one has to start somewhere.
+
+**Engine:** the middle of its band. An Ally starts at 150, a Contact at 50, a
+Rival at -50, an Enemy at -150.
+
+**Reasoning:** it is the only choice that is not an argument about which end of
+the band a nameless relationship belongs at, and it happens to agree with p. 320's
+"Family members will always begin as Allies with a Relationship Rating of 150".
+The alternative — starting every tie at a band edge — would make one direction of
+movement free and the other instantly fatal.
+
+**If this is wrong:** ties are a little more robust or a little more fragile than
+intended, uniformly. The ratings the book does print are used as printed, so this
+never overrides a number on the page.
+
+---
+
+## E-24 (reading) — a relationship ends rather than inverting
+
+**Where:** the Relationship Rating bands (p. 320).
+
+> Contacts which fall to a Relationship Rating of 0 have decided to no longer be
+> associated with the character and are lost. ... Allies which drop immediately to
+> 0 or less are no longer associated with the character and are lost. ... Enemies
+> whose rating rises immediately to 0 or higher have decided they no longer care
+> about the character and are lost.
+
+Read together, those three sentences say a tie never crosses zero: a positive
+relationship that goes negative is lost rather than becoming a Rival, and a
+negative one that goes positive is lost rather than becoming a Contact. The book
+states it for Contacts, Allies and Enemies and not for Rivals, whose sentence
+instead reads "Rivals which rise to 0 or higher have decided that their rivalry is
+no longer valid, and they are lost to the character" — which is the same rule.
+
+**Engine:** a rating change that would take a tie to zero or across it loses the
+tie, and the change is classified once on the final rating rather than band by
+band. An Ally at 110 who takes -120 is gone; they are not a Rival at -10.
+
+This is closer to a reading of three sentences together than an interpretation of
+any one of them, and it is here because the obvious implementation — move the
+number, look up the band — gets it wrong in exactly the cases the page bothered to
+call out.

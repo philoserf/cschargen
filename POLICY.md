@@ -34,10 +34,11 @@ belong with the choice points, which later milestones add.
 
 ## Choice points at milestone 1
 
-| Point                    | Where                                           | Policy                                                                                           |
-| ------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `assign_characteristics` | p. 13, "apply the numbers ... as they see fit"  | Assign in roll order: the first roll to STR, the second to DEX, and so on                        |
-| `aging_crisis`           | p. 123, "the player may pay 1D6 × 1000 credits" | Pay for the treatment, which is the first option printed — and the only one a character survives |
+| Point                    | Where                                                | Policy                                                                                           |
+| ------------------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `assign_characteristics` | p. 13, "apply the numbers ... as they see fit"       | Assign in roll order: the first roll to STR, the second to DEX, and so on                        |
+| `aging_crisis`           | p. 123, "the player may pay 1D6 × 1000 credits"      | Pay for the treatment, which is the first option printed — and the only one a character survives |
+| `relationship_target`    | p. 320, "an existing Ally or Contact loses 1d6 × 20" | The first tie of a matching kind, in the order they were gained                                  |
 
 Rows are added as the engine reaches the choice points, in the PR that reaches
 them. A row here and no code is as wrong as code and no row.

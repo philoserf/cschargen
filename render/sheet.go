@@ -9,6 +9,8 @@ package render
 
 import (
 	"fmt"
+	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/philoserf/cschargen/chargen"
@@ -165,8 +167,12 @@ func writeTies(out *strings.Builder, character *chargen.Character) {
 	}
 
 	counts := map[string]int{}
+	ratings := map[string][]int{}
+
 	for _, tie := range character.State.Ties {
 		counts[tie.Kind]++
+
+		ratings[tie.Kind] = append(ratings[tie.Kind], tie.Rating)
 	}
 
 	out.WriteString("## Relationships\n\n")
@@ -186,10 +192,27 @@ func writeTies(out *strings.Builder, character *chargen.Character) {
 			continue
 		}
 
-		fmt.Fprintf(out, "- %s: %d\n", entry.plural, counts[entry.kind])
+		// The Relationship Rating is what says whether a Contact is
+		// nearly an Ally or nearly lost (p. 320), so a count on its own
+		// leaves out the half of a relationship that moves.
+		fmt.Fprintf(out, "- %s: %d (%s)\n",
+			entry.plural, counts[entry.kind], joinRatings(ratings[entry.kind]))
 	}
 
 	out.WriteString("\n")
+}
+
+// joinRatings renders a kind's Relationship Ratings, sorted so the sheet
+// reads the same way twice running.
+func joinRatings(ratings []int) string {
+	sorted := slices.Sorted(slices.Values(ratings))
+
+	parts := make([]string, len(sorted))
+	for i, rating := range sorted {
+		parts[i] = strconv.Itoa(rating)
+	}
+
+	return strings.Join(parts, ", ")
 }
 
 func writeBelongings(out *strings.Builder, character *chargen.Character) {

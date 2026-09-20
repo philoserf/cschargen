@@ -204,6 +204,75 @@ func relationship(kind Relationship, count int, rolled string) Effect {
 	}
 }
 
+// relationshipAt is relationship where the page names the rating the tie
+// starts at: "Gain an Ally with a Relationship Rating of 125" (Youth Path 1
+// result 12, p. 69).
+func relationshipAt(kind Relationship, count, rating int) Effect {
+	tie := relationship(kind, count, "")
+
+	tie.Detail += " at a Relationship Rating of " + itoa(rating)
+
+	tie.Rating = rating
+
+	return tie
+}
+
+// rating moves Relationship Ratings (p. 320). Amount is the fixed change;
+// where the book rolls for it, rolled carries the expression and amount's
+// sign says which way it goes.
+func rating(target TieTarget, only Relationship, amount int, rolled string) Effect {
+	detail := "Relationship Rating"
+
+	switch target {
+	case TargetAll:
+		detail = "every relationship's " + detail
+	case TargetFamily:
+		detail = "every family member's " + detail
+	case TargetOne:
+		detail = "one " + string(only) + "'s " + detail
+		if only == "" {
+			detail = "one relationship's Relationship Rating"
+		}
+	}
+
+	move := " by " + itoa(amount)
+	if rolled != "" {
+		move = " by " + rolled
+	}
+
+	if amount < 0 {
+		detail = "lower " + detail + move
+	} else {
+		detail = "raise " + detail + move
+	}
+
+	return Effect{
+		Kind:         EffectRating,
+		Detail:       detail,
+		Target:       target,
+		Relationship: only,
+		Modifier:     amount,
+		Dice:         rolled,
+	}
+}
+
+// loseTie removes a relationship, trying the kinds in the order given --
+// which is the order Life Event 4 prints them in, and reverses on a 4-6.
+func loseTie(order ...Relationship) Effect {
+	detail := "lose a relationship"
+
+	if len(order) > 0 {
+		names := make([]string, len(order))
+		for i, kind := range order {
+			names[i] = string(kind)
+		}
+
+		detail = "lose " + joinOr(names) + ", in that order"
+	}
+
+	return Effect{Kind: EffectLoseTie, Detail: detail, Order: order}
+}
+
 // credits pays the character an amount the book gives as dice.
 func credits(rolled string) Effect {
 	return Effect{Kind: EffectCredits, Detail: "gain " + rolled + " credits", Dice: rolled}

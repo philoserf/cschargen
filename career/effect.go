@@ -125,6 +125,19 @@ const (
 	// a +2 DM to your next Advancement roll" (p. 121).
 	EffectCommission
 
+	// EffectRating moves a tie's Relationship Rating (p. 320): "an existing
+	// Ally or Contact loses 1d6 x 20 Relationship Rating" (Life Event 5),
+	// "decrease your Relationship Rating with that parent by 150" (Youth
+	// Path 1 result 5). Target says which tie, Relationship narrows it to
+	// one kind, and Modifier or Dice carries the amount.
+	EffectRating
+
+	// EffectLoseTie removes a tie outright: "lose one Contact or Ally"
+	// (Teenage Life Event 3), "lose an Ally, Contact, Rival or Enemy in
+	// that order" (Life Event 4). Order lists the kinds to try, in the
+	// order to try them.
+	EffectLoseTie
+
 	// EffectUnimplemented is a result this milestone cannot carry out. It
 	// carries the book's demand in Detail.
 	EffectUnimplemented
@@ -160,6 +173,24 @@ const (
 	Contact Relationship = "contact"
 	Rival   Relationship = "rival"
 	Enemy   Relationship = "enemy"
+)
+
+// TieTarget says which ties an [EffectRating] moves.
+type TieTarget string
+
+const (
+	// TargetOne moves a single tie, chosen at the choice point. The
+	// Relationship field narrows the candidates where the page does:
+	// "an existing Ally or Contact".
+	TargetOne TieTarget = "one"
+
+	// TargetAll moves every tie the character has: "Lower the Relationship
+	// Rating with everyone in your life by 25" (Youth Path 1 result 7).
+	TargetAll TieTarget = "all"
+
+	// TargetFamily moves every tie that came from Step 5: "Gain +20 to the
+	// Relationship Rating of all family members" (Youth Path 1 result 16).
+	TargetFamily TieTarget = "family"
 )
 
 // BenefitScope says how far an [EffectBenefitRolls] modifier reaches.
@@ -213,6 +244,16 @@ type Effect struct {
 	Career     string
 	Assignment string
 	Terms      int
+
+	// Target and Order belong to [EffectRating] and [EffectLoseTie]: which
+	// ties are moved, and the order in which kinds are tried for removal.
+	Target TieTarget
+	Order  []Relationship
+
+	// Rating is the Relationship Rating an [EffectRelationship] starts a
+	// tie at, where the result that grants it names one. Zero means the
+	// result did not, and the engine supplies a default (ERRATA E-23).
+	Rating int
 
 	// Applies names the throw an [EffectModifier] attaches to.
 	Applies string

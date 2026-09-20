@@ -66,23 +66,31 @@ func LifeEvents() MishapTable {
 			)},
 		},
 		{
+			// The 1d6 decides only which end of the list to start from,
+			// so it is a choice between two orders rather than a roll the
+			// engine has to make.
 			Summary: "a death in your peer group",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1-3 lose an Ally, Contact, Rival or Enemy in that order; on 4-6 the reverse order")},
+			Effects: []Effect{pick("which of them it was",
+				opt("the closest first", loseTie(Ally, Contact, Rival, Enemy)),
+				opt("the most distant first", loseTie(Enemy, Rival, Contact, Ally)))},
 		},
 		{
 			Summary: "you have been betrayed",
-			Effects: []Effect{unimplemented(
-				"an existing Ally or Contact loses 1d6 x 20 Relationship Rating, or, with none, gain an Enemy at -110")},
+			Effects: []Effect{
+				rating(TargetOne, "", -1, "1d6x20"),
+				unimplemented("with no Ally or Contact to lose, gain an Enemy at -110 instead"),
+			},
 		},
 		{
+			// Again the 1d6 chooses a direction rather than a quantity.
 			Summary: "a relationship changes",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1-3 an NPC gains 1d6 x 10 Relationship Rating, on 4-6 one loses that much")},
+			Effects: []Effect{pick("which way it went",
+				opt("closer", rating(TargetOne, "", 1, "1d6x10")),
+				opt("further away", rating(TargetOne, "", -1, "1d6x10")))},
 		},
 		{
 			Summary: "a new contact",
-			Effects: []Effect{relationship(Contact, 1, "")},
+			Effects: []Effect{relationshipAt(Contact, 1, 40)},
 		},
 		{
 			Summary: "dissatisfaction with your career",
@@ -102,17 +110,16 @@ func LifeEvents() MishapTable {
 		},
 		{
 			Summary: "a new romantic relationship",
-			Effects: []Effect{unimplemented(
-				"choose an existing Ally, or raise a Contact by 100 Relationship Rating to make them one; " +
-					"with neither, gain an Ally at a Relationship Rating of 180")},
+			Effects: []Effect{pick("who it turned out to be",
+				opt("a Contact who becomes more", rating(TargetOne, Contact, 100, "")),
+				opt("somebody new", relationshipAt(Ally, 1, 180)))},
 		},
 		{
 			Summary: "something wonderful",
 			Effects: []Effect{pick("what came of it",
-				opt("a new Ally at a Relationship Rating of 140", relationship(Ally, 1, "")),
+				opt("a new Ally", relationshipAt(Ally, 1, 140)),
 				opt("an inheritance or prize", credits("5000")),
-				opt("upgrade a relationship as in result 11",
-					unimplemented("raise a Contact by 100 Relationship Rating to make them an Ally")),
+				opt("a Contact who becomes more", rating(TargetOne, Contact, 100, "")),
 			)},
 		},
 	}
