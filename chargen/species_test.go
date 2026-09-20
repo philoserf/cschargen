@@ -362,3 +362,121 @@ func checkUpliftClass(
 
 	return character.State.UpliftClass
 }
+
+// TestAnUpliftsLifePeriodsAreTheirOwn is p. 68: "Uplifts will often have
+// shorter youths than humans. Whereas humans will roll on the following
+// charts twice to represent their lives from 4-8 and again from 9-12,
+// uplifts will have a different age range and may roll fewer times."
+func TestAnUpliftsLifePeriodsAreTheirOwn(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+
+	for _, species := range data.Species {
+		if species.YouthRolls == 0 {
+			continue
+		}
+
+		t.Run(species.Name, func(t *testing.T) {
+			t.Parallel()
+
+			opts := options(t, 5)
+
+			opts.Inputs.Species = species.Name
+			opts.Inputs.TermLimit = -1
+
+			character := generate(t, opts)
+
+			youth := countPeriods(character, species.YouthAges)
+			teenage := countPeriods(character, species.TeenAges)
+
+			if youth != species.YouthRolls {
+				t.Errorf("%d youth events, want %d", youth, species.YouthRolls)
+			}
+
+			if teenage != species.TeenRolls {
+				t.Errorf("%d teenage events, want %d", teenage, species.TeenRolls)
+			}
+		})
+	}
+}
+
+// countPeriods is how many life-period events a record holds for a set of
+// age ranges.
+func countPeriods(character *chargen.Character, ages []string) int {
+	found := 0
+
+	for _, event := range character.Events {
+		if event.Consequence == nil {
+			continue
+		}
+
+		for _, age := range ages {
+			if strings.HasPrefix(event.Consequence.Detail, age+", on ") {
+				found++
+			}
+		}
+	}
+
+	return found
+}
+
+// TestAnEnslavedCharactersEarlyLife is pp. 74 and 84: a character their
+// homeworld owns lives a different childhood, on an eleven-row 2d6 table
+// rather than a nineteen-row 2d10 one, and takes no path because there is
+// only one.
+func TestAnEnslavedCharactersEarlyLife(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+	owned := 0
+
+	for _, species := range data.Species {
+		for seed := range uint64(60) {
+			opts := options(t, seed)
+
+			opts.Inputs.Species = species.Name
+			opts.Inputs.TermLimit = 1
+
+			character := generate(t, opts)
+
+			born, _, found := data.World(character.State.Homeworlds[0].World)
+			if !found {
+				continue
+			}
+
+			permission := born.Engineered
+			if species.Kind == "uplift" {
+				permission = born.Uplifts
+			}
+
+			if permission.Status != "enslaved" {
+				continue
+			}
+
+			owned++
+
+			checkNoPathOffered(t, seed, character)
+		}
+	}
+
+	if owned == 0 {
+		t.Fatal("no seed produced a character born owned")
+	}
+}
+
+// checkNoPathOffered: the enslaved tables are the only life-period tables
+// that are not a choice, because there is only one of each.
+func checkNoPathOffered(t *testing.T, seed uint64, character *chargen.Character) {
+	t.Helper()
+
+	for _, event := range character.Events {
+		if event.Kind != chargen.EventChoice {
+			continue
+		}
+
+		if event.Choice.Point == "youth_path" || event.Choice.Point == "teenage_path" {
+			t.Errorf("seed %d: an owned character was offered a path to choose", seed)
+		}
+	}
+}

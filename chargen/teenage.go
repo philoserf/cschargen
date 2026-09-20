@@ -10,7 +10,9 @@ import "github.com/philoserf/cschargen/career"
 // them is always open, and Paths 3 and 4 are characteristic gates on top of
 // that. A character always has one path and may have three.
 
-// teenagePeriods is what the two rolls represent, in the book's own words.
+// teenagePeriods is what a human's two rolls represent, in the book's own
+// words. An uplift's are in the setting data: "Uplifts will often have a
+// shorter adolescence than humans" (p. 76).
 var teenagePeriods = [...]string{"ages 13-15", "ages 16-18"}
 
 // teenageEvents is Step 7.
@@ -27,7 +29,10 @@ func (g *Generator) teenageEvents() error {
 		return nil
 	}
 
-	for _, period := range teenagePeriods {
+	periods := g.lifePeriods(
+		speciesTeenRolls(g.species), speciesTeenAges(g.species), teenagePeriods[:])
+
+	for _, period := range periods {
 		err := g.oneTeenageEvent(step, period)
 		if err != nil {
 			return err
@@ -39,6 +44,10 @@ func (g *Generator) teenageEvents() error {
 
 // oneTeenageEvent chooses a path, rolls 2d10 on it, and applies the result.
 func (g *Generator) oneTeenageEvent(step int, period string) error {
+	if g.enslaved {
+		return g.enslavedEvent(career.EnslavedTeenage(), step, period)
+	}
+
 	path, err := g.chooseTeenagePath(step, period)
 	if err != nil {
 		return err
