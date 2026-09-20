@@ -31,7 +31,7 @@ func (g *Generator) applyAll(effects []career.Effect, cause int) error {
 // the fold over it; splitting it would scatter one table across files, and
 // a fold has the size of the alphabet it folds over.
 //
-//nolint:cyclop,funlen // a fold over a closed alphabet has the size of the alphabet
+//nolint:cyclop,funlen,gocyclo // a fold over a closed alphabet has the size of the alphabet
 func (g *Generator) apply(effect career.Effect, cause int) error {
 	switch effect.Kind {
 	case career.EffectSkill:
@@ -85,6 +85,12 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 	case career.EffectChangeAssignment:
 		g.mayChangeAssignment = true
 		g.consequence(ConsequenceCareer, cause, effect.Detail, "")
+
+		return nil
+	case career.EffectCollegiateLifeEvent, career.EffectAcademyLifeEvent:
+		return g.rollInstitutionLifeEvent(cause)
+	case career.EffectHonors:
+		g.honorsByEvent(cause)
 
 		return nil
 	case career.EffectTeenageLifeEvent:

@@ -143,7 +143,15 @@ func TestAgeIsFourYearsPerTermUnlessAMishapEjected(t *testing.T) {
 	const startingAge = 18
 
 	for seed := range uint64(sample) {
-		character := lifepath(t, seed, 5)
+		// Step 8 adds four years for a degree and 1d3 for a washout
+		// (pp. 87-88), which is a different rule on a different page. This
+		// one is about Step 17's arithmetic.
+		opts := options(t, seed)
+
+		opts.Inputs.TermLimit = 5
+		opts.Inputs.SkipEducation = true
+
+		character := generate(t, opts)
 
 		terms := len(character.State.Terms)
 		age := character.State.Age

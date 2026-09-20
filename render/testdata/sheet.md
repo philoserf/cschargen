@@ -1,7 +1,7 @@
 # Vela Ashgrove
 
 **Species**: human  
-**Age**: 27  
+**Age**: 34  
 **Homeworld**: Ironpsalm  
 **Primary language**: Litany Cant  
 **Terms**: 3
@@ -17,29 +17,30 @@ The youngest child.
 
 | STR | DEX | END | INT | EDU | CHA |
 | --- | --- | --- | --- | --- | --- |
-| 7 (+0) | 10 (+1) | 7 (+0) | 9 (+1) | 10 (+1) | 9 (+1) |
+| 9 (+1) | 10 (+1) | 10 (+1) | 10 (+1) | 13 (+2) | 9 (+1) |
 
 ## Skills
 
-Admin-1, Admin (Any)-1, Athletics (Any)-1, Carouse-0, Drive (Any)-0, Electronics-0, Flyer (Any)-0, Investigate-0, Melee (Blade)-1, Navigation-0, Recon-1, Survival (Any)-2
+Admin (Any)-1, Advocate (Any)-2, Carouse-0, Electronics-0, Gambling-1, Melee (Blade)-1, Persuade-0, Recon-1, Stealth-0, Streetwise-0, Survival (Any)-1
 
 ## Career history
 
 | Career | Assignment | Terms | Rank | Left because |
 | ------ | ---------- | ----- | ---- | ------------ |
-| Adventurer | Hunter | 2 | 1 | ejected by a mishap |
-| Adventurer | Hunter | 1 | 0 | ejected by a mishap |
+| Vagabond | Destitute | 3 | 1 | character generation ended |
 
 ## Relationships
 
-- Allies: 10 (100 x6, 125 x4)
+- Allies: 11 (100 x6, 125 x4, 150)
 - Rivals: 1 (-50)
 
 ## Belongings and injuries
 
-**Credits**: 47000
+**Credits**: 1200
 
-- Term 1: heavily injured: an eye or a limb is gone (permanent)
+**Stash**: a stash
+
+- Term 0: nearly killed (permanent)
 
 ---
 

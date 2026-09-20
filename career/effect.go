@@ -148,6 +148,19 @@ const (
 	// table (p. 85), which result 10 of every teenage path reaches.
 	EffectTeenageLifeEvent
 
+	// EffectCollegiateLifeEvent and EffectAcademyLifeEvent send the
+	// character to an institution's own life-events table (pp. 91, 96),
+	// which result 10 of its events table reaches. They are separate kinds
+	// because the two tables differ: the academy's result 2 is a battle.
+	EffectCollegiateLifeEvent
+	EffectAcademyLifeEvent
+
+	// EffectHonors grants honours to a character whose throw for them
+	// failed, which one result on each institution's events table does:
+	// "If you failed on your Honors roll, you have now been successful"
+	// (p. 91).
+	EffectHonors
+
 	// EffectUnimplemented is a result this milestone cannot carry out. It
 	// carries the book's demand in Detail.
 	EffectUnimplemented
