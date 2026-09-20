@@ -155,10 +155,12 @@ repository's documents quote their own examples.
   a term its OGL notice reserves, so this repository calls it
   `Engineered/Uplift Slave`. That word appears here only in the test that keeps it
   out.
-- **Rank benefits are a floor, not an increment** (p. 116), and the engine
-  currently adds — [#20](https://github.com/philoserf/cschargen/issues/20). Data
-  written against a rank table should carry what the page prints, not what the
-  engine does with it.
+- **Rank benefits are a floor, not an increment** (p. 116). A rank row's skills
+  go through `applyRankBenefits`, which raises a skill to the level the row
+  prints and does nothing where the character is already there; everything else
+  a rank row carries is applied as printed. "(Any)" picks a specialty the
+  character does not hold at level 1 or higher. Data written against a rank
+  table carries what the page prints.
 - **Aging is indexed by term number and gated by homeworld tech level** (pp.
   122-123), not by age. Apparent age is a derived lookup (p. 125), never rolled.
 - **Homeworld is not fixed after character creation.** Six of Colonist's eleven

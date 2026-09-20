@@ -354,7 +354,129 @@ func (g *Generator) promote(cause int, assignment career.Assignment) error {
 	g.consequence(ConsequenceRank, cause,
 		"advanced to rank "+itoa(g.rank)+" in "+assignment.Name, g.career.Name)
 
-	return g.applyAll(ranks[g.rank], cause)
+	return g.applyRankBenefits(ranks[g.rank], cause)
+}
+
+// applyRankBenefits is p. 116's rule, which an ordinary applyAll gets
+// wrong:
+//
+//	"If a Benefit grants a skill the character already possesses at the
+//	listed level or higher, no additional benefit is gained. Rank Benefits
+//	represent required competence, not bonus stacking."
+//
+// So a rank benefit is a floor rather than an increment. Everything else a
+// rank row can carry -- a characteristic, a Contact, a stash -- is applied
+// as printed; it is only the skills the rule speaks about.
+func (g *Generator) applyRankBenefits(effects []career.Effect, cause int) error {
+	for _, effect := range effects {
+		if effect.Kind != career.EffectSkill {
+			err := g.apply(effect, cause)
+			if err != nil {
+				return err
+			}
+
+			continue
+		}
+
+		err := g.grantRankSkill(effect, cause)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// grantRankSkill raises a skill to the level the rank row prints, or does
+// nothing where the character is already there.
+//
+// "(Any)" is its own rule: "This allows the character to select a specialty
+// within that skill, provided they do not already possess that specialty at
+// level 1 or higher ... If the character already possesses all available
+// specialties at level 1 or higher, they gain no additional benefit"
+// (p. 116). The engine records "Any" as the specialty rather than resolving
+// it, so a second grant of the same skill at "Any" is one the character
+// already has.
+func (g *Generator) grantRankSkill(effect career.Effect, cause int) error {
+	level := effect.Level
+	if level == 0 {
+		level = 1
+	}
+
+	specialty, err := g.rankSpecialty(effect)
+	if err != nil {
+		return err
+	}
+
+	held, found := g.char.State.Skill(effect.Skill, specialty)
+	if found && held.Level >= level {
+		name := ""
+		if g.career != nil {
+			name = g.career.Name
+		}
+
+		g.consequence(ConsequenceSkill, cause,
+			"rank benefit: "+held.Full()+" is already "+itoa(held.Level)+
+				", which meets the required "+itoa(level), name)
+
+		return nil
+	}
+
+	got := g.char.State.GainSkill(effect.Skill, specialty, level-held.Level)
+
+	g.log.Consequence(ConsequenceEvent{
+		Kind:   ConsequenceSkill,
+		Cause:  cause,
+		Detail: "rank benefit: " + got.Full() + " " + itoa(got.Level),
+		Skill:  got.Full(),
+		Level:  got.Level,
+		Cite:   g.cite,
+	})
+
+	return nil
+}
+
+// rankSpecialty resolves a rank benefit's specialty the way applySkill
+// does, except that a choice excludes what the character already holds at
+// level 1 or higher (p. 116).
+func (g *Generator) rankSpecialty(effect career.Effect) (string, error) {
+	switch len(effect.Specialties) {
+	case 0:
+		return "", nil
+	case 1:
+		return effect.Specialties[0], nil
+	}
+
+	var open []string
+
+	for _, specialty := range effect.Specialties {
+		held, found := g.char.State.Skill(effect.Skill, specialty)
+		if found && held.Level >= 1 {
+			continue
+		}
+
+		open = append(open, specialty)
+	}
+
+	// "If the character already possesses all available specialties at level
+	// 1 or higher, they gain no additional benefit from that Rank Benefit."
+	// Falling back to the printed list is what makes that a no-op: the
+	// grant below finds the skill already at or above its level.
+	if len(open) == 0 {
+		open = effect.Specialties
+	}
+
+	chosen, err := g.choose(Choice{
+		Point:   "skill_specialty",
+		Prompt:  "Choose a specialty for " + effect.Skill,
+		Options: open,
+		Cite:    "p. 116",
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return open[chosen], nil
 }
 
 // rollSkill is Step 15 (p. 117): "The Player should choose one of the
