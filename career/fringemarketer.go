@@ -90,7 +90,7 @@ func FringeMarketer() Career {
 			{Cash: 500, Other: chr("INT", 1)},
 			{Cash: 1000, Other: chr("EDU", 1)},
 			{Cash: 5000, Other: stashItem("a weapon")},
-			{Cash: 10000, Other: unimplemented("a rare item worth 2d6 x 100,000 credits")},
+			{Cash: 10000, Other: stashValued("a rare item", "2d6x100000")},
 		},
 		Mishaps: fringeMarketerMishaps(),
 		Events:  fringeMarketerEvents(),

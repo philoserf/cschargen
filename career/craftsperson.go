@@ -82,8 +82,8 @@ func Craftsperson() Career {
 			{Cash: 500, Other: chr("STR", 1)},
 			{Cash: 1000, Other: chr("DEX", 1)},
 			{Cash: 2000, Other: chr("END", 1)},
-			{Cash: 5000, Other: stashItem("a tool kit")},
-			{Cash: 10000, Other: unimplemented("a company share, 2d6 x 100,000 credits")},
+			{Cash: 5000, Other: stashValued("a tool kit", "1000")},
+			{Cash: 10000, Other: stashValued(companyShare, companyShareValue)},
 		},
 		Mishaps: craftMishaps(),
 		Events:  craftEvents(),
@@ -101,7 +101,7 @@ func craftMishaps() MishapTable {
 		{
 			Summary: "constant arguments with your boss end your contract",
 			Effects: []Effect{
-				unimplemented("lose any company shares"),
+				loseStashItem(companyShare),
 				benefitRolls(1, 0, ScopeBatch),
 			},
 		},
@@ -115,17 +115,17 @@ func craftMishaps() MishapTable {
 			Summary: "accused of negligence resulting in a teammate's death",
 			Effects: []Effect{
 				benefitRolls(-2, 0, ScopeBatch),
-				unimplemented("lose any company shares"),
+				loseStashItem(companyShare),
 			},
 		},
 		{
 			Summary: "your boss believes you have been stealing materials",
 			Effects: []Effect{pick("defend yourself however you can",
 				opt("Advocate (Legal)", checkSkill("Advocate", 8,
-					[]Effect{unimplemented("lose any company shares")},
+					[]Effect{loseStashItem(companyShare)},
 					craftPrison())),
 				opt("Deception (Lie)", checkSkill("Deception", 8,
-					[]Effect{unimplemented("lose any company shares")},
+					[]Effect{loseStashItem(companyShare)},
 					craftPrison())))},
 		},
 		{
@@ -149,7 +149,7 @@ func craftMishaps() MishapTable {
 func craftPrison() []Effect {
 	return []Effect{
 		loseAllBenefits("lose every benefit roll from this career"),
-		unimplemented("lose any company shares"),
+		loseStashItem(companyShare),
 		relationship(Enemy, 1, ""),
 		transfer("Prisoner", "Prisoner", 1),
 	}
@@ -158,7 +158,7 @@ func craftPrison() []Effect {
 func craftBlamed() []Effect {
 	return []Effect{
 		loseAllBenefits("lose every benefit roll from this career"),
-		unimplemented("lose any company shares"),
+		loseStashItem(companyShare),
 		relationship(Enemy, 1, ""),
 	}
 }

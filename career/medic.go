@@ -94,7 +94,7 @@ func Medic() Career {
 			{Cash: 10000, Other: chr("CHA", 1)},
 			{Cash: 20000, Other: stashItem("a medical kit")},
 			{Cash: 50000, Other: relationship(Contact, 1, "")},
-			{Cash: 100000, Other: unimplemented("a company share, 2d6 x 100,000 credits")},
+			{Cash: 100000, Other: stashValued(companyShare, companyShareValue)},
 		},
 		Mishaps: medicMishaps(),
 		Events:  medicEvents(),

@@ -1,6 +1,9 @@
 package career
 
-import "testing"
+import (
+	"slices"
+	"testing"
+)
 
 // The constructors in build.go are how every table in this package is
 // written, so most of them are covered a thousand times over by the tables
@@ -72,6 +75,58 @@ func TestLoseTieNamesItsOrder(t *testing.T) {
 // TestTheMilitaryEventsTableIsAnElevenRowTable, which nothing else checks:
 // it is reached through EffectMilitaryEvent rather than by name, so the
 // shape test over All() never sees it.
+// TestEveryWeaponBenefitOffersItsAlternatives is p. 129: "If the player
+// wishes, they may choose to take a level in Melee (Any) or Gun Combat
+// (Any) in lieu of a weapon." Fifteen rows across the corpus print the
+// Weapon benefit, and the alternative is part of the benefit rather than a
+// house rule -- so no row may offer the weapon alone.
+func TestEveryWeaponBenefitOffersItsAlternatives(t *testing.T) {
+	t.Parallel()
+
+	found := 0
+
+	for _, def := range All() {
+		for row, benefit := range def.Benefits {
+			if !offersAWeapon(benefit.Other) {
+				continue
+			}
+
+			found++
+
+			labels := make([]string, 0, len(benefit.Other.Options))
+			for _, option := range benefit.Other.Options {
+				labels = append(labels, option.Label)
+			}
+
+			for _, want := range []string{"a weapon", "Melee (Any)", "Gun Combat (Any)"} {
+				if !slices.Contains(labels, want) {
+					t.Errorf("%s benefit row %d does not offer %q: %v",
+						def.Name, row+1, want, labels)
+				}
+			}
+		}
+	}
+
+	if found == 0 {
+		t.Fatal("no career prints the Weapon benefit; the test checks nothing")
+	}
+}
+
+// offersAWeapon reports whether an effect is the Weapon benefit's choice.
+func offersAWeapon(effect Effect) bool {
+	if effect.Kind != EffectChoice {
+		return false
+	}
+
+	for _, option := range effect.Options {
+		if option.Label == "a weapon" {
+			return true
+		}
+	}
+
+	return false
+}
+
 func TestTheMilitaryEventsTableIsAnElevenRowTable(t *testing.T) {
 	t.Parallel()
 

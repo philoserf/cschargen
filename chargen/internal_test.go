@@ -511,7 +511,9 @@ func TestAHomeworldItemGoesToTheStash(t *testing.T) {
 		t.Fatalf("Run: %v", err)
 	}
 
-	if !slices.Contains(character.State.Stash, "a neural companion") {
+	if !slices.ContainsFunc(character.State.Stash, func(p Possession) bool {
+		return p.Item == "a neural companion"
+	}) {
 		t.Errorf("the item is not in the stash: %v", character.State.Stash)
 	}
 }

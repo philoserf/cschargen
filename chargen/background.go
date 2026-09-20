@@ -108,7 +108,7 @@ func (g *Generator) grantRequirement(requirement setting.Requirement, step int) 
 
 func (g *Generator) grantAlternative(alternative setting.Alternative, step int) error {
 	if alternative.Item != "" {
-		g.char.State.Stash = append(g.char.State.Stash, alternative.Item)
+		g.char.State.Stash = append(g.char.State.Stash, Possession{Item: alternative.Item})
 		g.consequence(ConsequenceStash, step, "from the homeworld: "+alternative.Item, "")
 
 		return nil

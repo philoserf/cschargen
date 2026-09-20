@@ -150,9 +150,9 @@ func marineBenefits() [7]BenefitRow {
 		{Cash: 500, Other: chr("DEX", 1)},
 		{Cash: 1000, Other: chr("INT", 1)},
 		{Cash: 2000, Other: chr("EDU", 1)},
-		{Cash: 5000, Other: unimplemented("a weapon of the character's choice")},
+		{Cash: 5000, Other: weaponOrItsUse()},
 		{Cash: 10000, Other: relationship(Contact, 1, "")},
-		{Cash: 25000, Other: unimplemented("armor of the character's choice")},
+		{Cash: 25000, Other: stashItem("armor of the character's choice")},
 	}
 }
 

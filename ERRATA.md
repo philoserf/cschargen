@@ -780,3 +780,26 @@ It still counts, so mustering out settles the compelled rolls first and the free
 choices are made against what is left of the three — which is the only order in
 which counting them means anything. A record where a compelled roll landed past
 the cap is stamped E-32.
+
+---
+
+## E-33 (reading) — a Company Share granted by a row that prints no value
+
+**Where:** the benefit definitions (p. 128), against each career's own Mustering
+Out Benefits table.
+
+A career row granting one share prints its worth — Corporate Shipper's row 5 is
+"Company Share, 2D6 x Cr100000" — and the rows granting several do not: "Two
+Company Shares", "Three Company Shares", "Ten Shares in the Company", Scientist's
+"1D6 Company Shares". A reader working only from the career page would find three
+shares with no value at all.
+
+p. 128 settles it: "Company Share – This is a 1% share of the corporation with
+which the character has been associated. The value of this share is 2d6 x 100,000
+Hub Federation credits." The definition is of the benefit, not of one row, so a
+row reading "Three Company Shares" grants three of those.
+
+**Engine:** every Company Share is worth 2d6 x 100,000, thrown separately, wherever
+it was granted. The same holds for the other benefits p. 128 defines by value —
+Pieces of Art, Rare Item, Prize Share, Pension, Gambler Kit, Tool Kit — which is
+why a career row that names one without a number still carries one.

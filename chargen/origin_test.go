@@ -122,7 +122,9 @@ func TestBackgroundSkillsComeFromTheHomeworld(t *testing.T) {
 }
 
 func heldInStash(character *chargen.Character, item string) bool {
-	return slices.Contains(character.State.Stash, item)
+	return slices.ContainsFunc(character.State.Stash, func(held chargen.Possession) bool {
+		return held.Item == item
+	})
 }
 
 func describeOneOf(requirement setting.Requirement) []string {

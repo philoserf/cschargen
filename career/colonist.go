@@ -151,10 +151,10 @@ func colonistBenefits() [7]BenefitRow {
 		{Cash: 0, Other: chr("END", 1)},
 		{Cash: 0, Other: chr("STR", 1)},
 		{Cash: 500, Other: chr("INT", 1)},
-		{Cash: 1000, Other: unimplemented("a weapon of the character's choice")},
+		{Cash: 1000, Other: weaponOrItsUse()},
 		{Cash: 2000, Other: relationship(Contact, 1, "")},
 		{Cash: 5000, Other: relationship(Ally, 1, "")},
-		{Cash: 10000, Other: unimplemented("a land plot: 1d6 square acres, value 2d6 x 10,000 credits")},
+		{Cash: 10000, Other: stashValued("a land plot of 1d6 square acres", "2d6x10000")},
 	}
 }
 

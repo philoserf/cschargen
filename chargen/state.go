@@ -89,6 +89,24 @@ type BenefitBatch struct {
 	CashOnly bool `json:"cashOnly,omitempty"`
 }
 
+// Possession is one thing a character owns: a weapon, a company share, a
+// pension, whatever a homeworld's background gave them.
+//
+// Value is credits, and it is present only where the book prints a number
+// or a die roll for it -- a company share is "2D6 x Cr100000", a pension
+// "2D6 x Cr10000". A weapon, a suit of armour and the contents of a stash
+// are referee-valued or player-chosen, and FR11 is explicit that the record
+// names those and stores no invented value: their Value stays zero, which
+// means "the book gave none", not "worthless".
+//
+// Career says where it came from, which is what lets a result that takes
+// something back find it.
+type Possession struct {
+	Item   string `json:"item"`
+	Value  int    `json:"value,omitempty"`
+	Career string `json:"career,omitempty"`
+}
+
 // PendingModifier is an adjustment waiting for the throw it applies to.
 // Named for the waiting rather than the adjustment, because [Modifier] is
 // already the die modifier a characteristic confers.
@@ -106,7 +124,7 @@ type State struct {
 	Skills          []Skill         `json:"skills"`
 	Ties            []Tie           `json:"ties,omitempty"`
 	Credits         int             `json:"credits"`
-	Stash           []string        `json:"stash,omitempty"`
+	Stash           []Possession    `json:"stash,omitempty"`
 	Injuries        []Injury        `json:"injuries,omitempty"`
 	Homeworlds      []Homeworld     `json:"homeworlds,omitempty"`
 	Services        []Service       `json:"services,omitempty"`

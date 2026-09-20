@@ -143,7 +143,7 @@ func belterEvents() EventTable {
 		66: {
 			Summary: "a massive deposit uncovered, and the company is grateful",
 			Effects: []Effect{
-				unimplemented("ten shares in the company"),
+				stashCountValued(10, companyShare, companyShareValue),
 				{Kind: EffectRank, Detail: "gain a rank"},
 				{Kind: EffectRank, Detail: "gain a second rank"},
 				relationship(Ally, 1, ""),

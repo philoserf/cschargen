@@ -266,16 +266,91 @@ func (g *Generator) payCredits(effect career.Effect, cause int) error {
 	return nil
 }
 
-func (g *Generator) changeStash(effect career.Effect, cause int) {
-	if effect.Item == "" {
-		g.char.State.Stash = nil
-		g.consequence(ConsequenceStash, cause, "lose the contents of the stash", "")
-
-		return
+// changeStash adds to what a character owns, or takes something away.
+//
+// Three shapes: an empty Item empties the stash, which is what the results
+// that say "lose your stash" mean; Lose removes every entry of one name,
+// which is what "lose any Company Shares" means; and otherwise Count
+// entries of that name are added, each with whatever value the book rolled
+// for it.
+func (g *Generator) changeStash(effect career.Effect, cause int) error {
+	name := ""
+	if g.career != nil {
+		name = g.career.Name
 	}
 
-	g.char.State.Stash = append(g.char.State.Stash, effect.Item)
-	g.consequence(ConsequenceStash, cause, effect.Detail, "")
+	switch {
+	case effect.Item == "":
+		g.char.State.Stash = nil
+		g.consequence(ConsequenceStash, cause, "lose the contents of the stash", name)
+
+		return nil
+	case effect.Lose:
+		g.loseFromStash(effect, name, cause)
+
+		return nil
+	}
+
+	count := effect.Count
+
+	if effect.CountDice != "" {
+		rolled, err := g.rollExpression(effect.CountDice, g.cite)
+		if err != nil {
+			return err
+		}
+
+		count = rolled
+	}
+
+	// Each is valued on its own throw, because the rows that grant several
+	// say "each": "Six Pieces of Art, 2D6 x Cr10000 each" (p. 155).
+	for range max(count, 1) {
+		value := 0
+
+		if effect.Dice != "" {
+			rolled, err := g.rollExpression(effect.Dice, g.cite)
+			if err != nil {
+				return err
+			}
+
+			value = rolled
+		}
+
+		g.char.State.Stash = append(g.char.State.Stash,
+			Possession{Item: effect.Item, Value: value, Career: name})
+	}
+
+	g.consequence(ConsequenceStash, cause, effect.Detail, name)
+
+	return nil
+}
+
+// loseFromStash removes every possession of one name, which is what the
+// fourteen "lose any Company Shares" results ask for. A character who has
+// none loses nothing, and the record says so rather than staying silent:
+// the result fired, and what it did is part of what happened.
+func (g *Generator) loseFromStash(effect career.Effect, name string, cause int) {
+	kept := make([]Possession, 0, len(g.char.State.Stash))
+	lost := 0
+
+	for _, held := range g.char.State.Stash {
+		if held.Item == effect.Item {
+			lost++
+
+			continue
+		}
+
+		kept = append(kept, held)
+	}
+
+	g.char.State.Stash = kept
+
+	detail := effect.Detail
+	if lost == 0 {
+		detail += ", and there were none"
+	}
+
+	g.consequence(ConsequenceStash, cause, detail, name)
 }
 
 // rollExpression evaluates the small language the tables are written in:

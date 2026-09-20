@@ -360,6 +360,26 @@ func joinRatings(ratings []int) string {
 	return strings.Join(parts, ", ")
 }
 
+// stash lists what a character owns, naming the credit value of anything
+// the book priced and nothing else: a weapon and a suit of armour are
+// referee-valued, and a zero there means the book gave no number rather
+// than that the thing is worthless.
+func stash(held []chargen.Possession) string {
+	parts := make([]string, 0, len(held))
+
+	for _, item := range held {
+		if item.Value == 0 {
+			parts = append(parts, item.Item)
+
+			continue
+		}
+
+		parts = append(parts, fmt.Sprintf("%s (%d credits)", item.Item, item.Value))
+	}
+
+	return strings.Join(parts, ", ")
+}
+
 func writeBelongings(out *strings.Builder, character *chargen.Character) {
 	state := character.State
 
@@ -374,7 +394,7 @@ func writeBelongings(out *strings.Builder, character *chargen.Character) {
 	}
 
 	if len(state.Stash) > 0 {
-		fmt.Fprintf(out, "**Stash**: %s\n\n", strings.Join(state.Stash, ", "))
+		fmt.Fprintf(out, "**Stash**: %s\n\n", stash(state.Stash))
 	}
 
 	for _, injury := range state.Injuries {

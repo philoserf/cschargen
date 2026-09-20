@@ -117,6 +117,55 @@ func TestSheetOfACharacterWithNothing(t *testing.T) {
 	}
 }
 
+// TestTheSheetPricesOnlyWhatTheBookPriced is FR11 on the page: a company
+// share or a piece of art carries the value the book rolled for it, and a
+// weapon of the character's choice carries none, because the book gave
+// none. A zero there means the referee sets it, not that it is worthless --
+// so the sheet prints nothing rather than "0 credits".
+func TestTheSheetPricesOnlyWhatTheBookPriced(t *testing.T) {
+	t.Parallel()
+
+	priced, unpriced := false, false
+
+	for seed := range uint64(80) {
+		built := character(t, seed, 6, "Test")
+
+		for _, possession := range built.State.Stash {
+			line := "**Stash**: "
+
+			got := render.Sheet(built)
+			if !strings.Contains(got, line) {
+				t.Fatalf("seed %d holds %q and the sheet has no stash", seed, possession.Item)
+			}
+
+			if possession.Value > 0 {
+				priced = true
+
+				if !strings.Contains(got, possession.Item+" (") {
+					t.Errorf("seed %d: %q is priced and the sheet does not say so",
+						seed, possession.Item)
+				}
+
+				continue
+			}
+
+			unpriced = true
+
+			if strings.Contains(got, possession.Item+" (0 credits)") {
+				t.Errorf("seed %d: %q the book did not price is shown as worthless",
+					seed, possession.Item)
+			}
+		}
+
+		if priced && unpriced {
+			return
+		}
+	}
+
+	t.Fatalf("no seed in the sample held both a priced and an unpriced possession "+
+		"(priced %v, unpriced %v)", priced, unpriced)
+}
+
 // TestEveryThrowInTheTranscriptShowsItsDice: the transcript is the audit
 // view, and an audit needs the dice as they fell rather than the total.
 func TestEveryThrowInTheTranscriptShowsItsDice(t *testing.T) {

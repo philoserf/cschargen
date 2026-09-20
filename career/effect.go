@@ -65,7 +65,10 @@ const (
 	// EffectCredits pays the character.
 	EffectCredits
 
-	// EffectStash adds a named item to the character's stash, or empties it.
+	// EffectStash adds named things to what a character owns, removes every
+	// one of a name, or empties the lot. Item names it, Count is how many,
+	// Dice carries the value where the book prints one, and Lose says the
+	// result takes them rather than gives them.
 	EffectStash
 
 	// EffectModifier attaches a modifier to a future throw -- the next
@@ -167,6 +170,12 @@ const (
 	// to set you free. Continue your character as a free altrant or uplift"
 	// (pp. 75, 84, and the slave career's own event 66).
 	EffectFreed
+
+	// EffectGroup applies several effects as one, which the benefit tables
+	// need because a row carries a single Other effect and several rows do
+	// two things: a Producer credit pays at once and then pays yearly, and
+	// a mishap that takes the benefit rolls also takes the shares.
+	EffectGroup
 
 	// EffectEducationLockout closes every higher-learning institution for a
 	// number of terms: "you may not apply to any institute of higher
@@ -301,6 +310,19 @@ type Effect struct {
 	CashOnly      bool
 	Immediate     bool
 	RerollNothing bool
+
+	// Lose turns an [EffectStash] from a grant into a removal: every
+	// possession named Item goes, which is what "lose any Company Shares"
+	// asks for.
+	Lose bool
+
+	// CountDice is how many, where the book rolls for it rather than
+	// printing a number: "1D6 Company Shares". Dice on an [EffectStash] is
+	// the value of one of them, which is a different question.
+	CountDice string
+
+	// Group is the list an [EffectGroup] applies, in order.
+	Group []Effect
 
 	// Career and Assignment name an [EffectTransfer] destination; Terms is
 	// how many the character owes there, zero meaning "until they leave".
