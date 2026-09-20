@@ -430,7 +430,7 @@
                 },
                 {
                   "skill": "Gun Combat",
-                  "specialties": ["Slug"]
+                  "specialties": ["Slug Rifle", "Slug Pistol"]
                 }
               ]
             }

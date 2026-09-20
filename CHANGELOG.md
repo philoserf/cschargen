@@ -75,7 +75,7 @@ become 135, 260 occurrences become 220.
 ### The skill list, and the results that need it
 
 The fourth pass on #42. Forty more occurrences resolve — 135 distinct results
-become 130, 220 occurrences become 180.
+become 127, 220 occurrences become 180.
 
 - **The skill list of pp. 304–314 is transcribed** (44 skills with their
   specialties), which is what makes "gain a level in any skill of your choice"
@@ -95,6 +95,9 @@ become 130, 220 occurrences become 180.
   background skills, which is the only place the setting data says what a world
   is like in those terms.
 - **"Lose all levels of Suit (Vacc Suit)"** (1) does.
+- **`data validate` holds a setting file's background skills to the same list**,
+  because that is the other way a second skill reaches a sheet. It caught
+  `Gun Combat (Slug)` in this repository's own sample data the first time it ran.
 
 ### Fixed
 

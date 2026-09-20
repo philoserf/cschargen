@@ -865,6 +865,8 @@ elsewhere, "Slug Pistol or Energy Pistol".
 
 `TestEveryTranscribedSkillIsOnTheList` and `TestEveryTranscribedSpecialtyIsOnItsSkill`
 hold the whole corpus against the list, so a name that drifts is a failed gate
-rather than a second skill on a sheet. Science, Trade and Language are exempt from
-the specialty check: the book says their lists are examples, "by no means a full
-list".
+rather than a second skill on a sheet. The same mistake can arrive from outside the
+engine, in a setting file's background skills, so `data validate` holds those
+against the list too — which caught `Gun Combat (Slug)` in this repository's own
+sample data the first time it ran. Science, Trade and Language are exempt from the
+specialty check: the book says their lists are examples, "by no means a full list".

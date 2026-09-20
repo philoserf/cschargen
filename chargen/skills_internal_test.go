@@ -191,3 +191,27 @@ func TestAHomeworldWithNoSuchSpecialty(t *testing.T) {
 		}
 	}
 }
+
+// TestRaisingASkillHeldAtLevelZero. "Any skill you already possess"
+// includes one held at level 0: p. 117's first term grants a whole table at
+// zero, and those are possessed. The raise must take such an entry to 1
+// rather than leaving it where it was.
+func TestRaisingASkillHeldAtLevelZero(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 97)
+
+	gen.char.State.GainSkill("Melee", "Blade", 0)
+
+	err := gen.raiseHeldSkill(career.Effect{
+		Kind: career.EffectRaiseHeld, Detail: "raise a skill already held",
+	}, 0)
+	if err != nil {
+		t.Fatalf("raiseHeldSkill: %v", err)
+	}
+
+	if gen.char.State.SkillLevel("Melee") != 1 {
+		t.Errorf("Melee (Blade) is at %d, want 1: %v",
+			gen.char.State.SkillLevel("Melee"), gen.char.State.Skills)
+	}
+}
