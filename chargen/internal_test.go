@@ -200,6 +200,11 @@ func TestRollExpression(t *testing.T) {
 		{expr: "2d6", low: 2, high: 12},
 		{expr: "1d3", low: 1, high: 3},
 		{expr: "1d6x100", low: 100, high: 600},
+		{expr: "1d3+1", low: 2, high: 4},
+		{expr: "1d6+2", low: 3, high: 8},
+		{expr: "10+5", low: 15, high: 15},
+		{expr: "1d6+", bad: true},
+		{expr: "1d6+one", bad: true},
 		{expr: "2d6x10000", low: 20000, high: 120000},
 		{expr: "1d4", bad: true},
 		{expr: "d6", bad: true},
@@ -559,4 +564,94 @@ func TestARollOnACareerThatIsNotBuiltIsRecorded(t *testing.T) {
 	if last.Consequence == nil || last.Consequence.Kind != ConsequenceUnimplemented {
 		t.Error("a table in a career that does not exist was not recorded as unimplemented")
 	}
+}
+
+// TestEveryTranscribedExpressionParses walks the whole career corpus and
+// throws every Dice string the tables carry.
+//
+// The expressions are written by hand from the page, and the page writes
+// them as prose: "1d6 x ₶10,000", "100,000 credits". [Generator.rollExpression]
+// takes none of that -- no spaces, no commas, no currency -- and a mistyped
+// one fails at generation time on whichever seed first reaches that row,
+// which may be no seed any test runs. Walking the corpus turns that into a
+// compile-time-ish check: every expression is thrown once, here, whether or
+// not a character ever rolls it.
+func TestEveryTranscribedExpressionParses(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 2)
+
+	throw := func(where string, effects []career.Effect) {
+		for _, effect := range expressionsIn(effects) {
+			_, err := gen.rollExpression(effect.Dice, "p. 1")
+			if err != nil {
+				t.Errorf("%s: %q does not parse: %v", where, effect.Dice, err)
+			}
+		}
+	}
+
+	for _, def := range career.All() {
+		for result, row := range def.Events {
+			throw(def.Name+" event "+itoa(result), row.Effects)
+		}
+
+		for index, row := range def.Mishaps {
+			throw(def.Name+" mishap "+itoa(index+2), row.Effects)
+		}
+
+		for _, benefit := range def.Benefits {
+			throw(def.Name+" benefit", []career.Effect{benefit.Other})
+		}
+
+		for _, table := range def.Tables {
+			throw(def.Name+" "+table.Name, table.Rows[:])
+		}
+
+		throw(def.Name+" ranks", ranksAndSkillsOf(def))
+	}
+
+	for _, row := range career.LifeEvents() {
+		throw("life event", row.Effects)
+	}
+}
+
+// ranksAndSkillsOf flattens an assignment's skill table and both rank
+// tracks, which nest one level deeper than everything else a career holds.
+func ranksAndSkillsOf(def career.Career) []career.Effect {
+	var flat []career.Effect
+
+	for _, assignment := range def.Assignments {
+		flat = append(flat, assignment.Skills.Rows[:]...)
+
+		for _, rank := range assignment.Ranks {
+			flat = append(flat, rank...)
+		}
+
+		for _, rank := range assignment.OfficerRanks {
+			flat = append(flat, rank...)
+		}
+	}
+
+	return flat
+}
+
+// expressionsIn is the recursion, separated from the check so that neither
+// has to be read through the other.
+func expressionsIn(effects []career.Effect) []career.Effect {
+	var found []career.Effect
+
+	for _, effect := range effects {
+		if effect.Dice != "" {
+			found = append(found, effect)
+		}
+
+		found = append(found, expressionsIn(effect.Success)...)
+		found = append(found, expressionsIn(effect.Failure)...)
+
+		for _, option := range effect.Options {
+			found = append(found, expressionsIn(option.Effects)...)
+		}
+	}
+
+	return found
 }

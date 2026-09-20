@@ -40,3 +40,22 @@ belong with the choice points, which later milestones add.
 
 Rows are added as the engine reaches the choice points, in the PR that reaches
 them. A row here and no code is as wrong as code and no row.
+
+## Choices the book conditions on state the engine cannot read
+
+A handful of results branch on something about the character that no effect can
+ask: whether they held a career before this one, which assignment they are in,
+how old they look. Where the branch is one the engine could evaluate — the
+assignment held, say — the result is written as a choice and the Decider picks.
+Where it is not, the branches are still written out, and under the policy the
+first one printed wins whether or not it is the one that applies.
+
+| Result                              | Conditions on                             | What the policy takes                                                             |
+| ----------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------- |
+| Fringe Marketer mishap 4 (p. 199)   | whether a career was held before this one | "Return to the previous career", which the engine records rather than carries out |
+| Exotic mishap 4 (p. 191)            | the assignment held                       | Hetaerae's penalty, the first the page prints                                     |
+| Sports events 14 and 56 (pp. 275-6) | the assignment held                       | Athlete's throw, the first the page prints                                        |
+
+None of these is an errata reading: the book is clear about what it wants, and
+the engine simply cannot see the state it wants read. They are listed here so a
+generated record can be checked against the page by hand.

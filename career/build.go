@@ -22,6 +22,24 @@ func skill(name string, specialties ...string) Effect {
 	}
 }
 
+// skillAt is skill at a level the page names above 1, which only rank
+// tables do: Fringe Marketer's rank 5 prints "Streetwise 2" over a rank 0
+// that already printed "Streetwise 1" (p. 199).
+//
+// p. 116 makes a rank benefit a floor rather than an increment -- "If a
+// Benefit grants a skill the character already possesses at the listed level
+// or higher, no additional benefit is gained" -- and the engine currently
+// adds instead. The data here is the page; the engine's reading of it is
+// issue #20.
+func skillAt(name string, level int, specialties ...string) Effect {
+	granted := skill(name, specialties...)
+
+	granted.Detail = "gain " + name + " " + itoa(level)
+	granted.Level = level
+
+	return granted
+}
+
 // chr moves a characteristic.
 func chr(which string, delta int) Effect {
 	sign := "+"
@@ -41,6 +59,8 @@ func chr(which string, delta int) Effect {
 // 1d3 from your choice of STR or END" (p. 156). The sign comes from up,
 // because a table that says "lose 1d3" and one that says "gain 1d6" are the
 // same shape.
+//
+//nolint:unparam // the expression is the page's; 1d3 is merely the only one transcribed so far
 func chrRolled(which, rolled string, up bool) Effect {
 	verb := "lose "
 	delta := -1

@@ -47,7 +47,7 @@ func scavengerEvents() EventTable {
 		},
 		21: {
 			Summary: "a buyer for something in the depths of the warehouse",
-			Effects: []Effect{checkSkill("Admin", 8, []Effect{credits("1d6 x 10,000")}, nil)},
+			Effects: []Effect{checkSkill("Admin", 8, []Effect{credits("1d6x10000")}, nil)},
 		},
 		22: {Summary: "it pays to be aware of the arts", Effects: []Effect{skill("Art", "Any")}},
 		23: {

@@ -304,6 +304,7 @@ reward for passing rather than the result itself. That would make the result
 strictly worse than transcribed, never better, so a character generated under
 this reading is never owed a skill they did not earn.
 
-The same table has a second, smaller slip: result 26 says "Engineering (Any)"
-where the skill list (p. 304) has Engineer. The engine uses Engineer, because
-no skill named Engineering exists to grant.
+A second, smaller slip runs across several tables: Scavenger event 26 (p. 267)
+and Exotic event 63 (p. 193) both say "Engineering (Any)" where the skill list
+(p. 304) has Engineer. The engine uses Engineer, because no skill named
+Engineering exists to grant.
