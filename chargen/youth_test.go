@@ -184,9 +184,11 @@ func TestSkippingTheYouth(t *testing.T) {
 			continue
 		}
 
-		if strings.HasPrefix(event.Consequence.Detail, "ages ") {
-			t.Errorf("a youth event happened although the step was skipped: %s",
-				event.Consequence.Detail)
+		// "ages 13-15" and "ages 16-18" are Step 7's, which is a
+		// different step and still runs.
+		detail := event.Consequence.Detail
+		if strings.HasPrefix(detail, "ages 4-8") || strings.HasPrefix(detail, "ages 9-12") {
+			t.Errorf("a youth event happened although the step was skipped: %s", detail)
 		}
 	}
 

@@ -45,6 +45,7 @@ type Inputs struct {
 	TermLimit   int    `json:"termLimit,omitempty"`
 	SkipFamily  bool   `json:"skipFamily,omitempty"`
 	SkipYouth   bool   `json:"skipYouth,omitempty"`
+	SkipTeenage bool   `json:"skipTeenage,omitempty"`
 	Interactive bool   `json:"interactive"`
 }
 

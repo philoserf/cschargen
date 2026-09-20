@@ -1,6 +1,6 @@
 # Lifepath: Vela Ashgrove
 
-Seed 7, 188 events.
+Seed 7, 162 events.
 
 
 ## Step 2: Roll Characteristics (p. 39)
@@ -78,56 +78,48 @@ Seed 7, 188 events.
 -   64  -> Carouse 0 [skill, from 63]
 -   65  -> +1 CHA [characteristic, from 60]
 
+## Step 7: Teenage Events (p. 75)
+
+-   67  choice Choose a teenage events path for ages 13-15: Path 1 (policy)
+-   68  throw  2d10 [1 7] = 8  (pp. 76-78)
+-   69  -> ages 13-15, on Path 1: a rivalry with a peer that sharpens you [family, from 68]
+-   70  -> gain 1 rival at a Relationship Rating of -50 [relationship, from 68]
+-   71  choice raise a characteristic: STR (policy)
+-   72  -> +1 STR [characteristic, from 71]
+-   73  choice Choose a teenage events path for ages 16-18: Path 1 (policy)
+-   74  throw  2d10 [2 2] = 4  (pp. 76-78)
+-   75  -> ages 16-18, on Path 1: pushed out of a circle of friends [family, from 74]
+-   76  -> Recon 1 [skill, from 74]
+-   77  -> -1 CHA [characteristic, from 74]
+-   78  -> 1d6-2 (minimum 1) non-family Contacts or Allies lose 50 Relationship Rating, which may change what they are [unimplemented, from 74]
+
 ## Step 9: Choose a Career (p. 104)
 
--   67  choice Choose a career to attempt: Adventurer (policy)
+-   80  choice Choose a career to attempt: Adventurer (policy)
 
 ## Step 10: Enlist in a Career (p. 110)
 
--   69  throw  2d6 [1 4] = 6 +1(DEX) vs 8+ -- failed  (p. 110)
--   70  -> rejected by Adventurer; it cannot be attempted again for two terms [career, from 69]
-
-## Step 9: Choose a Career (p. 104)
-
--   72  choice Choose a career to attempt: Arts (policy)
-
-## Step 10: Enlist in a Career (p. 110)
-
--   74  throw  2d6 [1 2] = 4 +1(INT) vs 8+ -- failed  (p. 110)
--   75  -> rejected by Arts; it cannot be attempted again for two terms [career, from 74]
-
-## Step 9: Choose a Career (p. 104)
-
--   77  choice Choose a career to attempt: Belter (policy)
-
-## Step 10: Enlist in a Career (p. 110)
-
--   79  throw  2d6 [3 4] = 7 +0(END) vs 8+ -- failed  (p. 110)
--   80  -> rejected by Belter; it cannot be attempted again for two terms [career, from 79]
-
-## Step 9: Choose a Career (p. 104)
-
--   82  -> three consecutive failed enlistments: enter the Vagabond career [career, from 81]
+-   82  throw  2d6 [3 4] = 8 +1(DEX) vs 8+ -- made it  (p. 110)
+-   83  -> accepted into Adventurer [career, from 82]
 
 ## Step 11: Choose an Assignment (p. 112)
 
--   84  choice Choose an assignment within Vagabond: Destitute (policy)
--   85  -> first term in the career: Stealth at level 0 [skill, from 83]
--   86  -> first term in the career: Recon at level 0 [skill, from 83]
--   87  -> first term in the career: Survival (Any) at level 0 [skill, from 83]
--   88  -> first term in the career: Streetwise at level 0 [skill, from 83]
--   89  -> first term in the career: Persuade at level 0 [skill, from 83]
--   90  -> Survival (Any) 1 [skill, from 83]
+-   85  choice Choose an assignment within Adventurer: Hunter (policy)
+-   86  -> first term in the career: Drive (Any) at level 0 [skill, from 84]
+-   87  -> first term in the career: Investigate at level 0 [skill, from 84]
+-   88  -> first term in the career: Survival (Any) at level 0 [skill, from 84]
+-   89  -> first term in the career: Navigation at level 0 [skill, from 84]
+-   90  -> first term in the career: Flyer (Any) at level 0 [skill, from 84]
+-   91  -> Survival (Any) 1 [skill, from 84]
 
 ## Step 12: Roll for Survival (p. 112)
 
--   92  throw  2d6 [6 3] = 9 +0(END) vs 8+ -- made it  (p. 112)
+-   93  throw  2d6 [6 3] = 9 +0(END) vs 8+ -- made it  (p. 112)
 
 ## Step 14: Roll for Advancement (p. 114)
 
--   94  throw  2d6 [3 6] = 10 +1(INT) vs 8+ -- made it  (p. 115)
--   95  -> advanced to rank 1 in Destitute [rank, from 94]
--   96  -> add a stash to the stash [stash, from 94]
+-   95  throw  2d6 [3 6] = 10 +1(INT) vs 8+ -- made it  (p. 115)
+-   96  -> advanced to rank 1 in Hunter [rank, from 95]
 
 ## Step 15: Roll for Skills (p. 117)
 
@@ -138,137 +130,93 @@ Seed 7, 188 events.
 ## Step 16: Roll for Events (p. 118)
 
 -  102  throw  d66 [1 3] = 13  (p. 118)
--  103  -> event: you become a low-level operative in local illegal activity [career, from 102]
--  104  choice talk your way through it or lie: Streetwise (policy)
--  105  throw  2d6 [2 2] = 4 +0(Streetwise) vs 8+ -- failed  (pp. 296-300)
--  106  -> enter the Prisoner career with the Prisoner assignment for 1 terms [career, from 105]
+-  103  -> event: records kept of your adventures [career, from 102]
+-  104  -> Admin 1 [skill, from 102]
 
 ## Step 17: Aging (p. 121)
 
--  108  -> age 22 [age, from 107]
+-  106  -> age 22 [age, from 105]
 
 ## Step 18: Determining the Next Term (p. 125)
 
--  110  -> left the Vagabond career: sent to another career by a table result [career, from 109]
-
-## Step 19: Muster Out (p. 126)
-
--  112  choice Choose a mustering out table for Vagabond: Cash (policy)
--  113  throw  1d6 [3] = 3  (p. 127)
--  114  -> mustering out of Vagabond: 0 credits [credits, from 113]
--  115  choice Choose a mustering out table for Vagabond: Cash (policy)
--  116  throw  1d6 [4] = 4  (p. 127)
--  117  -> mustering out of Vagabond: 0 credits [credits, from 116]
-
-## Step 9: Choose a Career (p. 104)
-
-
-## Step 11: Choose an Assignment (p. 112)
-
--  120  -> first term in the career: Deception (Any) at level 0 [skill, from 119]
--  121  -> first term in the career: Gambler at level 0 [skill, from 119]
--  122  -> Melee (Any) 1 [skill, from 119]
--  123  -> add a stash to the stash [stash, from 119]
 
 ## Step 12: Roll for Survival (p. 112)
 
--  125  throw  2d6 [3 5] = 8 +0(END) vs 8+ -- made it  (p. 112)
+-  109  throw  2d6 [2 2] = 4 +0(END) vs 8+ -- failed  (p. 112)
+-  110  -> the survival roll failed [career, from 109]
 
-## Step 14: Roll for Advancement (p. 114)
+## Step 13: Roll A Mishap (p. 113)
 
--  127  throw  2d6 [2 2] = 4 +0(STR) vs 8+ -- failed  (p. 115)
-
-## Step 15: Roll for Skills (p. 117)
-
--  129  choice Choose a skill table to roll on: Personal Development (policy)
--  130  throw  1d6 [5] = 5  (p. 117)
--  131  -> +1 EDU [characteristic, from 130]
-
-## Step 16: Roll for Events (p. 118)
-
--  133  throw  d66 [1 6] = 16  (p. 118)
--  134  -> event: trouble inside costs you an additional term [career, from 133]
--  135  -> add one term to the sentence, and an Enemy if you were framed [unimplemented, from 133]
+-  112  throw  2d6 [3 4] = 7  (p. 113)
+-  113  -> mishap: injured [career, from 112]
+-  114  throw  1d6 [3] = 3  (p. 119)
+-  115  -> heavily injured: an eye or a limb is gone [injury, from 114]
+-  116  choice what was lost: an arm or hand (policy)
+-  117  -> -2 STR [characteristic, from 116]
 
 ## Step 17: Aging (p. 121)
 
--  137  -> age 26 [age, from 136]
+-  119  throw  1d3 [3] = 3  (p. 121)
+-  120  -> age 25 [age, from 119]
 
 ## Step 18: Determining the Next Term (p. 125)
 
--  139  -> left the Prisoner career: the sentence is served [career, from 138]
+-  122  -> left the Adventurer career: ejected by a mishap [career, from 121]
 
 ## Step 19: Muster Out (p. 126)
 
--  141  choice Choose a mustering out table for Prisoner: Cash (policy)
--  142  throw  1d6 [5] = 5  (p. 127)
--  143  -> mustering out of Prisoner: 0 credits [credits, from 142]
--  144  choice Choose a mustering out table for Prisoner: Cash (policy)
--  145  throw  1d6 [4] = 4  (p. 127)
--  146  -> mustering out of Prisoner: 0 credits [credits, from 145]
+-  124  choice Choose a mustering out table for Adventurer: Cash (policy)
+-  125  throw  1d6 [2] = 2  (p. 127)
+-  126  -> mustering out of Adventurer: 1000 credits [credits, from 125]
+-  127  choice Choose a mustering out table for Adventurer: Cash (policy)
+-  128  throw  1d6 [2] = 2  (p. 127)
+-  129  -> mustering out of Adventurer: 1000 credits [credits, from 128]
+-  130  choice Choose a mustering out table for Adventurer: Cash (policy)
+-  131  throw  1d6 [5] = 5  (p. 127)
+-  132  -> mustering out of Adventurer: 10000 credits [credits, from 131]
+-  133  choice Choose a mustering out table for Adventurer: Other Benefits (policy)
+-  134  throw  1d6 [1] = 1  (p. 127)
+-  135  -> +1 END [characteristic, from 134]
 
 ## Step 9: Choose a Career (p. 104)
 
--  148  choice Choose a career to attempt: Adventurer (policy)
+-  137  choice Choose a career to attempt: Adventurer (policy)
 
 ## Step 10: Enlist in a Career (p. 110)
 
--  150  throw  2d6 [1 4] = 4 -2(previous careers) +1(DEX) vs 8+ -- failed  (p. 110)
--  151  -> rejected by Adventurer; it cannot be attempted again for two terms [career, from 150]
-
-## Step 9: Choose a Career (p. 104)
-
--  153  choice Choose a career to attempt: Arts (policy)
-
-## Step 10: Enlist in a Career (p. 110)
-
--  155  throw  2d6 [4 3] = 8 +1(INT) vs 8+ -- made it  (p. 110)
--  156  -> accepted into Arts [career, from 155]
+-  139  throw  2d6 [6 5] = 11 -1(previous careers) +1(DEX) vs 8+ -- made it  (p. 110)
+-  140  -> accepted into Adventurer [career, from 139]
 
 ## Step 11: Choose an Assignment (p. 112)
 
--  158  choice Choose an assignment within Arts: Artist (policy)
--  159  -> first term in the career: Art (Any) at level 0 [skill, from 157]
--  160  -> first term in the career: Language (Any) at level 0 [skill, from 157]
--  161  -> first term in the career: Advocate (Any) at level 0 [skill, from 157]
--  162  -> first term in the career: Investigate at level 0 [skill, from 157]
--  163  -> Art (Any) 1 [skill, from 157]
+-  142  choice Choose an assignment within Adventurer: Hunter (policy)
+-  143  -> Survival (Any) 2 [skill, from 141]
 
 ## Step 12: Roll for Survival (p. 112)
 
--  165  throw  2d6 [5 6] = 12 +1(INT) vs 8+ -- made it  (p. 112)
+-  145  throw  2d6 [4 1] = 6 +1(END) vs 8+ -- failed  (p. 112)
+-  146  -> the survival roll failed [career, from 145]
 
-## Step 14: Roll for Advancement (p. 114)
+## Step 13: Roll A Mishap (p. 113)
 
--  167  throw  2d6 [2 5] = 8 +1(EDU) vs 8+ -- made it  (p. 115)
--  168  -> advanced to rank 1 in Artist [rank, from 167]
-
-## Step 15: Roll for Skills (p. 117)
-
--  170  choice Choose a skill table to roll on: Personal Development (policy)
--  171  throw  1d6 [3] = 3  (p. 117)
--  172  -> +1 END [characteristic, from 171]
-
-## Step 16: Roll for Events (p. 118)
-
--  174  throw  d66 [5 1] = 51  (p. 118)
--  175  -> event: time aboard starships, learning from the crew [career, from 174]
--  176  choice what you learned: Astrogation (policy)
--  177  -> Astrogation 1 [skill, from 176]
+-  148  throw  2d6 [4 4] = 8  (p. 113)
+-  149  -> mishap: the last world had more background radiation than you thought [career, from 148]
+-  150  -> -2 END [characteristic, from 148]
 
 ## Step 17: Aging (p. 121)
 
--  179  -> age 30 [age, from 178]
+-  152  throw  1d3 [2] = 2  (p. 121)
+-  153  -> age 27 [age, from 152]
 
 ## Step 18: Determining the Next Term (p. 125)
 
--  181  -> left the Arts career: character generation ended [career, from 180]
+-  155  -> left the Adventurer career: ejected by a mishap [career, from 154]
 
 ## Step 19: Muster Out (p. 126)
 
--  183  choice Choose a mustering out table for Arts: Cash (policy)
--  184  throw  1d6 [2] = 2  (p. 127)
--  185  -> mustering out of Arts: 2000 credits [credits, from 184]
--  186  choice Choose a mustering out table for Arts: Cash (policy)
--  187  throw  1d6 [4] = 4  (p. 127)
--  188  -> mustering out of Arts: 10000 credits [credits, from 187]
+-  157  choice Choose a mustering out table for Adventurer: Cash (policy)
+-  158  throw  1d6 [5] = 5  (p. 127)
+-  159  -> mustering out of Adventurer: 10000 credits [credits, from 158]
+-  160  choice Choose a mustering out table for Adventurer: Cash (policy)
+-  161  throw  1d6 [6] = 6  (p. 127)
+-  162  -> mustering out of Adventurer: 25000 credits [credits, from 161]

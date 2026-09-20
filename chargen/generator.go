@@ -95,8 +95,12 @@ type Generator struct {
 	// Where the character is from, and what that world imposes. techLevel
 	// follows the current homeworld; homeworldTerms and maximumAge stay
 	// with the world they were born on (ERRATA E-9).
-	setting         *setting.Data
-	techLevel       int
+	setting   *setting.Data
+	techLevel int
+
+	// settledYear is the homeworld's, which Step 7's first two paths
+	// divide on (p. 76).
+	settledYear     int
 	homeworldTerms  int
 	maximumAge      int
 	primaryLanguage string

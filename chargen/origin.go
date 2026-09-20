@@ -65,7 +65,12 @@ func (g *Generator) determineOrigin() error {
 		return err
 	}
 
-	return g.youthEvents()
+	err = g.youthEvents()
+	if err != nil {
+		return err
+	}
+
+	return g.teenageEvents()
 }
 
 // chooseSubsector is Step 3 (p. 39): "you start with rolling on the
@@ -176,6 +181,7 @@ func (g *Generator) settleOn(world setting.World, sub setting.Subsector, cause i
 	})
 
 	g.techLevel = world.TechLevel
+	g.settledYear = world.SettledYear
 
 	if first {
 		g.char.Provenance.Inputs.Homeworld = world.Name

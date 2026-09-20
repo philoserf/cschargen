@@ -303,6 +303,8 @@ func ratingOfRole(role string, all bool, amount int) Effect {
 
 // relationshipRolledAt is relationshipAt where the count is a throw: "1d3
 // Contacts with a Relationship Rating of 50" (Youth Path 5 result 11).
+//
+//nolint:unparam // the kind is the page's; every rolled count in the book happens to be Contacts
 func relationshipRolledAt(kind Relationship, rolled string, rating int) Effect {
 	tie := relationship(kind, 0, rolled)
 
@@ -311,6 +313,16 @@ func relationshipRolledAt(kind Relationship, rolled string, rating int) Effect {
 	tie.Rating = rating
 
 	return tie
+}
+
+// loseRelative removes one family tie: "Choose a family member from your
+// existing list and lose them" (Teenage Path 2 result 3, p. 78).
+func loseRelative() Effect {
+	return Effect{
+		Kind:   EffectLoseTie,
+		Detail: "lose a family member",
+		Target: TargetFamily,
+	}
 }
 
 // loseTie removes a relationship, trying the kinds in the order given --
