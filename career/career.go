@@ -284,12 +284,14 @@ func All() []Career {
 		Medic(),
 		NationalNavy(),
 		OrbitalConstruction(),
+		Pirate(),
 		Politician(),
 		Prisoner(),
 		Scientist(),
 		SystemDefenceNavy(),
 		SystemDefenceTroopers(),
 		SystemDefenceWetNavy(),
+		Thief(),
 		Vagabond(),
 	}
 }
