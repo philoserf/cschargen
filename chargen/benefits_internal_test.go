@@ -145,6 +145,53 @@ func TestABadBenefitCountIsAnError(t *testing.T) {
 	}
 }
 
+// TestCompelledCashRollsAreSettledFirst is the ordering ERRATA E-32 rests
+// on: rolls an event compelled onto the Cash table are taken before the
+// free ones, so the three-per-career cap is spent on them first and the
+// character chooses knowing what is left.
+func TestCompelledCashRollsAreSettledFirst(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 19)
+
+	gen.char.State.Benefits = []BenefitBatch{
+		{Career: "Colonist", Rolls: 3},
+		{Career: "Colonist", Rolls: 2, CashOnly: true},
+	}
+
+	batches := gen.benefitsFor("Colonist", 1)
+
+	if len(batches) != 3 {
+		t.Fatalf("%d batches, want 3", len(batches))
+	}
+
+	if !batches[0].CashOnly {
+		t.Error("a free batch was settled before a compelled one")
+	}
+}
+
+// TestAnImmediateCashRollCarriesTheCareerModifier is ERRATA E-3 reaching
+// the rolls taken outside Step 19: "+1 to all Benefit rolls made in this
+// career" is all of them, not only the queued ones.
+func TestAnImmediateCashRollCarriesTheCareerModifier(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 23)
+	colonist := career.Colonist()
+
+	gen.career = &colonist
+	gen.careerBenefitMod = 1
+
+	err := gen.immediateCashRolls(career.Effect{Count: 1, Detail: "one cash roll"}, 0)
+	if err != nil {
+		t.Fatalf("immediateCashRolls: %v", err)
+	}
+
+	if !slices.Contains(gen.char.Provenance.Deviations, "E-3") {
+		t.Error("a modified immediate roll did not stamp E-3")
+	}
+}
+
 // lastDetail is the detail of the most recent consequence in a log.
 func lastDetail(t *testing.T, gen *Generator) string {
 	t.Helper()

@@ -775,6 +775,8 @@ no text saying so. Exempting it entirely would let a career pay out six Cash rol
 against a rule written to stop exactly that.
 
 **Engine:** the cap governs the _choice_, not the roll. A compelled Cash roll is
-always taken, because the result has already made the decision the cap constrains;
-it still counts, so taking one can close the cap against a free roll later. A
-record where a compelled roll landed past the cap is stamped E-32.
+always taken, because the result has already made the decision the cap constrains.
+It still counts, so mustering out settles the compelled rolls first and the free
+choices are made against what is left of the three — which is the only order in
+which counting them means anything. A record where a compelled roll landed past
+the cap is stamped E-32.

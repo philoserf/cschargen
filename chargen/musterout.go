@@ -77,6 +77,8 @@ func (g *Generator) benefitsFor(name string, terms int) []BenefitBatch {
 		Modifier: g.careerBenefitMod,
 	}}
 
+	compelled := make([]BenefitBatch, 0, len(g.char.State.Benefits))
+
 	for _, batch := range g.char.State.Benefits {
 		if batch.Career != name {
 			continue
@@ -90,6 +92,17 @@ func (g *Generator) benefitsFor(name string, terms int) []BenefitBatch {
 			continue
 		}
 
+		if batch.CashOnly {
+			// A batch the character may only spend on Cash is settled
+			// first, so that the free rolls are chosen knowing what is
+			// left of p. 127's three. Taking them the other way round
+			// would make the cap unreachable from a compelled roll: every
+			// free choice would already have been made.
+			compelled = append(compelled, batch)
+
+			continue
+		}
+
 		batches = append(batches, batch)
 	}
 
@@ -97,7 +110,7 @@ func (g *Generator) benefitsFor(name string, terms int) []BenefitBatch {
 		batches[0].Rolls = 0
 	}
 
-	return batches
+	return append(compelled, batches...)
 }
 
 func (g *Generator) clearBenefits(name string) {
@@ -212,16 +225,7 @@ func (g *Generator) immediateCashRolls(effect career.Effect, cause int) error {
 	}
 
 	for range effect.Count {
-		roll := g.dice.D6()
-		rollCause := g.log.Roll(roll, "p. 127")
-
-		amount := g.career.Benefits[roll.Total-1].Cash
-
-		if amount == 0 && effect.RerollNothing {
-			roll = g.dice.D6()
-			rollCause = g.log.Roll(roll, "p. 127")
-			amount = g.career.Benefits[roll.Total-1].Cash
-		}
+		amount, rollCause := g.oneImmediateCashRoll(effect)
 
 		g.char.State.Credits += amount
 		g.consequence(ConsequenceCredits, rollCause,
@@ -230,4 +234,36 @@ func (g *Generator) immediateCashRolls(effect career.Effect, cause int) error {
 	}
 
 	return nil
+}
+
+// oneImmediateCashRoll reads one row of the current career's Cash column,
+// carrying the career-wide modifier of ERRATA E-3 as a Step 19 roll would.
+//
+// "Re-rolling any result of nothing" means any: Orbital Construction's
+// first row pays nothing, so one re-roll can land on it again. The loop is
+// bounded by the table's own length so that a career paying nothing on
+// every row terminates with nothing rather than spinning.
+func (g *Generator) oneImmediateCashRoll(effect career.Effect) (int, int) {
+	var (
+		amount int
+		cause  int
+	)
+
+	for range benefitRowsPerCareer {
+		roll := g.dice.D6()
+		row := min(max(roll.Total+g.careerBenefitMod, 1), benefitRowsPerCareer)
+
+		cause = g.log.Roll(roll, "p. 127")
+		amount = g.career.Benefits[row-1].Cash
+
+		if amount != 0 || !effect.RerollNothing {
+			break
+		}
+	}
+
+	if g.careerBenefitMod != 0 {
+		g.char.Provenance.Deviate("E-3")
+	}
+
+	return amount, cause
 }
