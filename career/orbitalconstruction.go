@@ -4,6 +4,7 @@ package career
 // habitats from the outside, from the inside, or hauling the pieces.
 func OrbitalConstruction() Career {
 	return Career{
+		Tags:           []Tag{TagBusiness, TagCorporate},
 		Name:           "Orbital Construction",
 		Cite:           "pp. 242-245",
 		Enlistment:     &Check{Characteristic: "END", Number: 8},
@@ -108,7 +109,8 @@ func orbitalMishaps() MishapTable {
 			Summary: "a downturn cancels every project",
 			Effects: []Effect{
 				benefitRolls(-1, 0, ScopeBatch),
-				unimplemented("-1 to the next non-military enlistment roll"),
+				enlistmentPenalty(-1, "-1 to the next non-military enlistment roll",
+					enlistmentNarrowing{NotTags: []Tag{TagMilitary}}),
 			},
 		},
 		{

@@ -81,6 +81,8 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 	case career.EffectModifier:
 		g.pending = append(g.pending, PendingModifier{
 			Applies: effect.Applies, Value: effect.Modifier, Detail: effect.Detail,
+			OnTags: effect.OnTags, NotTags: effect.NotTags, NotCareers: effect.NotCareers,
+			OnCharacteristics: effect.OnCharacteristics, Standing: effect.Standing,
 		})
 		g.consequence(ConsequenceModifier, cause, effect.Detail, "")
 
@@ -142,7 +144,11 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 	case career.EffectNewHomeworld:
 		return g.reassignHomeworld(cause, effect.Detail)
 	case career.EffectAutoSuccess:
-		g.automatic = append(g.automatic, effect.Applies)
+		g.automatic = append(g.automatic, PendingModifier{
+			Applies: effect.Applies, Detail: effect.Detail,
+			OnTags: effect.OnTags, NotTags: effect.NotTags, NotCareers: effect.NotCareers,
+			OnCharacteristics: effect.OnCharacteristics,
+		})
 		g.consequence(ConsequenceModifier, cause, effect.Detail, "")
 
 		return nil

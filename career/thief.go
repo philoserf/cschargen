@@ -8,6 +8,7 @@ package career
 // resolves as result 12 rather than being rolled for.
 func Thief() Career {
 	return Career{
+		Tags:         []Tag{TagCriminal},
 		Name:         "Thief",
 		Cite:         "pp. 292-295",
 		Enlistment:   &Check{Characteristic: "DEX", Number: 8},
@@ -119,7 +120,8 @@ func thiefMishaps() MishapTable {
 			Summary: "the police finally catch up, and it is three terms",
 			Effects: []Effect{
 				loseAll,
-				unimplemented("-2 to enter any non-criminal career"),
+				enlistmentPenalty(-2, "-2 to enter any non-criminal career",
+					enlistmentNarrowing{NotTags: []Tag{TagCriminal}, Standing: true}),
 				transfer("Prisoner", "Prisoner", 3),
 			},
 		},

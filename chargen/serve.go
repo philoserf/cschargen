@@ -820,13 +820,27 @@ func (g *Generator) characteristicThrow(check career.Check) dice.Throw {
 
 // takeAutomatic reports whether a named throw has already been decided by a
 // table result, and spends it if so.
-func (g *Generator) takeAutomatic(applies string) bool {
-	for i, pending := range g.automatic {
-		if pending == applies {
-			g.automatic = append(g.automatic[:i], g.automatic[i+1:]...)
+// enlistmentThrow is the name enlistment modifiers and automatics are
+// filed under, matching the career package's own constant.
+const enlistmentThrow = "next enlistment attempt"
 
-			return true
+func (g *Generator) takeAutomatic(applies string) bool {
+	return g.takeAutomaticFor(applies, career.Career{})
+}
+
+// takeAutomaticFor is takeAutomatic for an enlistment, where the result
+// that granted it may have named the class of career it reaches: "you may
+// enlist automatically in a business, military, corporate or colonist
+// career" (Undergraduate University, p. 88).
+func (g *Generator) takeAutomaticFor(applies string, target career.Career) bool {
+	for i, pending := range g.automatic {
+		if pending.Applies != applies || !pending.AppliesTo(target) {
+			continue
 		}
+
+		g.automatic = append(g.automatic[:i], g.automatic[i+1:]...)
+
+		return true
 	}
 
 	return false
@@ -836,19 +850,36 @@ func (g *Generator) takeAutomatic(applies string) bool {
 // throw. Consuming rather than reading: "take a -2 on your next
 // Advancement roll" is spent once.
 func (g *Generator) takeModifiers(applies string) []dice.Mod {
+	return g.takeModifiersFor(applies, career.Career{})
+}
+
+// takeModifiersFor is takeModifiers for an enlistment throw, where a
+// pending modifier may name the class of career it applies to: "-4 DM to
+// enlist in any government related career".
+//
+// A modifier that does not reach this career is kept for the next one, and
+// a standing modifier is kept whether it reached this one or not -- which
+// is the difference between "your next career" and "every career after
+// this one".
+func (g *Generator) takeModifiersFor(applies string, target career.Career) []dice.Mod {
 	var (
 		mods []dice.Mod
 		kept []PendingModifier
 	)
 
 	for _, pending := range g.pending {
-		if pending.Applies != applies {
+		switch {
+		case pending.Applies != applies:
 			kept = append(kept, pending)
+		case !pending.AppliesTo(target):
+			kept = append(kept, pending)
+		default:
+			mods = append(mods, dice.Mod{Name: pending.Detail, Value: pending.Value})
 
-			continue
+			if pending.Standing {
+				kept = append(kept, pending)
+			}
 		}
-
-		mods = append(mods, dice.Mod{Name: pending.Detail, Value: pending.Value})
 	}
 
 	g.pending = kept

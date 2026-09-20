@@ -10,6 +10,7 @@ package career
 // character to Vagabond, and one sends them to Celebrity.
 func Colonist() Career {
 	return Career{
+		Tags:         []Tag{TagColonist},
 		Name:         "Colonist",
 		Cite:         "pp. 173-176",
 		Enlistment:   &Check{Characteristic: "END", Number: 6},

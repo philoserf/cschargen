@@ -112,6 +112,30 @@ become 121, 180 occurrences become 166.
   holding the rank, not to the advancement throw that usually reaches it, and a
   bare `EffectRank` had been skipping them.
 
+### Careers have classes, and enlistment reads them
+
+The sixth pass on #42. Twenty more occurrences resolve — 121 distinct results
+become 102, 166 occurrences become 146.
+
+Twelve results modify or direct an enlistment by the class of career being
+entered rather than by name — "-4 DM to enlist in any government related career",
+"-6 DM to any enlistment roll for a career involving violence" — and the book
+defines none of the words it uses. **ERRATA E-37** carries the assignment, one
+row per career, argued from the career descriptions of pp. 132–145 rather than
+from the names. Fifteen careers carry no class at all, and two of those are
+deliberate: an Investigator works in "legal systems, corporate structures, and
+private practice" without the record saying which, and an Adventurer's career is
+danger rather than violence.
+
+- **An enlistment modifier knows which careers it reaches.** A penalty aimed at
+  government careers is not spent by enlisting in a criminal one.
+- **A standing modifier outlives the throw.** "Every career after this one" and
+  "your next career" are different sentences, and several results print each.
+- **"You may enlist automatically"** succeeds without a throw, narrowed the same
+  way — Undergraduate University's offer reaches four classes and no others.
+- **"Return to the career you held before this one"** resolves against the
+  service record at the moment the transfer is taken.
+
 ### Fixed
 
 - A character dismissed from a career could still muster out of it.

@@ -788,6 +788,73 @@ func throwModifier(applies string, value int) Effect {
 	}
 }
 
+// enlistmentPenalty is the twelve results that modify an enlistment by the
+// class of career being entered rather than by name. The narrowing sets
+// may each be empty, which means the modifier reaches every career.
+//
+// standing says whether it outlives the throw it modifies: "-2 DM to enter
+// every career after this one where enlistment is based on EDU or CHA" is
+// a standing modifier, and "-2 DM to enter your next career" is not.
+func enlistmentPenalty(value int, detail string, narrow enlistmentNarrowing) Effect {
+	return Effect{
+		Kind:              EffectModifier,
+		Detail:            detail,
+		Modifier:          value,
+		Applies:           enlistmentThrow,
+		OnTags:            narrow.OnTags,
+		NotTags:           narrow.NotTags,
+		NotCareers:        narrow.NotCareers,
+		OnCharacteristics: narrow.OnCharacteristics,
+		Standing:          narrow.Standing,
+	}
+}
+
+// enlistmentNarrowing is what an enlistmentPenalty applies to, gathered
+// into one argument so a call site reads as the page does.
+type enlistmentNarrowing struct {
+	OnTags            []Tag
+	NotTags           []Tag
+	NotCareers        []string
+	OnCharacteristics []string
+	Standing          bool
+}
+
+// enlistmentThrow is the name the engine files enlistment modifiers under.
+const enlistmentThrow = "next enlistment attempt"
+
+// autoEnlist is "you may enlist automatically", which several results
+// grant: the next enlistment succeeds without a throw. The narrowing is an
+// enlistment penalty's, because one result restricts it to a class of
+// career -- "a business, military, corporate or colonist career".
+func autoEnlist(detail string, narrow enlistmentNarrowing) Effect {
+	return Effect{
+		Kind:              EffectAutoSuccess,
+		Detail:            detail,
+		Applies:           enlistmentThrow,
+		OnTags:            narrow.OnTags,
+		NotTags:           narrow.NotTags,
+		NotCareers:        narrow.NotCareers,
+		OnCharacteristics: narrow.OnCharacteristics,
+	}
+}
+
+// rejoinPreviousCareer is Fringe Marketer mishap 8: "return to the career
+// you held before this one", without an enlistment roll. Which career that
+// was is in the record, not in this package, so the engine names it.
+func rejoinPreviousCareer() Effect {
+	return Effect{
+		Kind:       EffectTransfer,
+		Detail:     "re-enter the previous career without an enlistment roll",
+		Career:     PreviousCareer,
+		Assignment: "",
+	}
+}
+
+// PreviousCareer is the Career an [EffectTransfer] names when the
+// destination is "the career you held before this one" rather than a
+// career the page names. The engine resolves it from the service record.
+const PreviousCareer = "\x00previous"
+
 // advance is an automatic advancement, granted without a throw.
 func advance() Effect {
 	return Effect{Kind: EffectAdvance, Detail: "gain an automatic advancement"}

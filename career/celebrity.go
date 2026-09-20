@@ -138,7 +138,8 @@ func celebrityMishaps() MishapTable {
 			Summary: "an assassin cites your career as their influence, and the backlash is palpable",
 			Effects: []Effect{
 				benefitRolls(-4, 0, ScopeBatch),
-				unimplemented("-2 to enter any career other than Vagabond"),
+				enlistmentPenalty(-2, "-2 to enter any career other than Vagabond",
+					enlistmentNarrowing{NotCareers: []string{"Vagabond"}, Standing: true}),
 			},
 		},
 	}

@@ -8,6 +8,7 @@ package career
 // to the Military Events table (p. 121).
 func NationalNavy() Career {
 	return Career{
+		Tags:           []Tag{TagMilitary, TagGovernment, TagViolent},
 		Name:           "National Navy",
 		Cite:           "pp. 233-241",
 		Enlistment:     &Check{Characteristic: "INT", Number: 7},

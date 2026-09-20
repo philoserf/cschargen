@@ -23,6 +23,7 @@ func Craftsperson() Career {
 	}
 
 	return Career{
+		Tags:           []Tag{TagBusiness},
 		Name:           "Craftsperson",
 		Cite:           "pp. 181-184",
 		Enlistment:     &Check{Characteristic: "END", Number: 8},

@@ -92,7 +92,7 @@ func graduateFailure() MishapTable {
 			Summary: "a position too valuable to refuse, before completion",
 			Effects: []Effect{
 				relationshipAt(Contact, 1, 30),
-				unimplemented("enlist automatically into any career"),
+				autoEnlist("enlist automatically into any career", enlistmentNarrowing{}),
 			},
 		},
 	}

@@ -120,8 +120,8 @@ func medicMishaps() MishapTable {
 		},
 		{
 			Summary: "you cannot see death and suffering any longer",
-			Effects: []Effect{unimplemented(
-				"-6 to any enlistment roll for a career involving violence")},
+			Effects: []Effect{enlistmentPenalty(-6, "-6 to any enlistment roll for a career involving violence",
+				enlistmentNarrowing{OnTags: []Tag{TagViolent}, Standing: true})},
 		},
 		{
 			Summary: "malpractice suits take your credentials and much of your pay",
@@ -136,7 +136,8 @@ func medicMishaps() MishapTable {
 			Summary: "perceived to have conducted illegal or immoral procedures on patients",
 			Effects: []Effect{
 				loseAll,
-				unimplemented("-2 to every enlistment roll that involves EDU"),
+				enlistmentPenalty(-2, "-2 to every enlistment roll that involves EDU",
+					enlistmentNarrowing{OnCharacteristics: []string{"EDU"}, Standing: true}),
 			},
 		},
 		{

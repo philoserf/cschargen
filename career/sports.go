@@ -94,7 +94,8 @@ func sportsSoftCareers(forever bool) Effect {
 		scope = "every career after this one"
 	}
 
-	return unimplemented("-2 to enter " + scope + " where enlistment is based on EDU or CHA")
+	return enlistmentPenalty(-2, "-2 to enter "+scope+" where enlistment is based on EDU or CHA",
+		enlistmentNarrowing{OnCharacteristics: []string{"EDU", "CHA"}, Standing: forever})
 }
 
 func sportsMishaps() MishapTable {

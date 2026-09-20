@@ -8,6 +8,7 @@ package career
 // harshest mishap table in the book.
 func OrganizedCrime() Career {
 	return Career{
+		Tags:           []Tag{TagCriminal, TagViolent},
 		Name:           "Organized Crime",
 		Cite:           "pp. 246-249",
 		Enlistment:     &Check{Characteristic: "END", Number: 8},

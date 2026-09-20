@@ -899,3 +899,64 @@ and the record says so rather than staying silent.
 The reverse follows: a promotion granted by an event grants that rank's printed
 benefits, because p. 116 attaches them to holding the rank rather than to the
 advancement throw that usually reaches it.
+
+---
+
+## E-37 (reading) — the classes of career, which the book never defines
+
+**Where:** twelve results that modify or direct an enlistment by the class of
+career being entered rather than by name.
+
+> "-4 DM to enlist in any government related career" (Diplomatic Service)
+> "-6 DM to any enlistment roll for a career involving violence" (Medic)
+> "-2 DM to enter any non-criminal career" (Thief)
+> "-2 DM to enter any academic career after this" (Scientist)
+> "-1 DM to the next non-military enlistment roll" (Orbital Construction)
+> "enlist automatically in a business, military, corporate or colonist career"
+> (Undergraduate University)
+
+Nothing in the book says which careers are government-related, which involve
+violence, or what the difference between a business career and a corporate one
+is. A modifier whose scope is undefined cannot be applied, and the alternative to
+choosing is to leave twelve results recorded forever.
+
+**Engine:** the assignment below, argued from the career descriptions of
+pp. 132–145 rather than from the career names. A career carries a class only where
+its own description puts it there.
+
+| Career                           | Classes                       | Because the description says                                     |
+| -------------------------------- | ----------------------------- | ---------------------------------------------------------------- |
+| Marine                           | military, government, violent | "combat forces serving within the militaries of the many worlds" |
+| National Navy                    | military, government, violent | "part of national military organizations"                        |
+| System Defense Forces (Navy)     | military, government, violent | "naval forces operated by individual planetary governments"      |
+| System Defense Forces (Troopers) | military, government, violent | "the planetside military forces of individual worlds"            |
+| System Defense Forces (Wet Navy) | military, government, violent | "the maritime forces of planetary militaries"                    |
+| Diplomatic Service               | government                    | it is a state's foreign service                                  |
+| Politician                       | government                    | "exercise political power within the governments"                |
+| Organized Crime                  | criminal, violent             | "outside lawful authority … contract violence"                   |
+| Pirate                           | criminal, violent             | "operate outside legal authority"                                |
+| Thief                            | criminal                      | theft is the career                                              |
+| Prisoner                         | criminal                      | entered by "arrest, conviction, detention"                       |
+| Fringe Marketer                  | criminal, business            | "informal, semi legal, or illegal markets"                       |
+| Scientist                        | academic                      | research is the career                                           |
+| Instructor                       | academic                      | "education and training"                                         |
+| Corporate Shipper                | corporate, business           | "under corporate authority"                                      |
+| Orbital Construction             | corporate, business           | corporate contracting                                            |
+| Craftsperson                     | business                      | a trade practised on one's own account                           |
+| Independent Merchant             | business                      | "privately operated starships … without corporate backing"       |
+| Colonist                         | colonist                      | the one career the word names                                    |
+
+The remaining fifteen carry none. Two of those are deliberate rather than
+residual:
+
+- **Investigator** is not government-related. Its description puts it in "legal
+  systems, corporate structures, and private practice" — one of the three, and the
+  record does not say which.
+- **Adventurer** is not violent. Violence is a hazard of the career rather than
+  its work: "unlike explorers working for governments or corporations, Adventurers
+  operate independently, driven by curiosity, ambition, or opportunity". The same
+  argument keeps Belter, Explorer and Scavenger out of it — dangerous is not the
+  same as violent, and the modifier is -6.
+
+Disagreeing with a row changes one line of `career/*.go` and nothing else: nothing
+in the engine reads a tag except a result that asks about one.

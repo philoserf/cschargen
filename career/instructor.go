@@ -21,6 +21,7 @@ func Instructor() Career {
 	}
 
 	return Career{
+		Tags:       []Tag{TagAcademic},
 		Name:       "Instructor",
 		Cite:       "pp. 212-215",
 		Enlistment: &Check{Characteristic: "EDU", Number: 12},
@@ -99,8 +100,8 @@ func instructorMishaps() MishapTable {
 		{Summary: "a second career, worked between lessons, is going better", Effects: nil},
 		{
 			Summary: "your students have not met core curriculum standards",
-			Effects: []Effect{unimplemented(
-				"-2 to the next enlistment roll for any career that enlists on EDU")},
+			Effects: []Effect{enlistmentPenalty(-2, "-2 to the next enlistment roll for any career that enlists on EDU",
+				enlistmentNarrowing{OnCharacteristics: []string{"EDU"}})},
 		},
 		{
 			Summary: "budget cuts, and you are a casualty of them",

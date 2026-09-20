@@ -67,8 +67,10 @@ func universityFailure() MishapTable {
 		{
 			Summary: "recruited away before you could graduate",
 			Effects: []Effect{
-				unimplemented("enlist automatically in a business, military, corporate " +
-					"or colonist career"),
+				autoEnlist("enlist automatically in a business, military, corporate or colonist career",
+					enlistmentNarrowing{OnTags: []Tag{
+						TagBusiness, TagMilitary, TagCorporate, TagColonist,
+					}}),
 				chr("EDU", -1),
 			},
 		},

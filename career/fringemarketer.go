@@ -8,6 +8,7 @@ package career
 // the prison term is the transfer and the second leg is recorded.
 func FringeMarketer() Career {
 	return Career{
+		Tags:         []Tag{TagBusiness, TagCriminal},
 		Name:         "Fringe Marketer",
 		Cite:         "pp. 198-201",
 		Enlistment:   &Check{Characteristic: "INT", Number: 8},
@@ -104,7 +105,7 @@ func eightYearsInside() []Effect {
 	return []Effect{
 		relationship(Enemy, 1, ""),
 		transfer("Prisoner", "Prisoner", 2),
-		unimplemented("on leaving prison, enlist automatically in the Vagabond career"),
+		transfer("Vagabond", "", 0),
 	}
 }
 
@@ -121,7 +122,7 @@ func fringeMarketerMishaps() MishapTable {
 			Summary: "selling on the fringe is a difficult way to make a living",
 			Effects: []Effect{pick("return to your previous career, or take up the road",
 				opt("return to the career you held before this one",
-					unimplemented("re-enter the previous career without an enlistment roll")),
+					rejoinPreviousCareer()),
 				opt("there was no previous career", transfer("Vagabond", "", 0)))},
 		},
 		{Summary: "the local economy will not support you any more", Effects: nil},

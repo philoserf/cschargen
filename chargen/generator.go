@@ -91,9 +91,14 @@ type Generator struct {
 	pending []PendingModifier
 
 	// automatic holds throws a table result has already decided: "Gain an
-	// automatic success on your next Survival roll" (p. 176). Each is
+	// automatic success on your next Survival roll" (p. 176), "you may
+	// enlist automatically in a business, military, corporate or colonist
+	// career". They are PendingModifiers for the narrowing rather than for
+	// the value, which they do not carry: an automatic success needs to
+	// know which careers it reaches for the same reason a modifier does.
+	// Each is
 	// spent by the throw it names.
-	automatic        []string
+	automatic        []PendingModifier
 	careerBenefitMod int
 	termLimit        int
 

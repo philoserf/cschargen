@@ -150,7 +150,11 @@ func prisonerEvents() EventTable {
 		63: {Summary: "bad situations demand mental flexibility", Effects: []Effect{skill("Jack of All Trades")}},
 		64: {
 			Summary: "your lawyer shows you were wrongly accused",
-			Effects: []Effect{unimplemented("immediate release, and a new career of your choice")},
+			Effects: []Effect{
+				chooseNewCareer(),
+				autoEnlist("immediate release, and a new career of your choice",
+					enlistmentNarrowing{}),
+			},
 		},
 		65: {
 			Summary: "you have worked hard",
