@@ -114,6 +114,10 @@ type State struct {
 	// "family"; this is the shape of the household around them.
 	Family *Family `json:"family,omitempty"`
 
+	// Genetics is what pp. 62-65 made of an engineered character's
+	// parentage. Nil for a human or an uplift.
+	Genetics *Genetics `json:"genetics,omitempty"`
+
 	// UpliftClass is p. 66's, where the character is an uplift: what their
 	// homeworld's technology could make of them. Zero for anyone else.
 	UpliftClass int `json:"upliftClass,omitempty"`

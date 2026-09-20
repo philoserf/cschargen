@@ -419,3 +419,25 @@ func TestTheSheetNamesAnUpliftsClass(t *testing.T) {
 		t.Error("a character who is not an uplift has a class")
 	}
 }
+
+// TestTheSheetPrintsGenetics. An engineered character's parentage is what
+// pp. 62-65 made of it; a human and an uplift have none.
+func TestTheSheetPrintsGenetics(t *testing.T) {
+	t.Parallel()
+
+	got := character(t, 3, 1, "Engineered")
+
+	got.State.Genetics = &chargen.Genetics{
+		Kind: "hybrid", Detail: "a hybrid with a baseline human: otherwise human",
+	}
+
+	if !strings.Contains(render.Sheet(got), "**Genetics**: a hybrid with a baseline human") {
+		t.Error("the sheet does not carry the character's genetics")
+	}
+
+	got.State.Genetics = nil
+
+	if strings.Contains(render.Sheet(got), "**Genetics**") {
+		t.Error("a character with no genetics has a line saying so")
+	}
+}

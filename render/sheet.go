@@ -30,6 +30,7 @@ func Sheet(character *chargen.Character) string {
 
 	writeSummary(&out, character)
 	writeOrigin(&out, character)
+	writeGenetics(&out, character)
 	writeFamily(&out, character)
 	writeEducation(&out, character)
 	writeCharacteristics(&out, character)
@@ -86,6 +87,17 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 	}
 
 	fmt.Fprint(out, "\n")
+}
+
+// writeGenetics prints how an engineered character came to be (pp. 62-65).
+// A human and an uplift have none.
+func writeGenetics(out *strings.Builder, character *chargen.Character) {
+	genetics := character.State.Genetics
+	if genetics == nil {
+		return
+	}
+
+	fmt.Fprintf(out, "**Genetics**: %s  \n\n", genetics.Detail)
 }
 
 // writeFamily prints what Step 5 established (pp. 57-61). The relatives

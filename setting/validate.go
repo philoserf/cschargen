@@ -207,6 +207,8 @@ func validateOneSpecies(species Species, where string) []string {
 			"%s: maximum %d", where, species.Maximum))
 	}
 
+	problems = append(problems, validateGenetics(species, where)...)
+
 	problems = append(problems, validateRollPattern(
 		species.YouthRolls, species.YouthAges, where+", youth")...)
 	problems = append(problems, validateRollPattern(
@@ -214,6 +216,100 @@ func validateOneSpecies(species Species, where string) []string {
 
 	return problems
 }
+
+// validateGenetics holds a species' three tables of pp. 62-65 against their
+// printed shape: each is a 1d6, so each has six rows.
+func validateGenetics(species Species, where string) []string {
+	if species.Genetics == nil {
+		return nil
+	}
+
+	var problems []string
+
+	if species.Kind != KindEngineered {
+		problems = append(problems, where+
+			": genetics, which pp. 62-65 give only to engineered species")
+	}
+
+	tables := map[string][]GeneticOutcome{
+		"hybrid":   species.Genetics.Hybrid,
+		"compound": species.Genetics.Compound,
+	}
+
+	for name, table := range tables {
+		problems = append(problems, validateOutcomes(table, name, where)...)
+	}
+
+	return append(problems, validateGeneticStatus(species, where)...)
+}
+
+// validateOutcomes holds one hybrid or compound table against its shape.
+func validateOutcomes(table []GeneticOutcome, name, where string) []string {
+	var problems []string
+
+	if len(table) != 0 && len(table) != d6Rows {
+		problems = append(problems, fmt.Sprintf(
+			"%s: the %s table has %d rows; a 1d6 table has %d",
+			where, name, len(table), d6Rows))
+	}
+
+	for i, outcome := range table {
+		if outcome.Detail == "" && !outcome.Choose {
+			problems = append(problems, fmt.Sprintf(
+				"%s: %s result %d says nothing", where, name, i+1))
+		}
+
+		for characteristic := range outcome.Adjust {
+			if !characteristics[characteristic] {
+				problems = append(problems, fmt.Sprintf(
+					"%s: %s result %d adjusts %q, which is not a characteristic",
+					where, name, i+1, characteristic))
+			}
+		}
+	}
+
+	return problems
+}
+
+// validateGeneticStatus holds the status table, whose rows name which of
+// the other two a character is sent to.
+func validateGeneticStatus(species Species, where string) []string {
+	var problems []string
+
+	status := species.Genetics.Status
+	if len(status) != 0 && len(status) != d6Rows {
+		problems = append(problems, fmt.Sprintf(
+			"%s: the genetic status table has %d rows; a 1d6 table has %d",
+			where, len(status), d6Rows))
+	}
+
+	for i, row := range status {
+		switch row.Kind {
+		case Purebred:
+		case Hybrid:
+			if len(species.Genetics.Hybrid) == 0 {
+				problems = append(problems, fmt.Sprintf(
+					"%s: status result %d sends the character to a hybrid table it has none of",
+					where, i+1))
+			}
+		case Compound:
+			if len(species.Genetics.Compound) == 0 {
+				problems = append(problems, fmt.Sprintf(
+					"%s: status result %d sends the character to a compound table it has none of",
+					where, i+1))
+			}
+		default:
+			problems = append(problems, fmt.Sprintf(
+				"%s: status result %d is %q; it must be purebred, hybrid or compound",
+				where, i+1, row.Kind))
+		}
+	}
+
+	return problems
+}
+
+// d6Rows is how many rows a 1d6 table has.
+const d6Rows = 6
 
 // validateRollPattern: a species that rolls n times on a life-period table
 // has to say what each of those n rolls represents.

@@ -113,6 +113,11 @@ type Generator struct {
 	// between (p. 66). Zero for anyone who is not one.
 	class int
 
+	// rollAsHuman is set by a hybrid outcome that sends the character back
+	// to the human characteristic method: "Roll characteristics as a
+	// human" (p. 63).
+	rollAsHuman bool
+
 	// enslaved is set where the homeworld owns this character's people:
 	// "the character must take the Altrant/Uplift Slave career as their
 	// first career term" (p. 42). It is cleared once they have.
@@ -203,6 +208,13 @@ func (g *Generator) Run() (*Character, error) {
 	g.char.State.Age = startingAge
 
 	err := g.chooseSpecies()
+	if err != nil {
+		return nil, err
+	}
+
+	// The genetics decide which characteristic method Step 2 uses, so they
+	// come before it although the book prints them at Step 5 (p. 62).
+	err = g.determineGenetics(g.log.Len())
 	if err != nil {
 		return nil, err
 	}
