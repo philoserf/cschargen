@@ -551,3 +551,289 @@ func TestLosingAFamilyMember(t *testing.T) {
 		t.Error("a family result took somebody who is not family")
 	}
 }
+
+// inCareerEngine is tiedEngine standing inside the career the ties came
+// from, which is what "gained in this career" is measured against.
+func inCareerEngine(t *testing.T, ties ...Tie) *Generator {
+	t.Helper()
+
+	gen := tiedEngine(t, ties...)
+	colonist := career.Colonist()
+
+	gen.career = &colonist
+
+	return gen
+}
+
+// TestLosingSeveralTiesTriesTheOrderEachTime is "lose 1D3 Allies and
+// Contacts": each removal works down the order afresh, so a character with
+// one Ally and two Contacts losing three loses the Ally first.
+func TestLosingSeveralTiesTriesTheOrderEachTime(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t,
+		Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 40},
+		Tie{Kind: string(career.Ally), Origin: fromACareer, Rating: 150},
+		Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 60},
+	)
+
+	err := gen.loseTie(career.Effect{
+		Kind: career.EffectLoseTie, Count: 2,
+		Order: []career.Relationship{career.Ally, career.Contact},
+	}, 0)
+	if err != nil {
+		t.Fatalf("loseTie: %v", err)
+	}
+
+	if len(gen.char.State.Ties) != 1 {
+		t.Fatalf("%d ties remain, want 1", len(gen.char.State.Ties))
+	}
+
+	if gen.char.State.Ties[0].Kind != string(career.Contact) {
+		t.Errorf("the surviving tie is a %s", gen.char.State.Ties[0].Kind)
+	}
+}
+
+// TestLosingEveryTieOfThisCareerLeavesTheRest is "lose every Contact and
+// Ally gained in this career": a Contact made at school is not in it.
+func TestLosingEveryTieOfThisCareerLeavesTheRest(t *testing.T) {
+	t.Parallel()
+
+	gen := inCareerEngine(t,
+		Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 40},
+		Tie{Kind: string(career.Contact), Origin: FamilyOrigin, Rating: 60},
+		Tie{Kind: string(career.Ally), Origin: fromACareer, Rating: 150},
+	)
+
+	err := gen.loseTie(career.Effect{
+		Kind: career.EffectLoseTie, Count: -1, ThisCareer: true,
+		Order: []career.Relationship{career.Contact, career.Ally},
+	}, 0)
+	if err != nil {
+		t.Fatalf("loseTie: %v", err)
+	}
+
+	if len(gen.char.State.Ties) != 1 || gen.char.State.Ties[0].Origin != FamilyOrigin {
+		t.Errorf("the family Contact did not survive: %v", gen.char.State.Ties)
+	}
+}
+
+// TestLosingNobodyTakesTheFallback is "Lose one Ally or Contact. If you
+// have none, gain an Enemy with a Relationship Rating of -110."
+func TestLosingNobodyTakesTheFallback(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t)
+
+	err := gen.loseTie(career.Effect{
+		Kind:  career.EffectLoseTie,
+		Order: []career.Relationship{career.Ally, career.Contact},
+		Fallback: []career.Effect{{
+			Kind: career.EffectRelationship, Relationship: career.Enemy,
+			Count: 1, Rating: -110, Detail: "an Enemy at -110",
+		}},
+	}, 0)
+	if err != nil {
+		t.Fatalf("loseTie: %v", err)
+	}
+
+	if len(gen.char.State.Ties) != 1 || gen.char.State.Ties[0].Rating != -110 {
+		t.Errorf("the fallback did not fire: %v", gen.char.State.Ties)
+	}
+}
+
+// TestTheTieThatChangedSurvivesTheRest is Gambler mishap 11: "one Contact
+// or Ally from this career becomes an Enemy, and every other relationship
+// gained here is lost". The one that changed is the one that is left.
+func TestTheTieThatChangedSurvivesTheRest(t *testing.T) {
+	t.Parallel()
+
+	gen := inCareerEngine(t,
+		Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 40},
+		Tie{Kind: string(career.Ally), Origin: fromACareer, Rating: 150},
+		Tie{Kind: string(career.Rival), Origin: FamilyOrigin, Rating: -50},
+	)
+
+	err := gen.becomeTies(career.Effect{
+		Kind: career.EffectBecome, Count: 1, ThisCareer: true, LoseTheRest: true,
+		From: []career.Relationship{career.Contact, career.Ally}, Relationship: career.Enemy,
+		Detail: "one becomes an Enemy",
+	}, 0)
+	if err != nil {
+		t.Fatalf("becomeTies: %v", err)
+	}
+
+	if len(gen.char.State.Ties) != 2 {
+		t.Fatalf("%d ties remain, want 2: %v", len(gen.char.State.Ties), gen.char.State.Ties)
+	}
+
+	if gen.char.State.Ties[0].Kind != string(career.Enemy) {
+		t.Errorf("the changed tie is a %s", gen.char.State.Ties[0].Kind)
+	}
+
+	if gen.char.State.Ties[1].Origin != FamilyOrigin {
+		t.Error("a tie from outside the career was taken with the rest")
+	}
+}
+
+// TestAnImprovementReadsTheStateAsItWas is ERRATA E-34. An Enemy, a Rival
+// and a Contact each move up one band; the Enemy does not climb to Ally by
+// being found again as a Rival.
+func TestAnImprovementReadsTheStateAsItWas(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t,
+		Tie{Kind: string(career.Enemy), Origin: fromACareer, Rating: -150},
+		Tie{Kind: string(career.Rival), Origin: fromACareer, Rating: -50},
+		Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 40},
+	)
+
+	err := gen.improveTies(0)
+	if err != nil {
+		t.Fatalf("improveTies: %v", err)
+	}
+
+	want := []career.Relationship{career.Rival, career.Contact, career.Ally}
+	for i, kind := range want {
+		if gen.char.State.Ties[i].Kind != string(kind) {
+			t.Errorf("tie %d is a %s, want %s", i, gen.char.State.Ties[i].Kind, kind)
+		}
+	}
+}
+
+// TestAnImprovementDoesNotCarryOneNPCUpTheScale is the case ERRATA E-34
+// exists for. A character whose only relationship is an Enemy: read in
+// sequence, that Enemy becomes a Rival, the Rival a Contact and the Contact
+// an Ally, and a result called "an improvement to a relationship" turns
+// hatred into devotion. Read as a snapshot, the Enemy becomes a Rival and
+// stops.
+func TestAnImprovementDoesNotCarryOneNPCUpTheScale(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t, Tie{Kind: string(career.Enemy), Origin: fromACareer, Rating: -150})
+
+	err := gen.improveTies(0)
+	if err != nil {
+		t.Fatalf("improveTies: %v", err)
+	}
+
+	if len(gen.tiesOfKind(career.Rival)) != 1 {
+		t.Fatalf("the Enemy is not a Rival: %v", gen.char.State.Ties)
+	}
+
+	if len(gen.tiesOfKind(career.Ally)) != 0 {
+		t.Error("the Enemy climbed to Ally on one result")
+	}
+
+	// The "no Contacts" clause is read against the state as it was too, so
+	// a character who had none still gains one.
+	if len(gen.tiesOfKind(career.Contact)) != 1 {
+		t.Errorf("no Contact was gained: %v", gen.char.State.Ties)
+	}
+}
+
+// TestAnImprovementWithNoContactsGainsOne is the clause the other three sit
+// beside: "If you have no Contacts, then you will gain one Contact."
+func TestAnImprovementWithNoContactsGainsOne(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t, Tie{Kind: string(career.Ally), Origin: fromACareer, Rating: 150})
+
+	err := gen.improveTies(0)
+	if err != nil {
+		t.Fatalf("improveTies: %v", err)
+	}
+
+	if len(gen.tiesOfKind(career.Contact)) != 1 {
+		t.Errorf("no Contact was gained: %v", gen.char.State.Ties)
+	}
+}
+
+// TestChangingNobodyTakesTheFallback is "a Rival becomes an Enemy, or a
+// Rival is gained where there was none".
+func TestChangingNobodyTakesTheFallback(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t)
+
+	err := gen.becomeTies(career.Effect{
+		Kind: career.EffectBecome, Count: 1, Relationship: career.Enemy,
+		From:   []career.Relationship{career.Rival},
+		Detail: "a Rival becomes an Enemy",
+		Fallback: []career.Effect{{
+			Kind: career.EffectRelationship, Relationship: career.Rival,
+			Count: 1, Detail: "a Rival is gained",
+		}},
+	}, 0)
+	if err != nil {
+		t.Fatalf("becomeTies: %v", err)
+	}
+
+	if len(gen.tiesOfKind(career.Rival)) != 1 {
+		t.Errorf("the fallback did not fire: %v", gen.char.State.Ties)
+	}
+}
+
+// TestARolledNumberOfNonFamilyTies is Teenage Path 3 result 4: "1D6-2
+// (minimum 1) of your Contacts or Allies who are not family members lose 50
+// Relationship Rating".
+func TestARolledNumberOfNonFamilyTies(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t,
+		Tie{Kind: string(career.Contact), Origin: FamilyOrigin, Rating: 60, Role: "parent"},
+		Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 60},
+	)
+
+	err := gen.moveRatings(career.Effect{
+		Kind: career.EffectRating, Target: career.TargetAll, ExcludeFamily: true,
+		From:      []career.Relationship{career.Contact, career.Ally},
+		CountDice: "1d6-2", Minimum: 1, Modifier: -50,
+		Detail: "non-family ties lose 50",
+	}, 0)
+	if err != nil {
+		t.Fatalf("moveRatings: %v", err)
+	}
+
+	for _, tie := range gen.char.State.Ties {
+		if tie.Origin == FamilyOrigin && tie.Rating != 60 {
+			t.Errorf("a family tie moved to %d", tie.Rating)
+		}
+	}
+}
+
+// TestAnUnreadableTieCountIsAnError holds the three places a relationship
+// result throws for how many: how many to lose, how many to change, and how
+// many to move. An expression the parser cannot read stops generation
+// rather than quietly doing nothing.
+func TestAnUnreadableTieCountIsAnError(t *testing.T) {
+	t.Parallel()
+
+	for name, apply := range map[string]func(*Generator) error{
+		"lose": func(gen *Generator) error {
+			return gen.loseTie(career.Effect{
+				Kind: career.EffectLoseTie, CountDice: "a few",
+				Order: []career.Relationship{career.Contact},
+			}, 0)
+		},
+		"become": func(gen *Generator) error {
+			return gen.becomeTies(career.Effect{
+				Kind: career.EffectBecome, CountDice: "a few",
+				From: []career.Relationship{career.Contact}, Relationship: career.Ally,
+			}, 0)
+		},
+		"move": func(gen *Generator) error {
+			return gen.moveRatings(career.Effect{
+				Kind: career.EffectRating, Target: career.TargetAll,
+				CountDice: "a few", Modifier: -50,
+			}, 0)
+		},
+	} {
+		gen := tiedEngine(t, Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 40})
+
+		err := apply(gen)
+		if err == nil {
+			t.Errorf("%s: an unreadable count was carried out anyway", name)
+		}
+	}
+}

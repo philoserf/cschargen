@@ -5,7 +5,7 @@ package career
 func ravedAbout() []Effect {
 	return []Effect{
 		relationship(Contact, 0, "1d3"),
-		unimplemented("1d3 existing Contacts become Allies"),
+		becomesRolled("1d3", Ally, Contact),
 	}
 }
 
@@ -28,7 +28,7 @@ func celebrityEvents() EventTable {
 		13: {
 			Summary: "a friend does something stupid and the coverage lands on you",
 			Effects: []Effect{
-				unimplemented("lose a Contact"),
+				loseTie(Contact),
 				benefitRolls(-1, 0, ScopeBatch),
 			},
 		},

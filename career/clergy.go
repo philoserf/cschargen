@@ -138,7 +138,7 @@ func clergyMishaps() MishapTable {
 			Summary: "something so offensive that you are excommunicated",
 			Effects: []Effect{
 				loseAll,
-				unimplemented("every Contact, Rival and Ally made in this career becomes an Enemy"),
+				becomesEveryOneInCareer(Enemy, Contact, Rival, Ally),
 			},
 		},
 		{

@@ -49,7 +49,7 @@ func artsEvents() EventTable {
 			Summary: "a friend does something stupid and the coverage lands on you",
 			Effects: []Effect{
 				chr("CHA", -1),
-				unimplemented("lose a Contact"),
+				loseTie(Contact),
 			},
 		},
 		24: {
@@ -59,7 +59,7 @@ func artsEvents() EventTable {
 					relationship(Contact, 0, "1d3"),
 					benefitRolls(-1, 0, ScopeBatch)),
 				opt("withhold it",
-					unimplemented("lose 1d3 Contacts"),
+					loseTiesRolled("1d3", Contact),
 					chr("CHA", 1)))},
 		},
 		25: {

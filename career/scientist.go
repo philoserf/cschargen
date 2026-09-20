@@ -124,7 +124,7 @@ func scientistMishaps() MishapTable {
 		{
 			Summary: "your research is invalidated and you cannot accept it",
 			Effects: []Effect{
-				unimplemented("lose every Contact made in this career, and an Ally made here becomes a Rival"),
+				group(becomesInCareer(1, Rival, Ally), loseEveryTie(true, Contact)),
 				relationship(Rival, 1, ""),
 				benefitRolls(-3, 0, ScopeBatch),
 			},
@@ -142,9 +142,9 @@ func scientistMishaps() MishapTable {
 }
 
 func scientistHeld() []Effect {
-	return []Effect{unimplemented("lose an Ally or a Contact")}
+	return []Effect{loseTie(Ally, Contact)}
 }
 
 func scientistOverrun() []Effect {
-	return []Effect{unimplemented("lose 1d3 Allies and Contacts"), injury(2)}
+	return []Effect{loseTiesRolled("1d3", Ally, Contact), injury(2)}
 }

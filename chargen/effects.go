@@ -64,6 +64,10 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		return g.changeStash(effect, cause)
 	case career.EffectGroup:
 		return g.applyAll(effect.Group, cause)
+	case career.EffectBecome:
+		return g.becomeTies(effect, cause)
+	case career.EffectImproveTies:
+		return g.improveTies(cause)
 	case career.EffectModifier:
 		g.pending = append(g.pending, PendingModifier{
 			Applies: effect.Applies, Value: effect.Modifier, Detail: effect.Detail,

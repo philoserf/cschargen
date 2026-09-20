@@ -140,7 +140,7 @@ func scavengerMishaps() MishapTable {
 			Effects: []Effect{pick("discard the item, or keep it",
 				opt("discard it", benefitRolls(-3, 0, ScopeBatch)),
 				opt("keep it",
-					unimplemented("lose every Ally and 1d3 Contacts"),
+					group(loseEveryTie(false, Ally), loseTiesRolled("1d3", Contact)),
 					transfer("Vagabond", "", 0)))},
 		},
 	}

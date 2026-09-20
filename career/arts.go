@@ -111,7 +111,7 @@ func artsMishaps() MishapTable {
 		},
 		{
 			Summary: "your muse is dead or will have nothing more to do with you",
-			Effects: []Effect{unimplemented("lose an Ally, or a Contact where there is no Ally")},
+			Effects: []Effect{loseTie(Ally, Contact)},
 		},
 		{
 			Summary: "popular still, but too deep in a depression to work",
@@ -126,7 +126,7 @@ func artsMishaps() MishapTable {
 			Summary: "a Rival frames you for a crime you did not commit",
 			Effects: []Effect{
 				transfer("Prisoner", "Prisoner", 1),
-				unimplemented("a Rival becomes an Enemy, or a Rival is gained where there was none"),
+				becomesOrElse(Enemy, []Relationship{Rival}, relationship(Rival, 1, "")),
 			},
 		},
 		{

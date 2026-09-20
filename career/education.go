@@ -150,9 +150,11 @@ func collegiateLifeEvents() []EventRow {
 // same words: every band moves up one, and a character with nothing gains a
 // Contact.
 func improveARelationship() Effect {
-	return unimplemented(
-		"one relationship improves by a band -- an Enemy becomes a Rival, a Rival a " +
-			"Contact, a Contact an Ally -- and with none, gain a Contact")
+	return Effect{
+		Kind: EffectImproveTies,
+		Detail: "an improvement to a relationship: with no Contacts gain one, " +
+			"and an Enemy becomes a Rival, a Rival a Contact, a Contact an Ally",
+	}
 }
 
 // RaiseSkill is a skill raised by a named number of levels, which Step 8

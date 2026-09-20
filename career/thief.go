@@ -141,7 +141,7 @@ func thiefMishaps() MishapTable {
 			Summary: "a former associate takes their revenge",
 			Effects: []Effect{
 				relationship(Rival, 1, ""),
-				unimplemented("a Contact or Ally becomes that Rival where there is one"),
+				becomes(1, Rival, Contact, Ally),
 				newHomeworld(),
 			},
 		},

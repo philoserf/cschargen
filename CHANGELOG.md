@@ -52,6 +52,26 @@ three times shows three company shares rather than three apologies.
   carries one effect and Celebrity's Producer credit is an object, a payment and
   an annuity.
 
+### Relationships lost, changed and improved
+
+The third pass on #42. Forty more occurrences resolve — 159 distinct results
+become 135, 260 occurrences become 220.
+
+- **Losses take a number.** "Lose 1d3 Allies and Contacts", "lose two Contacts",
+  "lose every Contact and Ally gained in this career": each removal works down
+  the printed order afresh, and "in this career" is measured against the origin a
+  tie already carried.
+- **A tie can change what it is.** "One Contact or Ally from this career becomes
+  an Enemy", "1d3 existing Contacts become Allies", "a Rival becomes an Enemy, or
+  a Rival is gained where there was none". A changed tie takes the middle of its
+  new band, for the reason E-23 gives.
+- **`improveARelationship` is implemented** (6 occurrences), which is the result
+  the issue named first. **ERRATA E-34** records why the four clauses
+  pp. 85, 91 and 96 print are read against the state as it was: in sequence, one
+  Enemy would climb to Ally on a single result.
+- **Results that find nobody do what they say instead.** "Lose one Ally or
+  Contact. If you have none, gain an Enemy with a Relationship Rating of -110."
+
 ### Fixed
 
 - A character dismissed from a career could still muster out of it.

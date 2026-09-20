@@ -141,7 +141,7 @@ func fringeMarketerMishaps() MishapTable {
 			Summary: "an item you sold turns out to be a poorly made fake",
 			Effects: []Effect{
 				chr("CHA", -2),
-				unimplemented("lose every Contact and Ally gained in this career"),
+				loseEveryTie(true, Contact, Ally),
 			},
 		},
 		{

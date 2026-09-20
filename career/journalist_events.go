@@ -112,7 +112,7 @@ func journalistEvents() EventTable {
 			Effects: []Effect{pick("accept or decline",
 				opt("accept",
 					rollTable(ServiceSkills),
-					unimplemented("lose 1d3 Contacts who feel you have sold out")),
+					loseTiesRolled("1d3", Contact)),
 				opt("decline", relationship(Contact, 0, "1d3")))},
 		},
 		56: {
@@ -155,7 +155,7 @@ func journalistScoop() []Effect {
 
 func journalistBackfire() []Effect {
 	return []Effect{
-		unimplemented("lose two Contacts"),
+		loseTies(2, Contact),
 		throwModifier("next advancement roll", -2),
 	}
 }

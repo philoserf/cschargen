@@ -91,7 +91,7 @@ func thiefEvents() EventTable {
 					[]Effect{skill("Broker"), benefitRolls(2, 0, ScopeBatch)},
 					[]Effect{
 						benefitRolls(-1, 0, ScopeBatch),
-						unimplemented("the fence Contact becomes an Enemy"),
+						becomes(1, Enemy, Contact),
 					}),
 			},
 		},
