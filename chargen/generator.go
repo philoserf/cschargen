@@ -234,6 +234,11 @@ func (g *Generator) Run() (*Character, error) {
 		return nil, err
 	}
 
+	err = g.finishingTouches()
+	if err != nil {
+		return nil, err
+	}
+
 	g.char.Events = g.log.Events()
 
 	return g.char, nil

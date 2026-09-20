@@ -1,6 +1,6 @@
 # Lifepath: Vela Ashgrove
 
-Seed 7, 190 events.
+Seed 7, 192 events.
 
 
 ## Step 1: Choose Human, Altrant, or Uplift (p. 21)
@@ -256,3 +256,7 @@ Seed 7, 190 events.
 -  188  choice Choose a mustering out table for Adventurer: Cash (policy)
 -  189  throw  1d6 [2] = 2  (p. 127)
 -  190  -> mustering out of Adventurer: 1000 credits [credits, from 189]
+
+## Step 20: Finishing Touches (pp. 129-130)
+
+-  192  -> finishing touches recorded [finishing, from 191]

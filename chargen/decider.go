@@ -46,6 +46,24 @@ type Decider interface {
 	Kind() DeciderKind
 }
 
+// Question is a free-text prompt, which Step 20 is four of. It is not a
+// Choice: "All player input or policy default; none is rolled" (FR12), and
+// there is no list to choose from.
+type Question struct {
+	Point   string
+	Prompt  string
+	Cite    string
+	Nth, Of int
+}
+
+// Asker is a Decider that can also be asked an open question. Only the
+// interactive one can: the policy has no answers to give and replay has
+// none to reapply, so both decline to implement it and Step 20 leaves their
+// characters' four fields empty.
+type Asker interface {
+	Ask(q Question) (string, error)
+}
+
 // Policy is the auto-mode decider: deterministic, total, and tie-breaking
 // by the order the book prints its options in. The decision table is
 // POLICY.md, identified in every record by policy_version.

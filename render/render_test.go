@@ -441,3 +441,39 @@ func TestTheSheetPrintsGenetics(t *testing.T) {
 		t.Error("a character with no genetics has a line saying so")
 	}
 }
+
+// TestTheSheetCarriesTheFinishingTouches. Step 20's four fields, and only
+// the ones somebody supplied -- the engine invents none, and a blank line
+// is worse than no line.
+func TestTheSheetCarriesTheFinishingTouches(t *testing.T) {
+	t.Parallel()
+
+	got := character(t, 3, 1, "Vela Ashgrove")
+
+	got.State.Finishing = chargen.Finishing{
+		Name: "Vela Ashgrove", Gender: "she/her",
+		Appearance: "tall, with a spacer's stoop",
+		Goals:      "to find out what happened to the Kestrel",
+	}
+
+	sheet := render.Sheet(got)
+	for _, want := range []string{
+		"**Gender**: she/her",
+		"**Appearance**: tall, with a spacer's stoop",
+		"**Goals**: to find out what happened to the Kestrel",
+	} {
+		if !strings.Contains(sheet, want) {
+			t.Errorf("the sheet does not contain %q", want)
+		}
+	}
+
+	// A character nobody described has none of those lines.
+	got.State.Finishing = chargen.Finishing{}
+
+	bare := render.Sheet(got)
+	for _, unwanted := range []string{"**Gender**", "**Appearance**", "**Goals**"} {
+		if strings.Contains(bare, unwanted) {
+			t.Errorf("an undescribed character's sheet has %s", unwanted)
+		}
+	}
+}
