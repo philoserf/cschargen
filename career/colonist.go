@@ -166,20 +166,20 @@ func colonistMishaps() MishapTable {
 			Effects: []Effect{
 				newHomeworld(),
 				relationship(Contact, 0, "1d3"),
-				unimplemented("choose a new career"),
+				chooseNewCareer(),
 			},
 		},
 		{
 			Summary: "tired of the constant struggle of colony life",
-			Effects: []Effect{newHomeworld(), unimplemented("choose a new career")},
+			Effects: []Effect{newHomeworld(), chooseNewCareer()},
 		},
 		{
 			Summary: "the colony has failed",
-			Effects: []Effect{newHomeworld(), unimplemented("choose a new career")},
+			Effects: []Effect{newHomeworld(), chooseNewCareer()},
 		},
 		{
 			Summary: "a rivalry with a fellow colonist ends with you leaving",
-			Effects: []Effect{newHomeworld(), unimplemented("choose a new career")},
+			Effects: []Effect{newHomeworld(), chooseNewCareer()},
 		},
 		{Summary: "injured", Effects: []Effect{injury(1)}},
 		{
@@ -187,7 +187,7 @@ func colonistMishaps() MishapTable {
 			Effects: []Effect{
 				benefitRolls(-2, 0, ScopeBatch),
 				newHomeworld(),
-				unimplemented("choose a new career"),
+				chooseNewCareer(),
 			},
 		},
 		{

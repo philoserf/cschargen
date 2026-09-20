@@ -121,11 +121,16 @@ and 12 send the character to Vagabond by name.
 **Reading:** an unnamed career change is a choice point, distinct from a named
 transfer, and the two are separate effects in the career data for that reason.
 
-**Not yet applied.** With three careers implemented, offering the choice would
-offer almost nothing, so the engine records these as unimplemented and leaves the
-character where they are. The entry is here because the distinction is already in
-the data and will be acted on in milestone 3, when there are careers to choose
-between. No record stamps E-6, and none should until then.
+**Applied since all thirty-four careers are transcribed.** The effect
+(`EffectChooseCareer`) ends the career without naming the next one; Step 18
+(p. 125) then offers the career list and the character enlists on the ordinary
+terms, enlistment throw and all. That is the difference from a transfer, which
+places the character in a named career without one.
+
+Until milestone 3 the engine recorded these as unimplemented and left the
+character where they were, because three careers to choose between was not a
+choice. Records generated before that stamp no E-6; records generated after it
+stamp E-6 wherever one of these results is reached.
 
 ---
 
@@ -283,3 +288,28 @@ nothing did.
 **If this is wrong:** the likeliest explanation is that result 25's sub-table
 overran its row and displaced 26's text, in which case the missing entry is lost
 rather than absent. Either way the engine cannot supply it.
+
+---
+
+## E-14 (typo) — a result that prints a target number with nothing to throw
+
+**Where:** Scavenger event 41 (p. 267).
+
+The row reads "You must stay aware of all the local laws and regulations
+concerning your business. Gain a level in Advocate (Legal) 8+". There is no
+throw in it: nothing succeeds or fails, and no consequence hangs on either.
+Every other result in the book that prints "8+" prints "Roll <skill> 8+" and
+two branches beneath it.
+
+**Engine:** the result grants a level in Advocate (Legal) and the "8+" is
+dropped.
+
+**If this is wrong:** the row lost a check in layout, and the level is the
+reward for passing rather than the result itself. That would make the result
+strictly worse than transcribed, never better, so a character generated under
+this reading is never owed a skill they did not earn.
+
+A second, smaller slip runs across several tables: Scavenger event 26 (p. 267)
+and Exotic event 63 (p. 193) both say "Engineering (Any)" where the skill list
+(p. 304) has Engineer. The engine uses Engineer, because no skill named
+Engineering exists to grant.

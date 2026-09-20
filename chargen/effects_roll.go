@@ -226,40 +226,42 @@ func (g *Generator) changeStash(effect career.Effect, cause int) {
 }
 
 // rollExpression evaluates the small language the tables are written in:
-// a bare number, "NdM", or "NdMxK", where M is 6 or 3 -- the only two dice
-// the book throws for a quantity. Anything else is a transcription error
-// rather than a rule, so it errors rather than guessing what the page
+// a bare number, "NdM", "NdMxK" or "NdM+K", where M is 6 or 3 -- the only
+// two dice the book throws for a quantity. Anything else is a transcription
+// error rather than a rule, so it errors rather than guessing what the page
 // meant.
+//
+// The multiplier and the offset are exclusive because the book never writes
+// both: "1d6 x ₶100,000" is a sum of money and "1d3+1 Contacts" is a count
+// of people.
 func (g *Generator) rollExpression(expr, cite string) (int, error) {
-	multiplier := 1
-
-	if index := strings.Index(expr, "x"); index >= 0 {
-		parsed, ok := atoi(expr[index+1:])
-		if !ok {
-			return 0, ErrBadExpression
-		}
-
-		multiplier = parsed
-		expr = expr[:index]
-	}
-
-	index := strings.Index(expr, "d")
-	if index < 0 {
-		value, ok := atoi(expr)
-		if !ok {
-			return 0, ErrBadExpression
-		}
-
-		return value * multiplier, nil
-	}
-
-	count, ok := atoi(expr[:index])
+	expr, offset, ok := suffix(expr, "+", 0)
 	if !ok {
 		return 0, ErrBadExpression
 	}
 
-	sides, ok := atoi(expr[index+1:])
+	expr, multiplier, ok := suffix(expr, "x", 1)
 	if !ok {
+		return 0, ErrBadExpression
+	}
+
+	index := strings.Index(expr, "d")
+	if index < 0 {
+		value, valid := atoi(expr)
+		if !valid {
+			return 0, ErrBadExpression
+		}
+
+		return value*multiplier + offset, nil
+	}
+
+	count, valid := atoi(expr[:index])
+	if !valid {
+		return 0, ErrBadExpression
+	}
+
+	sides, valid := atoi(expr[index+1:])
+	if !valid {
 		return 0, ErrBadExpression
 	}
 
@@ -268,7 +270,7 @@ func (g *Generator) rollExpression(expr, cite string) (int, error) {
 		roll := g.dice.ND6(count)
 		g.log.Roll(roll, cite)
 
-		return roll.Total * multiplier, nil
+		return roll.Total*multiplier + offset, nil
 	case threeSided:
 		total := 0
 
@@ -279,10 +281,28 @@ func (g *Generator) rollExpression(expr, cite string) (int, error) {
 			total += roll.Total
 		}
 
-		return total * multiplier, nil
+		return total*multiplier + offset, nil
 	}
 
 	return 0, ErrBadExpression
+}
+
+// suffix splits a trailing "<sep><number>" off an expression, returning the
+// rest and the number -- or absent is the default, which is what an
+// expression without that suffix means. A separator with nothing readable
+// after it is a transcription error, not a default.
+func suffix(expr, sep string, absent int) (string, int, bool) {
+	rest, after, found := strings.Cut(expr, sep)
+	if !found {
+		return expr, absent, true
+	}
+
+	value, ok := atoi(after)
+	if !ok {
+		return expr, 0, false
+	}
+
+	return rest, value, true
 }
 
 // The two dice the book throws for a quantity, and the base its numbers

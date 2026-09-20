@@ -1,6 +1,7 @@
 package chargen_test
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/philoserf/cschargen/chargen"
@@ -405,5 +406,61 @@ func TestSkillLevels(t *testing.T) {
 				t.Errorf("seed %d: a skill with no name", seed)
 			}
 		}
+	}
+}
+
+// TestChoosingANewCareerIsNotATransfer is ERRATA E-6, applied.
+//
+// Five Colonist mishaps end "choose another career and a new homeworld"
+// (p. 174), and four others in the book do the same. They are not the
+// mishaps that name a career: Colonist 10 sends the character to Vagabond
+// by name. The difference the engine has to show is that an unnamed change
+// goes through Step 18's career list and its enlistment throw, where a
+// named one places the character without either.
+//
+// Forcing Colonist is what the test above learned to do: the auto policy no
+// longer happens to pick it now that thirty-four careers are on the list,
+// and the closing check is what turns a vacuous pass into a failure.
+func TestChoosingANewCareerIsNotATransfer(t *testing.T) {
+	t.Parallel()
+
+	reached := 0
+
+	for seed := range uint64(sample) {
+		opts := options(t, seed)
+
+		opts.Inputs.TermLimit = 8
+		opts.Inputs.Career = careerColonist
+
+		character := generate(t, opts)
+
+		if !slices.Contains(character.Provenance.Deviations, "E-6") {
+			continue
+		}
+
+		reached++
+
+		// The character left the career that sent them away, and whatever
+		// they did next was entered on their own account rather than
+		// placed by the rules. A forced career is only the first attempt,
+		// so Colonist need not be the first service -- only one they held
+		// and then left.
+		left := slices.IndexFunc(character.State.Services, func(s chargen.Service) bool {
+			return s.Career == careerColonist
+		})
+
+		if left < 0 {
+			t.Errorf("seed %d: stamped E-6 without ever holding Colonist", seed)
+
+			continue
+		}
+
+		if left == len(character.State.Services)-1 {
+			t.Errorf("seed %d: stamped E-6 and never left Colonist", seed)
+		}
+	}
+
+	if reached == 0 {
+		t.Errorf("no seed in %d reached an unnamed career change; E-6 is untested", sample)
 	}
 }

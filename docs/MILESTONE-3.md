@@ -1,6 +1,54 @@
 # Milestone 3: the other thirty-one careers
 
-2026-09-19. Status: plan. Tracks [#12](https://github.com/philoserf/cschargen/issues/12).
+2026-09-19. Status: done. Tracks [#12](https://github.com/philoserf/cschargen/issues/12).
+
+## What it turned out to be
+
+Six PRs in the order planned, each leaving the gate green. All thirty-four
+careers the book names are transcribed, and `TestTheBookIsFullyTranscribed`
+fails in both directions -- a career the list names and `All()` does not carry,
+and a career `All()` carries that the list does not.
+
+Six things the plan did not know:
+
+1. **Enlistment modifiers were being silently dropped.** Twelve careers print
+   "-2 if your apparent age is over 40" or "-1 for each career you have entered
+   before this one" beside the enlistment throw, and the data had nowhere to put
+   them. `EnlistmentMod` now carries five kinds; the engine evaluates what it can
+   and records what it cannot, and every earlier career was retrofitted.
+
+2. **`Ranks [7][]Effect` was the wrong shape.** Marine prints nine enlisted ranks
+   and eight officer ranks (p. 225). A fixed array of seven was the first thing
+   the transcription broke.
+
+3. **A career's benefit queue survived an ejection.** A mishap's "-2 benefit
+   rolls" stayed as a debt and was charged again on rejoining, because the queue
+   was not cleared on the early return. `TestBenefitQueueIsEmptiedPerCareer`
+   found it.
+
+4. **Credit expressions were transcribed as the page prints them.** "100,000",
+   "1d6 x ₶10,000" -- and `rollExpression` reads none of that. They would have
+   failed at generation time on whichever seed first reached the row, which may
+   have been no seed any test runs. `TestEveryTranscribedExpressionParses` now
+   throws every expression in the corpus once, and caught a fourth the parser
+   genuinely could not read.
+
+5. **Rank benefits are a floor, not an increment** (p. 116: "Rank Benefits
+   represent required competence, not bonus stacking"), and the engine adds. It
+   has done since milestone 1, in every career. That is [#20], kept out of a PR
+   full of career data because it moves skill levels on replayed seeds.
+
+6. **Three results condition on state no effect can ask** -- whether a career was
+   held before this one, which assignment is held. POLICY.md gained a section
+   for them: the branches are written out and the first the page prints wins.
+
+Two errata came out of the reading: E-13 (Scientist result 26 is printed blank)
+and E-14 (Scavenger event 41 prints a target number with nothing to throw for,
+and three tables name a skill the skill list does not have). E-6 is applied.
+
+[#20]: https://github.com/philoserf/cschargen/issues/20
+
+## The plan as filed
 
 Milestones 1 and 2 transcribed three careers as hand-typed Go, on the argument
 that the data format is what this milestone proves. This is that milestone, and

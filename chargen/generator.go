@@ -68,9 +68,11 @@ type Generator struct {
 	lockout           map[string]int
 	forced            string
 
-	// stopped is set when a table result sends the character to a career
-	// milestone 1 does not implement. Generation ends cleanly; the record
-	// carries the unimplemented consequence naming where they went.
+	// stopped is set when a table result names a career career.ByName does
+	// not find. All thirty-four the book names are transcribed, so this is
+	// a misspelled destination rather than a missing one. Generation ends
+	// cleanly; the record carries the unimplemented consequence naming
+	// where they went.
 	stopped bool
 
 	pending []PendingModifier
