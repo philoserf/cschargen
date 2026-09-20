@@ -11,10 +11,11 @@ package chargen
 // not derived from age -- the 1d3 mishap increment (p. 121) already means
 // age is not 18 + 4n.
 //
-// The book prints seven of these tables. The four here are the human ones;
-// the other three belong to species this engine does not generate yet, and
-// two of their headings are proper names the OGL notice reserves (p. 335).
-// They arrive with the species work, out of the setting data file.
+// The book prints seven of these tables and they collapse to five profiles
+// once their headings are set aside -- every heading is a species name the
+// OGL notice reserves (p. 335), and four of the five engineered species
+// share the human tables. The four here are the tech-level profile; the
+// other four are below, named for what they do.
 
 // AgingCheck is one characteristic and the number it has to make.
 type AgingCheck struct {
@@ -51,6 +52,7 @@ func threePhysical(number int) []AgingCheck {
 	}
 }
 
+//nolint:unparam // the number is the page's; nine is merely what every band that uses this row prints
 func physicalPlusMind(number int) []AgingCheck {
 	return append(threePhysical(number),
 		AgingCheck{Characteristic: "INT", Number: number},
@@ -66,6 +68,83 @@ func everything(number int) []AgingCheck {
 		AgingCheck{Characteristic: "EDU", Number: number},
 		AgingCheck{Characteristic: "CHA", Number: 9},
 	)
+}
+
+// AgingProfile names one of the five tables pp. 122-123 print, once their
+// headings are set aside. Every heading is a species name the OGL notice
+// reserves, so the profiles are named for what they do: when ageing starts
+// and how fast it escalates.
+//
+// A species in the setting data names one of these. Four of the book's five
+// engineered species share the tech-level profile with humans -- their
+// headings read "Humans, Gaishan, Oskars, Aquans and Sniffers from a World
+// that is Tech Level 10" -- so the tables milestone 4 built cover most of
+// the book already.
+type AgingProfile string
+
+const (
+	// ProfileTechLevel is the four tables of milestone 4, keyed by the
+	// homeworld's tech level. It is the default, and what a data file
+	// that says nothing gets.
+	ProfileTechLevel AgingProfile = "techLevel"
+
+	// ProfileRapid starts at term 4 and reaches its hardest band at 8.
+	ProfileRapid AgingProfile = "rapid"
+
+	// ProfileModerate starts at term 6 and reaches its hardest at 10.
+	ProfileModerate AgingProfile = "moderate"
+
+	// ProfileSturdy starts at term 6 and reaches its hardest at 13.
+	ProfileSturdy AgingProfile = "sturdy"
+
+	// ProfileSudden starts at term 7 and is the only table that opens on
+	// five checks rather than three, and the only one that reaches 11+.
+	ProfileSudden AgingProfile = "sudden"
+)
+
+// AgingProfiles is the five, so that a validator can name what it will
+// accept.
+func AgingProfiles() []AgingProfile {
+	return []AgingProfile{
+		ProfileTechLevel, ProfileRapid, ProfileModerate, ProfileSturdy, ProfileSudden,
+	}
+}
+
+// agingFor returns the table a character ages on: their species' profile,
+// read against their homeworld's tech level where the profile is the one
+// that reads it.
+func agingFor(profile AgingProfile, techLevel int) []AgingBand {
+	switch profile {
+	case ProfileRapid:
+		return []AgingBand{
+			{From: 4, Through: 5, Checks: physicalPlusMind(9)},
+			{From: 6, Through: 7, Checks: everything(10)},
+			{From: 8, Checks: everything(11)},
+		}
+	case ProfileModerate:
+		return []AgingBand{
+			{From: 6, Through: 7, Checks: threePhysical(9)},
+			{From: 8, Through: 9, Checks: physicalPlusMind(9)},
+			{From: 10, Checks: everything(10)},
+		}
+	case ProfileSturdy:
+		// ERRATA E-30: the page prints 6-8, 9-11 and 13+. Term 12 is in no
+		// band, and the engine holds the middle one through the gap.
+		return []AgingBand{
+			{From: 6, Through: 8, Checks: threePhysical(9)},
+			{From: 9, Through: 12, Checks: physicalPlusMind(9)},
+			{From: 13, Checks: everything(10)},
+		}
+	case ProfileSudden:
+		return []AgingBand{
+			{From: 7, Through: 7, Checks: physicalPlusMind(9)},
+			{From: 8, Through: 8, Checks: everything(10)},
+			{From: 9, Checks: everything(11)},
+		}
+	case ProfileTechLevel:
+	}
+
+	return humanAging(techLevel)
 }
 
 // humanAging returns the table for a homeworld tech level (pp. 122-123).
@@ -107,8 +186,8 @@ func humanAging(techLevel int) []AgingBand {
 
 // agingChecksAt returns the checks due at a term count, and whether any
 // band covers it at all.
-func agingChecksAt(techLevel, term int) ([]AgingCheck, bool) {
-	for _, band := range humanAging(techLevel) {
+func agingChecksAt(profile AgingProfile, techLevel, term int) ([]AgingCheck, bool) {
+	for _, band := range agingFor(profile, techLevel) {
 		if band.covers(term) {
 			return band.Checks, true
 		}

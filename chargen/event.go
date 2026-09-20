@@ -89,6 +89,7 @@ const (
 	ConsequenceHomeworld      ConsequenceKind = "homeworld"
 	ConsequenceFamily         ConsequenceKind = "family"
 	ConsequenceEducation      ConsequenceKind = "education"
+	ConsequenceSpecies        ConsequenceKind = "species"
 	ConsequenceAge            ConsequenceKind = "age"
 	ConsequenceModifier       ConsequenceKind = "modifier"
 	ConsequenceUnimplemented  ConsequenceKind = "unimplemented"

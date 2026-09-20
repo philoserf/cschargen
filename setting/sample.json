@@ -4,19 +4,86 @@
   "species": [
     {
       "name": "Deepwalker",
-      "kind": "engineered"
+      "kind": "engineered",
+      "characteristics": {
+        "STR": "2d6+2",
+        "END": "2d6+2",
+        "DEX": "2d6-2",
+        "CHA": "1d6+3"
+      },
+      "skills": [
+        {
+          "skill": "Survival",
+          "specialties": ["High Pressure"]
+        }
+      ],
+      "maximum": 17
     },
     {
       "name": "Sunstruck",
-      "kind": "engineered"
+      "kind": "engineered",
+      "characteristics": {
+        "STR": "2d6-2",
+        "END": "2d6-2",
+        "DEX": "2d6+2",
+        "CHA": "1d6+3"
+      },
+      "skills": [
+        {
+          "skill": "Survival",
+          "specialties": ["Freefall"]
+        },
+        {
+          "skill": "Suit",
+          "specialties": ["Vacc Suit"]
+        }
+      ],
+      "aging": "sudden",
+      "maximum": 16
     },
     {
       "name": "Corvid",
-      "kind": "uplift"
+      "kind": "uplift",
+      "characteristics": {
+        "STR": "1d6",
+        "DEX": "2d6+3",
+        "END": "2d6-1"
+      },
+      "skills": [
+        {
+          "skill": "Recon"
+        }
+      ],
+      "aging": "rapid",
+      "maximum": 14,
+      "youthRolls": 1,
+      "youthAges": ["ages 2-4"],
+      "teenRolls": 2,
+      "teenAges": ["ages 5-7", "ages 8-10"]
     },
     {
       "name": "Otter",
-      "kind": "uplift"
+      "kind": "uplift",
+      "characteristics": {
+        "STR": "2d6-1",
+        "DEX": "2d6+2",
+        "END": "2d6"
+      },
+      "skills": [
+        {
+          "skill": "Athletics",
+          "specialties": ["Any"]
+        },
+        {
+          "skill": "Survival",
+          "specialties": ["Ocean"]
+        }
+      ],
+      "aging": "moderate",
+      "youthRolls": 2,
+      "youthAges": ["ages 3-6", "ages 7-10"],
+      "teenRolls": 2,
+      "teenAges": ["ages 11-13", "ages 14-16"]
     }
   ],
   "subsectors": [

@@ -715,7 +715,7 @@ func TestTheAgingTablesMatchPages122And123(t *testing.T) {
 	}
 
 	for _, want := range rows {
-		checks, due := agingChecksAt(want.techLevel, want.term)
+		checks, due := agingChecksAt(ProfileTechLevel, want.techLevel, want.term)
 		got := ""
 
 		if due {
@@ -1176,6 +1176,173 @@ func TestOverFortyIsABandNotANumber(t *testing.T) {
 	for _, tc := range tests {
 		if got := apparentAgeOverForty(tc.band); got != tc.want {
 			t.Errorf("apparentAgeOverForty(%s) = %v, want %v", tc.band, got, tc.want)
+		}
+	}
+}
+
+// TestRollExpressionSubtracts is what a species' characteristic method
+// needs: "roll 2d6-2 for STR and END" (p. 23).
+func TestRollExpressionSubtracts(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 35)
+
+	tests := []struct {
+		expr      string
+		low, high int
+		bad       bool
+	}{
+		{expr: "2d6-2", low: 0, high: 10},
+		{expr: "2d6+2", low: 4, high: 14},
+		{expr: "1d6-1", low: 0, high: 5},
+		{expr: "10-4", low: 6, high: 6},
+		{expr: "2d6-", bad: true},
+		{expr: "2d6-two", bad: true},
+	}
+
+	for _, tc := range tests {
+		got, err := gen.rollExpression(tc.expr, "p. 23")
+		if tc.bad {
+			if !errors.Is(err, ErrBadExpression) {
+				t.Errorf("%q: err = %v, want ErrBadExpression", tc.expr, err)
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("%q: %v", tc.expr, err)
+
+			continue
+		}
+
+		if got < tc.low || got > tc.high {
+			t.Errorf("%q = %d, outside [%d,%d]", tc.expr, got, tc.low, tc.high)
+		}
+	}
+}
+
+// TestTheFiveAgingProfiles is a second reading of pp. 122-123's tables,
+// once their headings are set aside. The headings are species names the OGL
+// notice reserves, so the profiles are named for what they do.
+func TestTheFiveAgingProfiles(t *testing.T) {
+	t.Parallel()
+
+	type row struct {
+		profile AgingProfile
+		term    int
+		checks  string
+	}
+
+	rows := []row{
+		// "4-5 / 6-7 / 8+", the only table that opens on five checks and
+		// reaches 11+.
+		{ProfileRapid, 3, ""},
+		{ProfileRapid, 4, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{ProfileRapid, 5, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{ProfileRapid, 6, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		{ProfileRapid, 7, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		{ProfileRapid, 8, "STR 11+, DEX 11+, END 11+, INT 11+, EDU 11+, CHA 9+"},
+		{ProfileRapid, 40, "STR 11+, DEX 11+, END 11+, INT 11+, EDU 11+, CHA 9+"},
+		// "6-7 / 8-9 / 10+".
+		{ProfileModerate, 5, ""},
+		{ProfileModerate, 6, "STR 9+, DEX 9+, END 9+"},
+		{ProfileModerate, 7, "STR 9+, DEX 9+, END 9+"},
+		{ProfileModerate, 8, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{ProfileModerate, 10, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		// "6-8 / 9-11 / 13+" -- and term 12 is in no printed band, which
+		// is ERRATA E-30.
+		{ProfileSturdy, 5, ""},
+		{ProfileSturdy, 6, "STR 9+, DEX 9+, END 9+"},
+		{ProfileSturdy, 8, "STR 9+, DEX 9+, END 9+"},
+		{ProfileSturdy, 9, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{ProfileSturdy, 11, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{ProfileSturdy, 12, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{ProfileSturdy, 13, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		// "7 / 8 / 9+", each of its first two bands one term wide.
+		{ProfileSudden, 6, ""},
+		{ProfileSudden, 7, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{ProfileSudden, 8, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		{ProfileSudden, 9, "STR 11+, DEX 11+, END 11+, INT 11+, EDU 11+, CHA 9+"},
+		// And the default reads the tech level, which is milestone 4's.
+		{ProfileTechLevel, 6, "STR 8+, DEX 8+, END 8+"},
+	}
+
+	for _, want := range rows {
+		// The tech level is only read by the profile that reads it; nine
+		// is what the others are given and ignore.
+		checks, due := agingChecksAt(want.profile, 9, want.term)
+
+		got := ""
+		if due {
+			got = renderChecks(checks)
+		}
+
+		if got != want.checks {
+			t.Errorf("%s at term %d: %q, want %q",
+				want.profile, want.term, got, want.checks)
+		}
+	}
+}
+
+// renderChecks writes a band the way the page prints it.
+func renderChecks(checks []AgingCheck) string {
+	parts := make([]string, len(checks))
+	for i, check := range checks {
+		parts[i] = check.Characteristic + " " + itoa(check.Number) + "+"
+	}
+
+	return strings.Join(parts, ", ")
+}
+
+// TestEveryProfileIsContiguous holds the property the rows above sample,
+// for all five: bands in order, no gap and no overlap.
+func TestEveryProfileIsContiguous(t *testing.T) {
+	t.Parallel()
+
+	for _, profile := range AgingProfiles() {
+		bands := agingFor(profile, 9)
+
+		for i, band := range bands {
+			if band.Through != 0 && band.Through < band.From {
+				t.Errorf("%s band %d: %d-%d runs backwards",
+					profile, i, band.From, band.Through)
+			}
+
+			if i == 0 {
+				continue
+			}
+
+			previous := bands[i-1]
+			if previous.Through == 0 {
+				t.Errorf("%s band %d is open and is not the last", profile, i-1)
+
+				continue
+			}
+
+			if band.From != previous.Through+1 {
+				t.Errorf("%s: band %d ends at %d and band %d starts at %d",
+					profile, i-1, previous.Through, i, band.From)
+			}
+		}
+	}
+}
+
+// TestTheProfileNamesAgreeWithTheValidator. The names a setting file may
+// use live in setting, because a validator that could not check them would
+// pass a file the engine then had to fall back on. The tables live here.
+// Nothing holds the two together but this.
+func TestTheProfileNamesAgreeWithTheValidator(t *testing.T) {
+	t.Parallel()
+
+	if len(setting.AgingProfiles) != len(AgingProfiles()) {
+		t.Fatalf("the validator accepts %d profiles and the engine holds %d",
+			len(setting.AgingProfiles), len(AgingProfiles()))
+	}
+
+	for _, profile := range AgingProfiles() {
+		if !setting.AgingProfiles[string(profile)] {
+			t.Errorf("the engine holds %q and a file naming it would be rejected", profile)
 		}
 	}
 }

@@ -231,8 +231,8 @@ func (g *Generator) changeStash(effect career.Effect, cause int) {
 }
 
 // rollExpression evaluates the small language the tables are written in:
-// a bare number, "NdM", "NdMxK" or "NdM+K", where M is 6, 3 or 10 -- the
-// three dice the book throws for a quantity. Anything else is a
+// a bare number, "NdM", "NdMxK", "NdM+K" or "NdM-K", where M is 6, 3 or 10
+// -- the three dice the book throws for a quantity. Anything else is a
 // transcription error rather than a rule, so it errors rather than guessing
 // what the page meant.
 //
@@ -243,6 +243,20 @@ func (g *Generator) rollExpression(expr, cite string) (int, error) {
 	expr, offset, ok := suffix(expr, "+", 0)
 	if !ok {
 		return 0, ErrBadExpression
+	}
+
+	// A species' characteristic method subtracts as often as it adds:
+	// "roll 2d6-2 for STR and END" (p. 23). Only one of the two suffixes
+	// can apply, because no expression in the book carries both.
+	if offset == 0 {
+		var down int
+
+		expr, down, ok = suffix(expr, "-", 0)
+		if !ok {
+			return 0, ErrBadExpression
+		}
+
+		offset = -down
 	}
 
 	expr, multiplier, ok := suffix(expr, "x", 1)
