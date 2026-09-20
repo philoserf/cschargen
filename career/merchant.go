@@ -101,14 +101,13 @@ func IndependentMerchant() Career {
 			}},
 		},
 		Benefits: [7]BenefitRow{
-			{Cash: 1000, Other: unimplemented("a weapon of the character's choice")},
+			{Cash: 1000, Other: weaponOrItsUse()},
 			{Cash: 5000, Other: chr("CHA", 1)},
 			{Cash: 7000, Other: chr("DEX", 1)},
 			{Cash: 10000, Other: chr("INT", 1)},
 			{Cash: 20000, Other: relationship(Contact, 1, "")},
 			{Cash: 40000, Other: relationship(Ally, 1, "")},
-			{Cash: 75000, Other: unimplemented(
-				"a Captain's Guild membership for one year, worth 625,000 credits")},
+			{Cash: 75000, Other: stashValued("a Captain's Guild membership for one year", "625000")},
 		},
 		Mishaps: merchantMishaps(),
 		Events:  merchantEvents(),

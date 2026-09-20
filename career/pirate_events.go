@@ -36,7 +36,7 @@ func pirateEvents() EventTable {
 		},
 		16: {
 			Summary: "a trophy taken from a rival pirate ship",
-			Effects: []Effect{unimplemented("a weapon of the character's choice")},
+			Effects: []Effect{weaponOrItsUse()},
 		},
 		21: {
 			Summary: "criminal skills, honed",

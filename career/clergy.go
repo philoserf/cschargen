@@ -88,12 +88,23 @@ func Clergy() Career {
 			{Cash: 2000, Other: relationship(Contact, 1, "")},
 			{Cash: 5000, Other: relationship(Ally, 1, "")},
 			{Cash: 10000, Other: stashItem("a holy book")},
-			{Cash: 20000, Other: unimplemented(
-				"a church pension of 2d6 x 10,000 credits, or 1,000 a year collected in person")},
+			{Cash: 20000, Other: churchPension()},
 		},
 		Mishaps: clergyMishaps(),
 		Events:  clergyEvents(),
 	}
+}
+
+// churchPension is p. 128: 2d6 x 10,000 credits, taken either as a lump
+// sum "of 10% less than the full value" -- which is 2d6 x 9,000 -- or as
+// 1,000 a year, for which "the character must return to their homeworld
+// annually to pick up the payment". The engine has no model for a yearly
+// income tied to a place, so the second branch is recorded rather than run.
+func churchPension() Effect {
+	return pick("take the pension as a lump sum or as a yearly payment (p. 128)",
+		opt("a lump sum, 10% less", credits("2d6x9000")),
+		opt("1,000 a year",
+			unimplemented("1,000 credits a year, collected on the homeworld in person")))
 }
 
 func clergyMishaps() MishapTable {

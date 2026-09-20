@@ -31,7 +31,9 @@ func (g *Generator) applyAll(effects []career.Effect, cause int) error {
 // the fold over it; splitting it would scatter one table across files, and
 // a fold has the size of the alphabet it folds over.
 //
-//nolint:cyclop,funlen,gocyclo // a fold over a closed alphabet has the size of the alphabet
+// and EffectGroup adds a letter that recurses rather than a branch
+//
+//nolint:cyclop,funlen,gocyclo // a fold over a closed alphabet has the size of the alphabet,
 func (g *Generator) apply(effect career.Effect, cause int) error {
 	switch effect.Kind {
 	case career.EffectSkill:
@@ -59,9 +61,9 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 	case career.EffectCredits:
 		return g.payCredits(effect, cause)
 	case career.EffectStash:
-		g.changeStash(effect, cause)
-
-		return nil
+		return g.changeStash(effect, cause)
+	case career.EffectGroup:
+		return g.applyAll(effect.Group, cause)
 	case career.EffectModifier:
 		g.pending = append(g.pending, PendingModifier{
 			Applies: effect.Applies, Value: effect.Modifier, Detail: effect.Detail,

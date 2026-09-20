@@ -76,11 +76,11 @@ func CorporateShipper() Career {
 		Benefits: [7]BenefitRow{
 			{Cash: 500, Other: chr("DEX", 1)},
 			{Cash: 1000, Other: chr("INT", 1)},
-			{Cash: 2000, Other: unimplemented("a weapon of the character's choice")},
+			{Cash: 2000, Other: weaponOrItsUse()},
 			{Cash: 4000, Other: chr("EDU", 1)},
-			{Cash: 10000, Other: unimplemented("a company share, 2d6 x 100,000 credits")},
-			{Cash: 15000, Other: unimplemented("two company shares")},
-			{Cash: 20000, Other: unimplemented("three company shares")},
+			{Cash: 10000, Other: stashValued(companyShare, companyShareValue)},
+			{Cash: 15000, Other: stashCountValued(2, companyShare, companyShareValue)},
+			{Cash: 20000, Other: stashCountValued(3, companyShare, companyShareValue)},
 		},
 		Mishaps: shipperMishaps(),
 		Events:  shipperEvents(),
@@ -94,14 +94,14 @@ func shipperMishaps() MishapTable {
 			Summary: "cutbacks eliminate your position",
 			Effects: []Effect{
 				benefitRolls(-2, 0, ScopeBatch),
-				unimplemented("lose any company shares"),
+				loseStashItem(companyShare),
 			},
 		},
 		{
 			Summary: "enough of this; you are going independent",
 			Effects: []Effect{
 				loseAllBenefits("lose every benefit roll from this career"),
-				unimplemented("lose any company shares"),
+				loseStashItem(companyShare),
 				transfer("Independent Merchant", "", 0),
 			},
 		},
@@ -136,7 +136,7 @@ func shipperMishaps() MishapTable {
 				[]Effect{benefitRolls(2, 0, ScopeBatch), relationship(Enemy, 1, "")},
 				[]Effect{
 					relationship(Enemy, 1, ""),
-					unimplemented("lose any company shares"),
+					loseStashItem(companyShare),
 					transfer("Prisoner", "Prisoner", 1),
 				})},
 		},
@@ -144,7 +144,7 @@ func shipperMishaps() MishapTable {
 			Summary: "your ship is destroyed and, with nobody else to blame, the company blames you",
 			Effects: []Effect{
 				loseAllBenefits("lose every benefit roll from this career"),
-				unimplemented("lose any company shares"),
+				loseStashItem(companyShare),
 				unimplemented("owe the company 2.3 million credits"),
 				throwModifier("next enlistment attempt", -4),
 			},

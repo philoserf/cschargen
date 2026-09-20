@@ -92,7 +92,7 @@ func Gambler() Career {
 			{Cash: 5000, Other: relationship(Contact, 1, "")},
 			{Cash: 10000, Other: relationship(Ally, 1, "")},
 			{Cash: 20000, Other: stashItem("a weapon")},
-			{Cash: 50000, Other: stashItem("a gambler kit")},
+			{Cash: 50000, Other: stashValued("a gambler kit", "1d6x1000")},
 		},
 		Mishaps: gamblerMishaps(),
 		Events:  gamblerEvents(),

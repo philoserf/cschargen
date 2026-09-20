@@ -22,9 +22,44 @@ rolls:
 - **Expulsion from a graduate track** (2) now closes every institution for two
   terms (pp. 98, 102), not just the one that expelled the character.
 
+### Named benefits reach the record
+
+A second pass on #42, and the finding the plan leads with. Fifty-four more
+occurrences resolve — 176 distinct results become 159, 314 occurrences become 260.
+
+`benefitRoll` passed a weapon, a company share, a pension or a rare item to
+`apply`, which recorded it as something the engine could not do. They are
+possessions, and the record holds them now: a Corporate Shipper who mustered out
+three times shows three company shares rather than three apologies.
+
+- **Possessions carry the value p. 128 gives them** (39 occurrences). A company
+  share is worth 2d6 × 100,000 wherever it was granted, including on the rows
+  that say "Three Company Shares" and print no number — the definition is of the
+  benefit, not of one row, which is ERRATA E-33. Pieces of art are valued one
+  throw each, because p. 128 says the value "should be rolled at the time the
+  benefit is received". A weapon and a suit of armour carry none, because the
+  book gives none: FR11's "names those and stores no invented value".
+- **The Weapon benefit is a choice, not an item** (15 rows). p. 129 ends it with
+  "If the player wishes, they may choose to take a level in Melee (Any) or Gun
+  Combat (Any) in lieu of a weapon", and two of those three branches are things
+  this engine can carry out.
+- **"Lose any company shares"** (14) has something to remove. It takes the
+  shares and leaves everything else, and says so even when there were none.
+- **Money is money.** A Pension, a Prize Share and a Church Pension are amounts,
+  not objects, so they pay credits. The church lump sum is 10% less than the full
+  value (p. 128), which is 2d6 × 9,000.
+- **A benefit row can do two things.** `EffectGroup` exists because a row
+  carries one effect and Celebrity's Producer credit is an object, a payment and
+  an annuity.
+
 ### Fixed
 
 - A character dismissed from a career could still muster out of it.
+
+### Changed
+
+- **Record schema 1 → 2.** `stash` is a list of possessions rather than a list
+  of names. `replay` refuses a version-1 record, which is what it is for.
 
 ## v0.1.0-alpha.1 — 2026-09-20
 

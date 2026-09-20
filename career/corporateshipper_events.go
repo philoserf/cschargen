@@ -47,7 +47,7 @@ func shipperEvents() EventTable {
 		24: {
 			Summary: "an argument between officers, or in middle management",
 			Effects: []Effect{checkSkill("Diplomat", 8,
-				[]Effect{unimplemented("three company shares")},
+				[]Effect{stashCountValued(3, companyShare, companyShareValue)},
 				[]Effect{throwModifier("next advancement roll", -2)})},
 		},
 		25: {

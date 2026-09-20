@@ -82,7 +82,7 @@ func Adventurer() Career {
 			{Cash: 1000, Other: chr("INT", 1)},
 			{Cash: 2000, Other: chr("EDU", 1)},
 			{Cash: 5000, Other: relationship(Contact, 1, "")},
-			{Cash: 10000, Other: unimplemented("a weapon of the character's choice")},
+			{Cash: 10000, Other: weaponOrItsUse()},
 			{Cash: 25000, Other: relationship(Ally, 1, "")},
 			{Cash: 50000, Other: chr("CHA", 1)},
 		},

@@ -92,7 +92,7 @@ func Thief() Career {
 			{Cash: 2000, Other: chr("EDU", 1)},
 			{Cash: 5000, Other: relationship(Contact, 1, "")},
 			{Cash: 7500, Other: relationship(Ally, 1, "")},
-			{Cash: 10000, Other: unimplemented("a rare item worth 2d6 x 100,000 credits")},
+			{Cash: 10000, Other: stashValued("a rare item", "2d6x100000")},
 		},
 		Mishaps: thiefMishaps(),
 		Events:  thiefEvents(),

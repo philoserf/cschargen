@@ -426,9 +426,97 @@ func credits(rolled string) Effect {
 	return Effect{Kind: EffectCredits, Detail: "gain " + rolled + " credits", Dice: rolled}
 }
 
-// stashItem adds something to the character's stash.
+// stashItem adds something to the character's stash. An empty item is the
+// results that say to lose the whole of it.
 func stashItem(item string) Effect {
 	return Effect{Kind: EffectStash, Detail: "add " + item + " to the stash", Item: item}
+}
+
+// stashValued adds something the book prints a credit value for: "a Company
+// Share worth 2D6 x Cr100000". The value is rolled and recorded, which is
+// not the invented value FR11 forbids -- the book gave the dice.
+func stashValued(item, rolled string) Effect {
+	return Effect{
+		Kind:   EffectStash,
+		Detail: "add " + item + ", worth " + rolled + " credits, to the stash",
+		Item:   item,
+		Dice:   rolled,
+		Count:  1,
+	}
+}
+
+// stashCountValued is stashValued for the results that grant several at
+// once: "Six Pieces of Art, 2D6 x Cr10000 each". Each is valued on its own
+// throw, which is what "each" means.
+func stashCountValued(count int, item, rolled string) Effect {
+	effect := stashValued(item, rolled)
+
+	effect.Count = count
+	effect.Detail = "add " + itoa(count) + " x " + item +
+		", each worth " + rolled + " credits, to the stash"
+
+	return effect
+}
+
+// stashCountRolled is stashCountValued where the book rolls for how many:
+// Scientist's "1D6 Company Shares".
+func stashCountRolled(rolled, item, value string) Effect {
+	return Effect{
+		Kind:      EffectStash,
+		Detail:    "add " + rolled + " x " + item + ", each worth " + value + " credits, to the stash",
+		Item:      item,
+		Dice:      value,
+		CountDice: rolled,
+	}
+}
+
+// companyShare is p. 128's definition: "a 1% share of the corporation with
+// which the character has been associated. The value of this share is 2d6
+// x 100,000 Hub Federation credits."
+//
+// The value lives here rather than at each site because the definition is
+// the book's: a career row reading "Three Company Shares" means three of
+// these, whether or not that row reprints the number. See ERRATA E-33.
+const (
+	companyShare      = "a company share"
+	companyShareValue = "2d6x100000"
+)
+
+// weaponOrItsUse is p. 129's Weapon benefit in full: "The player may choose
+// a weapon ... If the player wishes, they may choose to take a level in
+// Melee (Any) or Gun Combat (Any) in lieu of a weapon."
+//
+// Fourteen benefit rows print it. The engine cannot name a weapon -- the
+// charts are in another book -- but the choice is a rule, and two of its
+// three branches are things this engine can carry out.
+func weaponOrItsUse() Effect {
+	return pick("a weapon, or a level in using one (p. 129)",
+		opt("a weapon", stashItem("a weapon of the character's choice")),
+		opt("Melee (Any)", skill("Melee", "Any")),
+		opt("Gun Combat (Any)", skill("Gun Combat", "Any")))
+}
+
+// loseStashItem removes every possession of one name.
+//
+//nolint:unparam // the item is the page's; shares are merely the only thing any result takes back
+func loseStashItem(item string) Effect {
+	return Effect{
+		Kind:   EffectStash,
+		Detail: "lose any " + item + " held",
+		Item:   item,
+		Lose:   true,
+	}
+}
+
+// group applies several effects as one, for the benefit rows that carry a
+// single effect and say two things.
+func group(effects ...Effect) Effect {
+	details := make([]string, len(effects))
+	for i, e := range effects {
+		details[i] = e.Detail
+	}
+
+	return Effect{Kind: EffectGroup, Detail: strings.Join(details, ", and "), Group: effects}
 }
 
 // throwModifier attaches a modifier to a named future throw.

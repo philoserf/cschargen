@@ -89,7 +89,7 @@ func DiplomaticService() Career {
 		Benefits: [7]BenefitRow{
 			{Cash: 500, Other: chr("EDU", 1)},
 			{Cash: 1000, Other: chr("INT", 1)},
-			{Cash: 5000, Other: unimplemented("a weapon of the character's choice")},
+			{Cash: 5000, Other: weaponOrItsUse()},
 			{Cash: 10000, Other: relationship(Contact, 1, "")},
 			{Cash: 25000, Other: chr("CHA", 1)},
 			{Cash: 50000, Other: relationship(Ally, 1, "")},

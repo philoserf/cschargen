@@ -94,8 +94,10 @@ func Celebrity() Career {
 			{Cash: 10000, Other: chr("CHA", 1)},
 			{Cash: 20000, Other: chr("CHA", 1)},
 			{Cash: 50000, Other: chr("EDU", 1)},
-			{Cash: 100000, Other: unimplemented(
-				"a producer credit: 2d6 x 100,000 credits now, and 2d6 x 100 a year for 1d6 years")},
+			{Cash: 100000, Other: group(
+				stashItem("a producer credit on a well-known entertainment"),
+				credits("2d6x100000"),
+				unimplemented("2d6 x 100 credits a year for 1d6 years"))},
 		},
 		Mishaps: celebrityMishaps(),
 		Events:  celebrityEvents(),

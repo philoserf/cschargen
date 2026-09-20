@@ -7,7 +7,9 @@ import "slices"
 // that narrows the shape to what the engine already produced is a
 // clarification, and one that would invalidate a record the current engine
 // writes is a bump.
-const SchemaVersion = 1
+// Version 2 changed "stash" from a list of names to a list of
+// possessions, each of which may carry the value the book rolled for it.
+const SchemaVersion = 2
 
 // Ruleset names the printed artifact every page cite in this engine refers
 // to. It is stamped into every record, because a cite is only checkable

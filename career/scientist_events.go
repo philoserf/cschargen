@@ -120,7 +120,7 @@ func scientistEvents() EventTable {
 			Effects: []Effect{
 				skill("Broker"),
 				checkSkill("Broker", 8,
-					[]Effect{unimplemented("1d6 company shares")},
+					[]Effect{stashCountRolled("1d6", companyShare, companyShareValue)},
 					[]Effect{benefitRolls(-1, 0, ScopeBatch)}),
 			},
 		},
