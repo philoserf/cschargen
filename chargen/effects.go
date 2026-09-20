@@ -91,6 +91,19 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		g.consequence(ConsequenceModifier, cause, effect.Detail, "")
 
 		return nil
+	case career.EffectPool:
+		g.grantPool(effect, cause)
+
+		return nil
+	case career.EffectOnFailure:
+		g.grantOnFailure(effect, cause)
+
+		return nil
+	case career.EffectAutoFailure:
+		g.autoFailure = append(g.autoFailure, effect.Applies)
+		g.consequence(ConsequenceModifier, cause, effect.Detail, "")
+
+		return nil
 	case career.EffectAdvance:
 		g.autoAdvance = true
 		g.consequence(ConsequenceRank, cause, effect.Detail, "")

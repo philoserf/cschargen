@@ -6,8 +6,8 @@ package career
 func prestigiousAward() []Effect {
 	return []Effect{
 		benefitRolls(3, 0, ScopeBatch),
-		unimplemented(
-			"a +6 modifier, spent in increments of no more than +2 on survival or advancement rolls until depleted"),
+		pool(6, 2, "a +6 modifier in increments of no more than +2, until depleted",
+			false, survivalThrow, advancementThrow),
 	}
 }
 

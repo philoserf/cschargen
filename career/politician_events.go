@@ -35,7 +35,7 @@ func politicianEvents() EventTable {
 					[]Effect{checkChr("CHA", 8,
 						[]Effect{throwModifier("next advancement roll", 2)},
 						[]Effect{
-							unimplemented("automatically fail the next advancement roll"),
+							autoFailure(advancementThrow, "the next advancement roll fails automatically"),
 							chr("CHA", -2),
 						})}),
 			},

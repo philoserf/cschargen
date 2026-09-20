@@ -35,7 +35,9 @@ func groomedForHigherThings() []Effect {
 	return []Effect{
 		relationship(Ally, 1, ""),
 		throwModifier("next advancement roll", 4),
-		unimplemented("failing that advancement roll loses the Ally and carries -2 to the one after"),
+		onFailure(advancementThrow,
+			"failing that advancement roll loses the Ally and carries -2 to the one after",
+			loseTie(Ally), throwModifier(advancementThrow, -2)),
 	}
 }
 

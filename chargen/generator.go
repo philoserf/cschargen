@@ -98,7 +98,14 @@ type Generator struct {
 	// know which careers it reaches for the same reason a modifier does.
 	// Each is
 	// spent by the throw it names.
-	automatic        []PendingModifier
+	automatic []PendingModifier
+
+	// autoFailure is the mirror: throws a result has already decided
+	// against the character. pools are the modifiers the character spends
+	// themselves, and onFailure the effects waiting on a throw that fails.
+	autoFailure      []string
+	pools            []Pool
+	onFailure        []career.Effect
 	careerBenefitMod int
 	termLimit        int
 
@@ -430,6 +437,7 @@ func (g *Generator) leaveCareer(cause int, why string) error {
 	g.termsInCareer = 0
 	g.forfeitedTerms = 0
 	g.dropCareerModifiers()
+	g.dropCareerPools()
 
 	return nil
 }

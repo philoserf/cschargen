@@ -167,6 +167,26 @@ Survival and advancement throws now read the class of the career they are made
 in, so "-2 DM to the first two Advancement rolls in a military career" reaches
 only those.
 
+### Pools, hooks and decided throws
+
+Nineteen more occurrences resolve — 102 distinct results become 97, 146
+occurrences become 127.
+
+- **A pool the character spends themselves** (8). "Gain a modifier of +6 which
+  must be split up into increments of not more than +2 to use on any Survival or
+  Advancement rolls until it is depleted" is a question asked at each of those
+  throws while the pool has credit. The options run from the largest increment
+  down, so a policy character spends the pool rather than carrying it to the end
+  of a career — a decider's habit rather than a rule, because the book says "at
+  any time" and a player may say nothing.
+- **Effects that wait on a failed throw** (9). "If you fail that Advancement
+  roll, you lose the Ally and take a -2 DM to your next Advancement roll" is the
+  largest single line the corpus had left. The hook is taken whether the throw
+  passed or failed, so it cannot fire against the next one.
+- **A throw decided against the character** (2). "You are suspended, and your
+  next Advancement roll fails automatically": the throw is not made, the record
+  says why, and what waited on its failure still fires.
+
 ### Fixed
 
 - A character dismissed from a career could still muster out of it.
