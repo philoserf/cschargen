@@ -74,3 +74,8 @@ const ErrUnknownSpecies = stringError(
 // no character to generate.
 const ErrNoHomeworldAdmitsThem = stringError(
 	"no world in the setting data admits this species")
+
+// ErrPlayerGone is an interactive session whose input ended before the
+// character did. It is the abandoned session the Decider interface names,
+// and it ends generation rather than falling back on a default.
+const ErrPlayerGone = stringError("the player stopped answering")

@@ -44,7 +44,7 @@ func bindNewFlags() newFlags {
 
 	return newFlags{
 		seed:      flags.Uint64("seed", 0, "seed for the dice; omitted means a random one, recorded in the output"),
-		auto:      flags.Bool("auto", false, "resolve every choice with the auto policy (POLICY.md)"),
+		auto:      flags.Bool("auto", false, "resolve every choice with the auto policy (POLICY.md) instead of asking"),
 		name:      flags.String("name", "", "the character's name"),
 		species:   flags.String("species", "human", "human, or an engineered species from the setting data"),
 		techLevel: flags.Int("tech-level", 0, "the homeworld's tech level, which gates the aging tables (p. 122)"),
@@ -75,15 +75,27 @@ func (f newFlags) parse(args []string) (uint64, error) {
 		return 0, usagef("new takes no positional arguments, got %q", f.set.Arg(0))
 	}
 
-	if !*f.auto {
-		return 0, usagef("new needs --auto until the interactive mode lands")
-	}
-
 	if isSet(f.set, "seed") {
 		return *f.seed, nil
 	}
 
 	return rand.Uint64(), nil
+}
+
+// decider is the mode the run is in. Auto applies the fixed policy of
+// POLICY.md; without it the player is asked.
+//
+// The prompts go to stderr and the answers come from stdin, because the
+// record goes to stdout so that it can be piped. A record generated either
+// way is the same file, and replays the same.
+//
+//nolint:ireturn // the whole point is to choose between two implementations of one interface
+func decider(auto bool) chargen.Decider {
+	if auto {
+		return chargen.Policy{}
+	}
+
+	return chargen.NewPlayer(os.Stdin, os.Stderr)
 }
 
 // newCommand is `cschargen new`: generate one character and write its
@@ -103,7 +115,7 @@ func newCommand(args []string, out *os.File) error {
 
 	character, err := chargen.New(chargen.Options{
 		Seed:          seed,
-		Decider:       chargen.Policy{},
+		Decider:       decider(*flags.auto),
 		EngineVersion: version(),
 		PolicyVersion: policyVersion,
 		Setting:       world,
