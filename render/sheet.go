@@ -44,6 +44,14 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 	fmt.Fprintf(out, "**Species**: %s  \n", character.Provenance.Inputs.Species)
 	fmt.Fprintf(out, "**Age**: %d  \n", state.Age)
 
+	// "Apparent age is a game term used to indicate to the Players how old
+	// a character might appear to be to the early 21st century onlooker"
+	// (p. 124). It only says something the age does not once the chart on
+	// p. 125 has an answer of its own.
+	if band := state.ApparentAge; band.From != state.Age {
+		fmt.Fprintf(out, "**Apparent age**: %s  \n", band)
+	}
+
 	if world := character.Provenance.Inputs.Homeworld; world != "" {
 		fmt.Fprintf(out, "**Homeworld**: %s  \n", world)
 	}

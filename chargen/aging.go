@@ -170,3 +170,104 @@ func (c *Characteristics) zeroed(group []Characteristic) int {
 
 	return count
 }
+
+// Apparent age (pp. 124-125).
+//
+// "Apparent age is a game term used to indicate to the Players how old a
+// character might appear to be to the early 21st century onlooker" (p. 124).
+// Below tech level 10 it is the character's actual age; from TL 10 up the
+// chart on p. 125 maps a ten-year band of actual age onto a five-year band
+// of apparent age, and the higher the tech level the slower it climbs.
+//
+// The chart runs from 30 to 290. Below and above it the book says nothing,
+// and the engine reads the nearest printed band. ERRATA E-20.
+
+// AgeBand is an inclusive range of years, which is how both columns of the
+// chart are written.
+type AgeBand struct {
+	From int `json:"from"`
+	To   int `json:"to"`
+}
+
+// String renders a band the way the chart prints it.
+func (b AgeBand) String() string {
+	return itoa(b.From) + "-" + itoa(b.To)
+}
+
+// apparentAgeChart is p. 125, one row per ten years of actual age, in the
+// order the page prints them. The three columns are TL 10, TL 11 and
+// TL 12-13.
+//
+// Each row's actual-age band starts at 30 and runs in tens, so the row is
+// found by arithmetic rather than stored: row i covers 30+10i to 39+10i,
+// which the page writes as 30-40, 41-50, 51-60 and so on. The overlap at
+// each boundary is the page's; 40 and 41 land in different rows and both
+// give the same answer in every column, so nothing turns on it.
+var apparentAgeChart = [26][3]AgeBand{
+	{{20, 25}, {20, 25}, {20, 25}}, // 30-40
+	{{20, 25}, {20, 25}, {20, 25}}, // 41-50
+	{{30, 35}, {20, 25}, {20, 25}}, // 51-60
+	{{30, 35}, {25, 30}, {20, 25}}, // 61-70
+	{{35, 40}, {25, 30}, {25, 30}}, // 71-80
+	{{35, 40}, {25, 30}, {25, 30}}, // 81-90
+	{{40, 45}, {30, 35}, {25, 30}}, // 91-100
+	{{40, 45}, {30, 35}, {25, 30}}, // 101-110
+	{{45, 50}, {30, 35}, {30, 35}}, // 111-120
+	{{45, 50}, {35, 40}, {30, 35}}, // 121-130
+	{{50, 55}, {35, 40}, {30, 35}}, // 131-140
+	{{50, 55}, {35, 40}, {30, 35}}, // 141-150
+	{{55, 60}, {40, 45}, {35, 40}}, // 151-160
+	{{55, 60}, {40, 45}, {35, 40}}, // 161-170
+	{{60, 65}, {40, 45}, {35, 40}}, // 171-180
+	{{60, 65}, {45, 50}, {35, 40}}, // 181-190
+	{{65, 70}, {45, 50}, {40, 45}}, // 191-200
+	{{65, 70}, {45, 50}, {40, 45}}, // 201-210
+	{{70, 75}, {50, 55}, {40, 45}}, // 211-220
+	{{70, 75}, {50, 55}, {40, 45}}, // 221-230
+	{{75, 80}, {50, 55}, {45, 50}}, // 231-240
+	{{75, 80}, {55, 60}, {45, 50}}, // 241-250
+	{{80, 85}, {55, 60}, {45, 50}}, // 251-260
+	{{80, 85}, {55, 60}, {45, 50}}, // 261-270
+	{{85, 90}, {60, 65}, {50, 55}}, // 271-280
+	{{85, 90}, {60, 65}, {50, 55}}, // 281-290
+}
+
+// The chart's first row and the width of each.
+const (
+	chartFirstAge = 30
+	chartRowYears = 10
+)
+
+// apparentAge returns the band a character of this age appears to be in, on
+// a homeworld of this tech level, and whether the chart is what said so.
+//
+// Below TL 10, "your apparent age and your real age are the same" (p. 124).
+// The chart itself begins at 30, and below that the same thing is true for
+// a different reason -- nobody's apparent age has diverged from their real
+// one yet. Above 290 the last printed row holds. ERRATA E-20.
+func apparentAge(techLevel, age int) (AgeBand, bool) {
+	if techLevel < 10 || age < chartFirstAge {
+		return AgeBand{From: age, To: age}, false
+	}
+
+	column := 2
+
+	switch techLevel {
+	case 10:
+		column = 0
+	case 11:
+		column = 1
+	}
+
+	row := min((age-chartFirstAge)/chartRowYears, len(apparentAgeChart)-1)
+
+	return apparentAgeChart[row][column], true
+}
+
+// apparentAgeOverForty is the bar twelve careers' enlistment throws are
+// measured against: "If you have an apparent age of over 40, take a -2
+// modifier to this roll." ERRATA E-21 reads that against a chart that gives
+// bands rather than numbers.
+func apparentAgeOverForty(band AgeBand) bool {
+	return band.From >= 40
+}

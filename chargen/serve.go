@@ -441,6 +441,8 @@ func (g *Generator) age() error {
 	g.char.State.Age += years
 	g.consequence(ConsequenceAge, cause, "age "+itoa(g.char.State.Age), "")
 
+	g.stampApparentAge(cause)
+
 	return g.agingThrows(step)
 }
 
@@ -595,6 +597,24 @@ func (g *Generator) die(cause int, why string) {
 
 // crisisCite is the page the Aging Crisis is printed on.
 const crisisCite = "p. 123"
+
+// stampApparentAge records what p. 125's chart makes of the character's
+// years. It is recorded rather than computed on demand because it needs the
+// homeworld's tech level, which the record does not otherwise carry into
+// the renderer.
+func (g *Generator) stampApparentAge(cause int) {
+	band, fromChart := apparentAge(g.techLevel, g.char.State.Age)
+	changed := band != g.char.State.ApparentAge
+
+	g.char.State.ApparentAge = band
+
+	// Below the chart, apparent age is the character's age, which the line
+	// above this one already said. Only the chart's own answer is worth a
+	// consequence of its own.
+	if fromChart && changed {
+		g.consequence(ConsequenceAge, cause, "apparent age "+band.String(), "")
+	}
+}
 
 // agingCite is the page the aging tables are printed on. The step above is
 // cited to p. 121, where the step begins.

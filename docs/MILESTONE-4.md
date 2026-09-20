@@ -1,6 +1,39 @@
 # Milestone 4: aging
 
-2026-09-19. Status: plan. Tracks [#22](https://github.com/philoserf/cschargen/issues/22).
+2026-09-19. Status: done. Tracks [#22](https://github.com/philoserf/cschargen/issues/22).
+
+## What it turned out to be
+
+Three PRs in the order planned. Four things the plan did not know:
+
+1. **`Characteristics.AllPhysicalZero` had a test and no production caller.**
+   p. 14 states the death rule the aging section restates on p. 124, and the
+   method was written for it in milestone 1 and never called. It is called now.
+
+2. **p. 14 also settles half of what E-17 was going to be a reading about.** The
+   aging section says "physical" and "mental" and enumerates neither, but p. 14
+   names the physical three in passing — "(Strength, Dexterity, and Endurance)" —
+   and six minus three is three. The entry is a cross-reference rather than an
+   interpretation.
+
+3. **The apparent age chart's top end wanted the opposite reading from its
+   bottom.** "Nearest printed band" is right above 290 and wrong below 30: every
+   column's first row is 20-25, so a character of 18 would be made _older_ by a
+   chart whose whole purpose is to make them younger. Below 30 apparent age is
+   the character's age, which is what p. 124 already says for tech level 9 and
+   below.
+
+4. **Only one golden moved, and it moved by one line.** The apparent-age stub
+   the twelve careers used to record disappeared from the transcript, and the
+   event numbering shifted beneath it. No aging throw reached a golden fixture,
+   because the sheet's character is from Ironpsalm — tech level 9, but three
+   terms in.
+
+Five errata: E-15 and E-16 on the two tables that stop and the tech levels above
+them, E-17 to E-19 on the crisis, and E-20 and E-21 on the chart and the bar
+twelve careers measure against it.
+
+## The plan as filed
 
 Step 17 (pp. 121–125) is four pages: a per-term age increment the engine already
 does, seven aging tables of which four are human, an Aging Crisis with five

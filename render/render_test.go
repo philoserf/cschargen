@@ -279,3 +279,22 @@ func TestTheSheetSaysWhenAgingEndedIt(t *testing.T) {
 		}
 	}
 }
+
+// TestApparentAgeOnlyAppearsWhenItSaysSomething. Below tech level 10, and
+// below age 30 at any tech level, apparent age is the character's age
+// (pp. 124-125) -- and a line repeating the one above it is noise.
+func TestApparentAgeOnlyAppearsWhenItSaysSomething(t *testing.T) {
+	t.Parallel()
+
+	got := character(t, 3, 2, "Young")
+	if strings.Contains(render.Sheet(got), "**Apparent age**") {
+		t.Error("a character whose apparent age is their age has a line saying so")
+	}
+
+	got.State.Age = 120
+	got.State.ApparentAge = chargen.AgeBand{From: 45, To: 50}
+
+	if !strings.Contains(render.Sheet(got), "**Apparent age**: 45-50") {
+		t.Error("the sheet does not carry an apparent age the chart supplied")
+	}
+}

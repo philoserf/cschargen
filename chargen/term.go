@@ -201,8 +201,12 @@ func (g *Generator) enlistmentMods(target career.Career, step int) []dice.Mod {
 				})
 			}
 		case career.ApparentAgeOver40:
-			g.unimplemented(step,
-				"this career modifies enlistment on apparent age, which arrives with the aging rules (p. 125)")
+			if apparentAgeOverForty(g.char.State.ApparentAge) {
+				mods = append(mods, dice.Mod{
+					Name:  "apparent age " + g.char.State.ApparentAge.String(),
+					Value: mod.Value,
+				})
+			}
 		case career.UndergraduateDegree, career.GraduateDegree, career.MedicalSchool:
 			g.unimplemented(step,
 				"this career modifies enlistment on a degree, which arrives with higher education (p. 86)")

@@ -1055,3 +1055,123 @@ func TestARefusedCrisisStopsTheTerm(t *testing.T) {
 		t.Fatal("a refused choice inside a term's aging did not come back as an error")
 	}
 }
+
+// TestTheApparentAgeChartMatchesPage125 is a second reading of the chart,
+// typed as the page prints it: the actual-age band on the left, then the
+// three tech level columns.
+func TestTheApparentAgeChartMatchesPage125(t *testing.T) {
+	t.Parallel()
+
+	// "Actual Age | TL 10 | TL 11 | TL 12-13", row by row down p. 125.
+	page := []struct {
+		age                       int
+		tenTL, elevenTL, twelveTL string
+	}{
+		{30, "20-25", "20-25", "20-25"},
+		{41, "20-25", "20-25", "20-25"},
+		{51, "30-35", "20-25", "20-25"},
+		{61, "30-35", "25-30", "20-25"},
+		{71, "35-40", "25-30", "25-30"},
+		{81, "35-40", "25-30", "25-30"},
+		{91, "40-45", "30-35", "25-30"},
+		{101, "40-45", "30-35", "25-30"},
+		{111, "45-50", "30-35", "30-35"},
+		{121, "45-50", "35-40", "30-35"},
+		{131, "50-55", "35-40", "30-35"},
+		{141, "50-55", "35-40", "30-35"},
+		{151, "55-60", "40-45", "35-40"},
+		{161, "55-60", "40-45", "35-40"},
+		{171, "60-65", "40-45", "35-40"},
+		{181, "60-65", "45-50", "35-40"},
+		{191, "65-70", "45-50", "40-45"},
+		{201, "65-70", "45-50", "40-45"},
+		{211, "70-75", "50-55", "40-45"},
+		{221, "70-75", "50-55", "40-45"},
+		{231, "75-80", "50-55", "45-50"},
+		{241, "75-80", "55-60", "45-50"},
+		{251, "80-85", "55-60", "45-50"},
+		{261, "80-85", "55-60", "45-50"},
+		{271, "85-90", "60-65", "50-55"},
+		{281, "85-90", "60-65", "50-55"},
+	}
+
+	if len(page) != len(apparentAgeChart) {
+		t.Fatalf("the reading above has %d rows and the chart has %d",
+			len(page), len(apparentAgeChart))
+	}
+
+	for _, want := range page {
+		for techLevel, column := range map[int]string{
+			10: want.tenTL, 11: want.elevenTL, 12: want.twelveTL,
+		} {
+			band, fromChart := apparentAge(techLevel, want.age)
+			if !fromChart {
+				t.Errorf("age %d at TL %d did not read the chart", want.age, techLevel)
+
+				continue
+			}
+
+			if band.String() != column {
+				t.Errorf("age %d at TL %d: %s, want %s",
+					want.age, techLevel, band, column)
+			}
+		}
+	}
+}
+
+// TestApparentAgeOutsideTheChart is ERRATA E-20: below tech level 10 and
+// below age 30 apparent age is actual age, and above 290 the last printed
+// row holds.
+func TestApparentAgeOutsideTheChart(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		techLevel, age int
+		want           string
+		fromChart      bool
+	}{
+		{9, 200, "200-200", false},
+		{0, 18, "18-18", false},
+		{12, 29, "29-29", false},
+		{12, 30, "20-25", true},
+		{10, 290, "85-90", true},
+		{10, 291, "85-90", true},
+		{10, 10_000, "85-90", true},
+		// ERRATA E-16 again: nothing is printed above TL 13, and a higher
+		// homeworld reads the TL 12-13 column.
+		{20, 151, "35-40", true},
+	}
+
+	for _, tc := range tests {
+		band, fromChart := apparentAge(tc.techLevel, tc.age)
+		if band.String() != tc.want || fromChart != tc.fromChart {
+			t.Errorf("apparentAge(%d, %d) = %s, %v; want %s, %v",
+				tc.techLevel, tc.age, band, fromChart, tc.want, tc.fromChart)
+		}
+	}
+}
+
+// TestOverFortyIsABandNotANumber is ERRATA E-21. Twelve careers say "if you
+// have an apparent age of over 40", and the chart answers in bands.
+func TestOverFortyIsABandNotANumber(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		band AgeBand
+		want bool
+	}{
+		{AgeBand{35, 40}, false},
+		{AgeBand{40, 45}, true},
+		{AgeBand{45, 50}, true},
+		{AgeBand{20, 25}, false},
+		// A character below the chart carries their own age as a band.
+		{AgeBand{39, 39}, false},
+		{AgeBand{40, 40}, true},
+	}
+
+	for _, tc := range tests {
+		if got := apparentAgeOverForty(tc.band); got != tc.want {
+			t.Errorf("apparentAgeOverForty(%s) = %v, want %v", tc.band, got, tc.want)
+		}
+	}
+}

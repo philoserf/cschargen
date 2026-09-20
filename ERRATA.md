@@ -423,3 +423,52 @@ formality and the treatment is always available, in which case a character the
 engine killed should have lived. That is the direction to check first if a
 generated record looks unfair: the log names the price and the character's
 balance at the moment they died.
+
+---
+
+## E-20 (reading) — the apparent age chart's two ends
+
+**Where:** the Apparent Age chart (p. 125).
+
+The chart's first row is 30-40 and its last is 281-290. A character below 30 is
+off the top of it and one above 290 is off the bottom, and the page says nothing
+about either.
+
+**Engine:** below age 30, apparent age is the character's age; above 290, the
+last printed row holds.
+
+**Reasoning:** p. 124 already gives the rule for the other case where the chart
+does not apply — "If, by chance, your character happens to be from a world of
+Tech Level 9 and lower, your apparent age and your real age are the same" — and
+below 30 the same thing is true for a reason the chart itself shows: every
+column's first row is 20-25 against an actual age of 30-40, so the divergence has
+barely begun. A character of 18 who "appears to be" 20-25 would be made older by
+the chart, which is the opposite of what it does.
+
+Above 290 the reading is simply that the last row holds, because the alternative
+is a character with no apparent age at all.
+
+---
+
+## E-21 (reading) — "over 40" against a chart that gives bands
+
+**Where:** twelve careers' enlistment throws, e.g. Exotic (p. 190), Organized
+Crime (p. 246), Investigator (p. 216).
+
+> If you have an apparent age of over 40, take a -2 modifier to this roll.
+
+The Apparent Age chart does not give a number. It gives a five-year band — 35-40,
+40-45 — so "over 40" has to be read against a range that can straddle it.
+
+**Engine:** the modifier applies where the band's **lower** bound is 40 or more.
+A character whose apparent age is 35-40 is not over 40; one at 40-45 is.
+
+**Reasoning:** the alternative — any band that reaches 40 — would catch 35-40,
+and a character at the bottom of that band appears to be 35. Reading the lower
+bound makes the modifier apply to characters who are over 40 on any reading of
+their band, which is the conservative direction for a penalty.
+
+Sports (p. 273) prints "If the character's apparent age is 40+" where the other
+eleven print "over 40". The engine treats them as one modifier at one bar: 40+
+and "over 40" differ only for a band whose lower bound is exactly 40, and that
+band is 40-45, which both readings catch.

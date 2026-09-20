@@ -76,3 +76,72 @@ func agedInLog(character *chargen.Character) bool {
 
 	return false
 }
+
+// TestTheEnlistmentModifierIsApplied. Twelve careers take -2 to enlistment
+// from an apparent age over 40, and until aging landed the engine recorded
+// that as unimplemented instead of applying it. The record has to show it
+// being applied, and nowhere show it being recorded.
+func TestTheEnlistmentModifierIsApplied(t *testing.T) {
+	t.Parallel()
+
+	recorded := 0
+
+	for seed := range uint64(sample) {
+		opts := options(t, seed)
+
+		opts.Inputs.TermLimit = 40
+
+		character := generate(t, opts)
+
+		for _, event := range character.Events {
+			if event.Consequence == nil {
+				continue
+			}
+
+			if strings.Contains(event.Consequence.Detail, "apparent age, which arrives") {
+				recorded++
+			}
+		}
+	}
+
+	if recorded > 0 {
+		t.Errorf("%d records still say the apparent age modifier is unimplemented", recorded)
+	}
+}
+
+// TestApparentAgeReachesTheSheet. It is derived from the homeworld's tech
+// level, which the record does not otherwise carry, so the generator stamps
+// it -- and a character old enough for the chart to say something the age
+// does not is the case worth checking.
+func TestApparentAgeReachesTheSheet(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+	checked := 0
+
+	for seed := range uint64(sample) {
+		opts := options(t, seed)
+
+		opts.Inputs.TermLimit = 40
+
+		character := generate(t, opts)
+
+		born, _, found := data.World(character.State.Homeworlds[0].World)
+		if !found || born.TechLevel < 10 || character.State.Age < 30 {
+			continue
+		}
+
+		checked++
+
+		band := character.State.ApparentAge
+		if band.From >= character.State.Age {
+			t.Errorf("seed %d: age %d on a tech level %d world, apparent age %s -- "+
+				"the chart should have made them look younger",
+				seed, character.State.Age, born.TechLevel, band)
+		}
+	}
+
+	if checked == 0 {
+		t.Fatalf("no seed in %d reached age 30 from a tech level 10 or higher world", sample)
+	}
+}
