@@ -63,6 +63,17 @@ func raiseHeldSkill() Effect {
 	return Effect{Kind: EffectRaiseHeld, Detail: "raise a skill the character already holds"}
 }
 
+// raiseHeldSkillIn is raiseHeldSkill narrowed to one skill's specialties:
+// "gain a level in the Science skill you used on this task", where the
+// check was made on whichever Science the character has most of.
+func raiseHeldSkillIn(name string) Effect {
+	return Effect{
+		Kind:    EffectRaiseHeld,
+		Detail:  "raise the " + name + " skill the character used",
+		OnSkill: name,
+	}
+}
+
 // anySkill is "gain a level in any skill of your choice", chosen from the
 // list of pp. 304-314.
 func anySkill() Effect {

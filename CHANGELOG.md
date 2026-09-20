@@ -244,6 +244,10 @@ rather than summarised: the Celebrity's game show and interview show and
 endorsement deal, the Scientist's discussion panel and breakthrough, the
 Independent Merchant's reality holovid.
 
+"The Science skill you used on this task" raises one of the character's
+Sciences rather than offering a new specialty, which could have given Science
+(Chemistry) 1 to a character whose check was made on Science (Physics) 3.
+
 The Arts career's own interview show is transcribed as far as it can be. Its four
 rows each call for a Diplomat check at a named **difficulty**, which is the Core
 Rulebook's task system and outside this ruleset (**ERRATA E-12**) — so the die is

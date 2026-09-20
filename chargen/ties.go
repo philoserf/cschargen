@@ -413,8 +413,10 @@ func (g *Generator) tieCount(effect career.Effect) (int, error) {
 	return max(effect.Count, 1), nil
 }
 
-// firstOfAnyKind is the index of the first tie matching the kinds given, in
-// the order given. thisCareer narrows it to the ties this career granted.
+// firstOfAnyKind is the index of a tie matching the kinds given, working
+// through them in the order given. The narrowing fields decide which one:
+// ThisCareer and ExcludeFamily rule ties out, and Newest takes the last
+// match rather than the first, which is what "that Ally" means (E-39).
 func (g *Generator) firstOfAnyKind(order []career.Relationship, effect career.Effect) (int, bool) {
 	for _, kind := range order {
 		found, ok := -1, false

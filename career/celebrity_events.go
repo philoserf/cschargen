@@ -196,7 +196,8 @@ func celebrityEvents() EventTable {
 						on(1, "the host hates your work and means to embarrass you",
 							checkSkill("Diplomat", 8,
 								[]Effect{skill("Diplomat"), throwModifier(survivalThrow, 2)},
-								[]Effect{loseRank(1), throwModifier(advancementThrow, -2)})),
+								[]Effect{unimplemented("severe damage to your career, " +
+									"which p. 168 does not quantify")})),
 						onRange(2, 3, "the host did not want you on the show",
 							checkSkill("Diplomat", 8, nil,
 								[]Effect{throwModifier(advancementThrow, -2)})),
