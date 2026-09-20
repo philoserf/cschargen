@@ -237,6 +237,23 @@ func ranksFor(assignment career.Assignment, commissioned bool) [][]career.Effect
 	return assignment.Ranks
 }
 
+// tableInAnotherCareer finds a named assignment's skill table in a career
+// the character is not in. Colonist event 54 is the only result in the book
+// that asks for one (p. 176).
+func tableInAnotherCareer(effect career.Effect) (career.SkillTable, bool) {
+	other, found := career.ByName(effect.Career)
+	if !found {
+		return career.SkillTable{}, false
+	}
+
+	assignment, found := other.Assignment(effect.Assignment)
+	if !found {
+		return career.SkillTable{}, false
+	}
+
+	return assignment.Skills, true
+}
+
 // rollNamedTable carries out "make a roll on the <named> table".
 func (g *Generator) rollNamedTable(effect career.Effect, cause int) error {
 	if g.career == nil {
@@ -271,6 +288,13 @@ func (g *Generator) rollNamedTable(effect career.Effect, cause int) error {
 func (g *Generator) namedTable(
 	effect career.Effect, own career.Assignment,
 ) (career.SkillTable, bool, error) {
+	// A table in another career, which one event asks for by name.
+	if effect.Career != "" {
+		table, found := tableInAnotherCareer(effect)
+
+		return table, found, nil
+	}
+
 	if !effect.OtherAssignment {
 		table, found := g.career.Table(effect.Table)
 
