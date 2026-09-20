@@ -321,3 +321,79 @@ func TestApparentAgeOnlyAppearsWhenItSaysSomething(t *testing.T) {
 		t.Error("the sheet does not carry an apparent age the chart supplied")
 	}
 }
+
+// TestTheSheetPrintsEveryEducationOutcome. Step 8 has four ends -- not
+// admitted, admitted and left, a degree, a degree with honours -- and each
+// reads differently on the sheet.
+func TestTheSheetPrintsEveryEducationOutcome(t *testing.T) {
+	t.Parallel()
+
+	got := character(t, 3, 1, "Scholar")
+
+	got.State.Education = []*chargen.Education{
+		{
+			Institution: "Undergraduate College", Admitted: true, Succeeded: true,
+			Field: "Broker", Degree: "bachelor's",
+		},
+		{
+			Institution: "Graduate School", Admitted: true, Succeeded: true, Honors: true,
+			Field: "Broker", Degree: "master's",
+		},
+		{Institution: "Medical School", Admitted: true},
+		{Institution: "Military Academy"},
+	}
+
+	sheet := render.Sheet(got)
+
+	for _, want := range []string{
+		"- Undergraduate College: a bachelor's in Broker",
+		"- Graduate School: a master's in Broker, with honours",
+		"- Medical School: admitted, left without a degree",
+		"- Military Academy: not admitted",
+	} {
+		if !strings.Contains(sheet, want) {
+			t.Errorf("the sheet does not contain %q:\n%s", want, sheet)
+		}
+	}
+
+	// And a character who never attempted it has no section at all.
+	got.State.Education = nil
+
+	if strings.Contains(render.Sheet(got), "## Education") {
+		t.Error("a character with no education has an Education section")
+	}
+}
+
+// TestTheSheetSaysWhereInTheFamilyTheyCame. The parental age die decides
+// whether a character was the first child or the last (p. 59), and both
+// ends are worth a line on the sheet.
+func TestTheSheetSaysWhereInTheFamilyTheyCame(t *testing.T) {
+	t.Parallel()
+
+	got := character(t, 3, 1, "Eldest")
+
+	got.State.Family = &chargen.Family{
+		Situation: "a heterosexual couple", Detail: "a married couple", Firstborn: true,
+	}
+
+	if !strings.Contains(render.Sheet(got), "The eldest child.") {
+		t.Error("a firstborn's sheet does not say so")
+	}
+
+	got.State.Family.Firstborn = false
+	got.State.Family.Lastborn = true
+
+	if !strings.Contains(render.Sheet(got), "The youngest child.") {
+		t.Error("a last child's sheet does not say so")
+	}
+
+	// A character whose parents rolled neither end gets neither line.
+	got.State.Family.Lastborn = false
+
+	sheet := render.Sheet(got)
+	for _, unwanted := range []string{"The eldest child.", "The youngest child."} {
+		if strings.Contains(sheet, unwanted) {
+			t.Errorf("a middle child's sheet says %q", unwanted)
+		}
+	}
+}

@@ -9,6 +9,7 @@ func Undergraduate() Institution {
 		Admission:     admission(7),
 		Success:       successThrow(8),
 		Honors:        honorsThrow(10),
+		GraduateEDU:   10,
 		Skills:        undergraduateSkills(),
 		Failure:       universityFailure(),
 		Events:        undergraduateEvents(),

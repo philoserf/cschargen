@@ -110,7 +110,7 @@ func TestALifeEventWithNoInstitution(t *testing.T) {
 
 	gen.honorsByEvent(0)
 
-	if gen.char.State.Education != nil {
+	if len(gen.char.State.Education) != 0 {
 		t.Error("honours were granted to a character who never enrolled")
 	}
 }
@@ -123,7 +123,7 @@ func TestRaisingSomethingThatIsNotACharacteristic(t *testing.T) {
 	gen := educationEngine(t, 25)
 	before := gen.char.State.Characteristics
 
-	gen.raiseToAtLeast("SOC", graduateEDU, 0)
+	gen.raiseToAtLeast("SOC", medicalEDUFirst, 0)
 
 	if gen.char.State.Characteristics != before {
 		t.Error("raising SOC moved something")
@@ -216,8 +216,8 @@ func TestTheAcademyIsAttemptedAndItsConsequencesRecorded(t *testing.T) {
 			t.Fatalf("seed %d: %v", seed, err)
 		}
 
-		record := character.State.Education
-		if record == nil || record.Institution != career.MilitaryAcademy().Name {
+		record := academyRecord(character)
+		if record == nil {
 			continue
 		}
 
@@ -250,6 +250,18 @@ func checkAcademyObligation(t *testing.T, seed uint64, character *Character) {
 	if !mentions(character, "must enter a military career") {
 		t.Errorf("seed %d graduated and the record does not carry the obligation", seed)
 	}
+}
+
+// academyRecord finds the character's attempt at the Military Academy,
+// where they made one.
+func academyRecord(character *Character) *Education {
+	for _, held := range character.State.Education {
+		if held.Institution == career.MilitaryAcademy().Name {
+			return held
+		}
+	}
+
+	return nil
 }
 
 // mentions reports whether any consequence in a record contains a phrase.

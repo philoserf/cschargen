@@ -30,6 +30,11 @@ type Education struct {
 	// chosen field which should match the skill they chose at level 2"
 	// (p. 89).
 	Field string `json:"field,omitempty"`
+
+	// Degree is what a success is worth, and is what three careers'
+	// enlistment modifiers read. Empty where the character did not
+	// graduate.
+	Degree career.Degree `json:"degree,omitempty"`
 }
 
 // The years each outcome costs (pp. 87, 92).
@@ -38,46 +43,71 @@ const (
 	washoutDice   = "1d3"
 )
 
-// The EDU floors and ceilings success and honours impose (pp. 87, 89).
+// The EDU ceiling and gain honours impose (p. 89).
 const (
-	graduateEDU   = 10
 	honorsEDUCap  = 14
 	honorsEDUGain = 2
 )
 
-// higherEducation is Step 8.
+// educationAttempts caps the loop below. Graduate School is the only
+// institution worth entering twice -- "If the character chooses to return
+// to graduate school for a second term and they achieve success, then the
+// character has a doctorate" (p. 99) -- so four passes is more than the
+// step can use.
+const educationAttempts = 4
+
+// higherEducation is Step 8, which runs until the character stops
+// qualifying or stops wanting to.
+//
+// It loops because the two graduate tracks require a degree the character
+// may only just have earned: "the character must have achieved Success in
+// an Undergraduate University or Military Academy" (pp. 97, 101). A single
+// pass would make them unreachable at this step.
 func (g *Generator) higherEducation() error {
 	step := g.log.Step("Step 8: Higher Education", "p. 85")
 
+	for range educationAttempts {
+		again, err := g.oneEducation(step)
+		if err != nil || !again {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// oneEducation is one attempt, and reports whether another is worth
+// offering: only a graduate can go further.
+func (g *Generator) oneEducation(step int) (bool, error) {
 	// "Unless a previous life period event states otherwise, characters
 	// are not required to attend college" (p. 85), so the engine asks.
 	institution, attending, err := g.chooseInstitution(step)
 	if err != nil || !attending {
-		return err
+		return false, err
 	}
 
 	record := &Education{Institution: institution.Name}
 
-	g.char.State.Education = record
+	g.char.State.Education = append(g.char.State.Education, record)
 
 	g.cite = institution.Cite
 
 	if !g.admitted(institution, step) {
-		return nil
+		return false, nil
 	}
 
 	record.Admitted = true
 
 	succeeded, err := g.attemptDegree(institution, step, record)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	if !succeeded {
-		return g.washOut(institution, step)
+		return false, g.washOut(institution, step)
 	}
 
-	return g.graduateEvents(institution, step)
+	return true, g.graduateEvents(institution, step)
 }
 
 // chooseInstitution asks whether to attend, and where. A character who
@@ -91,12 +121,7 @@ func (g *Generator) chooseInstitution(step int) (career.Institution, bool, error
 	)
 
 	for _, institution := range career.Institutions() {
-		if !g.meetsPrerequisites(institution, score) {
-			continue
-		}
-
-		// p. 93: a failed academy closes the academy for good.
-		if g.academyClosed && institution.Name == career.MilitaryAcademy().Name {
+		if !g.eligibleFor(institution, score) {
 			continue
 		}
 
@@ -140,6 +165,64 @@ func (g *Generator) chooseInstitution(step int) (career.Institution, bool, error
 	return open[chosen], true, nil
 }
 
+// eligibleFor collects every reason a character may not attempt an
+// institution: the prerequisites it prints, the academy it has already
+// failed (p. 93), the degree the graduate tracks require (pp. 97, 101), an
+// institution already attended, and the second bachelor's of ERRATA E-29.
+func (g *Generator) eligibleFor(institution career.Institution, score func(string) int) bool {
+	switch {
+	case !g.meetsPrerequisites(institution, score):
+		return false
+	case g.academyClosed && institution.Name == career.MilitaryAcademy().Name:
+		return false
+	case institution.RequiresDegree != g.holdsADegree():
+		// A graduate track needs a degree, and an undergraduate one is not
+		// gone back to once a degree is held.
+		return false
+	case g.attendedAlready(institution):
+		return false
+	}
+
+	return true
+}
+
+// holdsADegree is the graduate tracks' other prerequisite: "the character
+// must have achieved Success in an Undergraduate University or Military
+// Academy" (pp. 97, 101).
+func (g *Generator) holdsADegree() bool {
+	for _, held := range g.char.State.Education {
+		if held.Degree == career.Bachelors {
+			return true
+		}
+	}
+
+	return false
+}
+
+// attendedAlready keeps a character from re-entering an institution in the
+// same step. Graduate School is the exception the book makes -- a second
+// success there is a doctorate (p. 99) -- so it is not excluded until the
+// second time.
+func (g *Generator) attendedAlready(institution career.Institution) bool {
+	attempts := 0
+
+	for _, held := range g.char.State.Education {
+		if held.Institution == institution.Name {
+			attempts++
+		}
+	}
+
+	if institution.Name == career.GraduateSchool().Name {
+		return attempts >= graduateSchoolTwice
+	}
+
+	return attempts > 0
+}
+
+// graduateSchoolTwice is a master's and then a doctorate, which is as far
+// as p. 99 goes.
+const graduateSchoolTwice = 2
+
 // meetsPrerequisites is the gate before the admission throw: "The
 // character's EDU must be 6 or higher to be accepted into Undergraduate
 // College" (p. 86).
@@ -179,7 +262,7 @@ func (g *Generator) attemptDegree(
 
 	record.Succeeded = true
 
-	g.raiseToAtLeast("EDU", graduateEDU, step)
+	g.raiseEDUForDegree(institution, step)
 
 	g.char.State.Age += graduateYears
 	g.consequence(ConsequenceAge, step,
@@ -191,9 +274,11 @@ func (g *Generator) attemptDegree(
 	}
 
 	record.Field = field
+	record.Degree = g.degreeFor(institution)
 
 	g.consequence(ConsequenceEducation, step,
-		"graduated from the "+institution.Name+" in "+field, "")
+		"graduated from the "+institution.Name+" with a "+string(record.Degree)+
+			" in "+field, "")
 
 	if institution.Note != "" {
 		g.unimplemented(step, institution.Note)
@@ -238,6 +323,57 @@ func (g *Generator) chooseField(institution career.Institution, step int) (strin
 
 // degreeLevel is the level a graduate takes their field at.
 const degreeLevel = 2
+
+// degreeFor is what a success at an institution is worth. A second success
+// at graduate school is a doctorate rather than a second master's (p. 99).
+func (g *Generator) degreeFor(institution career.Institution) career.Degree {
+	switch institution.Name {
+	case career.GraduateSchool().Name:
+		for _, held := range g.char.State.Education {
+			if held.Degree == career.Masters {
+				return career.Doctorate
+			}
+		}
+
+		return career.Masters
+	case career.MedSchool().Name:
+		return career.MedicalDoctor
+	}
+
+	return career.Bachelors
+}
+
+// raiseEDUForDegree is the EDU floor a success imposes, which is ten for
+// the undergraduate tracks and twelve for the graduate ones (pp. 87, 97).
+//
+// Medical school's is a ladder rather than a floor: "Increase the
+// character's EDU to 12. If the character's EDU is 12-13, make it 14. If it
+// is already 14 or higher, add 1 to a maximum of 16" (p. 101).
+func (g *Generator) raiseEDUForDegree(institution career.Institution, step int) {
+	if institution.Name != career.MedSchool().Name {
+		g.raiseToAtLeast("EDU", institution.GraduateEDU, step)
+
+		return
+	}
+
+	held := g.char.State.Characteristics.Get(EDU)
+
+	switch {
+	case held < medicalEDUFirst:
+		g.adjust("EDU", medicalEDUFirst-held, "a medical degree raises EDU", step)
+	case held < medicalEDUSecond:
+		g.adjust("EDU", medicalEDUSecond-held, "a medical degree raises EDU", step)
+	case held < medicalEDUCap:
+		g.adjust("EDU", 1, "a medical degree raises EDU", step)
+	}
+}
+
+// The three rungs of medical school's EDU ladder (p. 101).
+const (
+	medicalEDUFirst  = 12
+	medicalEDUSecond = 14
+	medicalEDUCap    = 16
+)
 
 // attemptHonors is the third throw.
 func (g *Generator) attemptHonors(institution career.Institution, step int, record *Education) {
@@ -374,7 +510,7 @@ func (g *Generator) graduateEvents(institution career.Institution, step int) err
 // rollInstitutionLifeEvent is the d6 table an institution's events table
 // reaches at result 10.
 func (g *Generator) rollInstitutionLifeEvent(cause int) error {
-	if g.institution == nil {
+	if g.institution == nil || len(g.institution.LifeEvents) == 0 {
 		return nil
 	}
 
@@ -394,9 +530,9 @@ func (g *Generator) rollInstitutionLifeEvent(cause int) error {
 // throw did not: "If you failed on your Honors roll, you have now been
 // successful" (p. 91).
 func (g *Generator) honorsByEvent(cause int) {
-	if g.institution == nil || g.char.State.Education == nil {
+	if g.institution == nil || len(g.char.State.Education) == 0 {
 		return
 	}
 
-	g.grantHonors(*g.institution, cause, g.char.State.Education)
+	g.grantHonors(*g.institution, cause, g.char.State.Education[len(g.char.State.Education)-1])
 }

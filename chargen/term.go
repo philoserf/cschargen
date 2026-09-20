@@ -187,7 +187,7 @@ func (g *Generator) enlist(target career.Career) bool {
 // enlistment throw (p. 111). A modifier the engine cannot yet evaluate is
 // recorded rather than dropped, so a record says which rule was not applied
 // rather than looking as though the career had none.
-func (g *Generator) enlistmentMods(target career.Career, step int) []dice.Mod {
+func (g *Generator) enlistmentMods(target career.Career, _ int) []dice.Mod {
 	var mods []dice.Mod
 
 	for _, mod := range target.EnlistmentMods {
@@ -207,13 +207,35 @@ func (g *Generator) enlistmentMods(target career.Career, step int) []dice.Mod {
 					Value: mod.Value,
 				})
 			}
-		case career.UndergraduateDegree, career.GraduateDegree, career.MedicalSchool:
-			g.unimplemented(step,
-				"this career modifies enlistment on a degree, which arrives with higher education (p. 86)")
+		case career.UndergraduateDegree:
+			mods = append(mods, g.degreeModifier(mod, career.Bachelors, "a degree")...)
+		case career.GraduateDegree:
+			mods = append(mods, g.degreeModifier(mod, career.Masters, "a master's")...)
+			mods = append(mods, g.degreeModifier(mod, career.Doctorate, "a doctorate")...)
+		case career.MedicalSchool:
+			mods = append(mods, g.degreeModifier(mod, career.MedicalDoctor, "medical school")...)
 		}
 	}
 
 	return mods
+}
+
+// degreeModifier is one of the three education bonuses a career may carry,
+// applied where the character holds the degree it names.
+//
+// A character with both a master's and a doctorate takes the graduate bonus
+// once, not twice: the doctorate is the same degree gone further, and the
+// page prints one modifier.
+func (g *Generator) degreeModifier(
+	mod career.EnlistmentMod, degree career.Degree, name string,
+) []dice.Mod {
+	for _, held := range g.char.State.Education {
+		if held.Degree == degree {
+			return []dice.Mod{{Name: name, Value: mod.Value}}
+		}
+	}
+
+	return nil
 }
 
 // beginService is Step 11 (p. 112) plus the two things that happen on

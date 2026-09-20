@@ -646,3 +646,61 @@ that file are the ones it will be measured against.
 **If this is wrong:** a world settled in exactly 2245 through 2250 falls on the
 other side of the hundred-year line, and its characters take Teenage Path 2
 rather than Path 1. Nothing else in the engine reads the year.
+
+---
+
+## E-28 (typo) — medical school's success throw is printed twice, differently
+
+**Where:** the Medical School box (p. 100) and the prose beneath it (p. 101).
+
+The box reads:
+
+> Admission INT 8+ / Success EDU 9+ / Honors INT 10+
+
+and the paragraph on the next page reads:
+
+> The player must roll 8 or higher on 2d6 for the character to succeed in medical
+> school. Add any EDU characteristic modifier that the character may have to this
+> roll.
+
+**Engine:** 8+, which the prose gives.
+
+**Reasoning:** every other institution's prose and box agree, and where they do it
+is the prose that spells out which characteristic modifies the throw and what the
+number means. The three other tracks all print 8+ for success. A 9+ here would
+make medical school harder to finish than the military academy, which is not
+something anything else on the page suggests.
+
+**If this is wrong:** medical school is one point easier than intended, and a
+character who scraped through on an 8 should have washed out. The log names the
+throw and its target, so a record can be checked against either reading.
+
+---
+
+## E-29 (reading) — a character does not take two bachelor's degrees
+
+**Where:** Step 8 as a whole (pp. 85-104).
+
+The step is written as one decision made once. It never contemplates a
+character attempting more than one institution, and its only explicit sequel is
+the graduate tracks, which require "Success in an Undergraduate University or
+Military Academy" (pp. 97, 101) and so cannot be the first thing attempted.
+
+The engine runs the step as a loop, because otherwise Graduate School and
+Medical School are unreachable at Step 8 — the degree they need is one the
+character earns in the same step. That loop then raises a question the book does
+not: may a graduate of Undergraduate College go straight on to the Military
+Academy for a second bachelor's?
+
+**Engine:** no. An institution whose degree is a bachelor's is closed to a
+character who holds one.
+
+**Reasoning:** the alternative is a character who collects degrees rather than
+progressing, and the tracks that follow a bachelor's are the ones the book gives
+as what comes next. It also keeps the Military Academy's obligation coherent — a
+graduate "must enter a military career in Step 9" (p. 94), which a character who
+then spent four years at Undergraduate College plainly has not.
+
+**If this is wrong:** a character who wanted both is offered only one, and can
+have the other by attending at Step 18 instead, where "return to higher
+education" is one of the choices (p. 125).
