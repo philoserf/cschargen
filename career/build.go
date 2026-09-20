@@ -56,6 +56,58 @@ func skillZero(name string, specialties ...string) Effect {
 	return granted
 }
 
+// raiseHeldSkill is the thirty-one results that read "gain one level in
+// any skill you already possess". The engine cannot name the options here:
+// they are whatever the character has when the result fires.
+func raiseHeldSkill() Effect {
+	return Effect{Kind: EffectRaiseHeld, Detail: "raise a skill the character already holds"}
+}
+
+// anySkill is "gain a level in any skill of your choice", chosen from the
+// list of pp. 304-314.
+func anySkill() Effect {
+	return Effect{Kind: EffectAnySkill, Detail: "a level in any skill the character chooses"}
+}
+
+// anySkillNotHeld is anySkill narrowed to what the character lacks: "any
+// skill at level 1 which you do not already possess".
+func anySkillNotHeld() Effect {
+	return Effect{
+		Kind:    EffectAnySkill,
+		Detail:  "any skill at level 1 the character does not already hold",
+		NotHeld: true,
+	}
+}
+
+// homeworldSpecialty is the five results that send the character back to
+// where they grew up for a specialty: "a Survival specialty which is used
+// on your homeworld". Which specialties those are is in the setting data,
+// not in this package.
+//
+//nolint:unparam // the skill is the page's; Survival is merely the only one any result names
+func homeworldSpecialty(name string) Effect {
+	return Effect{
+		Kind:   EffectHomeworldSkill,
+		Detail: "a level in a " + name + " specialty the homeworld's background skills name",
+		Skill:  name,
+	}
+}
+
+// loseSkill removes every level of a skill.
+func loseSkill(name, specialty string) Effect {
+	full := name
+	if specialty != "" {
+		full = name + " (" + specialty + ")"
+	}
+
+	return Effect{
+		Kind:        EffectLoseSkill,
+		Detail:      "lose every level of " + full,
+		Skill:       name,
+		Specialties: []string{specialty},
+	}
+}
+
 // chr moves a characteristic.
 func chr(which string, delta int) Effect {
 	sign := "+"

@@ -40,7 +40,7 @@ func Politician() Career {
 				Advancement: Check{Characteristic: "EDU", Number: 8},
 				Skills: SkillTable{Kind: AssignmentSkills, Name: "Manager", Rows: [6]Effect{
 					skill("Art", "Writing"), skill("Admin"), skill("Broker"),
-					skill("Advocate", "Politics"), skill("Electronics", "Communications"),
+					skill("Advocate", "Politics"), skill("Electronics", "Comms"),
 					skill("Leadership"),
 				}},
 				Ranks: [][]Effect{
@@ -80,7 +80,7 @@ func Politician() Career {
 			}},
 			{Kind: ServiceSkills, Name: "Service Skills", Rows: [6]Effect{
 				skill("Etiquette"), skill("Persuade"), skill("Advocate", "Any"),
-				skill("Carouse"), skill("Electronics", "Communications"), skill("Deception", "Lie"),
+				skill("Carouse"), skill("Electronics", "Comms"), skill("Deception", "Lie"),
 			}},
 			{Kind: AdvancedEducation, Name: "Advanced Education", MinimumEDU: 8, Rows: [6]Effect{
 				skill("Art", "Any"), skill("Advocate", "Politics"), skill("Diplomat"),

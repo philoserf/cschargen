@@ -164,7 +164,7 @@ func instructorEvents() EventTable {
 func talentedInYourField() Effect {
 	return pick("what the talent earned",
 		opt("a level in a skill you already have",
-			unimplemented("raise a skill the character already holds")),
+			raiseHeldSkill()),
 		opt("a promotion", Effect{Kind: EffectRank, Detail: "gain a rank"}),
 	)
 }

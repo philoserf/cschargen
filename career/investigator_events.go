@@ -131,7 +131,7 @@ func investigatorEvents() EventTable {
 			Summary: "a martial arts course",
 			Effects: []Effect{pick("choose Athletics or Melee (Unarmed)",
 				opt("Athletics", skill("Athletics", "Any")),
-				opt("Melee (Unarmed)", skill("Melee", "Unarmed")))},
+				opt("Melee (Unarmed)", skill("Melee", "Unarmed Combat")))},
 		},
 		56: {
 			Summary: "a case in a wild and remote part of your world",

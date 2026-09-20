@@ -225,7 +225,7 @@ func wetNavyAssignments() []Assignment {
 			Advancement: Check{Characteristic: "EDU", Number: 7},
 			Skills: SkillTable{Kind: AssignmentSkills, Name: "Surface Ship", Rows: [6]Effect{
 				skill("Electronics", "Any"), skill("Navigation"), skill("Heavy Weapons", "Any"),
-				skill("Gunner", "Turret"), skill("Engineer", "Power"), skill("Survival", "Ocean"),
+				skill("Gunner", "Turrets"), skill("Engineer", "Power"), skill("Survival", "Ocean"),
 			}},
 			Ranks: [][]Effect{
 				{skill("Seafarer", "Ocean Ships")},
@@ -252,7 +252,7 @@ func wetNavyAssignments() []Assignment {
 			Advancement: Check{Characteristic: "INT", Number: 8},
 			Skills: SkillTable{Kind: AssignmentSkills, Name: "Aviator", Rows: [6]Effect{
 				skill("Mechanic"), skill("Suit", "Vacc Suit"), skill("Flyer", "Any"),
-				skill("Pilot", "Small Craft"), skill("Gunner", "Turret"), skill("Electronics", "Any"),
+				skill("Pilot", "Small Craft"), skill("Gunner", "Turrets"), skill("Electronics", "Any"),
 			}},
 			Ranks: [][]Effect{
 				{skill("Mechanic")},

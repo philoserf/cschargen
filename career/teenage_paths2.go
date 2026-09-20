@@ -16,8 +16,7 @@ func teenagePathThree() []EventRow {
 			Summary: "time spent in hazardous conditions, out of necessity",
 			Effects: []Effect{
 				chr("END", 1),
-				unimplemented("a level in a Survival specialty from the homeworld's " +
-					"background skills"),
+				homeworldSpecialty("Survival"),
 			},
 		},
 		authorityConflict(),

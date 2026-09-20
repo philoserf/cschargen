@@ -144,6 +144,30 @@ const (
 	// is how many to take; ThisCareer narrows them to this career's.
 	EffectLoseTie
 
+	// EffectRaiseHeld raises a skill the character already has, without
+	// naming which: "Gain one level in any skill you already possess",
+	// which thirty-one results across the corpus print. The choice is
+	// among what the character holds, so the engine cannot know the
+	// options until it is applied.
+	EffectRaiseHeld
+
+	// EffectAnySkill grants a level in any skill at all, chosen from the
+	// list of pp. 304-314: "gain a level in any skill of your choice".
+	// NotHeld narrows it to the skills the character does not have, which
+	// one result and both undergraduate degrees ask for.
+	EffectAnySkill
+
+	// EffectHomeworldSkill grants a level in a specialty of one skill that
+	// the homeworld's own background skills name: "gain a level in a
+	// Survival specialty which is used on your homeworld" (Youth Path 1
+	// result 2, and four more like it). Skill says which skill's
+	// specialties to look through.
+	EffectHomeworldSkill
+
+	// EffectLoseSkill removes a skill outright: "You lose all levels of
+	// Suit (Vacc Suit)" (Orbital Construction mishap 6).
+	EffectLoseSkill
+
 	// EffectBecome changes what a tie is rather than what it is worth: "If
 	// you currently have Enemies, one of those is now a Rival" (p. 91),
 	// "one Contact or Ally from this career becomes an Enemy". From lists
@@ -372,6 +396,11 @@ type Effect struct {
 	From       []Relationship
 	ThisCareer bool
 	Fallback   []Effect
+
+	// NotHeld narrows an [EffectAnySkill] to the skills the character does
+	// not already have: "any skill at level 1 which you do not already
+	// possess".
+	NotHeld bool
 
 	// LoseTheRest belongs to [EffectBecome]: "one Contact or Ally from this
 	// career becomes an Enemy, and every other relationship gained here is

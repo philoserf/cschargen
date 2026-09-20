@@ -197,7 +197,7 @@ func explorerEvents() EventTable {
 		},
 		43: {
 			Summary: "time spent honing your skillset",
-			Effects: []Effect{unimplemented("raise a skill the character already holds")},
+			Effects: []Effect{raiseHeldSkill()},
 		},
 		44: {
 			Summary: "a crew from many diverse backgrounds",

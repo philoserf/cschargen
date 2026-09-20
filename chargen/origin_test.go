@@ -85,6 +85,11 @@ func TestEveryCharacterHasElectronicsZero(t *testing.T) {
 
 // TestBackgroundSkillsComeFromTheHomeworld: a character holds every skill
 // their birth world grants, at level 1 or better.
+//
+// A record where something took a skill away is excluded rather than held
+// to it. Orbital Construction's sixth mishap really does read "you lose all
+// levels of Suit (Vacc Suit)", and a Vacc Suit from the homeworld is still
+// a Vacc Suit.
 func TestBackgroundSkillsComeFromTheHomeworld(t *testing.T) {
 	t.Parallel()
 
@@ -92,6 +97,9 @@ func TestBackgroundSkillsComeFromTheHomeworld(t *testing.T) {
 
 	for seed := range uint64(sample) {
 		character := lifepath(t, seed, 1)
+		if lostASkill(character) {
+			continue
+		}
 
 		world, _, found := data.World(character.State.Homeworlds[0].World)
 		if !found {
@@ -119,6 +127,21 @@ func TestBackgroundSkillsComeFromTheHomeworld(t *testing.T) {
 			}
 		}
 	}
+}
+
+// lostASkill reports whether any result in a record took a skill away.
+func lostASkill(character *chargen.Character) bool {
+	for _, event := range character.Events {
+		if event.Kind != chargen.EventConsequence {
+			continue
+		}
+
+		if strings.HasPrefix(event.Consequence.Detail, "lose every level of") {
+			return true
+		}
+	}
+
+	return false
 }
 
 func heldInStash(character *chargen.Character, item string) bool {

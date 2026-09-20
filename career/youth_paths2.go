@@ -20,7 +20,7 @@ func youthPathTwo() []EventRow {
 		{
 			Summary: "violence, which tends to find the strong",
 			Effects: []Effect{pick("choose what trouble taught you",
-				opt("Melee (Unarmed)", skill("Melee", "Unarmed")),
+				opt("Melee (Unarmed)", skill("Melee", "Unarmed Combat")),
 				opt("Streetwise", skill("Streetwise")))},
 		},
 		{
@@ -48,14 +48,14 @@ func youthPathTwo() []EventRow {
 		{
 			Summary: "an older child's attempt at bullying that did not go as expected",
 			Effects: []Effect{pick("choose what you took from it",
-				opt("Melee (Unarmed)", skill("Melee", "Unarmed")),
+				opt("Melee (Unarmed)", skill("Melee", "Unarmed Combat")),
 				opt("Recon", skill("Recon")))},
 		},
 		{
 			Summary: "tough times your physical capabilities carried you through",
 			Effects: []Effect{
 				chr("EDU", -1),
-				unimplemented("a level in a Survival specialty available on the homeworld"),
+				homeworldSpecialty("Survival"),
 				chr("END", 1),
 			},
 		},
@@ -77,7 +77,7 @@ func youthPathTwo() []EventRow {
 			Effects: []Effect{
 				mentorAt125(),
 				pick("choose what they trained",
-					opt("Melee (Unarmed)", skill("Melee", "Unarmed")),
+					opt("Melee (Unarmed)", skill("Melee", "Unarmed Combat")),
 					opt("Athletics", skill("Athletics", "Any")),
 					opt("Discipline", skill("Discipline")),
 					opt("Tactics (Sport)", skill("Tactics", "Sport"))),
@@ -223,7 +223,7 @@ func youthPathThree() []EventRow {
 					opt("Art", skill("Art", "Any")),
 					opt("Chef", skill("Chef")),
 					opt("Mechanic", skill("Mechanic")),
-					opt("Melee (Unarmed)", skill("Melee", "Unarmed")),
+					opt("Melee (Unarmed)", skill("Melee", "Unarmed Combat")),
 					opt("Stealth", skill("Stealth"))),
 			},
 		},

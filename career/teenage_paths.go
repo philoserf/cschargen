@@ -84,7 +84,7 @@ func teenagePathTwo() []EventRow {
 				pick("choose what it cost",
 					opt("EDU", chr("EDU", -1)),
 					opt("CHA", chr("CHA", -1))),
-				unimplemented("a level in a Survival specialty used on the homeworld"),
+				homeworldSpecialty("Survival"),
 			},
 		},
 		{
@@ -145,8 +145,7 @@ func teenagePathTwo() []EventRow {
 				pick("choose what the frontier built",
 					opt("END", chr("END", 1)),
 					opt("CHA", chr("CHA", 1))),
-				unimplemented("a level in a Survival specialty from the homeworld's " +
-					"background skills"),
+				homeworldSpecialty("Survival"),
 			},
 		},
 		opportunity(),

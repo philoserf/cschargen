@@ -341,9 +341,17 @@ func (g *Generator) bachelorsDegree(
 		return "", err
 	}
 
-	// "The character may also choose any other skill at level 1" -- any
-	// skill in the book, which is not a list the engine holds.
-	g.unimplemented(step, "any other skill at level 1 (p. 87)")
+	// "The character may also choose any other skill at level 1", which
+	// the skill list of pp. 304-314 is what makes answerable.
+	err = g.apply(career.Effect{
+		Kind:    career.EffectAnySkill,
+		NotHeld: true,
+		Level:   1,
+		Detail:  "any other skill at level 1 (p. 87)",
+	}, step)
+	if err != nil {
+		return "", err
+	}
 
 	return field, nil
 }

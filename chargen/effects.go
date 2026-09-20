@@ -64,6 +64,16 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		return g.changeStash(effect, cause)
 	case career.EffectGroup:
 		return g.applyAll(effect.Group, cause)
+	case career.EffectRaiseHeld:
+		return g.raiseHeldSkill(effect, cause)
+	case career.EffectAnySkill:
+		return g.anySkill(effect, cause)
+	case career.EffectHomeworldSkill:
+		return g.homeworldSpecialty(effect, cause)
+	case career.EffectLoseSkill:
+		g.loseSkill(effect, cause)
+
+		return nil
 	case career.EffectBecome:
 		return g.becomeTies(effect, cause)
 	case career.EffectImproveTies:
