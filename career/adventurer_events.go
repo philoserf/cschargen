@@ -53,12 +53,12 @@ func adventurerEvents() EventTable {
 			// The Persuade branch is a 10+ check rather than the usual 8+.
 			Summary: "a pirate base, stumbled upon",
 			Effects: []Effect{
-				pick("talk them down or fight",
-					opt("Persuade at 10+", checkSkill("Persuade", 10, nil,
+				aPirateBase(
+					[]Option{opt("Persuade at 10+", checkSkill("Persuade", 10, nil,
 						[]Effect{checkSkill("Gun Combat", 8,
-							[]Effect{skill("Tactics", "Military")}, []Effect{injury(1)})})),
-					opt("fight", checkSkill("Gun Combat", 8,
-						[]Effect{skill("Tactics", "Military")}, []Effect{injury(1)}))),
+							[]Effect{skill("Tactics", "Military")}, []Effect{injury(1)})}))},
+					checkSkill("Gun Combat", 8,
+						[]Effect{skill("Tactics", "Military")}, []Effect{injury(1)})),
 				relationship(Enemy, 1, ""),
 			},
 		},

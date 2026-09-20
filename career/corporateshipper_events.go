@@ -2,18 +2,11 @@ package career
 
 // shipperEvents is the d66 table of pp. 179-180.
 func shipperEvents() EventTable {
-	strandedByPirates := []Effect{pick("what the walk to civilization taught you",
-		opt("Animals", skill("Animals", "Any")),
-		opt("Navigation", skill("Navigation")),
-		opt("Survival", skill("Survival", "Any")))}
-
 	table := EventTable{
 		11: {Summary: "disaster occurs", Effects: []Effect{mishapNoEject()}},
 		12: {
 			Summary: "pirates attack",
-			Effects: []Effect{pick("fight them off with what you have",
-				opt("Gun Combat", checkSkill("Gun Combat", 8, nil, strandedByPirates)),
-				opt("Melee", checkSkill("Melee", 8, nil, strandedByPirates)))},
+			Effects: []Effect{piratesAttack()},
 		},
 		13: {
 			Summary: "a barfight",
@@ -28,12 +21,9 @@ func shipperEvents() EventTable {
 		},
 		15: {
 			Summary: "a distress call from a damaged ship in the outer system",
-			Effects: []Effect{pick("answer it, report it, or ignore it",
-				opt("ignore it", unimplemented("lose one rank as word gets out")),
-				opt("report it and do nothing", chr("CHA", -1)),
-				opt("help", unimplemented(
-					"roll 1d6: on 1-3 it is a pirate ship and the boarding fight follows; "+
-						"on 4-5 a grateful captain becomes a Contact; on 6 an Ally and 5,000 credits")))},
+			Effects: []Effect{distressCall(
+				unimplemented("lose one rank as word gets out"),
+				chr("CHA", -1))},
 		},
 		16: {Summary: "a great time with your coworkers", Effects: []Effect{skill("Carouse")}},
 		21: {

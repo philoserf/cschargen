@@ -205,9 +205,13 @@ func TestTheImplementedCareersCoverTheForcedTransfers(t *testing.T) {
 	// built yet. The list shrinks as milestone 3 proceeds and should reach
 	// zero; a destination appearing that is not here fails the test rather
 	// than passing unnoticed.
-	want := map[string]bool{
-		"Independent Merchant": true,
-	}
+	// Empty: every career an EffectTransfer names is now transcribed.
+	//
+	// Independent Merchant's mishap 12 does name Pirate, which is not built
+	// yet -- but it names it inside a 1d6 branch the engine records rather
+	// than resolves, so it is not a transfer. When that branch becomes one,
+	// this test is what will say so.
+	want := map[string]bool{}
 	for name := range stubbed {
 		if !want[name] {
 			t.Errorf("a transfer to %s is stubbed, and this test did not know about it", name)
