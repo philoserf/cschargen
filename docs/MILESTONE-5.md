@@ -36,6 +36,19 @@ Eight errata: E-22 to E-24 on the ratings, E-25 on a sibling's age, E-26 on whic
 characteristic opened a path, E-27 on the campaign's present year, and E-28 and
 E-29 on the two schools.
 
+## What the plan said and this milestone did not do
+
+The Step 8 section above says "the education step hooks into the term loop as
+well as sitting before Step 9", on the strength of p. 85's "may be entered at any
+point after the character reaches the age of 18" and Step 18's "return to higher
+education" (p. 125).
+
+**It does not.** Step 8 runs once, before Step 9, and loops within itself so that
+the graduate tracks are reachable. Returning to education between terms is
+deferred to milestone 7, where interactive mode makes it a choice a player can
+actually make -- under the auto policy it would be one more thing the first
+option takes.
+
 ## The plan as filed
 
 Steps 5 to 8 (pp. 57–104): family, youth events, teenage events, and the four

@@ -44,6 +44,7 @@ belong with the choice points, which later milestones add.
 | `higher_education`       | p. 85, "characters are not required to attend college"                    | The first institution offered, and never "none" — so an eligible character attends               |
 | `degree_field`           | pp. 87, 92, "the character may now take ... at level 2"                   | The first skill the list prints                                                                  |
 | `washout_skill`          | pp. 87, 92, "gains a level in the player's choice of"                     | The first skill the list prints                                                                  |
+| `medic_specialty`        | p. 101, "Specialties should all be different"                             | The first specialty still unspoken for, so the four end up different                             |
 
 Rows are added as the engine reaches the choice points, in the PR that reaches
 them. A row here and no code is as wrong as code and no row.

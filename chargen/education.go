@@ -291,7 +291,162 @@ func (g *Generator) attemptDegree(
 
 // chooseField picks the skill taken at level 2, which is what the degree is
 // in.
+// chooseField picks the skill taken at level 2, which is what the degree is
+// in, and applies whatever else success grants at that institution.
+//
+// The three tracks grant different things. An undergraduate one gives "one
+// of the following at level 2 ... any other skill at level 1" (pp. 87, 92).
+// Graduate school gives "the skill they increased in Undergraduate
+// University by two levels ... a level in one of the following" (p. 97).
+// Medical school gives no choice at all: "Medic (Any) at level 3, Medic
+// (Any) at level 2, Medic (Any) at level 2, and Medic (Any) at level 1.
+// Specialties should all be different" (p. 101).
 func (g *Generator) chooseField(institution career.Institution, step int) (string, error) {
+	switch institution.Name {
+	case career.MedSchool().Name:
+		return g.medicalDegree(institution, step)
+	case career.GraduateSchool().Name:
+		return g.graduateDegree(institution, step)
+	}
+
+	return g.bachelorsDegree(institution, step)
+}
+
+// bachelorsDegree is pp. 87 and 92: one skill from the list at level 2, and
+// any other skill at level 1.
+func (g *Generator) bachelorsDegree(
+	institution career.Institution, step int,
+) (string, error) {
+	field, err := g.takeFromList(institution, step, degreeLevel, "Choose the field of the degree")
+	if err != nil {
+		return "", err
+	}
+
+	// "The character may also choose any other skill at level 1" -- any
+	// skill in the book, which is not a list the engine holds.
+	g.unimplemented(step, "any other skill at level 1 (p. 87)")
+
+	return field, nil
+}
+
+// graduateDegree is p. 97: the undergraduate field rises by two levels, and
+// one more skill from the list is taken at level 1.
+//
+// The raise has to name the same specialty the bachelor's took, so it is
+// found in the institution's own list rather than rebuilt from the field's
+// name -- "Advocate" and "Advocate (Any)" are two skills, and raising the
+// wrong one would leave a character with both.
+func (g *Generator) graduateDegree(
+	institution career.Institution, step int,
+) (string, error) {
+	field := g.previousField()
+
+	raise, found := skillNamed(institution.Skills, field)
+	if !found {
+		// The prerequisite makes this unreachable -- a graduate track
+		// cannot be entered without a bachelor's -- but a record that got
+		// here anyway says so rather than silently raising nothing.
+		g.unimplemented(step, "raise the undergraduate field by two levels (p. 97)")
+	} else {
+		raise.Level = graduateGain
+		raise.Detail = "gain " + itoa(graduateGain) + " levels in " + field
+
+		err := g.apply(raise, step)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	taken, err := g.takeFromList(institution, step, 1, "Choose a second field to take a level in")
+	if err != nil {
+		return "", err
+	}
+
+	if !found {
+		field = taken
+	}
+
+	return field, nil
+}
+
+// skillNamed finds a skill in an institution's list by name.
+func skillNamed(skills []career.Effect, name string) (career.Effect, bool) {
+	for _, option := range skills {
+		if option.Skill == name {
+			return option, true
+		}
+	}
+
+	return career.Effect{}, false
+}
+
+// graduateGain is the two levels a master's adds to the field a bachelor's
+// established (p. 97).
+const graduateGain = 2
+
+// previousField is the skill the character's bachelor's was in, which
+// graduate school raises rather than replacing.
+func (g *Generator) previousField() string {
+	for _, held := range g.char.State.Education {
+		if held.Degree == career.Bachelors {
+			return held.Field
+		}
+	}
+
+	return ""
+}
+
+// medicalDegree is p. 101: "Gain Medic (Any) at level 3, Medic (Any) at
+// level 2, Medic (Any) at level 2, and Medic (Any) at level 1. Specialties
+// should all be different."
+//
+// The four are chosen one at a time from what is left, which is what makes
+// them different. Offering the whole list four times and letting the
+// Decider repeat itself would give a character Medic 8 in one specialty,
+// which is the opposite of what the page asks for.
+func (g *Generator) medicalDegree(
+	institution career.Institution, step int,
+) (string, error) {
+	left := career.MedicSpecialties()
+
+	for _, level := range medicalLevels {
+		if len(left) == 0 {
+			break
+		}
+
+		chosen, err := g.choose(Choice{
+			Point:   "medic_specialty",
+			Prompt:  "Choose a Medic specialty to take at level " + itoa(level),
+			Options: left,
+			Cite:    institution.Cite,
+		})
+		if err != nil {
+			return "", err
+		}
+
+		granted := career.RaiseSkill("Medic", level)
+
+		granted.Specialties = []string{left[chosen]}
+
+		err = g.apply(granted, step)
+		if err != nil {
+			return "", err
+		}
+
+		left = append(left[:chosen], left[chosen+1:]...)
+	}
+
+	return "Medic", nil
+}
+
+// medicalLevels is what p. 101 grants, in the order it prints them.
+var medicalLevels = [...]int{3, 2, 2, 1}
+
+// takeFromList offers an institution's skill list and grants the chosen one
+// at a level.
+func (g *Generator) takeFromList(
+	institution career.Institution, step, level int, prompt string,
+) (string, error) {
 	names := make([]string, len(institution.Skills))
 	for i, option := range institution.Skills {
 		names[i] = option.Skill
@@ -299,7 +454,7 @@ func (g *Generator) chooseField(institution career.Institution, step int) (strin
 
 	chosen, err := g.choose(Choice{
 		Point:   "degree_field",
-		Prompt:  "Choose the field of the degree",
+		Prompt:  prompt,
 		Options: names,
 		Cite:    institution.Cite,
 	})
@@ -309,16 +464,9 @@ func (g *Generator) chooseField(institution career.Institution, step int) (strin
 
 	taken := institution.Skills[chosen]
 
-	taken.Level = degreeLevel
+	taken.Level = level
 
-	err = g.apply(taken, step)
-	if err != nil {
-		return "", err
-	}
-
-	g.unimplemented(step, "any other skill at level 1 (p. 87)")
-
-	return names[chosen], nil
+	return names[chosen], g.apply(taken, step)
 }
 
 // degreeLevel is the level a graduate takes their field at.
@@ -395,16 +543,31 @@ func (g *Generator) grantHonors(institution career.Institution, step int, record
 
 	// "the character's EDU should be increased by 2 to a maximum of 14. If
 	// the character's EDU is already 14 or higher, increase the
-	// character's EDU by 1."
-	gain := honorsEDUGain
-	if g.char.State.Characteristics.Get(EDU) >= honorsEDUCap {
-		gain = 1
-	} else if g.char.State.Characteristics.Get(EDU)+gain > honorsEDUCap {
-		gain = honorsEDUCap - g.char.State.Characteristics.Get(EDU)
+	// character's EDU by 1" (p. 89) -- and medical school's version adds
+	// "to a maximum of 16" to that second sentence (p. 102).
+	gain := honorsGain(g.char.State.Characteristics.Get(EDU), institution)
+	if gain <= 0 {
+		return
 	}
 
 	g.adjust("EDU", gain, "honours at the "+institution.Name, step)
 	g.unimplemented(step, "the skills gained at success rise by one level (p. 89)")
+}
+
+// honorsGain is how much EDU honours are worth at this institution: "+2 to
+// a maximum of 14. If the character's EDU is already 14 or higher, increase
+// the character's EDU by 1" (p. 89), with medical school's version adding
+// "to a maximum of 16" to that second sentence (p. 102).
+func honorsGain(held int, institution career.Institution) int {
+	if held < honorsEDUCap {
+		return min(honorsEDUGain, honorsEDUCap-held)
+	}
+
+	if institution.Name == career.MedSchool().Name {
+		return max(min(1, medicalEDUCap-held), 0)
+	}
+
+	return 1
 }
 
 // educationThrow is a 2d6 against a target, plus one characteristic's

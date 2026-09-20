@@ -136,7 +136,7 @@ func TestRaisingSomethingThatIsNotACharacteristic(t *testing.T) {
 func TestARefusedEducationChoiceEndsGeneration(t *testing.T) {
 	t.Parallel()
 
-	for _, point := range []string{"higher_education", "degree_field", "washout_skill"} {
+	for _, point := range []string{"higher_education", "degree_field", "washout_skill", "medic_specialty"} {
 		t.Run(point, func(t *testing.T) {
 			t.Parallel()
 
@@ -273,4 +273,102 @@ func mentions(character *Character, phrase string) bool {
 	}
 
 	return false
+}
+
+// TestTheEDULaddersOfSuccessAndHonours is a second reading of two rules
+// that look alike and are not.
+//
+// Success raises EDU to a floor: ten at the undergraduate tracks, twelve at
+// graduate school (pp. 87, 97). Medical school's is a ladder instead: "to
+// 12. If the character's EDU is 12-13, make it 14. If it is already 14 or
+// higher, add 1 to a maximum of 16" (p. 101).
+func TestTheEDULaddersOfSuccessAndHonours(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		institution career.Institution
+		before      int
+		after       int
+	}{
+		{"a bachelor's from below ten", career.Undergraduate(), 6, 10},
+		{"a bachelor's from above ten", career.Undergraduate(), 11, 12},
+		{"a master's from below twelve", career.GraduateSchool(), 10, 12},
+		{"a master's from above twelve", career.GraduateSchool(), 13, 14},
+		{"an MD from below twelve", career.MedSchool(), 9, 12},
+		{"an MD at twelve", career.MedSchool(), 12, 14},
+		{"an MD at thirteen", career.MedSchool(), 13, 14},
+		{"an MD at fourteen", career.MedSchool(), 14, 15},
+		{"an MD at the ceiling", career.MedSchool(), 16, 16},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			gen := educationEngine(t, 26)
+
+			gen.char.State.Characteristics.Set(EDU, tc.before)
+			gen.raiseEDUForDegree(tc.institution, 0)
+
+			if got := gen.char.State.Characteristics.Get(EDU); got != tc.after {
+				t.Errorf("EDU %d -> %d, want %d", tc.before, got, tc.after)
+			}
+		})
+	}
+}
+
+// TestHonorsGain is p. 89's "+2 to a maximum of 14 ... if already 14 or
+// higher, increase by 1", and medical school's "to a maximum of 16"
+// (p. 102).
+func TestHonorsGain(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		held        int
+		institution career.Institution
+		want        int
+	}{
+		{10, career.Undergraduate(), 2},
+		{13, career.Undergraduate(), 1},
+		{14, career.Undergraduate(), 1},
+		{16, career.Undergraduate(), 1},
+		{13, career.MedSchool(), 1},
+		{14, career.MedSchool(), 1},
+		{15, career.MedSchool(), 1},
+		{16, career.MedSchool(), 0},
+		{17, career.MedSchool(), 0},
+	}
+
+	for _, tc := range tests {
+		if got := honorsGain(tc.held, tc.institution); got != tc.want {
+			t.Errorf("honorsGain(%d, %s) = %d, want %d",
+				tc.held, tc.institution.Name, got, tc.want)
+		}
+	}
+}
+
+// TestGrantingHonoursAtTheCeiling: a medical graduate already at 16 gains
+// nothing, and the record still says they took honours.
+func TestGrantingHonoursAtTheCeiling(t *testing.T) {
+	t.Parallel()
+
+	gen := educationEngine(t, 27)
+
+	gen.char.State.Characteristics.Set(EDU, medicalEDUCap)
+
+	record := &Education{Institution: career.MedSchool().Name, Succeeded: true}
+
+	gen.grantHonors(career.MedSchool(), 0, record)
+
+	if !record.Honors {
+		t.Error("honours at the EDU ceiling were not recorded")
+	}
+
+	if got := gen.char.State.Characteristics.Get(EDU); got != medicalEDUCap {
+		t.Errorf("EDU = %d, want the ceiling of %d", got, medicalEDUCap)
+	}
+
+	// And a second grant does nothing at all.
+	gen.grantHonors(career.MedSchool(), 0, record)
 }
