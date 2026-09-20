@@ -91,7 +91,7 @@ func belterEvents() EventTable {
 			Summary: "two corporations go to war and you are caught in the middle",
 			Effects: []Effect{pick("profit from it, fight through it, or hide from it",
 				opt("Deception", checkSkill("Deception", 8,
-					[]Effect{unimplemented("two cash benefit rolls, taken immediately")},
+					[]Effect{cashRollsNow(2)},
 					[]Effect{
 						unimplemented("lose one rank"),
 						benefitRolls(-2, 0, ScopeBatch),
@@ -116,7 +116,7 @@ func belterEvents() EventTable {
 		},
 		61: {
 			Summary: "excellent work earns a bonus",
-			Effects: []Effect{unimplemented("two cash benefit rolls, taken immediately")},
+			Effects: []Effect{cashRollsNow(2)},
 		},
 		62: {
 			Summary: "honing your skillset",

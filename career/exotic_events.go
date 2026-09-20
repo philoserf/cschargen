@@ -62,7 +62,7 @@ func exoticEvents() EventTable {
 				opt("steal", checkSkill("Deception", 8,
 					[]Effect{
 						relationship(Enemy, 1, ""),
-						unimplemented("four cash benefit rolls"),
+						cashRolls(4),
 					},
 					[]Effect{pick("the client attacks: fight back with what you have",
 						opt("Gun Combat", checkSkill("Gun Combat", 8,
@@ -126,7 +126,7 @@ func exoticEvents() EventTable {
 		62: {
 			Summary: "an influential client who wants an argument with a friend settled",
 			Effects: []Effect{checkSkill("Diplomat", 8,
-				[]Effect{unimplemented("three cash benefit rolls")},
+				[]Effect{cashRolls(3)},
 				[]Effect{chr("CHA", -1)})},
 		},
 		63: {
@@ -171,5 +171,5 @@ func exoticCollect(name string) Effect {
 
 // exoticFoughtOff is what surviving event 42's angry client is worth.
 func exoticFoughtOff() []Effect {
-	return []Effect{relationship(Enemy, 1, ""), unimplemented("two cash benefit rolls")}
+	return []Effect{relationship(Enemy, 1, ""), cashRolls(2)}
 }

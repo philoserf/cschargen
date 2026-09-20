@@ -114,7 +114,7 @@ func diplomaticMishaps() MishapTable {
 		{
 			Summary: "a change of government, and every current employee removed",
 			Effects: []Effect{checkSkill("Diplomat", 8, nil,
-				[]Effect{unimplemented("lose every benefit roll from this career")})},
+				[]Effect{loseAllBenefits("lose every benefit roll from this career")})},
 		},
 		{
 			Summary: "a rivalry with a superior that finally ends your career",
@@ -124,7 +124,7 @@ func diplomaticMishaps() MishapTable {
 		{
 			Summary: "caught up in a corruption sting",
 			Effects: []Effect{checkSkill("Advocate", 8, nil,
-				[]Effect{unimplemented("lose 1d6 benefit rolls")})},
+				[]Effect{loseBenefitRollsRolled("1d6")})},
 		},
 		{
 			Summary: "a clandestine meeting raided by a rival rebel group",

@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased
+
+### Resolved rather than recorded
+
+The first of the passes issue #42 lays out. Seventy-three of the 387 results the
+engine recorded rather than resolved now resolve, all of them about mustering-out
+rolls:
+
+- **Every benefit roll forfeited** (67 occurrences). "You are dismissed and lose
+  all Benefits" now takes the queued batches _and_ writes off the two-per-term
+  grant up to the term the result fired in. It is a watermark rather than a
+  switch, because a few of these are events rather than mishaps and the character
+  serves on afterwards: what was earned before the result is gone, and the terms
+  after it earn as they always did.
+- **Cash rolls** (12). A result that grants rolls on the Cash column grants them
+  there; one that says "immediately" reads the career's Cash table where it fires
+  instead of queueing for Step 19. ERRATA E-32 records what a compelled Cash roll
+  does when p. 127's three-per-career cap is already spent.
+- **Rolled counts** (2). "Lose 1d6 Benefit rolls" and "gain 1d3" are thrown.
+- **Expulsion from a graduate track** (2) now closes every institution for two
+  terms (pp. 98, 102), not just the one that expelled the character.
+
+### Fixed
+
+- A character dismissed from a career could still muster out of it.
+
 ## v0.1.0-alpha.1 — 2026-09-20
 
 The first release. Every step of the book's character generation is built, and

@@ -1,6 +1,6 @@
 # Lifepath: Vela Ashgrove
 
-Seed 7, 192 events.
+Seed 7, 187 events.
 
 
 ## Step 1: Choose Human, Altrant, or Uplift (p. 21)
@@ -236,7 +236,7 @@ Seed 7, 192 events.
 
 -  175  throw  2d6 [2 4] = 6  (p. 113)
 -  176  -> mishap: a Rival accuses you of being a fraud, and your career is ruined [career, from 175]
--  177  -> lose every benefit roll from this career [unimplemented, from 175]
+-  177  -> lose every benefit roll from this career [benefit_rolls, from 175]
 -  178  -> enter the Vagabond career [career, from 175]
 
 ## Step 17: Aging (p. 121)
@@ -250,13 +250,8 @@ Seed 7, 192 events.
 
 ## Step 19: Muster Out (p. 126)
 
--  185  choice Choose a mustering out table for Adventurer: Cash (policy)
--  186  throw  1d6 [4] = 4  (p. 127)
--  187  -> mustering out of Adventurer: 5000 credits [credits, from 186]
--  188  choice Choose a mustering out table for Adventurer: Cash (policy)
--  189  throw  1d6 [2] = 2  (p. 127)
--  190  -> mustering out of Adventurer: 1000 credits [credits, from 189]
+-  185  -> no mustering out rolls remain for Adventurer [benefit_rolls, from 184]
 
 ## Step 20: Finishing Touches (pp. 129-130)
 
--  192  -> finishing touches recorded [finishing, from 191]
+-  187  -> finishing touches recorded [finishing, from 186]

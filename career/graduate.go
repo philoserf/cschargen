@@ -51,7 +51,7 @@ func graduateFailure() MishapTable {
 		{
 			Summary: "expelled for serious misconduct",
 			Effects: []Effect{
-				unimplemented("no admission to any higher learning institution for two terms"),
+				noAdmissionFor(2),
 				chr("EDU", -2),
 			},
 		},
@@ -109,7 +109,7 @@ func medicalFailure() MishapTable {
 				pick("choose what the removal taught you",
 					opt("Deception", skill("Deception", "Forgery", "Lie")),
 					opt("Streetwise", skill("Streetwise"))),
-				unimplemented("no admission to any higher learning institution for two terms"),
+				noAdmissionFor(2),
 			},
 		},
 		{

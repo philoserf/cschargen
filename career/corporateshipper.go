@@ -100,7 +100,8 @@ func shipperMishaps() MishapTable {
 		{
 			Summary: "enough of this; you are going independent",
 			Effects: []Effect{
-				unimplemented("lose every benefit roll and any company shares"),
+				loseAllBenefits("lose every benefit roll from this career"),
+				unimplemented("lose any company shares"),
 				transfer("Independent Merchant", "", 0),
 			},
 		},
@@ -108,7 +109,7 @@ func shipperMishaps() MishapTable {
 		{
 			Summary: "a senior officer decides you should be fired, and management agrees",
 			Effects: []Effect{
-				unimplemented("lose every benefit roll from this career"),
+				loseAllBenefits("lose every benefit roll from this career"),
 				relationship(Enemy, 1, ""),
 			},
 		},
@@ -142,8 +143,9 @@ func shipperMishaps() MishapTable {
 		{
 			Summary: "your ship is destroyed and, with nobody else to blame, the company blames you",
 			Effects: []Effect{
-				unimplemented("lose every benefit roll and any company shares, " +
-					"and owe the company 2.3 million credits"),
+				loseAllBenefits("lose every benefit roll from this career"),
+				unimplemented("lose any company shares"),
+				unimplemented("owe the company 2.3 million credits"),
 				throwModifier("next enlistment attempt", -4),
 			},
 		},

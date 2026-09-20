@@ -237,7 +237,7 @@ func navyMishaps() MishapTable {
 		{
 			Summary: "a tribunal finds you guilty over a friendly-fire incident",
 			Effects: []Effect{
-				unimplemented("lose every benefit roll from this career"),
+				loseAllBenefits("lose every benefit roll from this career"),
 				checkChr("CHA", 8, nil, []Effect{transfer("Prisoner", "Prisoner", 2)}),
 			},
 		},

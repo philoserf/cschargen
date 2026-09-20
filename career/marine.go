@@ -188,7 +188,7 @@ func marineMishaps() MishapTable {
 		{
 			Summary: "pushing a recruit to their limits kills them, and you are found guilty",
 			Effects: []Effect{
-				unimplemented("lose every benefit roll from this career"),
+				loseAllBenefits("lose every benefit roll from this career"),
 				pick("defend yourself however you can",
 					opt("CHA", checkChr("CHA", 8, nil,
 						[]Effect{transfer("Prisoner", "Prisoner", 3)})),
@@ -202,12 +202,12 @@ func marineMishaps() MishapTable {
 				injury(1),
 				pick("accept the blame or shift it",
 					opt("accept it",
-						unimplemented("lose every benefit roll from this career"),
+						loseAllBenefits("lose every benefit roll from this career"),
 						throwModifier("next enlistment attempt", 2)),
 					opt("shift it", checkSkill("Persuade", 8,
 						[]Effect{benefitRolls(-2, 0, ScopeBatch), relationship(Enemy, 1, "")},
 						[]Effect{
-							unimplemented("lose every benefit roll from this career"),
+							loseAllBenefits("lose every benefit roll from this career"),
 							transfer("Prisoner", "Prisoner", 4),
 						}))),
 			},
@@ -215,14 +215,14 @@ func marineMishaps() MishapTable {
 		{
 			Summary: "a training accident kills several marines",
 			Effects: []Effect{
-				unimplemented("lose every benefit roll from this career"),
+				loseAllBenefits("lose every benefit roll from this career"),
 				relationship(Enemy, 1, ""),
 			},
 		},
 		{
 			Summary: "a tribunal finds you guilty over a friendly-fire incident",
 			Effects: []Effect{
-				unimplemented("lose every benefit roll from this career"),
+				loseAllBenefits("lose every benefit roll from this career"),
 				transfer("Prisoner", "Prisoner", 3),
 				throwModifier("next enlistment attempt", -4),
 			},

@@ -19,7 +19,7 @@ func scavengerEvents() EventTable {
 		12: {
 			Summary: "law enforcement asks where certain items came from",
 			Effects: []Effect{checkSkill("Admin", 8, nil,
-				[]Effect{unimplemented("the police confiscate the collection: " +
+				[]Effect{loseAllBenefits("the police confiscate the collection: " +
 					"lose every benefit roll gained before this event")})},
 		},
 		13: {Summary: "a painting obtained", Effects: find("Painting")},

@@ -46,6 +46,11 @@ type Generator struct {
 	termsInCareer int
 	cite          string
 
+	// forfeitedTerms is how many of this career's terms have had their
+	// two-per-term mustering-out grant written off by a result that took
+	// every benefit roll back. See forfeitBenefits.
+	forfeitedTerms int
+
 	// Flags a table result sets for the loop to read. Each is consumed
 	// where it is acted on, so a result that fires twice is two effects
 	// rather than a latch nobody cleared.
@@ -135,7 +140,12 @@ type Generator struct {
 	// academyClosed is p. 93's standing bar: "If a character fails their
 	// success roll while in a military academy, they may not attempt to
 	// enter a military academy again."
-	academyClosed   bool
+	academyClosed bool
+
+	// educationClosedUntil is the term count before which no institution
+	// will admit the character, which two graduate-track failures impose.
+	educationClosedUntil int
+
 	homeworldTerms  int
 	maximumAge      int
 	primaryLanguage string
@@ -413,6 +423,7 @@ func (g *Generator) leaveCareer(cause int, why string) error {
 	g.mayChangeAssignment = false
 	g.forcedTerms = 0
 	g.termsInCareer = 0
+	g.forfeitedTerms = 0
 
 	return nil
 }

@@ -130,7 +130,7 @@ func prisonerMishaps() MishapTable {
 			Summary: "the guards clean your cell and find your stash",
 			Effects: []Effect{
 				stashItem(""),
-				unimplemented("lose every benefit roll collected so far in this career"),
+				loseAllBenefits("lose every benefit roll collected so far in this career"),
 			},
 		},
 		{

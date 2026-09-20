@@ -27,7 +27,7 @@ func prisonerEvents() EventTable {
 		15: {
 			Summary: "a model prisoner, freed early and penniless",
 			Effects: []Effect{
-				unimplemented("lose every benefit roll from this career"),
+				loseAllBenefits("lose every benefit roll from this career"),
 				transfer("Vagabond", "", 0),
 			},
 		},

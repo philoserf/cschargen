@@ -207,5 +207,5 @@ func thiefEscape(caught []Effect) []Effect {
 // thiefLoseAll is the phrase two of this career's results use, where the
 // engine has no way to reach benefit rolls already banked.
 func thiefLoseAll() Effect {
-	return unimplemented("lose every benefit roll gained to this point")
+	return loseAllBenefits("lose every benefit roll gained to this point")
 }

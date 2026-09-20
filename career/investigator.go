@@ -157,7 +157,7 @@ func investigatorMishaps() MishapTable {
 		{
 			Summary: "an investigation that finds you little more than a criminal",
 			Effects: []Effect{
-				unimplemented("lose every benefit roll from this career"),
+				loseAllBenefits("lose every benefit roll from this career"),
 				newHomeworld(),
 				transfer("Prisoner", "Prisoner", 2),
 				unimplemented("on leaving prison, enter the Vagabond career"),
