@@ -146,6 +146,16 @@ const (
 	// is how many to take; ThisCareer narrows them to this career's.
 	EffectLoseTie
 
+	// EffectAge moves the character's age by a number of years outside the
+	// four a term takes: "you have lost a year of your life", which one
+	// result prints.
+	EffectAge
+
+	// EffectSentence lengthens or shortens a forced spell in a career:
+	// "add one term to your sentence", "your sentence is reduced by one
+	// term; if you have one term or less remaining, you are released".
+	EffectSentence
+
 	// EffectCondition records something a character carries that is
 	// neither a skill, a characteristic nor a possession: an addiction,
 	// a religion. Thirteen results give the first and nine the second.
@@ -534,11 +544,17 @@ type Effect struct {
 	WhileInThisCareer bool
 	Standing          bool
 
+	// Years is how far an [EffectAge] moves the character's age, and Terms
+	// how far an [EffectSentence] moves a sentence. Both carry their sign.
+	Years int
+
 	// Condition names what an [EffectCondition] records.
 	Condition string
 
 	// Sub is the rows of an [EffectSubTable], in the order the page prints
-	// them.
+	// them. Dice names the throw where it is not 1d6 -- two results roll
+	// 2d6 -- and Characteristic adds that characteristic's modifier to it,
+	// which one of them does: "Roll 2d6 and add your DEX bonus".
 	Sub []SubRow
 
 	// Spendable is the throws an [EffectPool] may be spent on. It is a

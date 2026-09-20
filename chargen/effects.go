@@ -27,13 +27,16 @@ func (g *Generator) applyAll(effects []career.Effect, cause int) error {
 // vocabulary; a kind added to career/ and not handled here is a build
 // failure rather than a silent no-op.
 //
-// The effect vocabulary is a closed alphabet of nineteen kinds and this is
-// the fold over it; splitting it would scatter one table across files, and
-// a fold has the size of the alphabet it folds over.
+// The effect vocabulary is a closed alphabet and this is the fold over it.
+// A fold has the size of the alphabet it folds over, and EffectGroup and
+// EffectSubTable add letters that recurse rather than branch.
 //
-// and EffectGroup adds a letter that recurses rather than a branch
+// Splitting it would cost more than it saved. exhaustive checks a switch,
+// and one switch over EffectKind is what guarantees a new kind is handled
+// somewhere; two switches need a default between them, and a default is
+// where a forgotten kind goes to be ignored quietly.
 //
-//nolint:cyclop,funlen,gocyclo // a fold over a closed alphabet has the size of the alphabet,
+//nolint:cyclop,funlen,gocyclo,maintidx // see the paragraph above
 func (g *Generator) apply(effect career.Effect, cause int) error {
 	switch effect.Kind {
 	case career.EffectSkill:
@@ -89,6 +92,14 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 			Uses:              effect.Uses,
 		})
 		g.consequence(ConsequenceModifier, cause, effect.Detail, "")
+
+		return nil
+	case career.EffectAge:
+		g.ageBy(effect, cause)
+
+		return nil
+	case career.EffectSentence:
+		g.adjustSentence(effect, cause)
 
 		return nil
 	case career.EffectCondition:

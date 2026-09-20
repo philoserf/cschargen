@@ -1025,3 +1025,102 @@ wrong at work does not cost a character their mother.
 
 The same argument does not apply to the results that say "lose an Ally" without a
 referent — those mean any, and the engine takes the first, which is the oldest.
+
+---
+
+## E-40 (typo) — the escape roll leaves a 5 with nowhere to go
+
+**Where:** the Enslaved Youth and Enslaved Teenage tables, result 11 (pp. 74, 84),
+printed identically.
+
+> "Roll 2d6 and add your DEX bonus to the roll. If you roll less than 5, you have
+> been caught and punished ... If you roll 6-10, you have been caught and returned
+> to your life as a slave without incident. If you roll 11+, you have escaped."
+
+The second and third bands are contiguous — 6-10, then 11 and up — and the first
+stops at 4. A total of exactly 5 falls in none of them.
+
+**Engine:** the first band is read as "5 or less". Two bands abutting and a third
+falling one short of them is the shape a typo makes; the alternative readings are
+that a 5 means nothing happens, which no other result in the book does, or that
+5 belongs with 6-10, which requires the printed "6" to be wrong instead of the
+printed "5".
+
+---
+
+## E-41 (limit) — results that need a map of the sector
+
+**Where:** twelve results across the corpus that name a world other than the one a
+character was born on.
+
+> "Choose a world within three parsecs of your homeworld" (three results)
+> "Take the Primary Language of that world as a Language skill and take the
+> world's Background Skills as well" (three)
+> "Your homeworld moves to the nearest system with a class B or C port"
+> "Take the nearest A-class port as your new homeworld"
+> "A world bars the character from returning" (two)
+> "Lose every Ally, Contact, Rival and Enemy on this world"
+
+The setting data this engine reads is a list of origin charts: each world carries
+a name, a d100 range, its background skills, its primary languages, a tech level
+and a pair of age caps. It carries no coordinates, no starport class, and nothing
+that says which worlds are near which.
+
+**Engine:** these are recorded. Adding coordinates and a port class to the schema
+would let most of them resolve, and that is the shape of the work rather than a
+reading to argue about — but a "nearest A-class port" chosen from a file that
+prints no port classes would be a world picked at random wearing a rule's name.
+
+The last of them is a different kind of missing: a tie records the career it came
+from, not the world it was made on, so "everyone on this world" has nothing to
+select by even with a map.
+
+---
+
+## E-42 (limit) — results that send a character back through the steps
+
+**Where:** five results that move a character to a step other than the next one.
+
+> "Skip to Step 8 with automatic admission anywhere you qualify" (two)
+> "Move immediately to Step 8 or Step 9, and enlist or be admitted automatically
+> wherever you qualify" (two)
+> "Spend the next term in higher education (p. 86); succeeding means a degree and
+> a new career of your choice"
+
+The engine walks the twenty steps in order, once. Step 18's return to higher
+education is the one exception the book prints as a rule of the step itself
+(p. 125), and it is built; these five are results that reach back from inside a
+career table.
+
+**Engine:** they are recorded. A step loop that any result could re-enter is a
+different generator from the one the PRD describes, and the five would not
+justify it — but the reason they are unresolved is architecture rather than
+ambiguity, and this entry exists so a reader is not left looking for the rule.
+
+---
+
+## E-43 (limit) — outcomes the referee decides
+
+**Where:** eight results whose outcome is a person's judgement rather than a
+number.
+
+> "A bounty is placed on your head, and a bounty hunter begins pursuit" (two)
+> "A nickname follows the character: +2 CHA and a Rival if it impresses the
+> referee, -1 CHA if not"
+> "Gain your entire group as Enemies"
+> "Severe damage to your career", which p. 168 does not quantify
+> "While that Ally lives, ignore any Event -- but not Mishap -- that sends you to
+> prison, and halve every cash benefit from this career"
+> "+2 to every advancement roll while the bottles are kept"
+> "The offer must be accepted within 1d3 terms, and expires if a survival roll is
+> failed in that time"
+
+Three kinds sit here. Some name a consequence the book prices nowhere -- a
+bounty hunter is a campaign, not a modifier. Some are sized by the referee: "your
+entire group" is however many the referee says. And two are conditions that
+persist while something else remains true, which is a shape the engine has no
+room for: a modifier that lasts while a possession is held, or while an NPC lives.
+
+**Engine:** all eight are recorded, named, and left for the table to settle. A
+record that says what the referee has to decide is more use than one that has
+quietly decided it.

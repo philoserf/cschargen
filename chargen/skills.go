@@ -231,3 +231,33 @@ func (g *Generator) addCondition(effect career.Effect, cause int) {
 	g.char.State.Conditions = append(g.char.State.Conditions, effect.Condition)
 	g.consequence(ConsequenceCharacteristic, cause, effect.Detail, "")
 }
+
+// ageBy moves the character's age outside the four years a term takes,
+// which one result does: "you have lost a year of your life".
+func (g *Generator) ageBy(effect career.Effect, cause int) {
+	g.char.State.Age += effect.Years
+	g.consequence(ConsequenceAge, cause,
+		effect.Detail+": age "+itoa(g.char.State.Age), "")
+}
+
+// adjustSentence lengthens or shortens a forced spell in a career. A
+// sentence cut to one term or less is served: "if you have one term or
+// less remaining, you are released".
+func (g *Generator) adjustSentence(effect career.Effect, cause int) {
+	if g.forcedTerms == 0 {
+		g.unimplemented(cause, effect.Detail+" -- the character is serving no sentence")
+
+		return
+	}
+
+	g.forcedTerms = max(g.forcedTerms+effect.Terms, g.termsInCareer)
+
+	if g.forcedTerms <= g.termsInCareer {
+		g.consequence(ConsequenceCareer, cause, effect.Detail+": released", g.career.Name)
+
+		return
+	}
+
+	g.consequence(ConsequenceCareer, cause,
+		effect.Detail+": "+itoa(g.forcedTerms-g.termsInCareer)+" terms left", g.career.Name)
+}

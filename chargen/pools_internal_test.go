@@ -333,3 +333,61 @@ func TestASubTableRollsRatherThanChooses(t *testing.T) {
 		t.Errorf("the table paid %d, which is neither row", gen.char.State.Credits)
 	}
 }
+
+// TestAgingByAYearOutsideATerm is the one result that moves a character's
+// age by something other than the four years a term takes.
+func TestAgingByAYearOutsideATerm(t *testing.T) {
+	t.Parallel()
+
+	gen := rankedEngine(t, 0)
+
+	gen.char.State.Age = 30
+
+	err := gen.apply(career.Effect{
+		Kind: career.EffectAge, Years: 1, Detail: "a year of your life lost",
+	}, 0)
+	if err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+
+	if gen.char.State.Age != 31 {
+		t.Errorf("the character is %d, want 31", gen.char.State.Age)
+	}
+}
+
+// TestASentenceThatIsNotBeingServed. Both results that move a sentence are
+// on the Prisoner tables, which a character can only reach under one --
+// but an engine that shortened a sentence nobody was serving would move a
+// number that means nothing.
+func TestASentenceThatIsNotBeingServed(t *testing.T) {
+	t.Parallel()
+
+	gen := rankedEngine(t, 0)
+
+	gen.adjustSentence(career.Effect{
+		Kind: career.EffectSentence, Terms: -1, Detail: "a term off the sentence",
+	}, 0)
+
+	if !strings.Contains(lastDetail(t, gen), "serving no sentence") {
+		t.Errorf("the record does not say there was no sentence: %q", lastDetail(t, gen))
+	}
+}
+
+// TestASentenceCutToNothingIsServed is "if you have one term or less
+// remaining, you are released".
+func TestASentenceCutToNothingIsServed(t *testing.T) {
+	t.Parallel()
+
+	gen := rankedEngine(t, 0)
+
+	gen.forcedTerms = 2
+	gen.termsInCareer = 1
+
+	gen.adjustSentence(career.Effect{
+		Kind: career.EffectSentence, Terms: -1, Detail: "a term off the sentence",
+	}, 0)
+
+	if !strings.Contains(lastDetail(t, gen), "released") {
+		t.Errorf("the record does not say they were released: %q", lastDetail(t, gen))
+	}
+}

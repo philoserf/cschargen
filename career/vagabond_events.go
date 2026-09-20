@@ -33,8 +33,10 @@ func vagabondEvents() EventTable {
 		11: {Summary: "something terrible happens", Effects: []Effect{mishapNoEject()}},
 		12: {
 			Summary: "war breaks out and the military gathers everyone it can find",
-			Effects: []Effect{unimplemented(
-				"enter the System Defense Force career -- Naval (p. 278), Troopers (p. 282) or Wet Navy (p. 287)")},
+			Effects: []Effect{pick("which of the three system defence forces",
+				opt("Naval", transfer("System Defense Forces (Navy)", "", 0)),
+				opt("Troopers", transfer("System Defense Forces (Troopers)", "", 0)),
+				opt("Wet Navy", transfer("System Defense Forces (Wet Navy)", "", 0)))},
 		},
 		13: {
 			Summary: "you become a low-level operative in local illegal activity",

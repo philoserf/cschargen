@@ -78,10 +78,23 @@ func (g *Generator) takeSkillModifiers(skill string) []dice.Mod {
 // same row.
 func (g *Generator) rollSubTable(effect career.Effect, _ int) error {
 	roll := g.dice.D6()
+	if effect.Dice == "2d6" {
+		roll = g.dice.TwoD6()
+	}
+
+	total := roll.Total
+
+	if effect.Characteristic != "" {
+		which, ok := characteristicByName(effect.Characteristic)
+		if ok {
+			total += g.char.State.Characteristics.Modifier(which)
+		}
+	}
+
 	rolled := g.log.Roll(roll, g.cite)
 
 	for _, row := range effect.Sub {
-		if roll.Total < row.From || roll.Total > row.To {
+		if total < row.From || total > row.To {
 			continue
 		}
 
@@ -93,7 +106,7 @@ func (g *Generator) rollSubTable(effect career.Effect, _ int) error {
 	// Unreachable while TestEverySubTableCoversTheDie holds: every result
 	// of the die falls in exactly one row. The record says so rather than
 	// the engine doing nothing quietly.
-	g.unimplemented(rolled, effect.Detail+" -- no row covers a roll of "+itoa(roll.Total))
+	g.unimplemented(rolled, effect.Detail+" -- no row covers a roll of "+itoa(total))
 
 	return nil
 }
