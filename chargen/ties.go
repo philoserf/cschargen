@@ -337,7 +337,19 @@ func (g *Generator) loseTie(effect career.Effect, cause int) error {
 	// A result may name the family rather than a kind: "Choose a family
 	// member from your existing list and lose them" (p. 78).
 	if effect.Target == career.TargetFamily {
-		return g.loseOneOf(g.familyIndexes(), effect, cause)
+		family := g.familyIndexes()
+		if len(family) == 0 {
+			g.consequence(ConsequenceRelationship, cause, effect.Detail+": nobody to lose", "")
+
+			return nil
+		}
+
+		// The page says "choose a family member", and the policy takes the
+		// first: a relative is not distinguishable from another of the same
+		// role in the record, so there is nothing to choose between.
+		g.dropTie(family[0], cause)
+
+		return nil
 	}
 
 	order := effect.Order
@@ -358,7 +370,7 @@ func (g *Generator) loseTie(effect career.Effect, cause int) error {
 			break
 		}
 
-		g.dropTie(index, effect, cause)
+		g.dropTie(index, cause)
 
 		taken++
 	}
@@ -427,7 +439,7 @@ func (g *Generator) fromThisCareer(tie Tie) bool {
 }
 
 // dropTie removes one tie by index and records what went.
-func (g *Generator) dropTie(index int, effect career.Effect, cause int) {
+func (g *Generator) dropTie(index, cause int) {
 	lost := g.char.State.Ties[index]
 
 	g.char.State.Ties = append(g.char.State.Ties[:index], g.char.State.Ties[index+1:]...)
@@ -436,8 +448,6 @@ func (g *Generator) dropTie(index int, effect career.Effect, cause int) {
 	if lost.Role != "" {
 		detail = "lost a " + lost.Role + ", the " + lost.Kind + " at " + itoa(lost.Rating)
 	}
-
-	_ = effect
 
 	g.consequence(ConsequenceRelationship, cause, detail, lost.Origin)
 }
@@ -589,30 +599,6 @@ func (g *Generator) improveTies(cause int) error {
 		Kind: career.EffectRelationship, Relationship: career.Contact, Count: 1,
 		Detail: "with no Contacts, one is gained",
 	}, cause)
-}
-
-// loseOneOf removes the first of a set of candidates, which is what the
-// policy takes where the page says "choose".
-func (g *Generator) loseOneOf(candidates []int, effect career.Effect, cause int) error {
-	if len(candidates) == 0 {
-		g.consequence(ConsequenceRelationship, cause, effect.Detail+": nobody to lose", "")
-
-		return nil
-	}
-
-	index := candidates[0]
-	lost := g.char.State.Ties[index]
-
-	g.char.State.Ties = append(g.char.State.Ties[:index], g.char.State.Ties[index+1:]...)
-
-	detail := "lost the " + lost.Kind + " at " + itoa(lost.Rating)
-	if lost.Role != "" {
-		detail = "lost a " + lost.Role + ", the " + lost.Kind + " at " + itoa(lost.Rating)
-	}
-
-	g.consequence(ConsequenceRelationship, cause, detail, lost.Origin)
-
-	return nil
 }
 
 // ratingCite is the page Relationship Ratings are defined on.

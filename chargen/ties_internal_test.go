@@ -701,6 +701,37 @@ func TestAnImprovementReadsTheStateAsItWas(t *testing.T) {
 	}
 }
 
+// TestAnImprovementDoesNotCarryOneNPCUpTheScale is the case ERRATA E-34
+// exists for. A character whose only relationship is an Enemy: read in
+// sequence, that Enemy becomes a Rival, the Rival a Contact and the Contact
+// an Ally, and a result called "an improvement to a relationship" turns
+// hatred into devotion. Read as a snapshot, the Enemy becomes a Rival and
+// stops.
+func TestAnImprovementDoesNotCarryOneNPCUpTheScale(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t, Tie{Kind: string(career.Enemy), Origin: fromACareer, Rating: -150})
+
+	err := gen.improveTies(0)
+	if err != nil {
+		t.Fatalf("improveTies: %v", err)
+	}
+
+	if len(gen.tiesOfKind(career.Rival)) != 1 {
+		t.Fatalf("the Enemy is not a Rival: %v", gen.char.State.Ties)
+	}
+
+	if len(gen.tiesOfKind(career.Ally)) != 0 {
+		t.Error("the Enemy climbed to Ally on one result")
+	}
+
+	// The "no Contacts" clause is read against the state as it was too, so
+	// a character who had none still gains one.
+	if len(gen.tiesOfKind(career.Contact)) != 1 {
+		t.Errorf("no Contact was gained: %v", gen.char.State.Ties)
+	}
+}
+
 // TestAnImprovementWithNoContactsGainsOne is the clause the other three sit
 // beside: "If you have no Contacts, then you will gain one Contact."
 func TestAnImprovementWithNoContactsGainsOne(t *testing.T) {

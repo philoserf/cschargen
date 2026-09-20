@@ -809,7 +809,9 @@ why a career row that names one without a number still carries one.
 ## E-34 (reading) — "an improvement to a relationship", which improves three
 
 **Where:** the Teenage Life Events table (p. 85) and both institutions' life-event
-tables (pp. 91, 96), which print the same result in the same words.
+tables (pp. 91, 96). All three print the same result, and the four sentences below
+are verbatim on each; only the flavour differs, p. 85 reading "you have had an
+improvement" where the other two read "you have made" one.
 
 The heading is singular: "You have made an improvement to a relationship." The
 mechanics beneath it are four independent conditionals:

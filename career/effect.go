@@ -309,7 +309,14 @@ type Effect struct {
 	Success []Effect
 	Failure []Effect
 
-	Times        int
+	Times int
+
+	// Count is how many: benefit rolls, possessions, ties. Where a result
+	// names no number the default differs by kind, because the pages do:
+	// an [EffectLoseTie] or an [EffectBecome] with no count takes one
+	// ("lose one Contact or Ally"), and an [EffectRating] with no count
+	// moves every tie its Target names ("lower the Relationship Rating
+	// with everyone in your life by 25").
 	Count        int
 	Modifier     int
 	Scope        BenefitScope
