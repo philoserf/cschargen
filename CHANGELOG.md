@@ -213,6 +213,29 @@ escape attempt. The rest wait on the two things they need: a list of the
 conditions a character carries, for the thirteen addiction results, and a
 player's own words for the religion ones.
 
+### What a character carries
+
+Twenty-three more occurrences resolve — 76 distinct results become 64, 98
+occurrences become 75.
+
+`State.Conditions` is the third list beside skills and possessions: what a
+character carries that is neither a number nor a thing. An addiction goes there,
+and a religion.
+
+- **Thirteen addiction results.** **ERRATA E-38** records why nothing else
+  happens: most of them read like "you have also gained an addiction to alcohol
+  or a drug which will haunt you for years to come", and the book prints no
+  characteristic loss, no modifier and no rule beside it. A cost invented here
+  would be a house rule wearing a page number.
+- **Nine religion results.** "Choose or invent a religion" is the player's answer
+  on the sheet; the engine records that there is one, and carries out the
+  mechanical half the results do print — a level in Science (Philosophy) on a
+  1d6 of 6.
+- **Four more 1d6 tables** the two unblocked, including the drug trials the
+  Vagabond and Prisoner careers each run on the people they can spare.
+- A character is addicted once. Taking the result again records that they
+  already were.
+
 ### Fixed
 
 - A character dismissed from a career could still muster out of it.

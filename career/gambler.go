@@ -125,7 +125,7 @@ func gamblerMishaps() MishapTable {
 		{
 			Summary: "an addiction that costs you the edge a living requires",
 			Effects: []Effect{
-				unimplemented("choose the alcohol or drug you are addicted to"),
+				addiction("alcohol or a drug of the character's choice"),
 				chr("INT", -2),
 				gamblerLoseAll(),
 			},

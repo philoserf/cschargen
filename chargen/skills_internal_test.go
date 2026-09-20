@@ -215,3 +215,29 @@ func TestRaisingASkillHeldAtLevelZero(t *testing.T) {
 			gen.char.State.SkillLevel("Melee"), gen.char.State.Skills)
 	}
 }
+
+// TestACharacterIsAddictedOnlyOnce. A character already addicted to
+// alcohol who takes the result again is no more addicted than before, and
+// a second entry on the sheet would read as a second addiction.
+func TestACharacterIsAddictedOnlyOnce(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 149)
+
+	addicted := career.Effect{
+		Kind:      career.EffectCondition,
+		Condition: "an addiction to alcohol or a drug of the character's choice",
+		Detail:    "an addiction",
+	}
+
+	gen.addCondition(addicted, 0)
+	gen.addCondition(addicted, 0)
+
+	if len(gen.char.State.Conditions) != 1 {
+		t.Errorf("the character carries %v, want one entry", gen.char.State.Conditions)
+	}
+
+	if !strings.Contains(lastDetail(t, gen), "already carries") {
+		t.Errorf("the record does not say it was already there: %q", lastDetail(t, gen))
+	}
+}

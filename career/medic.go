@@ -111,7 +111,7 @@ func medicMishaps() MishapTable {
 			Summary: "caught using drugs meant for patients",
 			Effects: []Effect{
 				checkSkill("Advocate", 8, nil, []Effect{transfer("Prisoner", "Prisoner", 1)}),
-				unimplemented("an addiction to a drug of the character's choice"),
+				addiction("a drug of the character's choice"),
 			},
 		},
 		{

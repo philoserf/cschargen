@@ -12,7 +12,9 @@ func artsEvents() EventTable {
 			Summary: "carousing with the art community",
 			Effects: []Effect{
 				skill("Carouse"),
-				unimplemented("on a 1d6 of 1-2, an addiction to a drug"),
+				rollSub("whether it takes hold",
+					onRange(1, 2, "it does", addiction("a drug of the character's choice")),
+					onRange(3, 6, "it does not")),
 			},
 		},
 		14: {
@@ -88,8 +90,11 @@ func artsEvents() EventTable {
 		},
 		43: {
 			Summary: "a local religion, delved into deeply",
-			Effects: []Effect{unimplemented(
-				"choose or invent a religion; on a 1d6 of 6 you become deeply involved and gain Science (Philosophy) 1")},
+			Effects: []Effect{group(
+				religion(),
+				rollSub("how deeply it takes",
+					onRange(1, 5, "it stays an interest"),
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
 		},
 		44: {
 			Summary: "legendary dinner parties",

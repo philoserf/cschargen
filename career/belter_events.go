@@ -107,8 +107,11 @@ func belterEvents() EventTable {
 		54: {Summary: "working extra hard to get things right", Effects: []Effect{rollTable(ServiceSkills)}},
 		55: {
 			Summary: "religion, delved into deeply",
-			Effects: []Effect{unimplemented(
-				"choose or invent a religion; on a 1d6 of 6 you become deeply involved and gain Science (Philosophy) 1")},
+			Effects: []Effect{group(
+				religion(),
+				rollSub("how deeply it takes",
+					onRange(1, 5, "it stays an interest"),
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
 		},
 		56: {
 			Summary: "you strike it rich, and the company is thankful",

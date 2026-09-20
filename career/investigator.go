@@ -143,7 +143,7 @@ func investigatorMishaps() MishapTable {
 			Summary: "an addiction that impairs you past the point of staying",
 			Effects: []Effect{
 				chr("END", -2),
-				unimplemented("choose the alcohol or drug you are addicted to"),
+				addiction("alcohol or a drug of the character's choice"),
 			},
 		},
 		{

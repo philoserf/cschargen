@@ -146,6 +146,16 @@ const (
 	// is how many to take; ThisCareer narrows them to this career's.
 	EffectLoseTie
 
+	// EffectCondition records something a character carries that is
+	// neither a skill, a characteristic nor a possession: an addiction,
+	// a religion. Thirteen results give the first and nine the second.
+	//
+	// The engine names it and says no more. What an addiction costs a
+	// character is the referee's, and p. 152's own "an addiction to
+	// alcohol or a drug of your choice" prints no characteristic loss
+	// beside it -- ERRATA E-38.
+	EffectCondition
+
 	// EffectSubTable is a 1d6 table printed inside a result rather than as
 	// a table of its own: "Roll 1d6. On a 1 ... on a 2-5 ... on a 6 ...".
 	// Forty-two results across the corpus carry one.
@@ -514,6 +524,9 @@ type Effect struct {
 	OnSkill           string
 	WhileInThisCareer bool
 	Standing          bool
+
+	// Condition names what an [EffectCondition] records.
+	Condition string
 
 	// Sub is the rows of an [EffectSubTable], in the order the page prints
 	// them.

@@ -96,7 +96,10 @@ func sharedDefenceEvents(own map[int]EventRow, prisonTerms int) EventTable {
 			Summary: "a great deal of fun on leave",
 			Effects: []Effect{
 				skill("Carouse"),
-				unimplemented("on a 1d6 of 1-2, an addiction to alcohol or a drug"),
+				rollSub("whether it takes hold",
+					onRange(1, 2, "it does",
+						addiction("alcohol or a drug of the character's choice")),
+					onRange(3, 6, "it does not")),
 			},
 		},
 		15: {
@@ -108,8 +111,11 @@ func sharedDefenceEvents(own map[int]EventRow, prisonTerms int) EventTable {
 		21: {Summary: "time spent working as part of the base staff", Effects: []Effect{skill("Admin")}},
 		22: {
 			Summary: "a local religion, delved into deeply",
-			Effects: []Effect{unimplemented(
-				"choose or invent a religion; on a 1d6 of 6 you become deeply involved and gain Science (Philosophy) 1")},
+			Effects: []Effect{group(
+				religion(),
+				rollSub("how deeply it takes",
+					onRange(1, 5, "it stays an interest"),
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
 		},
 		24: {Summary: "chosen for advanced training", Effects: []Effect{rollTable(AdvancedEducation)}},
 		25: {

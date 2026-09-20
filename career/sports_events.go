@@ -48,7 +48,10 @@ func sportsEvents() EventTable {
 			Summary: "a lot of fun being involved in professional sports",
 			Effects: []Effect{
 				skill("Carouse"),
-				unimplemented("roll 1d6: on 1-2 an addiction to alcohol or a drug"),
+				rollSub("whether it takes hold",
+					onRange(1, 2, "it does",
+						addiction("alcohol or a drug of the character's choice")),
+					onRange(3, 6, "it does not")),
 			},
 		},
 		16: {

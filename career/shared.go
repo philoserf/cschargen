@@ -101,8 +101,11 @@ func LifeEvents() MishapTable {
 		},
 		{
 			Summary: "a religious conversion",
-			Effects: []Effect{unimplemented(
-				"choose or invent a religion; on a 1d6 roll of 6 you become deeply involved and gain Science (Philosophy) 1")},
+			Effects: []Effect{group(
+				religion(),
+				rollSub("how deeply it takes",
+					onRange(1, 5, "it stays an interest"),
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
 		},
 		{
 			Summary: "a minor life goal achieved",

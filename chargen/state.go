@@ -91,6 +91,11 @@ type BenefitBatch struct {
 	CashOnly bool `json:"cashOnly,omitempty"`
 }
 
+// Conditions on State is what a character carries that is neither a skill,
+// a characteristic nor a possession: an addiction, a religion. The engine
+// names each and says no more -- what an addiction costs is the referee's,
+// and which religion it is the player's.
+
 // Possession is one thing a character owns: a weapon, a company share, a
 // pension, whatever a homeworld's background gave them.
 //
@@ -186,6 +191,7 @@ type State struct {
 	Ties            []Tie           `json:"ties,omitempty"`
 	Credits         int             `json:"credits"`
 	Stash           []Possession    `json:"stash,omitempty"`
+	Conditions      []string        `json:"conditions,omitempty"`
 	Injuries        []Injury        `json:"injuries,omitempty"`
 	Homeworlds      []Homeworld     `json:"homeworlds,omitempty"`
 	Services        []Service       `json:"services,omitempty"`

@@ -905,6 +905,29 @@ func rejoinPreviousCareer() Effect {
 // career the page names. The engine resolves it from the service record.
 const PreviousCareer = "\x00previous"
 
+// addiction is the thirteen results that leave a character dependent on
+// something. The book names the kind and leaves the substance to the
+// player -- "an addiction to alcohol or a drug of your choice" -- and
+// prints no characteristic cost beside it (ERRATA E-38).
+func addiction(to string) Effect {
+	return Effect{
+		Kind:      EffectCondition,
+		Detail:    "an addiction to " + to,
+		Condition: "an addiction to " + to,
+	}
+}
+
+// religion is the nine results that give a character one. The book says
+// "choose or invent a religion", which is the player's to answer on the
+// sheet; the engine records that they have one.
+func religion() Effect {
+	return Effect{
+		Kind:      EffectCondition,
+		Detail:    "a religion of the character's choosing",
+		Condition: "a religion of the character's choosing",
+	}
+}
+
 // rollSub is a 1d6 table printed inside a result. The rows are given in
 // the order the page prints them and must cover 1 to 6 exactly once, which
 // TestEverySubTableCoversTheDie holds them to.

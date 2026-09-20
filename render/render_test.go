@@ -166,6 +166,32 @@ func TestTheSheetPricesOnlyWhatTheBookPriced(t *testing.T) {
 		"(priced %v, unpriced %v)", priced, unpriced)
 }
 
+// TestTheSheetNamesWhatTheCharacterCarries is the conditions line: an
+// addiction or a religion is neither a skill, a characteristic nor a
+// possession, and the sheet says the character has one without saying what
+// it costs them.
+func TestTheSheetNamesWhatTheCharacterCarries(t *testing.T) {
+	t.Parallel()
+
+	for seed := range uint64(120) {
+		built := character(t, seed, 6, "Test")
+		if len(built.State.Conditions) == 0 {
+			continue
+		}
+
+		got := render.Sheet(built)
+		for _, carried := range built.State.Conditions {
+			if !strings.Contains(got, carried) {
+				t.Errorf("seed %d carries %q and the sheet does not say so", seed, carried)
+			}
+		}
+
+		return
+	}
+
+	t.Skip("no seed in the sample carries a condition")
+}
+
 // TestEveryThrowInTheTranscriptShowsItsDice: the transcript is the audit
 // view, and an audit needs the dice as they fell rather than the total.
 func TestEveryThrowInTheTranscriptShowsItsDice(t *testing.T) {

@@ -43,7 +43,10 @@ func celebrityEvents() EventTable {
 			Effects: []Effect{
 				skill("Carouse"),
 				chr("CHA", 1),
-				unimplemented("on a 1d6 of 1-2, an addiction to alcohol or a drug"),
+				rollSub("whether it takes hold",
+					onRange(1, 2, "it does",
+						addiction("alcohol or a drug of the character's choice")),
+					onRange(3, 6, "it does not")),
 			},
 		},
 		16: {
@@ -70,8 +73,11 @@ func celebrityEvents() EventTable {
 		},
 		23: {
 			Summary: "a religion, delved into deeply",
-			Effects: []Effect{unimplemented(
-				"choose or invent a religion; on a 1d6 of 6 you become deeply involved and gain Science (Philosophy) 1")},
+			Effects: []Effect{group(
+				religion(),
+				rollSub("how deeply it takes",
+					onRange(1, 5, "it stays an interest"),
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
 		},
 		24: {
 			Summary: "in this business it is important to know people",
