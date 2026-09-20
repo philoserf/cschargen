@@ -265,7 +265,10 @@ func TestASurvivalModifierReachesTheSurvivalRoll(t *testing.T) {
 		{Applies: survivalThrow, Value: -2, Detail: "a hard term"},
 	}
 
-	gen.rollSurvival(gen.assignment)
+	_, err := gen.rollSurvival(gen.assignment)
+	if err != nil {
+		t.Fatalf("rollSurvival: %v", err)
+	}
 
 	for _, event := range gen.log.Events() {
 		if event.Kind != EventThrow {

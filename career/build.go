@@ -909,6 +909,38 @@ func rejoinPreviousCareer() Effect {
 // career the page names. The engine resolves it from the service record.
 const PreviousCareer = "\x00previous"
 
+// pool grants a modifier the character spends themselves, a little at a
+// time. total is the whole of it and perThrow the most that may go on one
+// throw; applies names the throws it may be spent on.
+func pool(total, perThrow int, detail string, whileInCareer bool, applies ...string) Effect {
+	return Effect{
+		Kind:              EffectPool,
+		Detail:            detail,
+		Modifier:          total,
+		Uses:              perThrow,
+		Spendable:         applies,
+		WhileInThisCareer: whileInCareer,
+	}
+}
+
+// onFailure attaches effects to the failure of a named throw, which nine
+// results do: "if you fail that Advancement roll, you lose the Ally and
+// take a -2 DM to your next Advancement roll".
+func onFailure(applies, detail string, effects ...Effect) Effect {
+	return Effect{
+		Kind:    EffectOnFailure,
+		Detail:  detail,
+		Applies: applies,
+		Failure: effects,
+	}
+}
+
+// autoFailure is the mirror of autoSuccess: a named throw fails without
+// being rolled.
+func autoFailure(applies, detail string) Effect {
+	return Effect{Kind: EffectAutoFailure, Detail: detail, Applies: applies}
+}
+
 // advance is an automatic advancement, granted without a throw.
 func advance() Effect {
 	return Effect{Kind: EffectAdvance, Detail: "gain an automatic advancement"}

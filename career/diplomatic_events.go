@@ -12,8 +12,8 @@ func theConspiracyRecruits() Effect {
 	return pick("accept, decline, or tell your superiors",
 		opt("accept",
 			benefitRolls(1, 0, ScopeBatch),
-			unimplemented(
-				"a +6 modifier for the rest of this service, spent in increments of up to +3")),
+			pool(6, 3, "a +6 modifier for the rest of this service, in increments of up to +3",
+				true, survivalThrow, advancementThrow)),
 		opt("decline",
 			relationship(Rival, 1, ""),
 			throwModifier("next advancement roll", -2)),

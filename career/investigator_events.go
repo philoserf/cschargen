@@ -47,7 +47,7 @@ func investigatorEvents() EventTable {
 					[]Effect{checkChr("CHA", 8,
 						[]Effect{throwModifier("next advancement roll", 2)},
 						[]Effect{
-							unimplemented("suspended: the next advancement roll fails automatically"),
+							autoFailure(advancementThrow, "suspended: the next advancement roll fails automatically"),
 							benefitRolls(-2, 0, ScopeBatch),
 						})}),
 			},

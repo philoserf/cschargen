@@ -25,9 +25,14 @@ func (g *Generator) serveTerm() error {
 		Number:     len(g.char.State.Terms) + 1,
 	}
 
-	term.Survived = g.rollSurvival(assignment)
+	survived, err := g.rollSurvival(assignment)
+	if err != nil {
+		return err
+	}
 
-	err := g.resolveTerm(assignment, term.Survived)
+	term.Survived = survived
+
+	err = g.resolveTerm(assignment, term.Survived)
 	if err != nil {
 		return err
 	}
@@ -67,17 +72,24 @@ func (g *Generator) resolveTerm(assignment career.Assignment, survived bool) err
 
 // rollSurvival is Step 12 (p. 112). A natural twelve before modifiers
 // requires another term in the same career (p. 113).
-func (g *Generator) rollSurvival(assignment career.Assignment) bool {
+func (g *Generator) rollSurvival(assignment career.Assignment) (bool, error) {
 	step := g.log.Step("Step 12: Roll for Survival", "p. 112")
 
 	if g.takeAutomaticFor(survivalThrow, *g.career) {
 		g.consequence(ConsequenceCareer, step,
 			"an automatic success on the survival roll, granted earlier", g.career.Name)
 
-		return true
+		return true, nil
 	}
 
-	throw := g.characteristicThrow(assignment.Survival, g.takeCareerModifiers(survivalThrow)...)
+	mods := g.takeCareerModifiers(survivalThrow)
+
+	spent, err := g.spendPools(survivalThrow, step)
+	if err != nil {
+		return false, err
+	}
+
+	throw := g.characteristicThrow(assignment.Survival, append(mods, spent...)...)
 	cause := g.log.Throw(throw, "p. 112")
 
 	if throw.Natural() == naturalTwelve {
@@ -89,10 +101,10 @@ func (g *Generator) rollSurvival(assignment career.Assignment) bool {
 	if !throw.Success {
 		g.consequence(ConsequenceCareer, cause, "the survival roll failed", g.career.Name)
 
-		return false
+		return false, nil
 	}
 
-	return true
+	return true, nil
 }
 
 // naturalTwelve is the exceptional success the book reads as a result in
@@ -112,10 +124,29 @@ func (g *Generator) advance(assignment career.Assignment) error {
 	if g.autoAdvance {
 		g.autoAdvance = false
 
+		g.takeOnFailure(advancementThrow)
+
 		return g.promote(step, assignment)
 	}
 
+	// "You are suspended, and your next Advancement roll fails
+	// automatically": the throw is not made, and what waits on its failure
+	// still fires.
+	if g.takeAutoFailure(advancementThrow) {
+		g.consequence(ConsequenceRank, step,
+			"the advancement roll fails automatically, decided earlier", g.career.Name)
+
+		return g.applyAll(failureEffects(g.takeOnFailure(advancementThrow)), step)
+	}
+
 	mods := g.takeCareerModifiers(advancementThrow)
+
+	spent, err := g.spendPools(advancementThrow, step)
+	if err != nil {
+		return err
+	}
+
+	mods = append(mods, spent...)
 
 	which, ok := characteristicByName(assignment.Advancement.Characteristic)
 	if ok {
@@ -129,10 +160,23 @@ func (g *Generator) advance(assignment career.Assignment) error {
 	cause := g.log.Throw(throw, "p. 115")
 
 	if !throw.Success {
-		return nil
+		return g.applyAll(failureEffects(g.takeOnFailure(advancementThrow)), cause)
 	}
 
+	g.takeOnFailure(advancementThrow)
+
 	return g.promote(cause, assignment)
+}
+
+// failureEffects is the effects nine results attach to a failed advancement
+// roll, flattened out of the hooks that carried them.
+func failureEffects(hooks []career.Effect) []career.Effect {
+	found := make([]career.Effect, 0, len(hooks))
+	for _, hook := range hooks {
+		found = append(found, hook.Failure...)
+	}
+
+	return found
 }
 
 // offerCommission is the commission half of Step 14 (p. 114). "This step is

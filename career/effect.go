@@ -146,6 +146,30 @@ const (
 	// is how many to take; ThisCareer narrows them to this career's.
 	EffectLoseTie
 
+	// EffectPool grants a modifier the character spends themselves, a
+	// little at a time: "gain a modifier of +6 which must be split up into
+	// increments of not more than +2 to use on any Survival or Advancement
+	// rolls until it is depleted" (Journalist event 66), "+6 to be used
+	// over the remainder of your career in this service which you can
+	// break into increments of up to +3 at any time" (Diplomatic Service).
+	//
+	// Modifier is the whole of it and Uses the most that may go on one
+	// throw; Applies names the throws it may be spent on, and
+	// WhileInThisCareer ends it when the career does.
+	EffectPool
+
+	// EffectOnFailure attaches effects to the failure of a named throw:
+	// "if you fail that Advancement roll, you lose the Ally and take a -2
+	// DM to your next Advancement roll", which nine results print. It is
+	// not an EffectCheck, because the throw is the career's own rather
+	// than one the result rolls.
+	EffectOnFailure
+
+	// EffectAutoFailure is the mirror of [EffectAutoSuccess]: a named
+	// throw fails without being rolled. Two results print it -- "you are
+	// suspended, and your next Advancement roll fails automatically".
+	EffectAutoFailure
+
 	// EffectRaiseHeld raises a skill the character already has, without
 	// naming which: "Gain one level in any skill you already possess",
 	// which thirty-one results across the corpus print. The choice is
@@ -470,6 +494,11 @@ type Effect struct {
 	OnSkill           string
 	WhileInThisCareer bool
 	Standing          bool
+
+	// Spendable is the throws an [EffectPool] may be spent on. It is a
+	// list because both results that grant one name two: "any Survival or
+	// Advancement rolls".
+	Spendable []string
 
 	// Uses is how many throws of that name an [EffectModifier] survives:
 	// "take a -2 DM on your next two Advancement rolls", "-2 DM to all
