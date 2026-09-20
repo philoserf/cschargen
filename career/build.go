@@ -239,6 +239,14 @@ func mustContinue() Effect {
 	return Effect{Kind: EffectContinue, Detail: "remain in this career for another term"}
 }
 
+// chooseNewCareer is "choose another career", which five Colonist mishaps
+// and three other results end on (ERRATA E-6). It leaves the career without
+// naming the next one, so the character enlists in whatever they choose on
+// the ordinary terms -- which is not what transfer does.
+func chooseNewCareer() Effect {
+	return Effect{Kind: EffectChooseCareer, Detail: "leave this career and choose another"}
+}
+
 // transfer sends the character to another career. Terms is how many they
 // owe there; zero means until they choose to leave.
 func transfer(name, assignment string, terms int) Effect {

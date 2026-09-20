@@ -121,11 +121,16 @@ and 12 send the character to Vagabond by name.
 **Reading:** an unnamed career change is a choice point, distinct from a named
 transfer, and the two are separate effects in the career data for that reason.
 
-**Not yet applied.** With three careers implemented, offering the choice would
-offer almost nothing, so the engine records these as unimplemented and leaves the
-character where they are. The entry is here because the distinction is already in
-the data and will be acted on in milestone 3, when there are careers to choose
-between. No record stamps E-6, and none should until then.
+**Applied since all thirty-four careers are transcribed.** The effect
+(`EffectChooseCareer`) ends the career without naming the next one; Step 18
+(p. 125) then offers the career list and the character enlists on the ordinary
+terms, enlistment throw and all. That is the difference from a transfer, which
+places the character in a named career without one.
+
+Until milestone 3 the engine recorded these as unimplemented and left the
+character where they were, because three careers to choose between was not a
+choice. Records generated before that stamp no E-6; records generated after it
+stamp E-6 wherever one of these results is reached.
 
 ---
 

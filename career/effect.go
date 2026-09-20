@@ -85,6 +85,13 @@ const (
 	// the same career.
 	EffectChangeAssignment
 
+	// EffectChooseCareer ends the current career without naming the next
+	// one: "choose another career and a new homeworld" (Colonist mishaps
+	// 3-6 and 8, p. 174). ERRATA E-6 -- distinct from EffectTransfer,
+	// because the character enlists in whatever they choose rather than
+	// being placed there.
+	EffectChooseCareer
+
 	// EffectTransfer sends the character to another career by name --
 	// Vagabond and Prisoner are the two the rules force, and the two this
 	// milestone implements.

@@ -6,6 +6,52 @@ import (
 	"github.com/philoserf/cschargen/career"
 )
 
+// slaveCareer names the career of pp. 150-154, which the book heads with a
+// term its OGL notice reserves. That word is not in this repository.
+const slaveCareer = "Engineered/Uplift Slave"
+
+// TestTheBookIsFullyTranscribed is what milestone 3 was filed to reach.
+//
+// The Careers list on pp. 8-9 names thirty-four, and each is here by the
+// name this repository gives it -- which is the book's own except for the
+// slave career, where the book's word is Product Identity. A career the
+// list names and All() does not carry is the failure this test exists for;
+// a career All() carries and the list does not is an invented one.
+func TestTheBookIsFullyTranscribed(t *testing.T) {
+	t.Parallel()
+
+	printed := []string{
+		"Adventurer", slaveCareer, "Arts", "Belter", "Celebrity", "Clergy",
+		"Colonist", "Corporate Shipper", "Craftsperson", "Diplomatic Service",
+		"Exotic", "Explorer", "Fringe Marketer", "Gambler",
+		"Independent Merchant", "Instructor", "Investigator", "Journalist",
+		"Marine", "Medic", "National Navy", "Orbital Construction",
+		"Organized Crime", "Pirate", "Politician", "Prisoner", "Scavenger",
+		"Scientist", "Sports", "System Defense Forces (Navy)",
+		"System Defense Forces (Troopers)", "System Defense Forces (Wet Navy)",
+		"Thief", "Vagabond",
+	}
+
+	if len(printed) != 34 {
+		t.Fatalf("the list above has %d names; pp. 8-9 print 34", len(printed))
+	}
+
+	built := map[string]bool{}
+	for _, def := range career.All() {
+		built[def.Name] = true
+	}
+
+	for _, name := range printed {
+		if !built[name] {
+			t.Errorf("the book names %s and All() does not carry it", name)
+		}
+	}
+
+	if len(built) != len(printed) {
+		t.Errorf("All() carries %d careers; the book names %d", len(built), len(printed))
+	}
+}
+
 // TestEveryCareerHasItsPrintedShape is the completeness check of
 // docs/MILESTONE-1.md. What is invariant is narrower than "every career has
 // every table": a d66 event table has 36 entries, a 2d6 mishap table has
@@ -43,6 +89,13 @@ func TestEveryCareerHasItsPrintedShape(t *testing.T) {
 			}
 
 			for i, row := range def.Benefits {
+				// The slave career (p. 150) prints "0" and "None" on its
+				// first two rows: a benefit roll there really does buy
+				// nothing, which is the point being made about the career.
+				if def.Name == slaveCareer {
+					continue
+				}
+
 				if row.Cash == 0 && row.Other.Detail == "" {
 					t.Errorf("benefit row %d is empty", i+1)
 				}
@@ -129,6 +182,7 @@ func TestMishapEjectsMatchesThePage(t *testing.T) {
 		"Gambler":                          true,
 		"Independent Merchant":             true,
 		"Instructor":                       true,
+		"Investigator":                     true,
 		"Journalist":                       true,
 		"Marine":                           true,
 		"Medic":                            true,
@@ -144,6 +198,7 @@ func TestMishapEjectsMatchesThePage(t *testing.T) {
 		"Scientist":                        true,
 		"Sports":                           true,
 		"Thief":                            true,
+		"Engineered/Uplift Slave":          false,
 		"Prisoner":                         false,
 		"Vagabond":                         false,
 	}
@@ -238,14 +293,6 @@ func TestLookups(t *testing.T) {
 	if settler.Survival.Characteristic != "END" || settler.Survival.Number != 7 {
 		t.Errorf("Settler survival = %s %d+, want END 7+ (p. 173)",
 			settler.Survival.Characteristic, settler.Survival.Number)
-	}
-
-	// A career the book names and this repository has not transcribed. The
-	// list shrinks as milestone 3 proceeds; when it is empty this
-	// assertion changes to "every career the book names is found".
-	_, ok = career.ByName("Investigator")
-	if ok {
-		t.Error("Investigator is not transcribed yet but was found")
 	}
 
 	_, ok = colonist.Assignment("Ambassador")

@@ -83,12 +83,15 @@ that would otherwise compile.
 
 ## Key conventions
 
-- **Career definitions are hand-typed Go, not JSON, until milestone 3.** The data
-  format is what milestone 3 proves against thirty-four careers whose shapes
-  genuinely differ — National Navy has nine skill tables and a commission, Vagabond
-  has four and no enlistment throw. Designing a schema against three careers and
-  then meeting the variance means migrating data twice; Go structs make the
-  variance a compile error.
+- **Career definitions are hand-typed Go, not JSON.** Milestone 3 was filed to
+  decide whether they belonged in a data file and decided they do not, against
+  all thirty-four: a table result is a tree — a choice between two checks whose
+  success branches differ, a check whose success branch holds another check — and
+  that reads close to the page in Go and like nothing in JSON. The transcription
+  is the cost either way. The careers' shapes genuinely differ, too: National Navy
+  has nine skill tables and a commission, Vagabond has four and no enlistment
+  throw, and Go structs make that variance a compile error. See
+  `docs/MILESTONE-3.md`.
 - **Every throw carries the page it came from.** A `ThrowEvent` without a cite is
   not auditable, which is the whole reason the log exists.
 - **The event log is written as rules run, never reconstructed afterward.**
@@ -145,9 +148,17 @@ repository's documents quote their own examples.
 - **Careers are a graph.** Colonist alone reaches Vagabond (mishaps 10, 12),
   Celebrity (event 56), Prisoner (Life Event 3) and a Diplomatic Service skill
   table (event 54). Adding a career means checking what its tables reach.
-- **A mishap does not eject from every career.** Vagabond (p. 298) and Prisoner
-  (p. 263) each say so explicitly, and they are the two careers a character is most
-  often forced into.
+- **A mishap does not eject from every career.** Vagabond (p. 298), Prisoner
+  (p. 263) and the slave career (p. 152) each say so explicitly, and the first two
+  are the careers a character is most often forced into.
+- **The slave career's name is not the book's.** The book heads pp. 150-154 with
+  a term its OGL notice reserves, so this repository calls it
+  `Engineered/Uplift Slave`. That word appears here only in the test that keeps it
+  out.
+- **Rank benefits are a floor, not an increment** (p. 116), and the engine
+  currently adds — [#20](https://github.com/philoserf/cschargen/issues/20). Data
+  written against a rank table should carry what the page prints, not what the
+  engine does with it.
 - **Aging is indexed by term number and gated by homeworld tech level** (pp.
   122-123), not by age. Apparent age is a derived lookup (p. 125), never rolled.
 - **Homeworld is not fixed after character creation.** Six of Colonist's eleven

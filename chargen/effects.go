@@ -87,6 +87,17 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		g.consequence(ConsequenceCareer, cause, effect.Detail, "")
 
 		return nil
+	case career.EffectChooseCareer:
+		// ERRATA E-6: an unnamed career change is the ordinary path out of
+		// a career, not a transfer. Ejecting is the whole of it -- Step 18
+		// (p. 125) then offers the career list, and the character enlists
+		// in what they choose on the ordinary terms.
+		g.ejected = true
+
+		g.char.Provenance.Deviate("E-6")
+		g.consequence(ConsequenceCareer, cause, effect.Detail, "")
+
+		return nil
 	case career.EffectTransfer:
 		g.transfer = &career.Effect{
 			Career: effect.Career, Assignment: effect.Assignment,

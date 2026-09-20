@@ -128,7 +128,7 @@ type Assignment struct {
 	// The length varies by career and is not seven. Colonist prints ranks 0
 	// to 6 (p. 174); Marine prints nine enlisted ranks, E0 to E8, and eight
 	// officer ranks, O0 to O7 (p. 225). A fixed array was the first thing
-	// this milestone's transcription broke.
+	// the first transcription broke.
 	Ranks [][]Effect
 
 	// OfficerRanks is the second rank table a commissioned career prints
@@ -263,8 +263,9 @@ func (c Career) Table(kind SkillTableKind) (SkillTable, bool) {
 	return SkillTable{}, false
 }
 
-// All returns every career this milestone implements, in the order the book
-// lists them (p. 107).
+// All returns every career the book names, in the order it lists them
+// (pp. 8-9). All thirty-four are transcribed; TestTheBookIsFullyTranscribed
+// is what says so.
 func All() []Career {
 	return []Career{
 		Adventurer(),
@@ -282,6 +283,7 @@ func All() []Career {
 		Gambler(),
 		IndependentMerchant(),
 		Instructor(),
+		Investigator(),
 		Journalist(),
 		Marine(),
 		Medic(),
@@ -293,6 +295,7 @@ func All() []Career {
 		Prisoner(),
 		Scavenger(),
 		Scientist(),
+		Slave(),
 		Sports(),
 		SystemDefenceNavy(),
 		SystemDefenceTroopers(),

@@ -37,13 +37,14 @@ func (g *Generator) chooseCareer(step int) (career.Career, bool, error) {
 
 		found, ok := career.ByName(pending.Career)
 		if !ok {
-			// The rules named a career this milestone does not implement.
-			// Generation ends here rather than continuing as though the
-			// transfer had not been ordered: the character really is in
-			// that career now, and nothing the engine did next would be
-			// the rules being followed (docs/MILESTONE-1.md).
+			// All thirty-four careers the book names are transcribed, so
+			// this is now a misspelled destination rather than a missing
+			// career. Generation still ends here rather than continuing as
+			// though the transfer had not been ordered: the character
+			// really is in that career now, and nothing the engine did
+			// next would be the rules being followed.
 			g.unimplemented(step, pending.Detail+
-				" -- generation ends here; this career is not implemented in milestone 1")
+				" -- generation ends here; no career of that name is transcribed")
 
 			g.stopped = true
 
