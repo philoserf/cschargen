@@ -8,6 +8,7 @@ package career
 // to O7 (p. 225).
 func Marine() Career {
 	return Career{
+		Tags:           []Tag{TagMilitary, TagGovernment, TagViolent},
 		Name:           "Marine",
 		Cite:           "pp. 224-228",
 		Enlistment:     &Check{Characteristic: "END", Number: 8},

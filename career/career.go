@@ -230,6 +230,11 @@ type Career struct {
 	RankTitles    []string
 	OfficerTitles []string
 
+	// Tags are the classes this career belongs to, which twelve results
+	// modify or direct an enlistment by. The book defines none of the
+	// words, so the assignment is a reading -- see [Tag] and ERRATA E-37.
+	Tags []Tag
+
 	Mishaps MishapTable
 	Events  EventTable
 

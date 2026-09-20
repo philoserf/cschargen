@@ -7,6 +7,7 @@ package career
 // nothing beside it (p. 271); see ERRATA E-13.
 func Scientist() Career {
 	return Career{
+		Tags:       []Tag{TagAcademic},
 		Name:       "Scientist",
 		Cite:       "pp. 269-272",
 		Enlistment: &Check{Characteristic: "EDU", Number: 12},
@@ -118,7 +119,8 @@ func scientistMishaps() MishapTable {
 			Effects: []Effect{
 				relationship(Rival, 1, ""),
 				loseAllBenefits("lose every benefit roll from this career"),
-				unimplemented("-2 to enter any academic career after this"),
+				enlistmentPenalty(-2, "-2 to enter any academic career after this",
+					enlistmentNarrowing{OnTags: []Tag{TagAcademic}, Standing: true}),
 			},
 		},
 		{

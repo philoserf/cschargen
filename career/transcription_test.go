@@ -176,7 +176,11 @@ func TestTheImplementedCareersCoverTheForcedTransfers(t *testing.T) {
 
 	walk = func(effects []career.Effect) {
 		for _, e := range effects {
-			if e.Kind == career.EffectTransfer && !implemented[e.Career] {
+			// PreviousCareer is not a career name: it is the engine's
+			// word for "the one you held before this", which only the
+			// service record can resolve.
+			if e.Kind == career.EffectTransfer && e.Career != career.PreviousCareer &&
+				!implemented[e.Career] {
 				stubbed[e.Career] = true
 			}
 

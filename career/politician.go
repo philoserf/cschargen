@@ -8,6 +8,7 @@ package career
 // Diplomatic Service, Celebrity, Colonist and Prisoner.
 func Politician() Career {
 	return Career{
+		Tags:           []Tag{TagGovernment},
 		Name:           "Politician",
 		Cite:           "pp. 256-260",
 		Enlistment:     &Check{Characteristic: "INT", Number: 8},
@@ -139,7 +140,8 @@ func politicianMishaps() MishapTable {
 				[]Effect{benefitRolls(-2, 0, ScopeBatch)},
 				[]Effect{
 					loseAll,
-					unimplemented("-4 to enter any career that enlists on CHA or EDU"),
+					enlistmentPenalty(-4, "-4 to enter any career that enlists on CHA or EDU",
+						enlistmentNarrowing{OnCharacteristics: []string{"CHA", "EDU"}, Standing: true}),
 				})},
 		},
 	}

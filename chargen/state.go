@@ -3,6 +3,8 @@ package chargen
 import (
 	"slices"
 	"strings"
+
+	"github.com/philoserf/cschargen/career"
 )
 
 // Skill is one skill a character holds. The book writes a skill as a name
@@ -114,6 +116,49 @@ type PendingModifier struct {
 	Applies string `json:"applies"`
 	Value   int    `json:"value"`
 	Detail  string `json:"detail"`
+
+	// OnTags, NotTags and OnCharacteristics narrow an enlistment modifier
+	// to a class of career: "-4 DM to enlist in any government related
+	// career". Empty means every career, which is the ordinary case.
+	OnTags            []career.Tag `json:"onTags,omitempty"`
+	NotTags           []career.Tag `json:"notTags,omitempty"`
+	NotCareers        []string     `json:"notCareers,omitempty"`
+	OnCharacteristics []string     `json:"onCharacteristics,omitempty"`
+
+	// Standing keeps the modifier after the throw it modified: "every
+	// career after this one", as against "your next career".
+	Standing bool `json:"standing,omitempty"`
+}
+
+// AppliesTo reports whether a pending enlistment modifier reaches a career.
+// A modifier that names no classes reaches every career.
+func (p PendingModifier) AppliesTo(target career.Career) bool {
+	if slices.Contains(p.NotCareers, target.Name) {
+		return false
+	}
+
+	if anyTag(target, p.NotTags) {
+		return false
+	}
+
+	if len(p.OnTags) > 0 && !anyTag(target, p.OnTags) {
+		return false
+	}
+
+	if len(p.OnCharacteristics) == 0 {
+		return true
+	}
+
+	if target.Enlistment == nil {
+		return false
+	}
+
+	return slices.Contains(p.OnCharacteristics, target.Enlistment.Characteristic)
+}
+
+// anyTag reports whether a career carries any of the classes given.
+func anyTag(target career.Career, tags []career.Tag) bool {
+	return slices.ContainsFunc(tags, target.HasTag)
 }
 
 // State is everything generation has established about a character, as

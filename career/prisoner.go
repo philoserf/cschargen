@@ -10,6 +10,7 @@ package career
 // not eject from it, which p. 263 says in print and in bold.
 func Prisoner() Career {
 	return Career{
+		Tags: []Tag{TagCriminal},
 		Name: "Prisoner",
 		Cite: "pp. 261-264",
 		EnlistmentNote: "no enlistment throw, and it cannot be chosen: entry is always " +

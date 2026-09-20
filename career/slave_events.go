@@ -189,7 +189,8 @@ func slaveEvents() EventTable {
 			Summary: "an owner who sets you free, and helps you find another job",
 			Effects: []Effect{
 				credits("500"),
-				unimplemented("enter the career of your choice without an enlistment roll"),
+				autoEnlist("enter the career of your choice without an enlistment roll",
+					enlistmentNarrowing{}),
 			},
 		},
 	}

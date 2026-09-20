@@ -108,7 +108,8 @@ func orbitalMishaps() MishapTable {
 			Summary: "a downturn cancels every project",
 			Effects: []Effect{
 				benefitRolls(-1, 0, ScopeBatch),
-				unimplemented("-1 to the next non-military enlistment roll"),
+				enlistmentPenalty(-1, "-1 to the next non-military enlistment roll",
+					enlistmentNarrowing{NotTags: []Tag{TagMilitary}}),
 			},
 		},
 		{

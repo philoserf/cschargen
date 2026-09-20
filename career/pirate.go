@@ -7,6 +7,7 @@ package career
 // book with an officer track.
 func Pirate() Career {
 	return Career{
+		Tags:         []Tag{TagCriminal, TagViolent},
 		Name:         "Pirate",
 		Cite:         "pp. 250-255",
 		Enlistment:   &Check{Characteristic: "INT", Number: 6},

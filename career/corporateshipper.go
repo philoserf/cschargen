@@ -18,6 +18,7 @@ func CorporateShipper() Career {
 	}
 
 	return Career{
+		Tags:           []Tag{TagCorporate},
 		Name:           "Corporate Shipper",
 		Cite:           "pp. 177-180",
 		Enlistment:     &Check{Characteristic: "INT", Number: 8},

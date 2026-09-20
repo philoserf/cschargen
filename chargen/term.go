@@ -35,7 +35,12 @@ func (g *Generator) chooseCareer(step int) (career.Career, bool, error) {
 
 		g.transfer = nil
 
-		found, ok := career.ByName(pending.Career)
+		name := pending.Career
+		if name == career.PreviousCareer {
+			name = g.previousCareerName()
+		}
+
+		found, ok := career.ByName(name)
 		if !ok {
 			// All thirty-four careers the book names are transcribed, so
 			// this is now a misspelled destination rather than a missing
@@ -91,6 +96,23 @@ func (g *Generator) chooseCareer(step int) (career.Career, bool, error) {
 	}
 
 	return eligible[index], false, nil
+}
+
+// previousCareerName is "the career you held before this one", which one
+// mishap sends a character back to. The service record is in order, so it
+// is the one before the last -- and with no such career the name is empty,
+// which chooseCareer reports as a destination it cannot find rather than
+// silently choosing one.
+func (g *Generator) previousCareerName() string {
+	services := g.char.State.Services
+
+	const beforeTheLast = 2
+
+	if len(services) < beforeTheLast {
+		return ""
+	}
+
+	return services[len(services)-beforeTheLast].Career
 }
 
 // ownedFirstCareer is p. 42's: "If an altrant or uplift character is born on
@@ -168,7 +190,17 @@ func (g *Generator) enlist(target career.Career) bool {
 		return true
 	}
 
-	mods := g.takeModifiers("next enlistment attempt")
+	// "You may enlist automatically", which several results grant and one
+	// narrows to a class of career.
+	if g.takeAutomaticFor(enlistmentThrow, target) {
+		g.failedEnlistments = 0
+		g.consequence(ConsequenceCareer, step,
+			"accepted into "+target.Name+" without a throw", target.Name)
+
+		return true
+	}
+
+	mods := g.takeModifiersFor(enlistmentThrow, target)
 
 	mods = append(mods, g.enlistmentMods(target, step)...)
 

@@ -160,7 +160,7 @@ func investigatorMishaps() MishapTable {
 				loseAllBenefits("lose every benefit roll from this career"),
 				newHomeworld(),
 				transfer("Prisoner", "Prisoner", 2),
-				unimplemented("on leaving prison, enter the Vagabond career"),
+				transfer("Vagabond", "", 0),
 			},
 		},
 	}

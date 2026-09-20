@@ -439,6 +439,30 @@ type Effect struct {
 	// result did not, and the engine supplies a default (ERRATA E-23).
 	Rating int
 
+	// OnTags, NotTags, OnCharacteristics and Standing narrow an
+	// [EffectModifier] that attaches to an enlistment throw.
+	//
+	// Twelve results modify an enlistment by the class of career being
+	// entered rather than by name: "-4 DM to enlist in any government
+	// related career", "-2 DM to enter any non-criminal career", "-2 DM to
+	// every enlistment roll that involves EDU". OnTags is the classes it
+	// applies to and NotTags the classes it does not;
+	// OnCharacteristics is the enlistment characteristics it applies to.
+	// An empty set means the modifier applies to every career, which is
+	// the ordinary case.
+	//
+	// Standing distinguishes "every career after this one" from "the next
+	// career": a standing modifier is not consumed by the throw it
+	// modifies. Several results print each, and the difference is the
+	// rest of a character's life.
+	// NotCareers names careers by name rather than by class, which one
+	// result does: "-2 DM to enter any career other than Vagabond".
+	OnTags            []Tag
+	NotTags           []Tag
+	NotCareers        []string
+	OnCharacteristics []string
+	Standing          bool
+
 	// Applies names the throw an [EffectModifier] attaches to.
 	Applies string
 

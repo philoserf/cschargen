@@ -21,6 +21,7 @@ package career
 // to its events. It uses National Navy's, for the reason in ERRATA.md.
 func SystemDefenceNavy() Career {
 	return Career{
+		Tags:           []Tag{TagMilitary, TagGovernment, TagViolent},
 		Name:           "System Defense Forces (Navy)",
 		Cite:           "pp. 278-281",
 		Enlistment:     &Check{Characteristic: "INT", Number: 6},
@@ -47,6 +48,7 @@ func SystemDefenceNavy() Career {
 // forces.
 func SystemDefenceTroopers() Career {
 	return Career{
+		Tags:           []Tag{TagMilitary, TagGovernment, TagViolent},
 		Name:           "System Defense Forces (Troopers)",
 		Cite:           "pp. 282-286",
 		Enlistment:     &Check{Characteristic: "END", Number: 8},
@@ -87,6 +89,7 @@ func SystemDefenceTroopers() Career {
 // -- so the prerequisite is recorded and not enforced.
 func SystemDefenceWetNavy() Career {
 	return Career{
+		Tags:           []Tag{TagMilitary, TagGovernment, TagViolent},
 		Name:           "System Defense Forces (Wet Navy)",
 		Cite:           "pp. 287-291",
 		Enlistment:     &Check{Characteristic: "END", Number: 8},

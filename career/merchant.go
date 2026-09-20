@@ -7,6 +7,7 @@ package career
 // characters here, and it was the last stubbed destination in the book.
 func IndependentMerchant() Career {
 	return Career{
+		Tags:         []Tag{TagBusiness},
 		Name:         "Independent Merchant",
 		Cite:         "pp. 207-211",
 		Enlistment:   &Check{Characteristic: "INT", Number: 7},

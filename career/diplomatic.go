@@ -8,6 +8,7 @@ package career
 // career reaches into rather than transfers to.
 func DiplomaticService() Career {
 	return Career{
+		Tags:           []Tag{TagGovernment},
 		Name:           "Diplomatic Service",
 		Cite:           "pp. 185-189",
 		Enlistment:     &Check{Characteristic: "EDU", Number: 7},
@@ -134,7 +135,8 @@ func diplomaticMishaps() MishapTable {
 						[]Effect{injury(1)}, []Effect{injury(3)})),
 					opt("Deception", checkSkill("Deception", 8,
 						[]Effect{injury(1)}, []Effect{injury(3)}))),
-				unimplemented("-2 to enlist in any government-related career"),
+				enlistmentPenalty(-2, "-2 to enlist in any government-related career",
+					enlistmentNarrowing{OnTags: []Tag{TagGovernment}, Standing: true}),
 			},
 		},
 		{Summary: "your ship crashes on landing", Effects: []Effect{injury(2)}},
@@ -144,7 +146,8 @@ func diplomaticMishaps() MishapTable {
 			Effects: []Effect{
 				injury(2),
 				transfer("Prisoner", "Prisoner", 2),
-				unimplemented("-4 to enlist in any government-related career"),
+				enlistmentPenalty(-4, "-4 to enlist in any government-related career",
+					enlistmentNarrowing{OnTags: []Tag{TagGovernment}, Standing: true}),
 			},
 		},
 	}
