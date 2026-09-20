@@ -313,3 +313,46 @@ A second, smaller slip runs across several tables: Scavenger event 26 (p. 267)
 and Exotic event 63 (p. 193) both say "Engineering (Any)" where the skill list
 (p. 304) has Engineer. The engine uses Engineer, because no skill named
 Engineering exists to grant.
+
+---
+
+## E-15 (reading) — two aging tables stop, and nothing is printed past them
+
+**Where:** the aging tables for tech level 11 and tech levels 12-13 (p. 122).
+
+Four human aging tables are printed. Two of them end on an open band — TL 9's
+last row is "12+", TL 10's is "49+" — and two do not. TL 11's last row is 49-58
+and TL 12-13's is 44-58, and the page prints nothing for a character past term
+58 on either.
+
+**Engine:** no check is made there. A TL 11 character who serves a 59th term
+makes no aging throw at all, which is what the page says rather than what it
+probably means.
+
+**If this is wrong:** the intended reading is almost certainly that the last
+band stays open, the way the other two tables' do, and a very long-lived
+character is being let off. That direction is the forgiving one — a character
+generated under this reading is never harmed by it — and it is reachable only
+past term 58, which no world in the sample setting data allows.
+
+---
+
+## E-16 (reading) — nothing is printed above tech level 13
+
+**Where:** the aging tables (pp. 122-123), against `setting`'s world schema.
+
+The tables are headed "Tech Level 9 or less", "Tech Level 10", "Tech Level 11"
+and "Tech Level 12-13". The setting data format accepts a world of any tech
+level up to 20, and the book's own setting reaches TL 13 but the schema does not
+stop there.
+
+**Engine:** a homeworld above TL 13 reads the TL 12-13 table.
+
+**Reasoning:** each band in the sequence delays the onset of aging and none of
+them abolishes it — TL 9 begins at term 6, TL 10 at 18, TL 11 at 33, TL 12-13 at 44. Reading the highest printed band forward continues that trend; reading
+"nothing printed" as "no aging" invents a rule the trend does not support, and
+would make a TL 14 homeworld strictly better than any the book describes.
+
+**If this is wrong:** a TL 14+ character ages slightly sooner than intended. No
+world in the sample setting data is above TL 12, so this is reachable only in a
+user-supplied file.

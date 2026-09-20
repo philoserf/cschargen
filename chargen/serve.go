@@ -421,13 +421,12 @@ func (g *Generator) rollEvent() error {
 	return g.applyAll(row.Effects, cause)
 }
 
-// age is Step 17 (p. 121) as far as this milestone goes: four years per
-// term, or 1d3 where a mishap ejected the character mid-term. The aging
-// throws themselves are milestone 4 -- they are indexed by term number and
-// gated by the homeworld's tech level (pp. 122-123), which is setting data
-// milestone 2 brings in.
+// age is Step 17 (pp. 121-123): four years per term, or 1d3 where a mishap
+// ejected the character mid-term, and then whatever aging throws the
+// homeworld's tech level has made due.
 func (g *Generator) age() error {
-	cause := g.log.Step("Step 17: Aging", "p. 121")
+	step := g.log.Step("Step 17: Aging", "p. 121")
+	cause := step
 
 	years := termYears
 
@@ -442,8 +441,47 @@ func (g *Generator) age() error {
 	g.char.State.Age += years
 	g.consequence(ConsequenceAge, cause, "age "+itoa(g.char.State.Age), "")
 
+	g.agingThrows(step)
+
 	return nil
 }
+
+// agingThrows is the aging table itself (pp. 122-123). Each check is an
+// ordinary characteristic check -- 2d6 plus that characteristic's own
+// modifier -- and failing one costs a point of it.
+//
+// The index is the character's lifetime term count, which is why this reads
+// len(State.Terms) rather than g.termsInCareer.
+func (g *Generator) agingThrows(step int) {
+	term := len(g.char.State.Terms)
+
+	checks, due := agingChecksAt(g.techLevel, term)
+	if !due {
+		return
+	}
+
+	g.consequence(ConsequenceAge, step,
+		"term "+itoa(term)+" on a tech level "+itoa(g.techLevel)+
+			" world: aging checks come due", "")
+
+	for _, check := range checks {
+		target := career.Check{Characteristic: check.Characteristic, Number: check.Number}
+		throw := g.characteristicThrow(target)
+
+		rolled := g.log.Roll(throw.Roll, agingCite)
+
+		if throw.Success {
+			continue
+		}
+
+		g.adjust(check.Characteristic, -1,
+			"aged: "+check.Characteristic+" "+itoa(check.Number)+"+ failed", rolled)
+	}
+}
+
+// agingCite is the page the aging tables are printed on. The step above is
+// cited to p. 121, where the step begins.
+const agingCite = "pp. 122-123"
 
 // characteristicThrow rolls 2d6 plus a characteristic's modifier against a
 // target, which is how every check in the book resolves (p. 110).

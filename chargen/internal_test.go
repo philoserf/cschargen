@@ -655,3 +655,111 @@ func expressionsIn(effects []career.Effect) []career.Effect {
 
 	return found
 }
+
+// TestTheAgingTablesMatchPages122And123 is a second reading of the four
+// human tables, typed independently of chargen/aging.go.
+//
+// The repetition is the mechanism, as it is in career/transcription_test.go:
+// two transcriptions that agree are evidence, and a constant shared between
+// them would be one reading wearing two hats. So this table is written as
+// the page prints it -- every characteristic on every row -- rather than
+// through threePhysical and its two siblings.
+func TestTheAgingTablesMatchPages122And123(t *testing.T) {
+	t.Parallel()
+
+	type row struct {
+		techLevel int
+		term      int
+		checks    string
+	}
+
+	// One string per row of pp. 122-123, read left to right.
+	rows := []row{
+		{9, 5, ""},
+		{9, 6, "STR 8+, DEX 8+, END 8+"},
+		{9, 8, "STR 8+, DEX 8+, END 8+"},
+		{9, 9, "STR 9+, DEX 9+, END 9+"},
+		{9, 10, "STR 9+, DEX 9+, END 9+"},
+		{9, 11, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{9, 12, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		{9, 40, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		{10, 17, ""},
+		{10, 18, "STR 8+, DEX 8+, END 8+"},
+		{10, 28, "STR 8+, DEX 8+, END 8+"},
+		{10, 29, "STR 9+, DEX 9+, END 9+"},
+		{10, 38, "STR 9+, DEX 9+, END 9+"},
+		{10, 39, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{10, 48, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{10, 49, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		{11, 32, ""},
+		{11, 33, "STR 8+, DEX 8+, END 8+"},
+		{11, 48, "STR 8+, DEX 8+, END 8+"},
+		{11, 49, "STR 9+, DEX 9+, END 9+"},
+		{11, 58, "STR 9+, DEX 9+, END 9+"},
+		// ERRATA E-15: TL 11 and TL 12-13 print no band past 58, where
+		// TL 9 and TL 10 each end on an open one.
+		{11, 59, ""},
+		{12, 43, ""},
+		{12, 44, "STR 8+, DEX 8+, END 8+"},
+		{12, 58, "STR 8+, DEX 8+, END 8+"},
+		{12, 59, ""},
+		{13, 44, "STR 8+, DEX 8+, END 8+"},
+		// ERRATA E-16: nothing is printed above TL 13, and the validator
+		// accepts up to TL 20.
+		{14, 44, "STR 8+, DEX 8+, END 8+"},
+		{20, 59, ""},
+	}
+
+	for _, want := range rows {
+		checks, due := agingChecksAt(want.techLevel, want.term)
+		got := ""
+
+		if due {
+			parts := make([]string, len(checks))
+			for i, check := range checks {
+				parts[i] = check.Characteristic + " " + itoa(check.Number) + "+"
+			}
+
+			got = strings.Join(parts, ", ")
+		}
+
+		if got != want.checks {
+			t.Errorf("TL %d term %d: %q, want %q",
+				want.techLevel, want.term, got, want.checks)
+		}
+	}
+}
+
+// TestNoAgingBandLeavesAGapOrOverlaps holds the property the rows above
+// only sample: within one tech level the bands are contiguous and ordered,
+// so no term falls between two of them and no term is covered twice.
+func TestNoAgingBandLeavesAGapOrOverlaps(t *testing.T) {
+	t.Parallel()
+
+	for _, techLevel := range []int{9, 10, 11, 12, 13, 14} {
+		bands := humanAging(techLevel)
+
+		for i, band := range bands {
+			if band.Through != 0 && band.Through < band.From {
+				t.Errorf("TL %d band %d: %d-%d runs backwards",
+					techLevel, i, band.From, band.Through)
+			}
+
+			if i == 0 {
+				continue
+			}
+
+			previous := bands[i-1]
+			if previous.Through == 0 {
+				t.Errorf("TL %d band %d is open and is not the last", techLevel, i-1)
+
+				continue
+			}
+
+			if band.From != previous.Through+1 {
+				t.Errorf("TL %d: band %d ends at %d and band %d starts at %d",
+					techLevel, i-1, previous.Through, i, band.From)
+			}
+		}
+	}
+}
