@@ -1,6 +1,34 @@
 # Milestone 7: finishing
 
-2026-09-20. Status: plan. Tracks [#38](https://github.com/philoserf/cschargen/issues/38).
+2026-09-20. Status: done. Tracks [#38](https://github.com/philoserf/cschargen/issues/38).
+
+## What it turned out to be
+
+Three PRs in the order planned, and the order was the point: interactive mode
+first, because Step 20 in auto mode is four empty fields and returning to
+education under the auto policy is one more thing the first option takes.
+
+Three things the plan did not know:
+
+1. **Step 20 needed a second interface.** A `Choice` is a list to pick from and
+   Step 20 has no lists, so `Asker` is a `Decider` that can also be asked an
+   open question. Only the interactive one implements it, which is what makes
+   "the engine invents none of them" fall out rather than being enforced.
+
+2. **`--skip-education` and a player's Step 18 answer disagree**, and the
+   answer wins. The flag says not to attempt education before Step 9; a player
+   who asks to return at Step 18 has said otherwise, later and more
+   specifically.
+
+3. **The end of input means different things in different places.** At a choice
+   it is an abandoned session and ends generation; at Step 20 it is an empty
+   answer and the character is finished. Step 20 is the last step and its
+   fields are allowed to be empty.
+
+No errata: none of this milestone is a rule the book states ambiguously. It is
+the tool around the rules.
+
+## The plan as filed
 
 The last milestone before the PRD's v1: Step 20, the interactive mode the PRD
 has promised since its second goal, batch generation, and the things earlier

@@ -113,6 +113,11 @@ type Generator struct {
 	// between (p. 66). Zero for anyone who is not one.
 	class int
 
+	// returning is set while a player's Step 18 answer is being carried
+	// out, so that Step 8 knows the return was asked for rather than
+	// defaulted into.
+	returning bool
+
 	// rollAsHuman is set by a hybrid outcome that sends the character back
 	// to the human characteristic method: "Roll characteristics as a
 	// human" (p. 63).
@@ -315,9 +320,69 @@ func (g *Generator) nextTerm() error {
 		return g.leaveCareer(step, "the sentence is served")
 	case g.mustContinue:
 		g.mustContinue = false
+
+		return nil
 	}
 
-	return nil
+	return g.mayReturnToEducation(step)
+}
+
+// mayReturnToEducation is one of the five things p. 125 lets a character
+// decide between terms: "continue in this career, change to a different
+// career, change to a different assignment within the same career, return
+// to higher education, or exit character generation."
+//
+// It is offered to a player and not to the policy. The policy takes the
+// first option every time, and the first option here would send every
+// character back to school after every term -- which is the policy being
+// unrefined rather than the rules being odd, and POLICY.md says so.
+func (g *Generator) mayReturnToEducation(step int) error {
+	// Only a player is asked. The policy takes the first option every
+	// time, and this is a choice the policy cannot make well.
+	_, interactive := g.decider.(Asker)
+	if !interactive {
+		return nil
+	}
+
+	score := g.characteristicScore()
+
+	open := false
+
+	for _, institution := range career.Institutions() {
+		if g.eligibleFor(institution, score) {
+			open = true
+
+			break
+		}
+	}
+
+	if !open {
+		return nil
+	}
+
+	chosen, err := g.choose(Choice{
+		Point:   "return_to_education",
+		Prompt:  "Return to higher education before the next term?",
+		Options: []string{"stay in the career", "return to higher education"},
+		Cite:    "p. 125",
+	})
+	if err != nil {
+		return err
+	}
+
+	if chosen == 0 {
+		return nil
+	}
+
+	err = g.leaveCareer(step, "returning to higher education")
+	if err != nil {
+		return err
+	}
+
+	g.returning = true
+	defer func() { g.returning = false }()
+
+	return g.higherEducation()
 }
 
 // leaveCareer ends the current service. Mustering out happens here, and

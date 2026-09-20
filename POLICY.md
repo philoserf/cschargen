@@ -86,6 +86,24 @@ That is the policy being unrefined rather than the rules being wrong: every one
 of those throws was made and could have failed. A player chooses to stop, and
 `--skip-education` is how a batch run says so.
 
+## Two choices the policy is not offered
+
+Step 18 lets a character "return to higher education" (p. 125) and Step 20
+asks for a name, a gender identity, an appearance and a goal (pp. 129-130).
+Neither is put to the auto policy at all.
+
+**Returning to education** would be a question every term, and the policy takes
+the first option — which would send every character back to school after every
+term, forever. So it is offered to a player and to nobody else.
+
+**Step 20's four fields** have no options to take the first of. FR12 says the
+engine "records them and leaves them empty rather than inventing them in auto
+mode", so an auto character's four fields are empty and the record says they
+were left that way rather than saying nothing.
+
+Both are the policy being unrefined rather than the rules being odd, and both
+are the kind of choice this document exists to be honest about.
+
 ## After an Aging Crisis
 
 A character who survives one "automatically fails all future Enlistment checks",

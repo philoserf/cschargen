@@ -44,15 +44,12 @@ func run(args []string, out *os.File) error {
 		return usagef("cschargen <command> [flags]\n\n%s", commands)
 	}
 
+	command, known := dispatch()[args[0]]
+	if known {
+		return command(args[1:], out)
+	}
+
 	switch args[0] {
-	case "new":
-		return newCommand(args[1:], out)
-	case "data":
-		return dataCommand(args[1:], out)
-	case "render":
-		return renderCommand(args[1:], out)
-	case "replay":
-		return replayCommand(args[1:], out)
 	case "version":
 		return versionCommand(out)
 	case "-h", "--help", "help":
@@ -62,13 +59,27 @@ func run(args []string, out *os.File) error {
 		}
 
 		return nil
-	default:
-		return usagef("unknown command %q\n\n%s", args[0], commands)
+	}
+
+	return usagef("unknown command %q\n\n%s", args[0], commands)
+}
+
+// dispatch is the commands that take arguments, which is all of them but
+// version and the help. It is a map rather than a switch because the switch
+// grew past the point where reading it told you anything the map does not.
+func dispatch() map[string]func([]string, *os.File) error {
+	return map[string]func([]string, *os.File) error{
+		"new":    newCommand,
+		"batch":  batchCommand,
+		"data":   dataCommand,
+		"render": renderCommand,
+		"replay": replayCommand,
 	}
 }
 
 const commands = `commands:
   new       generate a character
+  batch     generate several, as one JSON record per line
   data      validate a setting data file
   render    turn a record into a character sheet, or its lifepath
   replay    re-run a record from its seed and recorded choices

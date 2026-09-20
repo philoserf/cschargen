@@ -491,3 +491,107 @@ func holdsA(character *chargen.Character, degree career.Degree) bool {
 
 	return false
 }
+
+// TestAPlayerMayReturnToHigherEducation is one of the five things p. 125
+// lets a character decide between terms: "continue in this career, change
+// to a different career, change to a different assignment within the same
+// career, return to higher education, or exit character generation."
+//
+// It was deferred from milestone 5 with the reason that it is a choice only
+// a player can make well, and that is why it is offered to a player and not
+// to the policy.
+func TestAPlayerMayReturnToHigherEducation(t *testing.T) {
+	t.Parallel()
+
+	// A decider that declines education before Step 9 and takes it after,
+	// so the return is the only way this character goes to school.
+	returner := &returnToSchool{}
+
+	opts := options(t, 5)
+
+	opts.Decider = returner
+	opts.Inputs.TermLimit = 4
+	opts.Inputs.SkipEducation = true
+
+	character := generate(t, opts)
+
+	if len(character.State.Education) == 0 {
+		t.Fatal("a character who returned to education has no education")
+	}
+
+	// And they had a career before it, which is what makes it a return.
+	if len(character.State.Services) == 0 {
+		t.Error("they went back to school without ever leaving")
+	}
+}
+
+// TestThePolicyIsNotAskedToReturn. The policy takes the first option every
+// time, and being asked this one every term would send every character back
+// to school forever.
+func TestThePolicyIsNotAskedToReturn(t *testing.T) {
+	t.Parallel()
+
+	opts := options(t, 5)
+
+	opts.Inputs.TermLimit = 6
+
+	for _, event := range generate(t, opts).Events {
+		if event.Kind == chargen.EventChoice &&
+			event.Choice.Point == "return_to_education" {
+			t.Error("the auto policy was asked whether to return to education")
+		}
+	}
+}
+
+// returnToSchool answers every choice with the first option and says yes to
+// the one question this test is about.
+type returnToSchool struct{}
+
+func (returnToSchool) Choose(ask chargen.Choice) (int, error) {
+	if ask.Point == "return_to_education" {
+		return 1, nil
+	}
+
+	return 0, nil
+}
+
+func (returnToSchool) Kind() chargen.DeciderKind { return chargen.DeciderPlayer }
+
+func (returnToSchool) Ask(chargen.Question) (string, error) { return "", nil }
+
+// TestARefusedReturnEndsGeneration. The Step 18 question goes through the
+// Decider like every choice, and a refusal ends the run rather than
+// defaulting to staying in the career.
+func TestARefusedReturnEndsGeneration(t *testing.T) {
+	t.Parallel()
+
+	opts := options(t, 5)
+
+	opts.Decider = refuseReturn{}
+	opts.Inputs.TermLimit = 4
+
+	// Skipping Step 8 leaves the institutions open, so Step 18 has
+	// something to offer.
+	opts.Inputs.SkipEducation = true
+
+	_, err := chargen.New(opts).Run()
+	if err == nil {
+		t.Fatal("a refused question did not end generation")
+	}
+}
+
+// refuseReturn answers everything but the Step 18 question, which it
+// declines.
+type refuseReturn struct{}
+
+func (refuseReturn) Choose(ask chargen.Choice) (int, error) {
+	if ask.Point == "return_to_education" {
+		return 0, chargen.ErrPlayerGone
+	}
+
+	return 0, nil
+}
+
+func (refuseReturn) Kind() chargen.DeciderKind { return chargen.DeciderPlayer }
+
+func (refuseReturn) Ask(chargen.Question) (string, error) { return "", nil }
