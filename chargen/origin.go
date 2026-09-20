@@ -44,7 +44,23 @@ func (g *Generator) determineOrigin() error {
 				"which the engine cannot check until it records where a term was served")
 	}
 
-	return g.grantBackground(world, step)
+	err = g.grantBackground(world, step)
+	if err != nil {
+		return err
+	}
+
+	// Step 5 is optional in the book -- "Skipping this step can speed up
+	// character generation, but it may also deprive the character of
+	// potential Allies and Contacts" (p. 57) -- so the engine runs it and a
+	// flag turns it off.
+	if g.char.Provenance.Inputs.SkipFamily {
+		g.consequence(ConsequenceFamily, step,
+			"Step 5 skipped at the player's request (p. 57)", "")
+
+		return nil
+	}
+
+	return g.determineFamily(world)
 }
 
 // chooseSubsector is Step 3 (p. 39): "you start with rolling on the

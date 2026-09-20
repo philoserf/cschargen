@@ -30,6 +30,7 @@ func Sheet(character *chargen.Character) string {
 
 	writeSummary(&out, character)
 	writeOrigin(&out, character)
+	writeFamily(&out, character)
 	writeCharacteristics(&out, character)
 	writeSkills(&out, character)
 	writeCareers(&out, character)
@@ -76,6 +77,62 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 	}
 
 	fmt.Fprint(out, "\n")
+}
+
+// writeFamily prints what Step 5 established (pp. 57-61). The relatives
+// themselves are counted under Relationships with everyone else, because
+// that is where their Relationship Ratings are; this is the household they
+// came from.
+func writeFamily(out *strings.Builder, character *chargen.Character) {
+	family := character.State.Family
+	if family == nil {
+		return
+	}
+
+	out.WriteString("## Family\n\n")
+
+	fmt.Fprintf(out, "Born to %s", family.Situation)
+
+	if family.Detail != "" {
+		fmt.Fprintf(out, ": %s", family.Detail)
+	}
+
+	out.WriteString(".\n")
+
+	switch {
+	case family.Firstborn:
+		out.WriteString("The eldest child.\n")
+	case family.Lastborn:
+		out.WriteString("The youngest child.\n")
+	}
+
+	siblings := rolesOf(character, chargen.RoleSibling)
+	if len(siblings) == 0 {
+		out.WriteString("\nAn only child.\n\n")
+
+		return
+	}
+
+	out.WriteString("\n")
+
+	for _, sibling := range siblings {
+		fmt.Fprintf(out, "- A sibling, %s\n", sibling.Detail)
+	}
+
+	out.WriteString("\n")
+}
+
+// rolesOf is every family tie of one role, in the order they were gained.
+func rolesOf(character *chargen.Character, role string) []chargen.Tie {
+	var found []chargen.Tie
+
+	for _, tie := range character.State.Ties {
+		if tie.Role == role {
+			found = append(found, tie)
+		}
+	}
+
+	return found
 }
 
 // writeCharacteristics prints the six with their modifiers. The modifier is
@@ -203,13 +260,30 @@ func writeTies(out *strings.Builder, character *chargen.Character) {
 }
 
 // joinRatings renders a kind's Relationship Ratings, sorted so the sheet
-// reads the same way twice running.
+// reads the same way twice running and grouped so that a family of twelve
+// does not print the same number seven times.
 func joinRatings(ratings []int) string {
 	sorted := slices.Sorted(slices.Values(ratings))
 
-	parts := make([]string, len(sorted))
+	var (
+		parts []string
+		run   int
+	)
+
 	for i, rating := range sorted {
-		parts[i] = strconv.Itoa(rating)
+		run++
+
+		if i+1 < len(sorted) && sorted[i+1] == rating {
+			continue
+		}
+
+		part := strconv.Itoa(rating)
+		if run > 1 {
+			part += " x" + strconv.Itoa(run)
+		}
+
+		parts = append(parts, part)
+		run = 0
 	}
 
 	return strings.Join(parts, ", ")

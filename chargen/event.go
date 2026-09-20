@@ -87,6 +87,7 @@ const (
 	ConsequenceRank           ConsequenceKind = "rank"
 	ConsequenceCareer         ConsequenceKind = "career"
 	ConsequenceHomeworld      ConsequenceKind = "homeworld"
+	ConsequenceFamily         ConsequenceKind = "family"
 	ConsequenceAge            ConsequenceKind = "age"
 	ConsequenceModifier       ConsequenceKind = "modifier"
 	ConsequenceUnimplemented  ConsequenceKind = "unimplemented"

@@ -1,6 +1,11 @@
 package setting
 
-import "fmt"
+import (
+	"fmt"
+	"maps"
+	"slices"
+	"strings"
+)
 
 // The bounds a world's numbers must fall inside. They are wide on purpose:
 // the file is a transcription, and the validator's job is to catch a typo
@@ -181,6 +186,16 @@ func validateWorld(world World, where string, species map[string]bool) []string 
 		problems = append(problems, where+": no primaryLanguages; every homeworld lists one (p. 41)")
 	}
 
+	// A birth situation that is forced has to be one of the three the chart
+	// prints (p. 58), because nothing downstream knows what else to do with
+	// it: a world that named a fourth would silently generate a household
+	// with no parents in it.
+	if forced := world.BirthSituationOnly; forced != "" && !BirthSituations[forced] {
+		problems = append(problems, fmt.Sprintf(
+			"%s: birthSituationOnly %q; the chart of p. 58 prints only %s",
+			where, forced, joinSituations()))
+	}
+
 	problems = append(problems, validateRequirements(world.BackgroundSkills, where)...)
 	problems = append(problems, validatePermission(world.Engineered, where+", engineered", species)...)
 	problems = append(problems, validatePermission(world.Uplifts, where+", uplifts", species)...)
@@ -279,4 +294,23 @@ func validateCoverage(sub Subsector, where string) []string {
 
 	return []string{fmt.Sprintf(
 		"%s: %d d100 results land on no world, the first being %d", where, len(gaps), gaps[0])}
+}
+
+// BirthSituations is the three results the Human Birth Situation chart
+// prints (p. 58). A world may force one of them and no others.
+//
+// The strings are the engine's, not the book's headings: they are what a
+// record says a character was born to, so the data file and the engine have
+// to agree on them.
+var BirthSituations = map[string]bool{
+	"a communal group":      true,
+	"a same sex couple":     true,
+	"a heterosexual couple": true,
+}
+
+// joinSituations names the three in a stable order, for an error message.
+func joinSituations() string {
+	names := slices.Sorted(maps.Keys(BirthSituations))
+
+	return strings.Join(names, ", ")
 }

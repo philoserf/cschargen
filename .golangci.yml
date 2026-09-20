@@ -136,6 +136,15 @@ linters:
       - linters: [mnd]
         path: chargen/aging\.go
 
+      # 35 findings, the same argument again. chargen/family.go is Step 5
+      # transcribed: "1d6-1 (minimum 1) fathers", "2d6-4 (minimum 4)
+      # parents", "15 x 1d10" at tech level 10, and the boundaries of the
+      # birth situation chart. Every constant is the cell it sits in, and
+      # the ones that recur -- 1, 2, 4, 6 -- recur because arithmetic does,
+      # not because they mean the same thing.
+      - linters: [mnd]
+        path: chargen/family\.go
+
       # 27 findings, every one a skill name, a table heading or a mishap
       # summary that recurs because the book prints it in several places.
       # Collapsing a repeated cell into a constant is exactly the coupling

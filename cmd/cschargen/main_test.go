@@ -598,3 +598,39 @@ func TestNewWithASettingFileThatIsNotThere(t *testing.T) {
 		t.Fatal("a missing setting file was accepted")
 	}
 }
+
+// TestSkipFamilyReachesTheRecord. Step 5 is optional in the book (p. 57)
+// and the flag is how a player says so, so it has to reach the Inputs the
+// record stamps rather than stopping at the flag set.
+func TestSkipFamilyReachesTheRecord(t *testing.T) {
+	t.Parallel()
+
+	out, err := capture(t, cmdNew, "--auto", "--seed", "3", "--terms", "1", "--skip-family")
+	if err != nil {
+		t.Fatalf("new: %v", err)
+	}
+
+	var record struct {
+		Provenance struct {
+			Inputs struct {
+				SkipFamily bool `json:"skipFamily"`
+			} `json:"inputs"`
+		} `json:"provenance"`
+		State struct {
+			Family *struct{} `json:"family"`
+		} `json:"state"`
+	}
+
+	err = json.Unmarshal([]byte(out), &record)
+	if err != nil {
+		t.Fatalf("decoding the record: %v", err)
+	}
+
+	if !record.Provenance.Inputs.SkipFamily {
+		t.Error("the record does not say the family step was skipped")
+	}
+
+	if record.State.Family != nil {
+		t.Error("the family step ran although --skip-family was given")
+	}
+}

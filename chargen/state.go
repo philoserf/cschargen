@@ -27,8 +27,19 @@ func (s Skill) Full() string {
 // Life Events table writes to (ERRATA E-5).
 type Tie struct {
 	Kind   string `json:"kind"`
-	Origin string `json:"origin"` // the career the tie came from
+	Origin string `json:"origin"` // the career the tie came from, or "family"
 	Rating int    `json:"rating"`
+
+	// Role is what a family tie is to the character -- "parent", "sibling",
+	// "grandparent", "aunt or uncle", "cousin" -- and is what lets the
+	// youth tables aim at one: "Choose one of your parents and that parent
+	// will leave your life" (Youth Path 1 result 5, p. 68). Empty on a tie
+	// from a career.
+	Role string `json:"role,omitempty"`
+
+	// Detail is the sentence the sheet prints: "mother", "older brother, 4
+	// years". Step 5 is the only thing that fills it.
+	Detail string `json:"detail,omitempty"`
 }
 
 // Injury is one result of the Injury table (p. 119). Permanent is set at
@@ -97,6 +108,11 @@ type State struct {
 	Terms           []Term          `json:"terms,omitempty"`
 	Benefits        []BenefitBatch  `json:"benefits,omitempty"`
 	Age             int             `json:"age"`
+
+	// Family is what Step 5 established about where the character came
+	// from (pp. 57-61). The relatives themselves are Ties with an Origin of
+	// "family"; this is the shape of the household around them.
+	Family *Family `json:"family,omitempty"`
 
 	// ApparentAge is the band of p. 125, stamped at each Step 17 because it
 	// is derived from the homeworld's tech level -- which the renderer does
