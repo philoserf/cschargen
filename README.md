@@ -14,7 +14,7 @@ Enterprises.
 
 ## Status
 
-**v0.1.0-alpha.1** — all twenty steps, all thirty-four careers, and every
+**v0.1.0-alpha.2** — all twenty steps, all thirty-four careers, and every
 species a setting data file declares.
 
 `docs/PRD.md` is the v1 contract; the seven `docs/MILESTONE-*.md` files are what
@@ -26,9 +26,12 @@ readings in `ERRATA.md` are one person's reading of a book published this year.
 A record made now replays under a later version or refuses; the schema is
 versioned and so is the policy.
 
-**151 results are recorded rather than resolved** — the engine says what it could
-not carry out instead of quietly doing something else. See
-[#42](https://github.com/philoserf/cschargen/issues/42).
+**Sixty results are recorded rather than resolved** — the engine says what it
+could not carry out instead of quietly doing something else. That was 387 at
+alpha.1; [#42](https://github.com/philoserf/cschargen/issues/42) is the pass that
+closed the rest, and ERRATA E-41 to E-43 name why these remain: a map of the
+sector the setting data does not carry, five results that send a character back
+through the steps, and eight outcomes that are the referee's.
 
 ```sh
 cschargen data validate setting.json        # check your own setting data

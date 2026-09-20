@@ -1,6 +1,31 @@
 # Changelog
 
-## Unreleased
+## v0.1.0-alpha.2 — 2026-09-20
+
+One pass, in twelve parts: [#42](https://github.com/philoserf/cschargen/issues/42),
+the results the engine recorded rather than resolved. **387 occurrences of "the
+engine could not carry this out" became 60**, and 190 distinct results became 51.
+
+Five of them turned out to be bugs rather than gaps, and three new gate tests
+exist because of what they showed — a corpus this size hides a silent modifier
+well.
+
+### Breaking
+
+- **Record schema 1 → 2.** `stash` is a list of possessions rather than a list of
+  names, because a possession may carry the value the book rolled for it. `replay`
+  refuses a version-1 record, which is what the version is for: **a character
+  generated under alpha.1 will not replay.** Regenerate from the seed instead —
+  the record carries it, and the sheet prints it.
+- **Policy version 0.1.0 → 0.2.0.** `POLICY.md` now carries a row for every one of
+  the twenty-eight choice points the engine offers, where it had nine. Two of them
+  are not "the first option printed" and say why. A test holds the document to the
+  source both ways, because the document's own rule — "a row here and no code is as
+  wrong as code and no row" — went twelve pull requests without being honoured,
+  which is what a rule with nothing checking it does.
+
+  A record made under 0.1.0 still replays: replay reapplies recorded choices and
+  never asks the policy.
 
 ### Resolved rather than recorded
 
@@ -301,11 +326,6 @@ E-11, E-12 and E-13 cover their own.
 - An instant promotion from an event granted the rank and none of its benefits.
 - A character could hold both Gambler and Gambling, or both Melee (Unarmed) and
   Melee (Unarmed Combat), as separate skills.
-
-### Changed
-
-- **Record schema 1 → 2.** `stash` is a list of possessions rather than a list
-  of names. `replay` refuses a version-1 record, which is what it is for.
 
 ## v0.1.0-alpha.1 — 2026-09-20
 
