@@ -96,7 +96,7 @@ func sdfNavyEvents() EventTable {
 		},
 		26: {
 			Summary: "a strict new commander, and you pull through",
-			Effects: []Effect{unimplemented("raise a skill the character already holds")},
+			Effects: []Effect{raiseHeldSkill()},
 		},
 		51: {Summary: "quiet years, and a great deal of deskwork", Effects: []Effect{skill("Admin")}},
 		52: {
@@ -171,7 +171,7 @@ func sdfNavyEvents() EventTable {
 			Summary: "extremely talented in your field",
 			Effects: []Effect{pick("what the talent earned",
 				opt("a level in a skill you already have",
-					unimplemented("raise a skill the character already holds")),
+					raiseHeldSkill()),
 				opt("an automatic advancement", advance()))},
 		},
 		66: {

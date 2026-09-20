@@ -155,7 +155,7 @@ func prisonerEvents() EventTable {
 		65: {
 			Summary: "you have worked hard",
 			Effects: []Effect{pick("what the work earned",
-				opt("a level in a skill you already have", unimplemented("raise a skill the character already holds")),
+				opt("a level in a skill you already have", raiseHeldSkill()),
 				opt("a promotion", Effect{Kind: EffectRank, Detail: "gain a rank"}),
 			)},
 		},

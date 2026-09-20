@@ -257,7 +257,7 @@ func orbitalEvents() EventTable {
 		},
 		64: {
 			Summary: "honing your skillset",
-			Effects: []Effect{unimplemented("raise a skill the character already holds")},
+			Effects: []Effect{raiseHeldSkill()},
 		},
 		65: {
 			Summary: "a superior sets out to groom you for higher things",

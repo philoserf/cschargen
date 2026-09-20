@@ -120,7 +120,7 @@ func belterEvents() EventTable {
 		},
 		62: {
 			Summary: "honing your skillset",
-			Effects: []Effect{unimplemented("raise a skill the character already holds")},
+			Effects: []Effect{raiseHeldSkill()},
 		},
 		63: {
 			Summary: "a tunnel collapse with your friends trapped inside",

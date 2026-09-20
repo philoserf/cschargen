@@ -228,7 +228,7 @@ func wetNavyEvents() EventTable {
 		},
 		23: {
 			Summary: "placed in charge of communications",
-			Effects: []Effect{skill("Electronics", "Communications")},
+			Effects: []Effect{skill("Electronics", "Comms")},
 		},
 		51: {
 			Summary: "rules and regulations, military and civilian",

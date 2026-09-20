@@ -50,7 +50,7 @@ func navyEvents() EventTable {
 		},
 		23: {
 			Summary: "a strict new commander, and you pull through",
-			Effects: []Effect{unimplemented("raise a skill the character already holds")},
+			Effects: []Effect{raiseHeldSkill()},
 		},
 		24: {
 			Summary: "your ship joins an exploration expedition",
@@ -177,7 +177,7 @@ func navyEvents() EventTable {
 				benefitRolls(0, 1, ScopeCareer),
 				pick("what the talent earned",
 					opt("a level in a skill you already have",
-						unimplemented("raise a skill the character already holds")),
+						raiseHeldSkill()),
 					opt("a promotion", Effect{Kind: EffectRank, Detail: "gain a rank"})),
 			},
 		},

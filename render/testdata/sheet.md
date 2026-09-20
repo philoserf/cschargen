@@ -26,7 +26,7 @@ The youngest child.
 
 ## Skills
 
-Admin (Any)-1, Advocate (Any)-1, Carouse-0, Electronics-0, Gambling-1, Melee (Blade)-1, Persuade-0, Recon-1, Stealth-0, Streetwise-0, Survival (Any)-1
+Admin (Any)-1, Advocate (Any)-1, Carouse-0, Electronics-0, Gambler-1, Melee (Blade)-1, Persuade-0, Recon-1, Stealth-0, Streetwise-0, Survival (Any)-1
 
 ## Career history
 

@@ -141,3 +141,167 @@ func TestTheMilitaryEventsTableIsAnElevenRowTable(t *testing.T) {
 		}
 	}
 }
+
+// TestEveryTranscribedSkillIsOnTheList walks every effect in the corpus
+// and holds the skill it names against the list of pp. 304-314. A name
+// that is not on it is either a typo in the transcription or a typo in the
+// book, and the two are told apart by reading the page -- which is how
+// ERRATA E-35 came to exist.
+func TestEveryTranscribedSkillIsOnTheList(t *testing.T) {
+	t.Parallel()
+
+	named := map[string]bool{}
+	collect(everyEffect(), named)
+
+	if len(named) == 0 {
+		t.Fatal("no effect in the corpus names a skill")
+	}
+
+	for name := range named {
+		_, found := SkillByName(name)
+		if !found {
+			t.Errorf("%q is named by a table and is not on the skill list", name)
+		}
+	}
+}
+
+// TestEveryTranscribedSpecialtyIsOnItsSkill holds the specialties too. A
+// specialty of "Any" is the book's own word for "choose one", and is not a
+// specialty.
+func TestEveryTranscribedSpecialtyIsOnItsSkill(t *testing.T) {
+	t.Parallel()
+
+	for _, effect := range everyEffect() {
+		if effect.Kind != EffectSkill || effect.Skill == "" {
+			continue
+		}
+
+		definition, found := SkillByName(effect.Skill)
+		if !found {
+			continue
+		}
+
+		if definition.Open {
+			continue
+		}
+
+		for _, specialty := range effect.Specialties {
+			if specialty == "Any" || slices.Contains(definition.Specialties, specialty) {
+				continue
+			}
+
+			t.Errorf("%s (%s) is not a specialty the book prints for %s",
+				effect.Skill, specialty, effect.Skill)
+		}
+	}
+}
+
+// collect gathers the skill names an effect tree mentions.
+func collect(effects []Effect, into map[string]bool) {
+	for _, effect := range effects {
+		if effect.Kind == EffectSkill && effect.Skill != "" {
+			into[effect.Skill] = true
+		}
+
+		collect(effect.Success, into)
+		collect(effect.Failure, into)
+		collect(effect.Group, into)
+		collect(effect.Fallback, into)
+
+		for _, option := range effect.Options {
+			collect(option.Effects, into)
+		}
+	}
+}
+
+// everyEffect is every effect in every transcribed table.
+func everyEffect() []Effect {
+	found := make([]Effect, 0, 4096)
+
+	for _, def := range All() {
+		for _, row := range def.Mishaps {
+			found = append(found, row.Effects...)
+		}
+
+		for _, row := range def.Events {
+			found = append(found, row.Effects...)
+		}
+
+		for _, benefit := range def.Benefits {
+			found = append(found, benefit.Other)
+		}
+
+		for _, table := range def.Tables {
+			found = append(found, table.Rows[:]...)
+		}
+
+		for _, assignment := range def.Assignments {
+			found = append(found, assignment.Skills.Rows[:]...)
+
+			for _, rank := range assignment.Ranks {
+				found = append(found, rank...)
+			}
+
+			for _, rank := range assignment.OfficerRanks {
+				found = append(found, rank...)
+			}
+		}
+	}
+
+	for _, row := range LifeEvents() {
+		found = append(found, row.Effects...)
+	}
+
+	for _, row := range MilitaryEvents() {
+		found = append(found, row.Effects...)
+	}
+
+	for _, rows := range [][]EventRow{
+		YouthLifeEvents(), TeenageLifeEvents(),
+		EnslavedYouth().Rows, EnslavedTeenage().Rows,
+	} {
+		for _, row := range rows {
+			found = append(found, row.Effects...)
+		}
+	}
+
+	for _, path := range YouthPaths() {
+		for _, row := range path.Rows {
+			found = append(found, row.Effects...)
+		}
+	}
+
+	for _, path := range TeenagePaths() {
+		for _, row := range path.Rows {
+			found = append(found, row.Effects...)
+		}
+	}
+
+	for _, institution := range Institutions() {
+		found = append(found, institution.Skills...)
+
+		for _, row := range institution.Failure {
+			found = append(found, row.Effects...)
+		}
+
+		for _, rows := range [][]EventRow{institution.Events, institution.LifeEvents} {
+			for _, row := range rows {
+				found = append(found, row.Effects...)
+			}
+		}
+	}
+
+	return found
+}
+
+// TestSkillByNameFindsNothingForAName holds the miss: a name the list does
+// not carry is reported as absent rather than returned as an empty entry
+// the caller might use.
+func TestSkillByNameFindsNothingForAName(t *testing.T) {
+	t.Parallel()
+
+	_, found := SkillByName("Sabotage")
+	if found {
+		t.Error("a skill the book does not print was found on the list")
+	}
+}

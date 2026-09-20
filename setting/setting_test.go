@@ -118,6 +118,8 @@ const (
 	keyLanguages  = "primaryLanguages"
 	keyAllowed    = "allowed"
 	keyOneOf      = "oneOf"
+	keySkill      = "skill"
+	keyBackground = "backgroundSkills"
 	keyEngineered = "engineered"
 	statusFree    = "free"
 	keyStatus     = "status"
@@ -230,7 +232,7 @@ type brokenFile struct {
 }
 
 func brokenFiles() []brokenFile {
-	return []brokenFile{
+	return append([]brokenFile{
 		{name: "a schema version this build does not read", breakIt: func(m map[string]any) {
 			m["schemaVersion"] = 99
 		}, want: "schemaVersion"},
@@ -269,19 +271,41 @@ func brokenFiles() []brokenFile {
 				keyAllowed: true, keyStatus: statusFree, "banned": []string{"Nobody"},
 			}
 		}, want: "not in the species list"},
+	}, brokenBackgroundSkills()...)
+}
+
+// brokenBackgroundSkills is the background-skill half of brokenFiles,
+// separate because a table of cases grows and a function does not have to.
+func brokenBackgroundSkills() []brokenFile {
+	return []brokenFile{
 		{name: "a background skill offering nothing", breakIt: func(m map[string]any) {
-			world(m)["backgroundSkills"] = []any{map[string]any{keyOneOf: []any{}}}
+			world(m)[keyBackground] = []any{map[string]any{keyOneOf: []any{}}}
 		}, want: "offers no alternatives"},
 		{name: "a background alternative that is neither", breakIt: func(m map[string]any) {
-			world(m)["backgroundSkills"] = []any{
+			world(m)[keyBackground] = []any{
 				map[string]any{keyOneOf: []any{map[string]any{}}},
 			}
 		}, want: "neither a skill nor an item"},
 		{name: "an item with specialties", breakIt: func(m map[string]any) {
-			world(m)["backgroundSkills"] = []any{map[string]any{keyOneOf: []any{
+			world(m)[keyBackground] = []any{map[string]any{keyOneOf: []any{
 				map[string]any{"item": "a thing", "specialties": []string{"Any"}},
 			}}}
 		}, want: "item with specialties"},
+		{name: "both a skill and an item", breakIt: func(m map[string]any) {
+			world(m)[keyBackground] = []any{map[string]any{keyOneOf: []any{
+				map[string]any{keySkill: "Recon", "item": "a thing"},
+			}}}
+		}, want: "both a skill and an item"},
+		{name: "a skill the book does not print", breakIt: func(m map[string]any) {
+			world(m)[keyBackground] = []any{map[string]any{keyOneOf: []any{
+				map[string]any{keySkill: "Gambling"},
+			}}}
+		}, want: "not a skill the book prints"},
+		{name: "a specialty the book does not print", breakIt: func(m map[string]any) {
+			world(m)[keyBackground] = []any{map[string]any{keyOneOf: []any{
+				map[string]any{keySkill: "Melee", "specialties": []string{"Unarmed"}},
+			}}}
+		}, want: "not a specialty the book prints"},
 	}
 }
 

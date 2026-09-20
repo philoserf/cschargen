@@ -141,7 +141,7 @@ func slaveEvents() EventTable {
 		// Unarmed.
 		54: {
 			Summary: "fights breaking out among your group, often enough to learn from",
-			Effects: []Effect{skill("Melee", "Unarmed")},
+			Effects: []Effect{skill("Melee", "Unarmed Combat")},
 		},
 		55: {Summary: "getting very sneaky", Effects: []Effect{skill("Stealth")}},
 		56: {

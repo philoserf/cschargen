@@ -13,7 +13,7 @@ func youthPathOne() []EventRow {
 			Summary: "a year without adequate food or medication",
 			Effects: []Effect{
 				chr("STR", -1), chr("END", 1),
-				unimplemented("a level in a Survival specialty available on the homeworld"),
+				homeworldSpecialty("Survival"),
 			},
 		},
 		{
@@ -36,7 +36,7 @@ func youthPathOne() []EventRow {
 				ratingOfRole("parent", false, -50),
 				pick("choose how you answered it",
 					opt("Discipline", skill("Discipline")),
-					opt("Melee (Unarmed)", skill("Melee", "Unarmed"))),
+					opt("Melee (Unarmed)", skill("Melee", "Unarmed Combat"))),
 				chr("CHA", -1),
 			},
 		},

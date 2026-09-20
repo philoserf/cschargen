@@ -167,7 +167,7 @@ func fortunateYouth() EventRow {
 		Summary: "teenage years shaped by support, success and belonging",
 		Effects: []Effect{
 			chr("CHA", 1), chr("EDU", 1),
-			unimplemented("a level in any skill the character chooses"),
+			anySkill(),
 		},
 	}
 }
@@ -249,7 +249,7 @@ func opportunityKnocks() EventRow {
 // the choice is over whatever the character holds, which is not a list any
 // table prints.
 func aSkillYouAlreadyHave() Effect {
-	return unimplemented("a level in any skill the character already possesses")
+	return raiseHeldSkill()
 }
 
 // anyCharacteristic is "+1 to any of your Characteristics".

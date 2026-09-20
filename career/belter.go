@@ -121,7 +121,7 @@ func belterMishaps() MishapTable {
 		},
 		{
 			Summary: "a tunnel collapse, a slow rescue, and a claustrophobia that lasts",
-			Effects: []Effect{unimplemented("lose every level of Suit (Vacc Suit)")},
+			Effects: []Effect{loseSkill("Suit", "Vacc Suit")},
 		},
 		{
 			Summary: "an accident sets you adrift, and the psychological damage is permanent",

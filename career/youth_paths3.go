@@ -127,7 +127,7 @@ func youthPathFour() []EventRow {
 			Summary: "intelligence that created opportunity, and a step ahead",
 			Effects: []Effect{
 				chr("INT", 1), chr("EDU", 1),
-				unimplemented("any skill at level 1 which the character does not already hold"),
+				anySkillNotHeld(),
 			},
 		},
 	}

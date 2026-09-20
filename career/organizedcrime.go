@@ -40,7 +40,7 @@ func OrganizedCrime() Career {
 				Advancement: Check{Characteristic: "INT", Number: 8},
 				Skills: SkillTable{Kind: AssignmentSkills, Name: "Enforcer", Rows: [6]Effect{
 					skill("Broker"), skill("Persuade"), skill("Streetwise"),
-					skill("Gun Combat", "Any Pistol"), skill("Melee", "Any"), skill("Recon"),
+					skill("Gun Combat", "Slug Pistol", "Energy Pistol"), skill("Melee", "Any"), skill("Recon"),
 				}},
 				Ranks: [][]Effect{
 					{skill("Streetwise")},

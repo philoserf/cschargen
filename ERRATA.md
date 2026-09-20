@@ -832,3 +832,41 @@ it says without the clause before it having changed its input, and the only one
 that keeps a single result from moving one relationship from hatred to devotion.
 A changed tie takes the middle of its new band, for the reason given in E-23: a
 change of kind is not a change of rating, and the book supplies no number.
+
+---
+
+## E-35 (typo) — skill names the book writes two ways
+
+**Where:** the skill list (pp. 304–314), against the career, youth and teenage
+tables that name skills.
+
+The list is the book's own reference, reprinted "for the convenience of players
+and Referees creating characters". Several tables name a skill or specialty in a
+form the list does not use, and an engine that takes both at face value gives a
+character two skills where the book means one.
+
+| A table writes          | The list writes            |
+| ----------------------- | -------------------------- |
+| Gambling                | Gambler                    |
+| Melee (Unarmed)         | Melee (Unarmed Combat)     |
+| Gunner (Turret)         | Gunner (Turrets)           |
+| Electronics (Comms)     | Electronics (Comms)¹       |
+| Tactics (Military)      | Military Tactics           |
+| Gun Combat (Any Pistol) | Slug Pistol, Energy Pistol |
+
+¹ The list heads the entry "Communications ('Comms')" and gives both; the tables
+use the short form, which is the one recorded.
+
+**Engine:** the list is canonical for the skill name, and for the specialty the
+form the tables use — "Tactics (Military)" rather than "Tactics (Military
+Tactics)", which is what the heading expands to inside the parentheses. "Gun
+Combat (Any Pistol)" is transcribed as the choice the book itself writes
+elsewhere, "Slug Pistol or Energy Pistol".
+
+`TestEveryTranscribedSkillIsOnTheList` and `TestEveryTranscribedSpecialtyIsOnItsSkill`
+hold the whole corpus against the list, so a name that drifts is a failed gate
+rather than a second skill on a sheet. The same mistake can arrive from outside the
+engine, in a setting file's background skills, so `data validate` holds those
+against the list too — which caught `Gun Combat (Slug)` in this repository's own
+sample data the first time it ran. Science, Trade and Language are exempt from the
+specialty check: the book says their lists are examples, "by no means a full list".

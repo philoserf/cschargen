@@ -5,6 +5,8 @@ import (
 	"maps"
 	"slices"
 	"strings"
+
+	"github.com/philoserf/cschargen/career"
 )
 
 // The bounds a world's numbers must fall inside. They are wide on purpose:
@@ -372,6 +374,61 @@ func validateWorld(world World, where string, species map[string]bool) []string 
 	return problems
 }
 
+// validateSkillName holds a background skill against the book's own list
+// (pp. 304-314). The engine keys a character's skills by name, so a file
+// that writes "Gambling" where the book writes "Gambler" gives that
+// character two skills where the book means one -- which is the same
+// mistake ERRATA E-35 records inside the engine, arriving from outside it.
+//
+// Science, Trade and Language take any specialty: the book says their lists
+// are examples, "by no means a full list".
+func validateSkillName(alternative Alternative, where string) []string {
+	definition, found := career.SkillByName(alternative.Skill)
+	if !found {
+		return []string{fmt.Sprintf("%s: %q is not a skill the book prints (pp. 304-314)",
+			where, alternative.Skill)}
+	}
+
+	if definition.Open {
+		return nil
+	}
+
+	var problems []string
+
+	for _, specialty := range alternative.Specialties {
+		if specialty == anySpecialty || slices.Contains(definition.Specialties, specialty) {
+			continue
+		}
+
+		problems = append(problems, fmt.Sprintf(
+			"%s: %q is not a specialty the book prints for %s (pp. 304-314)",
+			where, specialty, alternative.Skill))
+	}
+
+	return problems
+}
+
+// anySpecialty is the book's own word for "choose one", and is not the name
+// of a specialty.
+const anySpecialty = "Any"
+
+// validateAlternative is one "or" branch of a background skill: a skill or
+// an item, never both and never neither.
+func validateAlternative(alternative Alternative, where string) []string {
+	switch {
+	case alternative.Skill == "" && alternative.Item == "":
+		return []string{where + " names neither a skill nor an item"}
+	case alternative.Skill != "" && alternative.Item != "":
+		return []string{where + " names both a skill and an item"}
+	case alternative.Item != "" && len(alternative.Specialties) > 0:
+		return []string{where + " is an item with specialties"}
+	case alternative.Item != "":
+		return nil
+	}
+
+	return validateSkillName(alternative, where)
+}
+
 func validateRequirements(requirements []Requirement, where string) []string {
 	var problems []string
 
@@ -384,16 +441,8 @@ func validateRequirements(requirements []Requirement, where string) []string {
 		}
 
 		for j, alternative := range requirement.OneOf {
-			at := fmt.Sprintf("%s: background skill %d, alternative %d", where, i, j)
-
-			switch {
-			case alternative.Skill == "" && alternative.Item == "":
-				problems = append(problems, at+" names neither a skill nor an item")
-			case alternative.Skill != "" && alternative.Item != "":
-				problems = append(problems, at+" names both a skill and an item")
-			case alternative.Item != "" && len(alternative.Specialties) > 0:
-				problems = append(problems, at+" is an item with specialties")
-			}
+			problems = append(problems, validateAlternative(alternative,
+				fmt.Sprintf("%s: background skill %d, alternative %d", where, i, j))...)
 		}
 	}
 

@@ -64,7 +64,7 @@ func vagabondEvents() EventTable {
 		},
 		43: {
 			Summary: "a game of dice among the locals",
-			Effects: []Effect{skill("Gambling")},
+			Effects: []Effect{skill("Gambler")},
 		},
 		44: {Summary: "you learn to notice what is out of place", Effects: []Effect{skill("Recon")}},
 		45: {

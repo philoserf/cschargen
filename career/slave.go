@@ -32,7 +32,7 @@ func Slave() Career {
 			{Kind: ServiceSkills, Name: "Service Skills", Rows: [6]Effect{
 				skill("Athletics", "Any"), skill("Deception", "Any"),
 				skill("Animals", "Farming"), skill("Survival", "Any"),
-				skill("Melee", "Unarmed"), skill("Persuade"),
+				skill("Melee", "Unarmed Combat"), skill("Persuade"),
 			}},
 		},
 		Benefits: [7]BenefitRow{
@@ -80,11 +80,11 @@ func slaveAssignments() []Assignment {
 			Survival:    Check{Characteristic: "STR", Number: 8},
 			Advancement: Check{Characteristic: "INT", Number: 8},
 			Skills: SkillTable{Kind: AssignmentSkills, Name: "Military/Security", Rows: [6]Effect{
-				skill("Stealth"), skill("Recon"), skill("Melee", "Unarmed"),
+				skill("Stealth"), skill("Recon"), skill("Melee", "Unarmed Combat"),
 				skill("Gun Combat", "Any"), skill("Navigation"), skill("Explosives"),
 			}},
 			Ranks: [][]Effect{
-				{skill("Melee", "Unarmed")},
+				{skill("Melee", "Unarmed Combat")},
 				{stash()},
 				{skill("Stealth")},
 				nil,

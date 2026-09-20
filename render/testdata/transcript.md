@@ -188,7 +188,7 @@ Seed 7, 182 events.
 
 -  137  throw  d66 [4 3] = 43  (p. 118)
 -  138  -> event: a game of dice among the locals [career, from 137]
--  139  -> Gambling 1 [skill, from 137]
+-  139  -> Gambler 1 [skill, from 137]
 
 ## Step 17: Aging (p. 121)
 

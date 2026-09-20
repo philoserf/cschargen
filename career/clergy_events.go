@@ -50,7 +50,7 @@ func clergyEvents() EventTable {
 			Summary: "frequent travel through space",
 			Effects: []Effect{pick("what the travelling taught you",
 				opt("Astrogation", skill("Astrogation")),
-				opt("Electronics", skill("Electronics", "Communications", "Sensors")),
+				opt("Electronics", skill("Electronics", "Comms", "Sensors")),
 				opt("Engineer", skill("Engineer", "Any")),
 				opt("Pilot", skill("Pilot", "Any")))},
 		},

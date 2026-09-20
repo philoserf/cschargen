@@ -72,9 +72,38 @@ become 135, 260 occurrences become 220.
 - **Results that find nobody do what they say instead.** "Lose one Ally or
   Contact. If you have none, gain an Enemy with a Relationship Rating of -110."
 
+### The skill list, and the results that need it
+
+The fourth pass on #42. Forty more occurrences resolve — 135 distinct results
+become 127, 220 occurrences become 180.
+
+- **The skill list of pp. 304–314 is transcribed** (44 skills with their
+  specialties), which is what makes "gain a level in any skill of your choice"
+  and "any skill at level 1 which you do not already have" answerable. It also
+  fixes the free skill an undergraduate degree grants, which had been recorded
+  rather than offered.
+- **"Raise a skill the character already holds"** (31 occurrences) offers what
+  the character has, and raises that entry — specialty included, so a character
+  who holds Melee (Blade) does not end up with a bare Melee beside it.
+- **The whole corpus is held against the list.** Two new tests walk every
+  transcribed effect and check the skill and specialty names. They found six
+  spellings the book itself writes two ways, which **ERRATA E-35** records: a
+  Vagabond event grants "Gambling" where the list calls the skill Gambler, and
+  "Melee (Unarmed)", "Gunner (Turret)" and "Electronics (Communications)" were
+  each a second skill on the sheet.
+- **"A Survival specialty used on your homeworld"** (5) reads the world's own
+  background skills, which is the only place the setting data says what a world
+  is like in those terms.
+- **"Lose all levels of Suit (Vacc Suit)"** (1) does.
+- **`data validate` holds a setting file's background skills to the same list**,
+  because that is the other way a second skill reaches a sheet. It caught
+  `Gun Combat (Slug)` in this repository's own sample data the first time it ran.
+
 ### Fixed
 
 - A character dismissed from a career could still muster out of it.
+- A character could hold both Gambler and Gambling, or both Melee (Unarmed) and
+  Melee (Unarmed Combat), as separate skills.
 
 ### Changed
 
