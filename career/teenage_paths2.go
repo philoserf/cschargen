@@ -96,7 +96,8 @@ func teenagePathThree() []EventRow {
 					"qualify, and to Undergraduate University whether you qualify or not"),
 				skill("Athletics", "Any"),
 				skill("Tactics", "Sport"),
-				unimplemented("after Step 8, you may enlist in the Sports career automatically"),
+				autoEnlist("after Step 8, enlist in the Sports career automatically",
+					enlistmentNarrowing{OnCareers: []string{"Sports"}}),
 			},
 		},
 	}
@@ -197,8 +198,8 @@ func teenagePathFour() []EventRow {
 					"qualify, and to Undergraduate University whether you qualify or not"),
 				skill("Admin"),
 				skill("Instruction"),
-				unimplemented("after Step 8, you may enlist in the Instructor career " +
-					"automatically"),
+				autoEnlist("after Step 8, enlist in the Instructor career automatically",
+					enlistmentNarrowing{OnCareers: []string{"Instructor"}}),
 			},
 		},
 	}

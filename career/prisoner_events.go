@@ -14,9 +14,9 @@ func prisonerEvents() EventTable {
 			Summary: "you work towards an appeal",
 			Effects: []Effect{checkSkill("Advocate", 8,
 				[]Effect{checkSkill("Advocate", 8,
-					[]Effect{unimplemented("lessen the sentence by one term; one term or less left means release")},
-					[]Effect{unimplemented("add one term to the sentence")})},
-				[]Effect{unimplemented("add one term to the sentence")})},
+					[]Effect{sentenceBy(-1)},
+					[]Effect{sentenceBy(1)})},
+				[]Effect{sentenceBy(1)})},
 		},
 		14: {
 			Summary: "war breaks out and amnesty is offered to those who serve",

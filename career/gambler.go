@@ -120,7 +120,7 @@ func gamblerMishaps() MishapTable {
 		{Summary: "the constant grind stopped being fun", Effects: nil},
 		{
 			Summary: "gambling has stopped being work and become a compulsion",
-			Effects: []Effect{unimplemented("add one year to the character's age")},
+			Effects: []Effect{ageBy(1)},
 		},
 		{
 			Summary: "an addiction that costs you the edge a living requires",

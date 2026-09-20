@@ -401,9 +401,16 @@ func checkSubTables(t *testing.T, effect Effect, seen *int) {
 			}
 		}
 
-		for result := 1; result <= 6; result++ {
+		// A 2d6 table runs 2 to 12 before a characteristic's modifier,
+		// which can carry it either way, so its rows run past both ends.
+		low, high := 1, 6
+		if effect.Dice == "2d6" {
+			low, high = 2, 12
+		}
+
+		for result := low; result <= high; result++ {
 			if covered[result] != 1 {
-				t.Errorf("a 1d6 table covers %d %d times: %s", result, covered[result], effect.Detail)
+				t.Errorf("a table covers %d %d times: %s", result, covered[result], effect.Detail)
 			}
 		}
 	}

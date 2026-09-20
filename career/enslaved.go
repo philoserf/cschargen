@@ -100,10 +100,11 @@ func enslavedRows(fourth EventRow, lifeEvent EffectKind) []EventRow {
 		},
 		{
 			Summary: "an escape attempted",
-			Effects: []Effect{unimplemented(
-				"roll 2d6 and add the DEX modifier: under 5 you are caught and punished, " +
-					"and roll twice on the Injury table; 6-10 you are caught and returned; " +
-					"11+ you are free")},
+			Effects: []Effect{rollSubOn2d6("DEX", "how far you get (ERRATA E-40)",
+				onRange(0, 5, "caught and punished", injury(2)),
+				onRange(6, 10, "caught and returned without incident"),
+				onRange(11, 99, "away, and free",
+					Effect{Kind: EffectFreed, Detail: "continue as a free character"}))},
 		},
 		{
 			Summary: "your owner sets you free",

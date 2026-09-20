@@ -53,7 +53,7 @@ func universityFailure() MishapTable {
 		},
 		{
 			Summary: "funding that disappeared",
-			Effects: []Effect{unimplemented("a debt of 10,000 credits")},
+			Effects: []Effect{debt("10,000")},
 		},
 		{
 			Summary: "academic burnout",

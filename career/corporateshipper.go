@@ -146,7 +146,7 @@ func shipperMishaps() MishapTable {
 			Effects: []Effect{
 				loseAllBenefits("lose every benefit roll from this career"),
 				loseStashItem(companyShare),
-				unimplemented("owe the company 2.3 million credits"),
+				debt("2,300,000"),
 				throwModifier("next enlistment attempt", -4),
 			},
 		},

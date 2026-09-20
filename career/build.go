@@ -930,6 +930,34 @@ func rejoinPreviousCareer() Effect {
 // career the page names. The engine resolves it from the service record.
 const PreviousCareer = "\x00previous"
 
+// ageBy moves the character's age outside the four years a term takes.
+func ageBy(years int) Effect {
+	return Effect{Kind: EffectAge, Detail: "age " + itoa(years) + " years", Years: years}
+}
+
+// sentenceBy lengthens or shortens a forced spell in a career. Shortening
+// it to one term or less is a release, which the engine reads as the
+// sentence being served.
+func sentenceBy(terms int) Effect {
+	detail := "add " + itoa(terms) + " terms to the sentence"
+	if terms < 0 {
+		detail = "take " + itoa(-terms) + " terms off the sentence"
+	}
+
+	return Effect{Kind: EffectSentence, Detail: detail, Terms: terms}
+}
+
+// debt is money owed rather than money held, which two results impose and
+// nothing in the engine can spend. It is recorded as a condition for the
+// same reason an addiction is: the book names it and prices nothing else.
+func debt(amount string) Effect {
+	return Effect{
+		Kind:      EffectCondition,
+		Detail:    "a debt of " + amount + " credits",
+		Condition: "a debt of " + amount + " credits",
+	}
+}
+
 // addiction is the thirteen results that leave a character dependent on
 // something. The book names the kind and leaves the substance to the
 // player -- "an addiction to alcohol or a drug of your choice" -- and
@@ -958,6 +986,18 @@ func religion() Effect {
 // TestEverySubTableCoversTheDie holds them to.
 func rollSub(detail string, rows ...SubRow) Effect {
 	return Effect{Kind: EffectSubTable, Detail: detail, Sub: rows}
+}
+
+// rollSubOn2d6 is a sub-table thrown on 2d6 with a characteristic's
+// modifier added, which the enslaved tables' escape result asks for: "Roll
+// 2d6 and add your DEX bonus to the roll."
+func rollSubOn2d6(which, detail string, rows ...SubRow) Effect {
+	effect := rollSub(detail, rows...)
+
+	effect.Dice = "2d6"
+	effect.Characteristic = which
+
+	return effect
 }
 
 // on is one row of a rollSub covering a single result of the die.

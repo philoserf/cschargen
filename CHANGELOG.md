@@ -255,6 +255,40 @@ rolled, the row is recorded, and only the check is left open. That is four small
 unresolved results where there was one large one, and a reader can see which part
 is missing.
 
+### The close of #42
+
+Ten more occurrences resolve — 59 distinct results become 51, 70 occurrences
+become 60, from the 190 distinct results across 387 occurrences the pass began
+with.
+
+- **A sub-table on 2d6.** The enslaved tables' escape result rolls 2d6 and adds
+  the character's DEX modifier. **ERRATA E-40** records the gap it leaves: the
+  bands are "less than 5", "6-10" and "11+", and a total of exactly 5 falls in
+  none of them.
+- **Age, sentences and debts.** A year lost outside a term, a term added to or
+  taken off a sentence, and money owed rather than held — a debt goes beside an
+  addiction, for the same reason: the book names it and prices nothing else.
+- **Three careers named as one choice.** "Enter the System Defense Force career —
+  Naval, Troopers or Wet Navy" is a pick of three transfers.
+
+### What is left, and why
+
+Three ERRATA entries close the pass by naming the causes rather than the results:
+
+- **E-41** — twelve results need a map of the sector. The setting data is a list
+  of origin charts; it carries no coordinates and no starport class, so "the
+  nearest A-class port" would be a world picked at random wearing a rule's name.
+- **E-42** — five results send a character back through the steps. The engine
+  walks the twenty once, and a step loop any result could re-enter is a different
+  generator from the one the PRD describes.
+- **E-43** — eight outcomes are the referee's. A bounty hunter is a campaign, not
+  a modifier; "your entire group" is however many the referee says; and two are
+  conditions that last while something else remains true, which is a shape the
+  engine has no room for.
+
+The rest are the small bespoke results that were always going to be last, and
+E-11, E-12 and E-13 cover their own.
+
 ### Fixed
 
 - **"You lose the Ally" could take a parent.** The nine results that read "gain an
