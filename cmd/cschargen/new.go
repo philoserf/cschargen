@@ -28,6 +28,7 @@ type newFlags struct {
 	maxTerms  *int
 	terms     *int
 	forceCar  *string
+	noFamily  *bool
 	output    *string
 	force     *bool
 	data      *string
@@ -47,6 +48,7 @@ func bindNewFlags() newFlags {
 		maxTerms:  flags.Int("max-terms", 0, "the homeworld's maximum terms (p. 42)"),
 		terms:     flags.Int("terms", 0, "how many terms to serve; the rules impose no limit, so this is policy (POLICY.md)"),
 		forceCar:  flags.String("career", "", "attempt only this career"),
+		noFamily:  flags.Bool("skip-family", false, "skip Step 5, which the book allows (p. 57)"),
 		data:      flags.String("data", "", "setting data file; omitted means the repository's invented sample"),
 		output:    flags.String("o", "", "write the record here instead of stdout"),
 		force:     flags.Bool("force", false, "overwrite the output file if it exists"),
@@ -100,12 +102,13 @@ func newCommand(args []string, out *os.File) error {
 		PolicyVersion: policyVersion,
 		Setting:       world,
 		Inputs: chargen.Inputs{
-			Name:      *flags.name,
-			Species:   *flags.species,
-			TechLevel: *flags.techLevel,
-			MaxTerms:  *flags.maxTerms,
-			TermLimit: *flags.terms,
-			Career:    *flags.forceCar,
+			Name:       *flags.name,
+			Species:    *flags.species,
+			TechLevel:  *flags.techLevel,
+			MaxTerms:   *flags.maxTerms,
+			TermLimit:  *flags.terms,
+			Career:     *flags.forceCar,
+			SkipFamily: *flags.noFamily,
 		},
 	}).Run()
 	if err != nil {
