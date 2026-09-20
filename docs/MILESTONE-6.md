@@ -79,7 +79,13 @@ bars cannot be born there.
 **The slave career has no way in.** Its enlistment note says "automatically
 enlisted by result of early life tables", and those tables are the enslaved
 youth and teenage paths of pp. 74 and 84 — which are milestone 6 because they
-are species content. Until they land, the career is transcribed and unreachable.
+are species content.
+
+The entrance is narrower than that, and earlier: p. 42 gives it outright. "If an
+altrant or uplift character is born on a world where they are enslaved, then the
+character must take the Altrant/Uplift Slave career as their first career term."
+So the way in is Step 4, and the enslaved event paths are what happens to a
+character already there.
 
 ## The genetics tables
 

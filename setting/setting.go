@@ -40,6 +40,12 @@ const (
 	Enslaved Status = "enslaved"
 )
 
+// The two kinds of species a data file may declare.
+const (
+	KindEngineered = "engineered"
+	KindUplift     = "uplift"
+)
+
 // Permission is one world's treatment of one kind of engineered person.
 //
 // It is not a boolean, because the page is not: an entry may bar one named

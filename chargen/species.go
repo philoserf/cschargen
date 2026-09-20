@@ -1,5 +1,7 @@
 package chargen
 
+import "github.com/philoserf/cschargen/setting"
+
 // Step 1: Choose Human, Altrant, or Uplift (p. 21).
 //
 // "If the character is a human, simply move on to Step 2. If the character
@@ -113,4 +115,115 @@ func (g *Generator) ceiling() int {
 	}
 
 	return HumanMaximum
+}
+
+// permits reports whether this world admits the character's species, and
+// what their status there would be (p. 42).
+//
+// "If the entry indicates that altrants or uplifts are not allowed, then the
+// player should select a different homeworld, either by re-rolling on the
+// appropriate table or choosing another world that permits such characters."
+func (g *Generator) permits(world setting.World) (setting.Status, bool) {
+	if g.species == nil {
+		return setting.Free, true
+	}
+
+	permission := world.Engineered
+	if g.species.Kind == setting.KindUplift {
+		permission = world.Uplifts
+	}
+
+	if !permission.Admits(g.species.Name) {
+		return "", false
+	}
+
+	if permission.Status == "" {
+		return setting.Free, true
+	}
+
+	return permission.Status, true
+}
+
+// ageLimitsApply reports whether a world's maximum age and terms bind this
+// character. They do not bind an engineered person or an uplift: "Altrant
+// and Uplift characters age differently and these restrictions will not
+// apply to them" (p. 42).
+func (g *Generator) ageLimitsApply() bool {
+	return g.species == nil
+}
+
+// Classes of uplifts (p. 66).
+//
+// "If the character's homeworld has a tech level of 10, they must be a Class
+// 1 uplift. If the character's homeworld has a tech level of 11, the Player
+// may choose from Class 1 or Class 2. If the character's homeworld has a
+// tech level of 12, the Player may choose from any of the three classes."
+//
+// The classes are not species facts and are not in the data file: they are
+// what a world's technology can make of any uplift.
+
+// The tech level each class needs, from the chart on p. 66.
+const (
+	classOneTech   = 10
+	classTwoTech   = 11
+	classThreeTech = 12
+)
+
+// upliftClass is the class a character of this homeworld may be. It offers
+// the choice where the tech level allows one, and takes the highest under
+// the policy: "We highly recommend that the highest class available be
+// used" (p. 66).
+func (g *Generator) upliftClass(step int) error {
+	if g.species == nil || g.species.Kind != setting.KindUplift {
+		return nil
+	}
+
+	available := 1
+
+	switch {
+	case g.techLevel >= classThreeTech:
+		available = 3
+	case g.techLevel >= classTwoTech:
+		available = 2
+	}
+
+	// A world below tech level 10 can make no uplift at all, and the
+	// permission rules are what should have kept the character off it. A
+	// data file that admits uplifts to such a world gets Class 1, which is
+	// the least it can mean. ERRATA E-31.
+	if g.techLevel < classOneTech {
+		g.unimplemented(step,
+			"the homeworld's tech level is below 10, which p. 66 says can make no uplift; "+
+				"Class 1 is taken")
+	}
+
+	options := make([]string, available)
+	for i := range options {
+		options[i] = "Class " + itoa(available-i)
+	}
+
+	chosen := 0
+
+	if available > 1 {
+		picked, err := g.choose(Choice{
+			Point:   "uplift_class",
+			Prompt:  "Choose an uplift class",
+			Options: options,
+			Cite:    "p. 66",
+		})
+		if err != nil {
+			return err
+		}
+
+		chosen = picked
+	}
+
+	g.class = available - chosen
+	g.char.State.UpliftClass = g.class
+
+	g.consequence(ConsequenceSpecies, step,
+		"a Class "+itoa(g.class)+" uplift, which a tech level "+itoa(g.techLevel)+
+			" homeworld can make", "")
+
+	return nil
 }

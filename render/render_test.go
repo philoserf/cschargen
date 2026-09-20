@@ -84,8 +84,9 @@ func TestTranscript(t *testing.T) {
 func TestSheetOfACharacterWithNothing(t *testing.T) {
 	t.Parallel()
 
-	// Step 5 is skipped so that "nothing" really is nothing: a character
-	// with a family has relatives, and relatives are Relationships.
+	// The four optional pre-career steps are skipped so that "nothing"
+	// really is nothing: a character with a family has relatives, and the
+	// youth and teenage tables hand out friends.
 	built, err := chargen.New(chargen.Options{
 		Seed:          3,
 		Decider:       chargen.Policy{},
@@ -94,7 +95,7 @@ func TestSheetOfACharacterWithNothing(t *testing.T) {
 		Setting:       sampleSetting(t),
 		Inputs: chargen.Inputs{
 			Species: "human", TermLimit: -1, TechLevel: 11, MaxTerms: 28,
-			SkipFamily: true,
+			SkipFamily: true, SkipYouth: true, SkipTeenage: true, SkipEducation: true,
 		},
 	}).Run()
 	if err != nil {
@@ -395,5 +396,26 @@ func TestTheSheetSaysWhereInTheFamilyTheyCame(t *testing.T) {
 		if strings.Contains(sheet, unwanted) {
 			t.Errorf("a middle child's sheet says %q", unwanted)
 		}
+	}
+}
+
+// TestTheSheetNamesAnUpliftsClass. It is what their homeworld's technology
+// could make of them (p. 66), so it belongs beside the species rather than
+// under it -- and a character who is not an uplift has none.
+func TestTheSheetNamesAnUpliftsClass(t *testing.T) {
+	t.Parallel()
+
+	got := character(t, 3, 1, "Uplifted")
+
+	got.State.UpliftClass = 2
+
+	if !strings.Contains(render.Sheet(got), ", Class 2") {
+		t.Error("an uplift's class is not on their sheet")
+	}
+
+	got.State.UpliftClass = 0
+
+	if strings.Contains(render.Sheet(got), ", Class") {
+		t.Error("a character who is not an uplift has a class")
 	}
 }

@@ -68,3 +68,9 @@ const (
 // is nothing to fall back to.
 const ErrUnknownSpecies = stringError(
 	"species: not declared in the setting data")
+
+// ErrNoHomeworldAdmitsThem is a species no world in the setting data will
+// have. p. 42 says to choose another world; where there is none, there is
+// no character to generate.
+const ErrNoHomeworldAdmitsThem = stringError(
+	"no world in the setting data admits this species")

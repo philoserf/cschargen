@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/philoserf/cschargen/chargen"
+	"github.com/philoserf/cschargen/setting"
 )
 
 // TestEverySpeciesInTheSampleGenerates is the reach check the milestone 6
@@ -160,4 +161,204 @@ func TestASpeciesAgesOnItsOwnProfile(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestAWorldThatWillNotHaveThem is p. 42: "If the entry indicates that
+// altrants or uplifts are not allowed, then the player should select a
+// different homeworld."
+func TestAWorldThatWillNotHaveThem(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+
+	for _, species := range data.Species {
+		t.Run(species.Name, func(t *testing.T) {
+			t.Parallel()
+
+			for seed := range uint64(60) {
+				opts := options(t, seed)
+
+				opts.Inputs.Species = species.Name
+				opts.Inputs.TermLimit = -1
+
+				character := generate(t, opts)
+
+				born, _, found := data.World(character.State.Homeworlds[0].World)
+				if !found {
+					t.Fatalf("seed %d: unknown birth world", seed)
+				}
+
+				permission := born.Engineered
+				if species.Kind == "uplift" {
+					permission = born.Uplifts
+				}
+
+				if !permission.Admits(species.Name) {
+					t.Fatalf("seed %d: a %s was born on %s, which does not admit them",
+						seed, species.Name, born.Name)
+				}
+			}
+		})
+	}
+}
+
+// TestTheHomeworldCapsDoNotBindAnAlteredCharacter is the other half of
+// p. 42: "Altrant and Uplift characters age differently and these
+// restrictions will not apply to them."
+func TestTheHomeworldCapsDoNotBindAnAlteredCharacter(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+
+	// Every world in the sample caps terms well below forty.
+	const asked = 40
+
+	longer := 0
+
+	for _, species := range data.Species {
+		for seed := range uint64(30) {
+			opts := options(t, seed)
+
+			opts.Inputs.Species = species.Name
+			opts.Inputs.TermLimit = asked
+
+			character := generate(t, opts)
+
+			born, _, found := data.World(character.State.Homeworlds[0].World)
+			if !found {
+				t.Fatalf("seed %d: unknown birth world", seed)
+			}
+
+			if len(character.State.Terms) > born.MaximumTerms {
+				longer++
+			}
+		}
+	}
+
+	if longer == 0 {
+		t.Error("no altered character ever served past their homeworld's cap")
+	}
+}
+
+// TestAnEnslavedCharacterTakesTheSlaveCareerFirst is the way into a career
+// the book gives no other entrance: "the character must take the
+// Altrant/Uplift Slave career as their first career term" (p. 42).
+func TestAnEnslavedCharacterTakesTheSlaveCareerFirst(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+	enslaved := 0
+
+	for _, species := range data.Species {
+		for seed := range uint64(60) {
+			opts := options(t, seed)
+
+			opts.Inputs.Species = species.Name
+			opts.Inputs.TermLimit = 3
+
+			character := generate(t, opts)
+
+			born, _, found := data.World(character.State.Homeworlds[0].World)
+			if !found {
+				continue
+			}
+
+			permission := born.Engineered
+			if species.Kind == "uplift" {
+				permission = born.Uplifts
+			}
+
+			if permission.Status != "enslaved" {
+				continue
+			}
+
+			enslaved++
+
+			if len(character.State.Services) == 0 {
+				t.Errorf("seed %d: a %s born owned on %s served no career",
+					seed, species.Name, born.Name)
+
+				continue
+			}
+
+			if first := character.State.Services[0].Career; first != slaveCareerName {
+				t.Errorf("seed %d: a %s born owned on %s began in %s",
+					seed, species.Name, born.Name, first)
+			}
+		}
+	}
+
+	if enslaved == 0 {
+		t.Fatal("no seed produced a character born on a world that owns their people")
+	}
+}
+
+// slaveCareerName is the career of pp. 150-154, under the name this
+// repository gives it.
+const slaveCareerName = "Engineered/Uplift Slave"
+
+// TestAnUpliftsClassIsWhatTheirWorldCanMake is p. 66's chart: Class 1 needs
+// tech level 10, Class 2 needs 11, Class 3 needs 12. The policy takes the
+// highest available, which is what the page recommends.
+func TestAnUpliftsClassIsWhatTheirWorldCanMake(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+	seen := map[int]int{}
+
+	for _, species := range data.Species {
+		for seed := range uint64(40) {
+			opts := options(t, seed)
+
+			opts.Inputs.Species = species.Name
+			opts.Inputs.TermLimit = -1
+
+			character := generate(t, opts)
+
+			if species.Kind != "uplift" {
+				if character.State.UpliftClass != 0 {
+					t.Errorf("a %s has an uplift class", species.Name)
+				}
+
+				continue
+			}
+
+			seen[checkUpliftClass(t, data, species.Name, character)]++
+		}
+	}
+
+	for class := 1; class <= 3; class++ {
+		if seen[class] == 0 {
+			t.Errorf("no uplift in the sample was ever Class %d", class)
+		}
+	}
+}
+
+// checkUpliftClass holds one uplift's class against the chart on p. 66 --
+// Class 1 at tech level 10, Class 2 at 11, Class 3 at 12 -- and returns it.
+func checkUpliftClass(
+	t *testing.T, data *setting.Data, name string, character *chargen.Character,
+) int {
+	t.Helper()
+
+	born, _, found := data.World(character.State.Homeworlds[0].World)
+	if !found {
+		t.Fatal("unknown birth world")
+	}
+
+	want := 1
+
+	switch {
+	case born.TechLevel >= 12:
+		want = 3
+	case born.TechLevel >= 11:
+		want = 2
+	}
+
+	if character.State.UpliftClass != want {
+		t.Errorf("a %s from a tech level %d world is Class %d, want Class %d",
+			name, born.TechLevel, character.State.UpliftClass, want)
+	}
+
+	return character.State.UpliftClass
 }

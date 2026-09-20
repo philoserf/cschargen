@@ -77,10 +77,10 @@ func TestDifferentSeedsDivergeSomewhere(t *testing.T) {
 	}
 }
 
-// step2Only is a character generated with Steps 5, 6 and 7 skipped. The
-// tests below are about Step 2, and the youth and teenage events
-// legitimately move characteristics -- a permutation of the rolls is what
-// Step 2 produces, not what a finished character holds.
+// step2Only is a character generated with Steps 5 through 8 skipped. The
+// tests below are about Step 2, and the youth events, the teenage events
+// and a degree all legitimately move characteristics -- a permutation of
+// the rolls is what Step 2 produces, not what a finished character holds.
 func step2Only(t *testing.T, seed uint64) *chargen.Character {
 	t.Helper()
 
@@ -89,6 +89,7 @@ func step2Only(t *testing.T, seed uint64) *chargen.Character {
 	opts.Inputs.SkipFamily = true
 	opts.Inputs.SkipYouth = true
 	opts.Inputs.SkipTeenage = true
+	opts.Inputs.SkipEducation = true
 
 	return generate(t, opts)
 }

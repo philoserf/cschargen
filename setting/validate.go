@@ -185,7 +185,7 @@ var AgingProfiles = map[string]bool{
 func validateOneSpecies(species Species, where string) []string {
 	var problems []string
 
-	if species.Kind != "engineered" && species.Kind != "uplift" {
+	if species.Kind != KindEngineered && species.Kind != KindUplift {
 		problems = append(problems, fmt.Sprintf(
 			"%s: kind %q; it must be engineered or uplift (p. 21)", where, species.Kind))
 	}

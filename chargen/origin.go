@@ -30,6 +30,11 @@ func (g *Generator) determineOrigin() error {
 
 	step := g.log.Step("Step 4: Determine Homeworld", "p. 39")
 
+	world, err = g.worldThatAdmitsThem(world, sub, step)
+	if err != nil {
+		return err
+	}
+
 	err = g.settleOn(world, sub, step, "born there")
 	if err != nil {
 		return err
@@ -44,11 +49,25 @@ func (g *Generator) determineOrigin() error {
 				"which the engine cannot check until it records where a term was served")
 	}
 
+	// The class needs the homeworld's tech level, so it is settled here
+	// rather than in Step 1 where the species was chosen (p. 66).
+	err = g.upliftClass(step)
+	if err != nil {
+		return err
+	}
+
 	err = g.grantBackground(world, step)
 	if err != nil {
 		return err
 	}
 
+	return g.earlyLife(world, step)
+}
+
+// earlyLife is Steps 5 through 8: the family, the youth, the teenage years
+// and higher education. They are together because each follows the last and
+// only the first of them needs the homeworld.
+func (g *Generator) earlyLife(world setting.World, step int) error {
 	// Step 5 is optional in the book -- "Skipping this step can speed up
 	// character generation, but it may also deprive the character of
 	// potential Allies and Contacts" (p. 57) -- so the engine runs it and a
@@ -56,16 +75,14 @@ func (g *Generator) determineOrigin() error {
 	if g.char.Provenance.Inputs.SkipFamily {
 		g.consequence(ConsequenceFamily, step,
 			"Step 5 skipped at the player's request (p. 57)", "")
-
-		return nil
+	} else {
+		err := g.determineFamily(world)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = g.determineFamily(world)
-	if err != nil {
-		return err
-	}
-
-	err = g.youthEvents()
+	err := g.youthEvents()
 	if err != nil {
 		return err
 	}
@@ -122,6 +139,76 @@ func (g *Generator) chooseSubsector() (setting.Subsector, error) {
 	g.consequence(ConsequenceHomeworld, step, "born in "+chosen.Name, "")
 
 	return chosen, nil
+}
+
+// worldThatAdmitsThem holds a homeworld against the character's species and
+// finds another where it does not admit them (p. 42):
+//
+//	"If the entry indicates that altrants or uplifts are not allowed, then
+//	the player should select a different homeworld, either by re-rolling on
+//	the appropriate table or choosing another world that permits such
+//	characters."
+//
+// The engine chooses rather than re-rolling, because a re-roll can land on
+// the same world again and the page offers both. It takes the first world
+// in the subsector that admits them, which is what the policy takes
+// wherever it is offered a list -- and where the subsector admits them
+// nowhere, the whole sector is searched, because a character has to be born
+// somewhere.
+func (g *Generator) worldThatAdmitsThem(
+	world setting.World, sub setting.Subsector, step int,
+) (setting.World, error) {
+	status, admitted := g.permits(world)
+	if admitted {
+		g.recordStatus(status, world, step)
+
+		return world, nil
+	}
+
+	g.consequence(ConsequenceHomeworld, step,
+		world.Name+" does not admit a "+g.species.Name+"; another is chosen (p. 42)", "")
+
+	for _, other := range sub.Worlds {
+		status, admitted = g.permits(other)
+		if !admitted {
+			continue
+		}
+
+		g.recordStatus(status, other, step)
+
+		return other, nil
+	}
+
+	for _, elsewhere := range g.setting.Subsectors {
+		for _, other := range elsewhere.Worlds {
+			status, admitted = g.permits(other)
+			if !admitted {
+				continue
+			}
+
+			g.recordStatus(status, other, step)
+
+			return other, nil
+		}
+	}
+
+	return setting.World{}, ErrNoHomeworldAdmitsThem
+}
+
+// recordStatus notes what the character's standing is where they were born,
+// and remembers an enslavement: "If an altrant or uplift character is born
+// on a world where they are enslaved, then the character must take the
+// Altrant/Uplift Slave career as their first career term" (p. 42).
+func (g *Generator) recordStatus(status setting.Status, world setting.World, step int) {
+	if g.species == nil || status != setting.Enslaved {
+		return
+	}
+
+	g.enslaved = true
+
+	g.consequence(ConsequenceSpecies, step,
+		"a "+g.species.Name+" born on "+world.Name+" is enslaved, and the "+
+			"slave career is their first (p. 42)", "")
 }
 
 // chooseHomeworld is Step 4 (p. 39): "You may either roll percentile dice
@@ -190,8 +277,18 @@ func (g *Generator) settleOn(world setting.World, sub setting.Subsector, cause i
 
 	if first {
 		g.char.Provenance.Inputs.Homeworld = world.Name
-		g.homeworldTerms = world.MaximumTerms
-		g.maximumAge = world.MaximumAge
+
+		// "Altrant and Uplift characters age differently and these
+		// restrictions will not apply to them" (p. 42), so only a human
+		// carries their homeworld's caps.
+		if g.ageLimitsApply() {
+			g.homeworldTerms = world.MaximumTerms
+			g.maximumAge = world.MaximumAge
+		} else {
+			g.consequence(ConsequenceHomeworld, cause,
+				"the homeworld's maximum age and terms do not bind an "+
+					g.species.Kind+" character (p. 42)", "")
+		}
 	} else {
 		g.char.Provenance.Deviate("E-9")
 	}

@@ -45,7 +45,15 @@ func Sheet(character *chargen.Character) string {
 func writeSummary(out *strings.Builder, character *chargen.Character) {
 	state := character.State
 
-	fmt.Fprintf(out, "**Species**: %s  \n", character.Provenance.Inputs.Species)
+	fmt.Fprintf(out, "**Species**: %s", character.Provenance.Inputs.Species)
+
+	// An uplift's class is what their homeworld's technology could make of
+	// them (p. 66), so it belongs beside the species rather than under it.
+	if state.UpliftClass > 0 {
+		fmt.Fprintf(out, ", Class %d", state.UpliftClass)
+	}
+
+	out.WriteString("  \n")
 	fmt.Fprintf(out, "**Age**: %d  \n", state.Age)
 
 	// "Apparent age is a game term used to indicate to the Players how old

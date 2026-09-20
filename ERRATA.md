@@ -728,3 +728,30 @@ page does.
 in their twelfth term faces six checks rather than five. That is the only other
 plausible transcription, and it is the harsher one — so this reading never treats
 a character worse than the book intended.
+
+---
+
+## E-31 (limit) — a world below tech level 10 that admits uplifts
+
+**Where:** the uplift class chart (p. 66), against the homeworld permissions of
+p. 42.
+
+The chart gives Class 1 a tech level of 10, Class 2 an 11 and Class 3 a 12, and
+the paragraph beneath it starts at ten: "If the character's homeworld has a tech
+level of 10, they must be a Class 1 uplift." Nothing is said about a world below
+ten.
+
+The permissions on p. 42 are a separate question, and the two can disagree: a
+world of tech level 9 that admits uplifts is a world that cannot make one.
+
+**Engine:** Class 1, and the record says the tech level was too low for the chart
+to answer.
+
+**Why it is a limit rather than a reading:** the engine cannot tell whether the
+data means "uplifts live here but were made elsewhere", which is perfectly
+coherent, or a mistake in the file. The first is the likelier, and Class 1 is the
+least a class can be — but the record naming the problem is what lets a reader
+decide which it was.
+
+No world in the sample setting data admits uplifts below tech level 10, so this
+is reachable only in a user-supplied file.

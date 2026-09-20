@@ -57,6 +57,10 @@ func (g *Generator) chooseCareer(step int) (career.Career, bool, error) {
 		return found, true, nil
 	}
 
+	if g.enslaved {
+		return g.ownedFirstCareer(step), true, nil
+	}
+
 	if g.failedEnlistments >= consecutiveFailuresToVagabond {
 		g.consequence(ConsequenceCareer, step,
 			"three consecutive failed enlistments: enter the Vagabond career", "Vagabond")
@@ -87,6 +91,23 @@ func (g *Generator) chooseCareer(step int) (career.Career, bool, error) {
 	}
 
 	return eligible[index], false, nil
+}
+
+// ownedFirstCareer is p. 42's: "If an altrant or uplift character is born on
+// a world where they are enslaved, then the character must take the
+// Altrant/Uplift Slave career as their first career term."
+//
+// It is the only way into that career. The career prints no enlistment
+// throw, cannot be chosen, and says its entry is "a result of the early
+// life tables" -- which is the same rule seen from the other side.
+func (g *Generator) ownedFirstCareer(step int) career.Career {
+	g.enslaved = false
+
+	g.consequence(ConsequenceCareer, step,
+		"enslaved on their homeworld: the first career is not a choice (p. 42)",
+		career.Slave().Name)
+
+	return career.Slave()
 }
 
 // eligibleCareers is every implemented career the character may attempt
