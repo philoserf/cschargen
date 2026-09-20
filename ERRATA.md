@@ -924,34 +924,43 @@ choosing is to leave twelve results recorded forever.
 pp. 132–145 rather than from the career names. A career carries a class only where
 its own description puts it there.
 
-| Career                           | Classes                       | Because the description says                                     |
-| -------------------------------- | ----------------------------- | ---------------------------------------------------------------- |
-| Marine                           | military, government, violent | "combat forces serving within the militaries of the many worlds" |
-| National Navy                    | military, government, violent | "part of national military organizations"                        |
-| System Defense Forces (Navy)     | military, government, violent | "naval forces operated by individual planetary governments"      |
-| System Defense Forces (Troopers) | military, government, violent | "the planetside military forces of individual worlds"            |
-| System Defense Forces (Wet Navy) | military, government, violent | "the maritime forces of planetary militaries"                    |
-| Diplomatic Service               | government                    | it is a state's foreign service                                  |
-| Politician                       | government                    | "exercise political power within the governments"                |
-| Organized Crime                  | criminal, violent             | "outside lawful authority … contract violence"                   |
-| Pirate                           | criminal, violent             | "operate outside legal authority"                                |
-| Thief                            | criminal                      | theft is the career                                              |
-| Prisoner                         | criminal                      | entered by "arrest, conviction, detention"                       |
-| Fringe Marketer                  | criminal, business            | "informal, semi legal, or illegal markets"                       |
-| Scientist                        | academic                      | research is the career                                           |
-| Instructor                       | academic                      | "education and training"                                         |
-| Corporate Shipper                | corporate, business           | "under corporate authority"                                      |
-| Orbital Construction             | corporate, business           | corporate contracting                                            |
-| Craftsperson                     | business                      | a trade practised on one's own account                           |
-| Independent Merchant             | business                      | "privately operated starships … without corporate backing"       |
-| Colonist                         | colonist                      | the one career the word names                                    |
+| Career                           | Classes                       | Because the description says                                        |
+| -------------------------------- | ----------------------------- | ------------------------------------------------------------------- |
+| Marine                           | military, government, violent | "combat forces serving within the militaries of the many worlds"    |
+| National Navy                    | military, government, violent | "part of national military organizations"                           |
+| System Defense Forces (Navy)     | military, government, violent | "naval forces operated by individual planetary governments"         |
+| System Defense Forces (Troopers) | military, government, violent | "the planetside military forces of individual worlds"               |
+| System Defense Forces (Wet Navy) | military, government, violent | "the maritime forces of planetary militaries"                       |
+| Diplomatic Service               | government                    | "official representatives of their governments"                     |
+| Politician                       | government                    | "exercise political power within the governments of Clement Sector" |
+| Organized Crime                  | criminal, violent             | "outside lawful authority", including "contract violence"           |
+| Pirate                           | criminal, violent             | "operate outside legal authority"                                   |
+| Thief                            | criminal                      | "operate outside legal systems"                                     |
+| Prisoner                         | criminal                      | entered by "arrest, conviction, detention"                          |
+| Fringe Marketer                  | criminal, business            | "informal, semi legal, or illegal markets"                          |
+| Scientist                        | academic                      | "systematic study ... observation, experimentation, and analysis"   |
+| Instructor                       | academic                      | "education and training"                                            |
+| Corporate Shipper                | corporate                     | "under corporate authority"                                         |
+| Independent Merchant             | business                      | "privately operated ... without corporate backing"                  |
+| Colonist                         | colonist                      | the one career the word names                                       |
 
-The remaining fifteen carry none. Two of those are deliberate rather than
-residual:
+Every row quotes the career's own description. Where a description does not put a
+career in a class, the career does not carry it, even where the name suggests one:
+Craftsperson and Orbital Construction are trades whose descriptions say nothing
+about commerce or corporations, so neither is business or corporate, and
+Undergraduate University's "enlist automatically in a business, military,
+corporate or colonist career" reaches a narrower set than a generous reading would
+give it. That is the deliberate direction to err in: a class the book did not
+grant modifies a throw the book does not modify.
+
+The remaining seventeen carry none. Two of those are a decision rather than a
+residue:
 
 - **Investigator** is not government-related. Its description puts it in "legal
   systems, corporate structures, and private practice" — one of the three, and the
-  record does not say which.
+  record does not say which. Scientist is academic on different evidence: its work
+  is study, and the sentence naming "government, academic, or corporate interests"
+  is about who funds it rather than what it is.
 - **Adventurer** is not violent. Violence is a hazard of the career rather than
   its work: "unlike explorers working for governments or corporations, Adventurers
   operate independently, driven by curiosity, ambition, or opportunity". The same

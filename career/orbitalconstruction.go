@@ -4,7 +4,6 @@ package career
 // habitats from the outside, from the inside, or hauling the pieces.
 func OrbitalConstruction() Career {
 	return Career{
-		Tags:           []Tag{TagBusiness, TagCorporate},
 		Name:           "Orbital Construction",
 		Cite:           "pp. 242-245",
 		Enlistment:     &Check{Characteristic: "END", Number: 8},
