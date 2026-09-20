@@ -265,6 +265,19 @@ func rollTable(kind SkillTableKind) Effect {
 	}
 }
 
+// rollAssignmentOf rolls on a named assignment's skill table in another
+// career, which Colonist event 54 asks for: "Roll twice on the Assignment:
+// Ambassador table of the Diplomatic Service career" (p. 176).
+func rollAssignmentOf(careerName, assignment string) Effect {
+	return Effect{
+		Kind:       EffectRollTable,
+		Detail:     "roll on the " + assignment + " table of the " + careerName + " career",
+		Table:      AssignmentSkills,
+		Career:     careerName,
+		Assignment: assignment,
+	}
+}
+
 // rollOtherAssignment rolls on the skill table of an assignment the
 // character is not in, which two careers' events ask for.
 func rollOtherAssignment() Effect {

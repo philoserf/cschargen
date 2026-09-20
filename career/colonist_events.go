@@ -142,8 +142,10 @@ func colonistEvents() EventTable {
 		},
 		54: {
 			Summary: "you represent the colony in trade talks with another world",
-			Effects: []Effect{unimplemented(
-				"roll twice on the Assignment: Ambassador table of the Diplomatic Service career (p. 185)")},
+			Effects: []Effect{
+				rollAssignmentOf("Diplomatic Service", "Ambassador"),
+				rollAssignmentOf("Diplomatic Service", "Ambassador"),
+			},
 		},
 		55: {
 			Summary: "your vehicle crashes on an exploratory trip into the wilderness",

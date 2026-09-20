@@ -176,12 +176,7 @@ func artsEvents() EventTable {
 		},
 		66: {
 			Summary: "the most prestigious award in your field",
-			Effects: []Effect{
-				chr("CHA", 2),
-				benefitRolls(3, 0, ScopeBatch),
-				unimplemented(
-					"a +6 modifier, spent in increments of no more than +2 on survival or advancement rolls until depleted"),
-			},
+			Effects: append([]Effect{chr("CHA", 2)}, prestigiousAward()...),
 		},
 	}
 

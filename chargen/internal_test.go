@@ -495,3 +495,68 @@ func TestAHomeworldItemGoesToTheStash(t *testing.T) {
 		t.Errorf("the item is not in the stash: %v", character.State.Stash)
 	}
 }
+
+// TestARollOnAnotherCareersTable is Colonist event 54: "Roll twice on the
+// Assignment: Ambassador table of the Diplomatic Service career" (p. 176).
+// It is the one result in the book that reaches into a career the character
+// is not in, and no seed reaches it often enough to rely on.
+func TestARollOnAnotherCareersTable(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 5)
+	colonist := career.Colonist()
+
+	gen.career = &colonist
+	gen.assignment = colonist.Assignments[0]
+
+	err := gen.apply(career.Colonist().Events[54].Effects[0], 1)
+	if err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+
+	// The Ambassador table is Etiquette, Carouse, Diplomat, Language,
+	// Advocate, Persuade (p. 185). Whichever row came up, the character now
+	// holds one of them, and none is on any Colonist table.
+	ambassador := []string{"Etiquette", "Carouse", "Diplomat", "Language", "Advocate", "Persuade"}
+
+	held := false
+
+	for _, name := range ambassador {
+		if gen.char.State.Has(name) {
+			held = true
+		}
+	}
+
+	if !held {
+		t.Errorf("no Ambassador skill was granted; the character holds %v", gen.char.State.Skills)
+	}
+}
+
+// TestARollOnACareerThatIsNotBuiltIsRecorded: the same effect naming a
+// career this repository has not transcribed must say so rather than
+// silently granting nothing.
+func TestARollOnACareerThatIsNotBuiltIsRecorded(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 5)
+	colonist := career.Colonist()
+
+	gen.career = &colonist
+	gen.assignment = colonist.Assignments[0]
+
+	err := gen.apply(career.Effect{
+		Kind:       career.EffectRollTable,
+		Detail:     "roll on the Ambassador table of the Nowhere career",
+		Table:      career.AssignmentSkills,
+		Career:     "Nowhere",
+		Assignment: "Ambassador",
+	}, 1)
+	if err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+
+	last := gen.log.Events()[gen.log.Len()-1]
+	if last.Consequence == nil || last.Consequence.Kind != ConsequenceUnimplemented {
+		t.Error("a table in a career that does not exist was not recorded as unimplemented")
+	}
+}
