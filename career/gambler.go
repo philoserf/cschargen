@@ -101,7 +101,7 @@ func Gambler() Career {
 
 // gamblerLoseAll is the phrase five of this career's eleven mishaps use.
 func gamblerLoseAll() Effect {
-	return unimplemented("lose every benefit roll gained to this point")
+	return loseAllBenefits("lose every benefit roll gained to this point")
 }
 
 // celebrityAsStar is the way out both mishap 12 and event 64 offer: the

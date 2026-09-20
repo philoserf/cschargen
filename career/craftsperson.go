@@ -148,7 +148,8 @@ func craftMishaps() MishapTable {
 
 func craftPrison() []Effect {
 	return []Effect{
-		unimplemented("lose every benefit roll and any company shares"),
+		loseAllBenefits("lose every benefit roll from this career"),
+		unimplemented("lose any company shares"),
 		relationship(Enemy, 1, ""),
 		transfer("Prisoner", "Prisoner", 1),
 	}
@@ -156,7 +157,8 @@ func craftPrison() []Effect {
 
 func craftBlamed() []Effect {
 	return []Effect{
-		unimplemented("lose every benefit roll and any company shares"),
+		loseAllBenefits("lose every benefit roll from this career"),
+		unimplemented("lose any company shares"),
 		relationship(Enemy, 1, ""),
 	}
 }

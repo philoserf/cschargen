@@ -122,8 +122,7 @@ func craftEvents() EventTable {
 		},
 		64: {
 			Summary: "excellent work by the team earns a bonus",
-			Effects: []Effect{unimplemented(
-				"two cash benefit rolls, taken immediately, re-rolling any result of nothing")},
+			Effects: []Effect{cashRollsNowRerolling(2)},
 		},
 		65: {
 			Summary: "extremely talented in your field",

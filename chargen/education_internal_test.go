@@ -53,6 +53,43 @@ func TestAFailedAcademyClosesTheAcademy(t *testing.T) {
 	}
 }
 
+// TestAnExpulsionClosesEveryInstitution is pp. 98 and 102: the graduate
+// tracks' worst two failures bar the character from "any institute of
+// higher learning" rather than from the one that expelled them.
+func TestAnExpulsionClosesEveryInstitution(t *testing.T) {
+	t.Parallel()
+
+	gen := educationEngine(t, 21)
+
+	err := gen.apply(career.Effect{
+		Kind: career.EffectEducationLockout, Terms: 2, Detail: "expelled",
+	}, 0)
+	if err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+
+	_, attending, err := gen.chooseInstitution(0)
+	if err != nil {
+		t.Fatalf("chooseInstitution: %v", err)
+	}
+
+	if attending {
+		t.Error("an expelled character was offered an institution")
+	}
+
+	// Two terms later the bar lifts, which is the whole of what it says.
+	gen.char.State.Terms = []Term{{}, {}}
+
+	_, attending, err = gen.chooseInstitution(0)
+	if err != nil {
+		t.Fatalf("chooseInstitution: %v", err)
+	}
+
+	if !attending {
+		t.Error("the bar outlasted the two terms it names")
+	}
+}
+
 // TestNobodyQualifiesForAnything. "The character's EDU must be 6 or higher
 // to be accepted into Undergraduate College" (p. 86), and the academy wants
 // END 8+ on top.

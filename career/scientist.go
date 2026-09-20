@@ -117,7 +117,7 @@ func scientistMishaps() MishapTable {
 			Summary: "a Rival accuses you of falsifying your research, and your patron believes it",
 			Effects: []Effect{
 				relationship(Rival, 1, ""),
-				unimplemented("lose every benefit roll from this career"),
+				loseAllBenefits("lose every benefit roll from this career"),
 				unimplemented("-2 to enter any academic career after this"),
 			},
 		},

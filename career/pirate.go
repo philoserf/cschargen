@@ -196,7 +196,7 @@ func pirateMishaps() MishapTable {
 			Effects: []Effect{
 				injury(2),
 				skill("Suit", "Vacc Suit"),
-				unimplemented("lose every benefit roll from this career"),
+				loseAllBenefits("lose every benefit roll from this career"),
 				relationship(Enemy, 1, ""),
 			},
 		},

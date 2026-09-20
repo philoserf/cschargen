@@ -105,7 +105,7 @@ func OrganizedCrime() Career {
 
 // crimeLoseAll is the phrase six of this career's eleven mishaps use.
 func crimeLoseAll() Effect {
-	return unimplemented("lose every benefit roll gained to this point")
+	return loseAllBenefits("lose every benefit roll gained to this point")
 }
 
 // bountyOnYourHead is the organization's answer to leaving badly: a hunter

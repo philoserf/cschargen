@@ -82,6 +82,11 @@ type BenefitBatch struct {
 	Career   string `json:"career"`
 	Rolls    int    `json:"rolls"`
 	Modifier int    `json:"modifier"`
+
+	// CashOnly marks a batch the character may spend only on the Cash
+	// column, which is what the "two Cash Benefit rolls" results grant.
+	// An ordinary batch is a free choice between the two tables.
+	CashOnly bool `json:"cashOnly,omitempty"`
 }
 
 // PendingModifier is an adjustment waiting for the throw it applies to.

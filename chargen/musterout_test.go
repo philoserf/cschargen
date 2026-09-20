@@ -1,6 +1,7 @@
 package chargen_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/philoserf/cschargen/chargen"
@@ -29,6 +30,26 @@ func benefitRolls(character *chargen.Character) (int, int) {
 	return cash, other
 }
 
+// forfeited reports whether any result in a record took back every benefit
+// roll earned in a career, which sixty-seven of them can.
+func forfeited(character *chargen.Character) bool {
+	for _, event := range character.Events {
+		if event.Kind != chargen.EventConsequence {
+			continue
+		}
+
+		if event.Consequence.Kind != chargen.ConsequenceBenefitRolls {
+			continue
+		}
+
+		if strings.Contains(event.Consequence.Detail, "lose every benefit roll") {
+			return true
+		}
+	}
+
+	return false
+}
+
 // TestTwoBenefitRollsPerTerm is p. 126: "The character receives a number of
 // Mustering Out Benefit rolls equal to twice the number of terms served in
 // that career."
@@ -36,11 +57,20 @@ func benefitRolls(character *chargen.Character) (int, int) {
 // Events and mishaps adjust the count, so the test holds the floor rather
 // than an equality: a character who served six terms across some number of
 // careers cannot have fewer rolls than an unluckier one who lost some.
+//
+// A record carrying a forfeit is excluded rather than held to the floor.
+// "You are dismissed and lose all Benefits" really does mean a character
+// can serve four terms and muster out with nothing, so the floor is not a
+// property of every record -- only of one where nothing took the rolls
+// away.
 func TestTwoBenefitRollsPerTerm(t *testing.T) {
 	t.Parallel()
 
 	for seed := range uint64(sample) {
 		character := lifepath(t, seed, 4)
+		if forfeited(character) {
+			continue
+		}
 
 		cash, other := benefitRolls(character)
 		terms := len(character.State.Terms)

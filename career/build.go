@@ -203,6 +203,83 @@ func benefitRolls(count, modifier int, scope BenefitScope) Effect {
 	}
 }
 
+// loseAllBenefits forfeits every mustering-out roll accrued in this career
+// so far. Sixty-seven results across the corpus do this, and they word it
+// four ways -- "from this career", "gained to this point", "collected so
+// far", "gained before this event" -- so detail carries the book's own
+// phrasing. They mean the same thing: what has been earned here is gone,
+// and a career the character stays in goes on earning from the next term.
+func loseAllBenefits(detail string) Effect {
+	return Effect{Kind: EffectBenefitRolls, Detail: detail, ForfeitAll: true}
+}
+
+// gainBenefitRollsRolled and loseBenefitRollsRolled move mustering-out
+// rolls by a number the book rolls for: "gain 1d3 Benefit rolls", "lose 1d6
+// Benefit rolls". Count carries the direction and Dice the expression,
+// because the engine cannot know the number until it throws.
+func gainBenefitRollsRolled(rolled string) Effect {
+	return Effect{
+		Kind:   EffectBenefitRolls,
+		Detail: "gain " + rolled + " benefit rolls",
+		Dice:   rolled,
+		Count:  1,
+	}
+}
+
+func loseBenefitRollsRolled(rolled string) Effect {
+	return Effect{
+		Kind:   EffectBenefitRolls,
+		Detail: "lose " + rolled + " benefit rolls",
+		Dice:   rolled,
+		Count:  -1,
+	}
+}
+
+// cashRolls grants mustering-out rolls that must be spent on the Cash
+// column: "two Cash Benefit rolls". They queue for Step 19 like any other.
+func cashRolls(count int) Effect {
+	return Effect{
+		Kind:     EffectBenefitRolls,
+		Detail:   "gain " + itoa(count) + " benefit rolls, spent on the cash table",
+		Count:    count,
+		CashOnly: true,
+	}
+}
+
+// cashRollsNow takes those rolls at once rather than queueing them for Step
+// 19, which is what the results that read "immediately" ask for.
+func cashRollsNow(count int) Effect {
+	return Effect{
+		Kind:      EffectBenefitRolls,
+		Detail:    "take " + itoa(count) + " cash benefit rolls immediately",
+		Count:     count,
+		CashOnly:  true,
+		Immediate: true,
+	}
+}
+
+// cashRollsNowRerolling is cashRollsNow with the clause one result adds:
+// a row that pays nothing is thrown again rather than wasted.
+func cashRollsNowRerolling(count int) Effect {
+	effect := cashRollsNow(count)
+
+	effect.Detail += ", re-rolling any result of nothing"
+
+	effect.RerollNothing = true
+
+	return effect
+}
+
+// noAdmissionFor closes higher education for a number of terms, which two
+// of the graduate tracks' failure results do.
+func noAdmissionFor(terms int) Effect {
+	return Effect{
+		Kind:   EffectEducationLockout,
+		Detail: "no admission to any higher learning institution for " + itoa(terms) + " terms",
+		Terms:  terms,
+	}
+}
+
 // relationship gains NPCs of one kind. Count may be a fixed number; where
 // the book rolls for it, Dice carries the expression.
 func relationship(kind Relationship, count int, rolled string) Effect {

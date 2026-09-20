@@ -103,7 +103,7 @@ func Exotic() Career {
 }
 
 func exoticMishaps() MishapTable {
-	loseAll := unimplemented("lose every benefit roll from this career")
+	loseAll := loseAllBenefits("lose every benefit roll from this career")
 
 	return MishapTable{
 		{Summary: "severely injured", Effects: []Effect{injury(2)}},

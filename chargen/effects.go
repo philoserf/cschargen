@@ -49,7 +49,9 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 	case career.EffectMishapNoEject:
 		return g.rollMishap(cause, false)
 	case career.EffectBenefitRolls:
-		g.grantBenefits(effect, cause)
+		return g.grantBenefits(effect, cause)
+	case career.EffectEducationLockout:
+		g.closeEducation(effect, cause)
 
 		return nil
 	case career.EffectRelationship:

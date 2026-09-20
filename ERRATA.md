@@ -755,3 +755,26 @@ decide which it was.
 
 No world in the sample setting data admits uplifts below tech level 10, so this
 is reachable only in a user-supplied file.
+
+---
+
+## E-32 (reading) — a compelled Cash roll against the three-per-career cap
+
+**Where:** p. 127's cap, against the events that grant Cash rolls by name.
+
+p. 127 caps the Cash table: "A character may roll on the Cash table no more than
+three times per career, regardless of how many total Mustering Out rolls they
+possess." Several events grant rolls that are not a choice — National Navy's
+bribe pays "one roll on the cash side of the benefit table", Exotic Entertainer's
+best result four of them — and the book never says what happens when a compelled
+Cash roll meets a character who has already taken three.
+
+Both readings invent something. Counting the compelled roll and then refusing it
+would mean an event that says "gain a Cash roll" sometimes grants nothing, with
+no text saying so. Exempting it entirely would let a career pay out six Cash rolls
+against a rule written to stop exactly that.
+
+**Engine:** the cap governs the _choice_, not the roll. A compelled Cash roll is
+always taken, because the result has already made the decision the cap constrains;
+it still counts, so taking one can close the cap against a free roll later. A
+record where a compelled roll landed past the cap is stamped E-32.

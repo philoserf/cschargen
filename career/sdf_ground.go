@@ -45,7 +45,7 @@ func trooperMishaps() MishapTable {
 	return sharedDefenceMishaps(
 		[]Effect{relationship(Enemy, 1, "")},
 		[]Effect{
-			unimplemented("lose every benefit roll from this career"),
+			loseAllBenefits("lose every benefit roll from this career"),
 			checkChr("CHA", 8, nil, []Effect{transfer("Prisoner", "Prisoner", 2)}),
 		},
 		pick("argue your case however you can",
@@ -60,7 +60,7 @@ func wetNavyMishaps() MishapTable {
 	return sharedDefenceMishaps(
 		nil,
 		[]Effect{
-			unimplemented("lose every benefit roll from this career"),
+			loseAllBenefits("lose every benefit roll from this career"),
 			checkChr("CHA", 8, nil, []Effect{
 				skill("Streetwise"),
 				transfer("Prisoner", "Prisoner", 2),
@@ -196,10 +196,10 @@ func trooperEvents() EventTable {
 			Summary: "a merchant captain offers a bribe at the downport",
 			Effects: []Effect{bribeOffered(pick("talk your way through it",
 				opt("Deception", checkSkill("Deception", 8,
-					[]Effect{unimplemented("one roll on the cash side of the benefit table")},
+					[]Effect{cashRolls(1)},
 					[]Effect{benefitRolls(-1, 0, ScopeBatch), throwModifier("next advancement roll", -2)})),
 				opt("Persuade", checkSkill("Persuade", 8,
-					[]Effect{unimplemented("one roll on the cash side of the benefit table")},
+					[]Effect{cashRolls(1)},
 					[]Effect{benefitRolls(-1, 0, ScopeBatch), throwModifier("next advancement roll", -2)}))))},
 		},
 		63: {

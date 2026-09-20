@@ -183,7 +183,7 @@ func sportsEvents() EventTable {
 
 // sportsThrewIt is what event 13 costs when the thrown game is found out.
 func sportsThrewIt() []Effect {
-	return []Effect{unimplemented("lose every benefit roll from this career")}
+	return []Effect{loseAllBenefits("lose every benefit roll from this career")}
 }
 
 // sportsGuaranteeFailed is what event 56 costs when the guarantee does not

@@ -103,7 +103,7 @@ func adventurerMishaps() MishapTable {
 		{
 			Summary: "a Rival accuses you of being a fraud, and your career is ruined",
 			Effects: []Effect{
-				unimplemented("lose every benefit roll from this career"),
+				loseAllBenefits("lose every benefit roll from this career"),
 				transfer("Vagabond", "", 0),
 			},
 		},

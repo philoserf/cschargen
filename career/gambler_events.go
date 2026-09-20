@@ -74,7 +74,7 @@ func gamblerEvents() EventTable {
 		42: {
 			Summary: "an empty bankroll, and something illegal to fill it",
 			Effects: []Effect{checkSkill("Deception", 8,
-				[]Effect{unimplemented("gain 1d3 benefit rolls")},
+				[]Effect{gainBenefitRollsRolled("1d3")},
 				[]Effect{
 					benefitRolls(-3, 0, ScopeBatch),
 					transfer("Prisoner", "Prisoner", 1),

@@ -152,6 +152,17 @@ func TestRollCheckOnASkillTheCharacterLacks(t *testing.T) {
 // TestBenefitScopesAreNotTheSameThing is ERRATA E-3: "a +1 modifier to all
 // Benefit rolls made in this career" reaches batches already granted;
 // "three Benefit rolls at +1" reaches only its own three.
+// mustGrant applies a benefit-roll effect and fails the test if it errors,
+// which it can only do on a dice expression the tables here do not use.
+func mustGrant(t *testing.T, gen *Generator, effect career.Effect) {
+	t.Helper()
+
+	err := gen.grantBenefits(effect, 1)
+	if err != nil {
+		t.Fatalf("grantBenefits(%q): %v", effect.Detail, err)
+	}
+}
+
 func TestBenefitScopesAreNotTheSameThing(t *testing.T) {
 	t.Parallel()
 
@@ -160,8 +171,8 @@ func TestBenefitScopesAreNotTheSameThing(t *testing.T) {
 
 	gen.career = &colonist
 
-	gen.grantBenefits(career.Effect{Count: 2, Detail: "two rolls"}, 1)
-	gen.grantBenefits(career.Effect{Count: 3, Modifier: 1, Detail: "three at +1"}, 1)
+	mustGrant(t, gen, career.Effect{Count: 2, Detail: "two rolls"})
+	mustGrant(t, gen, career.Effect{Count: 3, Modifier: 1, Detail: "three at +1"})
 
 	if len(gen.char.State.Benefits) != 2 {
 		t.Fatalf("%d batches, want 2", len(gen.char.State.Benefits))
@@ -175,7 +186,7 @@ func TestBenefitScopesAreNotTheSameThing(t *testing.T) {
 		t.Errorf("the second batch = %+d, want +1", gen.char.State.Benefits[1].Modifier)
 	}
 
-	gen.grantBenefits(career.Effect{Modifier: 1, Scope: career.ScopeCareer, Detail: "career-wide"}, 1)
+	mustGrant(t, gen, career.Effect{Modifier: 1, Scope: career.ScopeCareer, Detail: "career-wide"})
 
 	if gen.char.State.Benefits[0].Modifier != 1 {
 		t.Errorf("a career-wide modifier did not reach a batch already granted")

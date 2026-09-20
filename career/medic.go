@@ -102,7 +102,7 @@ func Medic() Career {
 }
 
 func medicMishaps() MishapTable {
-	loseAll := unimplemented("lose every benefit roll from this career")
+	loseAll := loseAllBenefits("lose every benefit roll from this career")
 
 	return MishapTable{
 		{

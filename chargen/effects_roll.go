@@ -136,24 +136,36 @@ func (g *Generator) rollMishap(cause int, eject bool) error {
 // grantBenefits pushes a batch of mustering-out rolls, or, where the effect
 // carries only a modifier, applies it to every batch of this career
 // (ERRATA E-3).
-func (g *Generator) grantBenefits(effect career.Effect, cause int) {
+func (g *Generator) grantBenefits(effect career.Effect, cause int) error {
 	name := ""
 	if g.career != nil {
 		name = g.career.Name
 	}
 
-	if effect.Count == 0 && effect.Modifier != 0 && effect.Scope == career.ScopeCareer {
-		for i := range g.char.State.Benefits {
-			if g.char.State.Benefits[i].Career == name {
-				g.char.State.Benefits[i].Modifier += effect.Modifier
-			}
+	switch {
+	case effect.ForfeitAll:
+		g.forfeitBenefits(effect, name, cause)
+
+		return nil
+	case effect.Immediate:
+		return g.immediateCashRolls(effect, cause)
+	}
+
+	count := effect.Count
+
+	if effect.Dice != "" {
+		rolled, err := g.rollExpression(effect.Dice, g.cite)
+		if err != nil {
+			return err
 		}
 
-		g.careerBenefitMod += effect.Modifier
-		g.char.Provenance.Deviate("E-3")
-		g.consequence(ConsequenceBenefitRolls, cause, effect.Detail, name)
+		count *= rolled
+	}
 
-		return
+	if count == 0 && effect.Modifier != 0 && effect.Scope == career.ScopeCareer {
+		g.widenBenefitModifier(effect, name, cause)
+
+		return nil
 	}
 
 	if effect.Modifier != 0 {
@@ -162,9 +174,45 @@ func (g *Generator) grantBenefits(effect career.Effect, cause int) {
 
 	g.char.State.Benefits = append(g.char.State.Benefits, BenefitBatch{
 		Career:   name,
-		Rolls:    effect.Count,
+		Rolls:    count,
 		Modifier: effect.Modifier,
+		CashOnly: effect.CashOnly,
 	})
+
+	g.consequence(ConsequenceBenefitRolls, cause, effect.Detail, name)
+
+	return nil
+}
+
+// widenBenefitModifier is the ScopeCareer half of ERRATA E-3: a modifier
+// granted with no rolls beside it reaches every batch this career has
+// already collected, and every one it collects later.
+func (g *Generator) widenBenefitModifier(effect career.Effect, name string, cause int) {
+	for i := range g.char.State.Benefits {
+		if g.char.State.Benefits[i].Career == name {
+			g.char.State.Benefits[i].Modifier += effect.Modifier
+		}
+	}
+
+	g.careerBenefitMod += effect.Modifier
+	g.char.Provenance.Deviate("E-3")
+	g.consequence(ConsequenceBenefitRolls, cause, effect.Detail, name)
+}
+
+// forfeitBenefits is the sixty-seven results that take back everything
+// earned in this career: the queued batches go, and the two-per-term grant
+// is written off up to the term the result fired in.
+//
+// It is a watermark rather than a switch because a handful of these are
+// events rather than mishaps -- Scavenger's law-enforcement visit is one --
+// and the character stays in the career afterwards. What was earned before
+// the result is gone; the terms after it earn as they always did.
+func (g *Generator) forfeitBenefits(effect career.Effect, name string, cause int) {
+	g.clearBenefits(name)
+
+	if g.termsInCareer > g.forfeitedTerms {
+		g.forfeitedTerms = g.termsInCareer
+	}
 
 	g.consequence(ConsequenceBenefitRolls, cause, effect.Detail, name)
 }

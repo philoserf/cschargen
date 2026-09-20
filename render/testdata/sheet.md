@@ -43,7 +43,7 @@ Admin (Any)-1, Advocate (Any)-2, Art (Any)-1, Carouse-0, Drive (Any)-0, Electron
 
 ## Belongings and injuries
 
-**Credits**: 43000
+**Credits**: 37000
 
 ---
 

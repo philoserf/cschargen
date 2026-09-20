@@ -253,8 +253,7 @@ func orbitalEvents() EventTable {
 		62: {Summary: "a team from many diverse backgrounds", Effects: []Effect{skill("Language", "Any")}},
 		63: {
 			Summary: "excellent work by the team earns a bonus",
-			Effects: []Effect{unimplemented(
-				"two cash benefit rolls, taken immediately, re-rolling any result of nothing")},
+			Effects: []Effect{cashRollsNowRerolling(2)},
 		},
 		64: {
 			Summary: "honing your skillset",

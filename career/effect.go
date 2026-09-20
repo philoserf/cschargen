@@ -54,7 +54,9 @@ const (
 	EffectMishapNoEject
 
 	// EffectBenefitRolls grants or removes mustering-out rolls, optionally
-	// carrying a modifier (ERRATA E-3).
+	// carrying a modifier (ERRATA E-3). ForfeitAll removes every roll
+	// accrued in the career so far rather than a counted number, and
+	// CashOnly restricts the rolls granted to the Cash column.
 	EffectBenefitRolls
 
 	// EffectRelationship gains or loses an Ally, Contact, Rival or Enemy.
@@ -166,6 +168,12 @@ const (
 	// (pp. 75, 84, and the slave career's own event 66).
 	EffectFreed
 
+	// EffectEducationLockout closes every higher-learning institution for a
+	// number of terms: "you may not apply to any institute of higher
+	// learning for the next two terms" (pp. 98, 102). It is the education
+	// side of the enlistment lockout a refused career leaves behind.
+	EffectEducationLockout
+
 	// EffectUnimplemented is a result this milestone cannot carry out. It
 	// carries the book's demand in Detail.
 	EffectUnimplemented
@@ -263,7 +271,7 @@ type Effect struct {
 
 	Characteristic string
 	Delta          int
-	Dice           string // a credit or characteristic amount like "1d6x100"
+	Dice           string // a rolled amount or count like "1d6x100", "1d3"
 
 	Options []Option
 	Check   *Target
@@ -276,6 +284,23 @@ type Effect struct {
 	Scope        BenefitScope
 	Relationship Relationship
 	Item         string
+
+	// ForfeitAll, CashOnly and Immediate belong to [EffectBenefitRolls].
+	//
+	// ForfeitAll is the sixty-seven results that take back everything the
+	// character has earned in this career -- "you are dismissed and lose
+	// all Benefits". It is a flag rather than a large negative Count
+	// because the number is not knowable when the table is written: it
+	// depends on how many terms have been served when the result fires.
+	//
+	// CashOnly restricts the granted rolls to the Cash column, which the
+	// "two Cash Benefit rolls" results ask for. Immediate takes them at
+	// once instead of queueing them for Step 19, and RerollNothing re-rolls
+	// a row that pays nothing, which one such result prints.
+	ForfeitAll    bool
+	CashOnly      bool
+	Immediate     bool
+	RerollNothing bool
 
 	// Career and Assignment name an [EffectTransfer] destination; Terms is
 	// how many the character owes there, zero meaning "until they leave".

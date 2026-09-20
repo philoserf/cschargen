@@ -46,7 +46,7 @@ func (g *Generator) musterOut(left career.Career, terms int) error {
 
 	for _, batch := range batches {
 		for range batch.Rolls {
-			taken, err := g.benefitRoll(left, batch.Modifier, cashTaken)
+			taken, err := g.benefitRoll(left, batch, cashTaken)
 			if err != nil {
 				return err
 			}
@@ -69,9 +69,11 @@ func (g *Generator) musterOut(left career.Career, terms int) error {
 // modifier events attached to it, and the event batches keep their own --
 // which is the distinction ERRATA E-3 rests on.
 func (g *Generator) benefitsFor(name string, terms int) []BenefitBatch {
+	earned := max(terms-g.forfeitedTerms, 0)
+
 	batches := []BenefitBatch{{
 		Career:   name,
-		Rolls:    terms * rollsPerTerm,
+		Rolls:    earned * rollsPerTerm,
 		Modifier: g.careerBenefitMod,
 	}}
 
@@ -113,25 +115,13 @@ func (g *Generator) clearBenefits(name string) {
 // benefitRoll is one mustering-out roll: choose the Cash table or the Other
 // Benefits table, then roll 1d6 (p. 127). It reports whether the Cash table
 // was the one taken, so the caller can hold the three-per-career cap.
-func (g *Generator) benefitRoll(left career.Career, modifier, cashTaken int) (bool, error) {
-	cashOpen := cashTaken < cashRollsPerCareer
-
-	options := []string{"Other Benefits"}
-	if cashOpen {
-		options = []string{"Cash", "Other Benefits"}
-	}
-
-	index, err := g.choose(Choice{
-		Point:   "benefit_table",
-		Prompt:  "Choose a mustering out table for " + left.Name,
-		Options: options,
-		Cite:    "p. 127",
-	})
+func (g *Generator) benefitRoll(left career.Career, batch BenefitBatch, cashTaken int) (bool, error) {
+	takingCash, err := g.chooseBenefitTable(left, batch, cashTaken)
 	if err != nil {
 		return false, err
 	}
 
-	takingCash := cashOpen && index == 0
+	modifier := batch.Modifier
 
 	// A benefit roll has no target: it reads a row rather than passing or
 	// failing, so it is logged as a plain roll and the modifier is named in
@@ -167,4 +157,77 @@ func (g *Generator) benefitRoll(left career.Career, modifier, cashTaken int) (bo
 	}
 
 	return false, g.apply(benefit.Other, cause)
+}
+
+// chooseBenefitTable is the Cash-or-Other decision of p. 127, and the two
+// places it is not a decision.
+//
+// A batch an event granted as Cash rolls is spent on Cash whatever the
+// character would prefer, and it is taken even past the three-per-career
+// cap: ERRATA E-32 reads that cap as governing the choice rather than the
+// roll, because a result that compels a Cash roll has already made the
+// choice. It still counts, so a compelled roll can close the cap against a
+// free one later.
+func (g *Generator) chooseBenefitTable(
+	left career.Career, batch BenefitBatch, cashTaken int,
+) (bool, error) {
+	if batch.CashOnly {
+		if cashTaken >= cashRollsPerCareer {
+			g.char.Provenance.Deviate("E-32")
+		}
+
+		return true, nil
+	}
+
+	cashOpen := cashTaken < cashRollsPerCareer
+
+	options := []string{"Other Benefits"}
+	if cashOpen {
+		options = []string{"Cash", "Other Benefits"}
+	}
+
+	index, err := g.choose(Choice{
+		Point:   "benefit_table",
+		Prompt:  "Choose a mustering out table for " + left.Name,
+		Options: options,
+		Cite:    "p. 127",
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return cashOpen && index == 0, nil
+}
+
+// immediateCashRolls resolves the Cash rolls a result says are taken now
+// rather than at Step 19: "excellent work earns a bonus: take two Cash
+// Benefit rolls immediately". They read the current career's Cash column
+// and pay at once, so they are outside the Step 19 queue and outside the
+// three-per-career cap that governs it.
+func (g *Generator) immediateCashRolls(effect career.Effect, cause int) error {
+	if g.career == nil {
+		g.unimplemented(cause, effect.Detail+" -- outside a career, with no cash table to read")
+
+		return nil
+	}
+
+	for range effect.Count {
+		roll := g.dice.D6()
+		rollCause := g.log.Roll(roll, "p. 127")
+
+		amount := g.career.Benefits[roll.Total-1].Cash
+
+		if amount == 0 && effect.RerollNothing {
+			roll = g.dice.D6()
+			rollCause = g.log.Roll(roll, "p. 127")
+			amount = g.career.Benefits[roll.Total-1].Cash
+		}
+
+		g.char.State.Credits += amount
+		g.consequence(ConsequenceCredits, rollCause,
+			"an immediate cash benefit roll in "+g.career.Name+": "+itoa(amount)+" credits",
+			g.career.Name)
+	}
+
+	return nil
 }

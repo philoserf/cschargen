@@ -149,7 +149,7 @@ func sdfNavyEvents() EventTable {
 		62: {
 			Summary: "a merchant captain offers a bribe during an inspection",
 			Effects: []Effect{bribeOffered(checkSkill("Deception", 8,
-				[]Effect{unimplemented("one roll on the cash side of the benefit table")},
+				[]Effect{cashRolls(1)},
 				[]Effect{
 					benefitRolls(-1, 0, ScopeBatch),
 					throwModifier("next advancement roll", -2),

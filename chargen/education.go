@@ -178,6 +178,10 @@ func (g *Generator) eligibleFor(institution career.Institution, score func(strin
 		return false
 	case g.academyClosed && institution.Name == career.MilitaryAcademy().Name:
 		return false
+	case len(g.char.State.Terms) < g.educationClosedUntil:
+		// A graduate track's worst two failures close every institution
+		// rather than the one that expelled the character (pp. 98, 102).
+		return false
 	case institution.RequiresDegree != g.holdsADegree():
 		// A graduate track needs a degree, and an undergraduate one is not
 		// gone back to once a degree is held.
@@ -187,6 +191,18 @@ func (g *Generator) eligibleFor(institution career.Institution, score func(strin
 	}
 
 	return true
+}
+
+// closeEducation bars every institution for a number of terms, measured in
+// career terms served as the enlistment lockout is. A second such result
+// extends the bar rather than restarting it, so the later date wins.
+func (g *Generator) closeEducation(effect career.Effect, cause int) {
+	until := len(g.char.State.Terms) + effect.Terms
+	if until > g.educationClosedUntil {
+		g.educationClosedUntil = until
+	}
+
+	g.consequence(ConsequenceEducation, cause, effect.Detail, "")
 }
 
 // holdsADegree is the graduate tracks' other prerequisite: "the character
