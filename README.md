@@ -25,6 +25,7 @@ throws, and the other thirty-one careers.
 ```sh
 cschargen data validate setting.json        # check your own setting data
 cschargen new --auto --seed 7 --terms 3 --data setting.json -o character.json
+cschargen batch --auto --count 20 --seed 100 -o crew.jsonl
 cschargen render character.json             # the character sheet
 cschargen render --history character.json   # the lifepath, throw by throw
 cschargen replay character.json             # re-run it from the seed

@@ -88,6 +88,26 @@ func (f newFlags) parse(args []string) (uint64, error) {
 	return rand.Uint64(), nil
 }
 
+// inputs is everything the command line says about the character, which is
+// the same set whether one is generated or twenty.
+func (f newFlags) inputs() chargen.Inputs {
+	return chargen.Inputs{
+		Name:          *f.name,
+		Species:       *f.species,
+		TechLevel:     *f.techLevel,
+		MaxTerms:      *f.maxTerms,
+		TermLimit:     *f.terms,
+		Career:        *f.forceCar,
+		SkipFamily:    *f.noFamily,
+		SkipYouth:     *f.noYouth,
+		SkipTeenage:   *f.noTeenage,
+		SkipEducation: *f.noSchool,
+		Gender:        *f.gender,
+		Appearance:    *f.look,
+		Goals:         *f.goals,
+	}
+}
+
 // decider is the mode the run is in. Auto applies the fixed policy of
 // POLICY.md; without it the player is asked.
 //
@@ -125,21 +145,7 @@ func newCommand(args []string, out *os.File) error {
 		EngineVersion: version(),
 		PolicyVersion: policyVersion,
 		Setting:       world,
-		Inputs: chargen.Inputs{
-			Name:          *flags.name,
-			Species:       *flags.species,
-			TechLevel:     *flags.techLevel,
-			MaxTerms:      *flags.maxTerms,
-			TermLimit:     *flags.terms,
-			Career:        *flags.forceCar,
-			SkipFamily:    *flags.noFamily,
-			SkipYouth:     *flags.noYouth,
-			SkipTeenage:   *flags.noTeenage,
-			SkipEducation: *flags.noSchool,
-			Gender:        *flags.gender,
-			Appearance:    *flags.look,
-			Goals:         *flags.goals,
-		},
+		Inputs:        flags.inputs(),
 	}).Run()
 	if err != nil {
 		return fmt.Errorf("generating: %w", err)

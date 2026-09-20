@@ -136,7 +136,10 @@ func (g *Generator) chooseInstitution(step int) (career.Institution, bool, error
 		return career.Institution{}, false, nil
 	}
 
-	if g.char.Provenance.Inputs.SkipEducation {
+	// --skip-education says not to attempt it before Step 9. A player who
+	// asked to return at Step 18 has said otherwise, and their answer is
+	// later and more specific than the flag.
+	if g.char.Provenance.Inputs.SkipEducation && !g.returning {
 		g.consequence(ConsequenceEducation, step,
 			"higher education declined; it is never required (p. 85)", "")
 

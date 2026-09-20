@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -652,5 +653,210 @@ func TestNewWithoutAutoAsksTheirPlayer(t *testing.T) {
 	// And it is not a usage error: the command line was fine.
 	if strings.HasPrefix(err.Error(), "usage:") {
 		t.Errorf("err = %v, which blames the command line", err)
+	}
+}
+
+// TestBatchWritesOneRecordPerLine. "batch emits JSONL, requires --auto, and
+// derives each member's seed from the base seed plus index, recorded per
+// record" (the PRD's CLI sketch).
+func TestBatchWritesOneRecordPerLine(t *testing.T) {
+	t.Parallel()
+
+	out, err := capture(t, "batch", "--auto", "--count", "5", "--seed", "100", "--terms", "1")
+	if err != nil {
+		t.Fatalf("batch: %v", err)
+	}
+
+	lines := strings.Split(strings.TrimSpace(out), "\n")
+	if len(lines) != 5 {
+		t.Fatalf("%d lines, want 5", len(lines))
+	}
+
+	seen := map[uint64]bool{}
+
+	for i, line := range lines {
+		var record struct {
+			Provenance struct {
+				RNG struct {
+					Seed uint64 `json:"seed"`
+				} `json:"rng"`
+			} `json:"provenance"`
+		}
+
+		err = json.Unmarshal([]byte(line), &record)
+		if err != nil {
+			t.Fatalf("line %d does not decode: %v", i+1, err)
+		}
+
+		// The seed of member i is the base plus i, and is on that member's
+		// own record -- so any one of them regenerates alone.
+		want := uint64(100 + i)
+		if record.Provenance.RNG.Seed != want {
+			t.Errorf("line %d carries seed %d, want %d", i+1, record.Provenance.RNG.Seed, want)
+		}
+
+		seen[record.Provenance.RNG.Seed] = true
+	}
+
+	if len(seen) != 5 {
+		t.Errorf("%d distinct seeds across five records", len(seen))
+	}
+}
+
+// TestBatchNeedsWhatItNeeds.
+func TestBatchNeedsWhatItNeeds(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		args []string
+		want string
+	}{
+		{"no count", []string{"batch", "--auto"}, "batch needs --count N"},
+		{"a count of zero", []string{"batch", "--auto", "--count", "0"}, "batch needs --count N"},
+		{"no auto", []string{"batch", "--count", "2"}, "batch needs --auto"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, err := capture(t, tc.args...)
+			if err == nil {
+				t.Fatal("it ran anyway")
+			}
+
+			if !strings.Contains(err.Error(), tc.want) {
+				t.Errorf("err = %v, want %q", err, tc.want)
+			}
+		})
+	}
+}
+
+// TestABatchMemberRegeneratesAlone is the point of recording each seed.
+func TestABatchMemberRegeneratesAlone(t *testing.T) {
+	t.Parallel()
+
+	batch, err := capture(t, "batch", "--auto", "--count", "3", "--seed", "200", "--terms", "1")
+	if err != nil {
+		t.Fatalf("batch: %v", err)
+	}
+
+	third := strings.Split(strings.TrimSpace(batch), "\n")[2]
+
+	alone, err := capture(t, cmdNew, "--auto", "--seed", "202", "--terms", "1")
+	if err != nil {
+		t.Fatalf("new: %v", err)
+	}
+
+	// The batch writes compact JSON and `new` writes it indented, so the
+	// two are compared as values rather than as text.
+	var fromBatch, fromNew any
+
+	err = json.Unmarshal([]byte(third), &fromBatch)
+	if err != nil {
+		t.Fatalf("decoding the batch member: %v", err)
+	}
+
+	err = json.Unmarshal([]byte(alone), &fromNew)
+	if err != nil {
+		t.Fatalf("decoding the single record: %v", err)
+	}
+
+	if !reflect.DeepEqual(fromBatch, fromNew) {
+		t.Error("the third member of the batch is not what its own seed generates")
+	}
+}
+
+// TestBatchWritesAFile, and refuses to overwrite one without --force,
+// which is `new`'s rule and should be the same rule.
+func TestBatchWritesAFile(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "crew.jsonl")
+
+	_, err := capture(t, "batch", "--auto", "--count", "2", "--seed", "1", "--terms", "1",
+		"-o", path)
+	if err != nil {
+		t.Fatalf("batch: %v", err)
+	}
+
+	written, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading the batch: %v", err)
+	}
+
+	if lines := strings.Count(string(written), "\n"); lines != 2 {
+		t.Errorf("%d lines in the file, want 2", lines)
+	}
+
+	// A second run over the same path is refused.
+	_, err = capture(t, "batch", "--auto", "--count", "2", "--seed", "1", "--terms", "1",
+		"-o", path)
+	if err == nil {
+		t.Error("a batch overwrote a file without --force")
+	}
+}
+
+// TestBatchRefusesABadDataFile. The setting is loaded once for the whole
+// batch, so a bad one fails before any character is generated.
+func TestBatchRefusesABadDataFile(t *testing.T) {
+	t.Parallel()
+
+	_, err := capture(t, "batch", "--auto", "--count", "2", "--data", "nowhere.json")
+	if err == nil {
+		t.Fatal("a batch ran against a data file that does not exist")
+	}
+}
+
+// TestBatchRefusesAPositionalArgument, for the reason `new` does.
+func TestBatchRefusesAPositionalArgument(t *testing.T) {
+	t.Parallel()
+
+	_, err := capture(t, "batch", "--auto", "--count", "2", "extra")
+	if err == nil {
+		t.Fatal("a batch took a positional argument")
+	}
+
+	if !strings.HasPrefix(err.Error(), "usage:") {
+		t.Errorf("err = %v, want a usage error", err)
+	}
+}
+
+// TestBatchRefusesACharacterItCannotGenerate. A species the data does not
+// declare fails the first member, and the error says which.
+func TestBatchRefusesACharacterItCannotGenerate(t *testing.T) {
+	t.Parallel()
+
+	_, err := capture(t, "batch", "--auto", "--count", "3", "--species", "Basilisk")
+	if err == nil {
+		t.Fatal("a batch generated a species the data does not declare")
+	}
+
+	if !strings.Contains(err.Error(), "character 1 of 3") {
+		t.Errorf("err = %v, which does not say which member failed", err)
+	}
+}
+
+// TestBatchToAStreamThatIsClosed. `batch` writes to stdout unless -o, and a
+// stream that will not take it is an error rather than a silent success.
+func TestBatchToAStreamThatIsClosed(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "closed")
+
+	file, err := os.Create(path)
+	if err != nil {
+		t.Fatalf("creating the file: %v", err)
+	}
+
+	err = file.Close()
+	if err != nil {
+		t.Fatalf("closing the file: %v", err)
+	}
+
+	err = run([]string{"batch", "--auto", "--count", "1", "--terms", "1"}, file)
+	if err == nil {
+		t.Error("a batch written to a closed file succeeded")
 	}
 }
