@@ -837,3 +837,38 @@ func TestAnUnreadableTieCountIsAnError(t *testing.T) {
 		}
 	}
 }
+
+// TestLosingThatTieTakesTheNewestAndNotAParent is ERRATA E-39: "you lose
+// the Ally" means the superior officer the result granted a sentence
+// earlier, not the mother it granted at Step 5.
+func TestLosingThatTieTakesTheNewestAndNotAParent(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t,
+		Tie{Kind: string(career.Ally), Origin: FamilyOrigin, Rating: 125, Role: "parent"},
+		Tie{Kind: string(career.Ally), Origin: fromACareer, Rating: 150},
+		Tie{Kind: string(career.Ally), Origin: fromACareer, Rating: 130},
+	)
+
+	err := gen.loseTie(career.Effect{
+		Kind: career.EffectLoseTie, Detail: "lose that ally",
+		Order:  []career.Relationship{career.Ally},
+		Newest: true, ExcludeFamily: true,
+	}, 0)
+	if err != nil {
+		t.Fatalf("loseTie: %v", err)
+	}
+
+	if len(gen.char.State.Ties) != 2 {
+		t.Fatalf("%d ties remain, want 2", len(gen.char.State.Ties))
+	}
+
+	if gen.char.State.Ties[0].Role != "parent" {
+		t.Error("the parent was taken")
+	}
+
+	if gen.char.State.Ties[1].Rating != 150 {
+		t.Errorf("the tie taken was at %d, want the newest at 130",
+			gen.char.State.Ties[1].Rating)
+	}
+}

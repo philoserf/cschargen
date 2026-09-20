@@ -241,3 +241,32 @@ func TestACharacterIsAddictedOnlyOnce(t *testing.T) {
 		t.Errorf("the record does not say it was already there: %q", lastDetail(t, gen))
 	}
 }
+
+// TestRaisingTheSkillTheCharacterUsed is the Scientist's breakthrough:
+// "gain a level in the Science skill you used on this task" is one of the
+// character's Sciences, not any skill they hold.
+func TestRaisingTheSkillTheCharacterUsed(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 151)
+
+	gen.char.State.GainSkill("Melee", "Blade", 3)
+	gen.char.State.GainSkill("Science", "Physics", 2)
+
+	err := gen.raiseHeldSkill(career.Effect{
+		Kind: career.EffectRaiseHeld, OnSkill: "Science",
+		Detail: "raise the Science skill the character used",
+	}, 0)
+	if err != nil {
+		t.Fatalf("raiseHeldSkill: %v", err)
+	}
+
+	if gen.char.State.SkillLevel("Science") != 3 {
+		t.Errorf("Science is at %d, want 3: %v",
+			gen.char.State.SkillLevel("Science"), gen.char.State.Skills)
+	}
+
+	if gen.char.State.SkillLevel("Melee") != 3 {
+		t.Error("the raise reached a skill outside the one it named")
+	}
+}

@@ -43,11 +43,14 @@ func TestEveryCharacterHasAFamily(t *testing.T) {
 
 		opts.Inputs.TermLimit = -1
 
-		// Steps 6 and 7 move these ratings on almost every row, and one
-		// teenage result takes a relative away entirely. The rating a
-		// parent is granted at is what this test is about.
+		// Steps 6, 7 and 8 all move these ratings -- almost every youth and
+		// teenage row does, and an institution's life-event table reaches
+		// the one that says "an existing Ally or Contact loses 1d6 x 20",
+		// which a parent is. The rating a parent is granted at is what
+		// this test is about, so none of the three runs.
 		opts.Inputs.SkipYouth = true
 		opts.Inputs.SkipTeenage = true
+		opts.Inputs.SkipEducation = true
 
 		character := generate(t, opts)
 

@@ -68,9 +68,11 @@ func sportsEvents() EventTable {
 		},
 		23: {
 			Summary: "a local religion, delved into deeply",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on a 6, gain a level in Science (Philosophy); " +
-					"where a religion was already taken, this is a change of religion")},
+			Effects: []Effect{group(
+				religion(),
+				rollSub("how deeply it takes",
+					onRange(1, 5, "it stays an interest"),
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
 		},
 		24: {
 			Summary: "a weapons class",

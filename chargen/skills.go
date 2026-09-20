@@ -18,6 +18,13 @@ const skillListCite = "pp. 304-314"
 // any skill has been granted.
 func (g *Generator) raiseHeldSkill(effect career.Effect, cause int) error {
 	held := g.char.State.Skills
+
+	// "The Science skill you used on this task" is one of the character's
+	// Sciences rather than any skill at all.
+	if effect.OnSkill != "" {
+		held = skillsNamed(held, effect.OnSkill)
+	}
+
 	if len(held) == 0 {
 		g.consequence(ConsequenceSkill, cause, effect.Detail+": the character holds none", "")
 
@@ -51,6 +58,20 @@ func (g *Generator) raiseHeldSkill(effect career.Effect, cause int) error {
 		Specialties: []string{picked.Specialty},
 		Detail:      effect.Detail,
 	}, cause)
+}
+
+// skillsNamed is the character's entries for one skill, whatever their
+// specialties.
+func skillsNamed(held []Skill, name string) []Skill {
+	found := make([]Skill, 0, len(held))
+
+	for _, skill := range held {
+		if skill.Name == name {
+			found = append(found, skill)
+		}
+	}
+
+	return found
 }
 
 // anySkill is "gain a level in any skill of your choice", chosen from the

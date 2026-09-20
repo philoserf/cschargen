@@ -170,9 +170,11 @@ func undergraduateEvents() []EventRow {
 		},
 		{
 			Summary: "a local religion delved into deeply",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on a 6 you become deeply involved and gain Science " +
-					"(Philosophy) 1; where a religion was already taken, this is a change")},
+			Effects: []Effect{group(
+				religion(),
+				rollSub("how deeply it takes",
+					onRange(1, 5, "it stays an interest"),
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
 		},
 		{
 			Summary: "a lot of fun in your college years",

@@ -23,7 +23,7 @@ func scientistEvents() EventTable {
 				[]Effect{pick("who you reached",
 					opt("an Ally", relationship(Ally, 1, "")),
 					opt("contacts", relationship(Contact, 0, "1d3")))},
-				[]Effect{throwModifier("next survival roll", -2)})},
+				[]Effect{throwModifier(survivalThrow, -2)})},
 		},
 		16: {
 			Summary: "a teaching position offered at a local university",
@@ -44,11 +44,21 @@ func scientistEvents() EventTable {
 		25: {
 			Summary: "a discussion panel, broadcast to the public",
 			Effects: []Effect{checkSkill("Persuade", 8,
-				[]Effect{unimplemented(
-					"roll 1d6 for how it lands: from the host alone as an Ally, through contacts " +
-						"among the audience, to a standing invitation, +2 CHA and an offer to " +
-						"leave for the Celebrity career")},
-				[]Effect{throwModifier("next advancement roll", -2)})},
+				[]Effect{rollSub("how the panel lands (p. 271)",
+					on(1, "you persuade nobody but the host", relationship(Ally, 1, "")),
+					onRange(2, 3, "the audience is persuaded",
+						relationship(Contact, 0, "1d3")),
+					onRange(4, 5, "the panel and the audience both",
+						relationship(Ally, 1, ""),
+						relationship(Contact, 0, "1d3")),
+					on(6, "outstanding, and the host wants you back",
+						relationship(Ally, 1, ""),
+						chr("CHA", 2),
+						relationship(Contact, 0, "1d3"),
+						pick("stay a Scientist, or take the offer",
+							opt("stay"),
+							opt("take it", transfer("Celebrity", "Star", 0)))))},
+				[]Effect{throwModifier(advancementThrow, -2)})},
 		},
 		26: {
 			// ERRATA E-13: this row is printed with a number and nothing
@@ -74,8 +84,8 @@ func scientistEvents() EventTable {
 		43: {
 			Summary: "a term spent researching the background of your field",
 			Effects: []Effect{checkSkill("Investigate", 8,
-				[]Effect{throwModifier("next advancement roll", 2)},
-				[]Effect{throwModifier("next survival roll", -2)})},
+				[]Effect{throwModifier(advancementThrow, 2)},
+				[]Effect{throwModifier(survivalThrow, -2)})},
 		},
 		44: {Summary: "first aid learned", Effects: []Effect{skill("Medic", "First Aid")}},
 		45: {
@@ -87,10 +97,19 @@ func scientistEvents() EventTable {
 		46: {
 			Summary: "on the edge of a breakthrough",
 			Effects: []Effect{checkSkill("Science", 8,
-				[]Effect{unimplemented(
-					"roll 1d6 for the size of it: from a minor result, through a change of field, " +
-						"to a major breakthrough worth two skill levels and two benefit rolls")},
-				[]Effect{throwModifier("next survival roll", -2)})},
+				[]Effect{rollSub("how large the breakthrough is (p. 272)",
+					on(1, "minor, and the work itself is the reward",
+						raiseHeldSkillIn("Science")),
+					onRange(2, 3, "it leads you into another field",
+						skill("Science", "Any")),
+					onRange(4, 5, "a success",
+						throwModifier(advancementThrow, 2),
+						raiseHeldSkillIn("Science")),
+					on(6, "a major breakthrough in your field",
+						raiseHeldSkillIn("Science"),
+						skill("Science", "Any"),
+						benefitRolls(2, 0, ScopeBatch)))},
+				[]Effect{throwModifier(survivalThrow, -2)})},
 		},
 		51: {
 			Summary: "a term spent aboard a starship, helping with the shipboard duties",

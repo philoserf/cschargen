@@ -21,7 +21,7 @@ func celebrityEvents() EventTable {
 					[]Effect{benefitRolls(1, 0, ScopeBatch)},
 					[]Effect{
 						benefitRolls(-1, 0, ScopeBatch),
-						throwModifier("next survival roll", -2),
+						throwModifier(survivalThrow, -2),
 					}),
 			},
 		},
@@ -64,12 +64,40 @@ func celebrityEvents() EventTable {
 		22: {
 			Summary: "an invitation onto a celebrity game show",
 			Effects: []Effect{pick("take the booking or refuse",
-				opt("refuse", throwModifier("next advancement roll", 2)),
+				opt("refuse", throwModifier(advancementThrow, 2)),
 				opt("take it",
 					credits("5000"),
-					unimplemented(
-						"roll 1d6 for the kind of show: a farce to embarrass you, a quiz, a test of "+
-							"charisma, or a triumph worth 10,000 credits and a benefit roll")))},
+					rollSub("what kind of show it turns out to be (p. 166)",
+						on(1, "a farce meant to embarrass its guests",
+							pick("turn the tables with diplomacy or with charm",
+								opt("Diplomat", checkSkill("Diplomat", 8,
+									[]Effect{
+										benefitRolls(2, 0, ScopeBatch),
+										throwModifier(survivalThrow, 2),
+									},
+									[]Effect{throwModifier(survivalThrow, -2)})),
+								opt("Persuade", checkSkill("Persuade", 8,
+									[]Effect{
+										benefitRolls(2, 0, ScopeBatch),
+										throwModifier(survivalThrow, 2),
+									},
+									[]Effect{throwModifier(survivalThrow, -2)})))),
+						onRange(2, 3, "a quiz show of facts and trivia",
+							pick("answer on what you know or on how you were taught",
+								opt("INT", checkChr("INT", 8,
+									[]Effect{benefitRolls(1, 0, ScopeBatch)},
+									[]Effect{throwModifier(survivalThrow, -2)})),
+								opt("EDU", checkChr("EDU", 8,
+									[]Effect{benefitRolls(1, 0, ScopeBatch)},
+									[]Effect{throwModifier(survivalThrow, -2)})))),
+						onRange(4, 5, "a test of wit and charisma",
+							checkChr("CHA", 8,
+								[]Effect{benefitRolls(2, 0, ScopeBatch)},
+								[]Effect{throwModifier(survivalThrow, -2)})),
+						on(6, "a triumph",
+							credits("10000"),
+							benefitRolls(1, 0, ScopeBatch),
+							throwModifier(survivalThrow, 2)))))},
 		},
 		23: {
 			Summary: "a religion, delved into deeply",
@@ -107,13 +135,13 @@ func celebrityEvents() EventTable {
 		51: {Summary: "riding, taken up to relax", Effects: []Effect{skill("Animals", "Riding")}},
 		52: {
 			Summary: "a tell-all book about you and your career",
-			Effects: []Effect{throwModifier("next survival roll", -2)},
+			Effects: []Effect{throwModifier(survivalThrow, -2)},
 		},
 		53: {
 			// ERRATA E-1: the failure branch cites p. 136.
 			Summary: "a crazed fan gets past security and lunges at you",
 			Effects: []Effect{checkSkill("Melee", 8,
-				[]Effect{benefitRolls(2, 0, ScopeBatch), throwModifier("next survival roll", 2)},
+				[]Effect{benefitRolls(2, 0, ScopeBatch), throwModifier(survivalThrow, 2)},
 				[]Effect{injury(1)})},
 		},
 		54: {
@@ -127,9 +155,17 @@ func celebrityEvents() EventTable {
 			Summary: "an endorsement deal for your likeness",
 			Effects: []Effect{
 				credits("25000"),
-				unimplemented(
-					"roll 1d6 for how the product fares: from an abject failure that drags you " +
-						"down to a major success worth 100,000 credits and three benefit rolls"),
+				rollSub("how the product fares (p. 167)",
+					on(1, "an abject failure, which drags you down with it",
+						throwModifier(advancementThrow, -2)),
+					onRange(2, 3, "a success, and an embarrassing one over time",
+						throwModifier(survivalThrow, -1)),
+					onRange(4, 5, "a success, and a bonus with it",
+						credits("10000"),
+						throwModifier(survivalThrow, 1)),
+					on(6, "a major success, and the contract extended",
+						credits("100000"),
+						benefitRolls(3, 0, ScopeBatch))),
 			},
 		},
 		56: {
@@ -138,7 +174,7 @@ func celebrityEvents() EventTable {
 		},
 		61: {
 			Summary: "your most recent work is an astounding success",
-			Effects: []Effect{advance(), throwModifier("next survival roll", 2)},
+			Effects: []Effect{advance(), throwModifier(survivalThrow, 2)},
 		},
 		62: {Summary: "your agent is a genius", Effects: []Effect{benefitRolls(2, 0, ScopeBatch)}},
 		63: {
@@ -152,13 +188,37 @@ func celebrityEvents() EventTable {
 			Summary: "an invitation onto the subsector's most popular interview show",
 			Effects: []Effect{pick("accept or refuse",
 				opt("refuse",
-					throwModifier("next survival roll", -2),
-					throwModifier("next advancement roll", -3)),
+					throwModifier(survivalThrow, -2),
+					throwModifier(advancementThrow, -3)),
 				opt("accept",
 					credits("5000"),
-					unimplemented(
-						"roll 1d6 for the host's disposition, then a Diplomat or Etiquette check; "+
-							"the outcomes run from severe damage to the career to the host as an Ally")))},
+					rollSub("how the host is disposed towards you (p. 168)",
+						on(1, "the host hates your work and means to embarrass you",
+							checkSkill("Diplomat", 8,
+								[]Effect{skill("Diplomat"), throwModifier(survivalThrow, 2)},
+								[]Effect{unimplemented("severe damage to your career, " +
+									"which p. 168 does not quantify")})),
+						onRange(2, 3, "the host did not want you on the show",
+							checkSkill("Diplomat", 8, nil,
+								[]Effect{throwModifier(advancementThrow, -2)})),
+						onRange(4, 5, "the host is somewhat impressed",
+							checkSkill("Diplomat", 8,
+								[]Effect{
+									throwModifier(advancementThrow, 2),
+									relationship(Contact, 1, ""),
+								},
+								[]Effect{throwModifier(survivalThrow, -2)})),
+						on(6, "the host is already enamoured of your work",
+							checkSkill("Etiquette", 8,
+								[]Effect{
+									relationship(Ally, 1, ""),
+									throwModifier(survivalThrow, 2),
+									throwModifier(advancementThrow, 2),
+								},
+								[]Effect{
+									throwModifier(survivalThrow, -2),
+									relationship(Enemy, 1, ""),
+								})))))},
 		},
 		66: {
 			Summary: "recognized as one of the best at what you do",
@@ -182,6 +242,6 @@ func celebritySpun() []Effect {
 func celebrityStung() []Effect {
 	return []Effect{
 		benefitRolls(-1, 0, ScopeBatch),
-		throwModifier("next survival roll", -2),
+		throwModifier(survivalThrow, -2),
 	}
 }

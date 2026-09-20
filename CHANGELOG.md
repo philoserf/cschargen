@@ -236,7 +236,32 @@ and a religion.
 - A character is addicted once. Taking the result again records that they
   already were.
 
+### The last of the 1d6 tables that could be read
+
+Five more occurrences resolve — 64 distinct results become 59, 75 occurrences
+become 70 — and six of the forty-two sub-tables are now transcribed from the page
+rather than summarised: the Celebrity's game show and interview show and
+endorsement deal, the Scientist's discussion panel and breakthrough, the
+Independent Merchant's reality holovid.
+
+"The Science skill you used on this task" raises one of the character's
+Sciences rather than offering a new specialty, which could have given Science
+(Chemistry) 1 to a character whose check was made on Science (Physics) 3.
+
+The Arts career's own interview show is transcribed as far as it can be. Its four
+rows each call for a Diplomat check at a named **difficulty**, which is the Core
+Rulebook's task system and outside this ruleset (**ERRATA E-12**) — so the die is
+rolled, the row is recorded, and only the check is left open. That is four small
+unresolved results where there was one large one, and a reader can see which part
+is missing.
+
 ### Fixed
+
+- **"You lose the Ally" could take a parent.** The nine results that read "gain an
+  Ally and a +4 DM to your next Advancement roll; if you fail that roll, you lose
+  the Ally" mean the superior officer the result granted a sentence earlier.
+  **ERRATA E-39** reads it as the most recently gained Ally that is not family: a
+  promotion that goes wrong at work does not cost a character their mother.
 
 - A character dismissed from a career could still muster out of it.
 - An instant promotion from an event granted the rank and none of its benefits.

@@ -63,6 +63,17 @@ func raiseHeldSkill() Effect {
 	return Effect{Kind: EffectRaiseHeld, Detail: "raise a skill the character already holds"}
 }
 
+// raiseHeldSkillIn is raiseHeldSkill narrowed to one skill's specialties:
+// "gain a level in the Science skill you used on this task", where the
+// check was made on whichever Science the character has most of.
+func raiseHeldSkillIn(name string) Effect {
+	return Effect{
+		Kind:    EffectRaiseHeld,
+		Detail:  "raise the " + name + " skill the character used",
+		OnSkill: name,
+	}
+}
+
 // anySkill is "gain a level in any skill of your choice", chosen from the
 // list of pp. 304-314.
 func anySkill() Effect {
@@ -487,6 +498,20 @@ func loseTie(order ...Relationship) Effect {
 	}
 
 	return Effect{Kind: EffectLoseTie, Detail: detail, Order: order, Count: 1}
+}
+
+// loseThatTie is the nine hooks that read "if you fail that Advancement
+// roll, you lose the Ally": the Ally the event granted a line earlier,
+// which the engine reaches as the most recently gained one that is not
+// family. ERRATA E-39.
+func loseThatTie(kind Relationship) Effect {
+	effect := loseTie(kind)
+
+	effect.Newest = true
+	effect.ExcludeFamily = true
+	effect.Detail = "lose that " + string(kind)
+
+	return effect
 }
 
 // loseTies is loseTie several times over: "lose 1D3 Allies and Contacts",
