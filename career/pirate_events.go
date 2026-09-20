@@ -153,16 +153,26 @@ func pirateEvents() EventTable {
 		63: {Summary: "first aid, self-taught", Effects: []Effect{skill("Medic", "First Aid")}},
 		64: {
 			Summary: "a hidden compartment, and two bottles of an entrancing green liquid",
-			Effects: []Effect{rollSub("what was in the bottles",
-				on(1, "an explosive, and it goes off", injury(1)),
-				onRange(2, 5, "a famous and very old drink",
+			Effects: []Effect{rollSub("what the liquid is (p. 255)",
+				on(1, "a powerful explosive, which goes off once disturbed", injury(1)),
+				onRange(2, 5, "a famous alcoholic beverage",
 					pick("keep the bottles or sell them",
-						opt("keep them", stashItem("two bottles of a famous old drink")),
+						opt("keep them", stashItem("two bottles of a famous beverage")),
 						opt("sell them", checkSkill("Broker", 8,
-							[]Effect{credits("2d6x1000")},
-							nil)))),
+							[]Effect{benefitRolls(3, 0, ScopeBatch)},
+							[]Effect{benefitRolls(1, 0, ScopeBatch)})))),
 				on(6, "the home of a strange alien animal",
-					stashItem("a strange alien animal")))},
+					pick("keep the bottles or sell them",
+						opt("keep them", group(
+							stashItem("two bottles housing a strange alien animal"),
+							// "+2 to all Advancement rolls for as long as the
+							// character keeps the bottles" -- a modifier that
+							// lasts while a possession is held, which nothing
+							// else in the book asks for and the engine has no
+							// shape for.
+							unimplemented("+2 to every advancement roll while the bottles are kept"))),
+						opt("sell them",
+							benefitRolls(2, 1, ScopeBatch)))))},
 		},
 		65: {
 			Summary: "a famous pirate takes you on as a protege",

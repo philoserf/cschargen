@@ -749,8 +749,6 @@ func weaponOrItsUse() Effect {
 }
 
 // loseStashItem removes every possession of one name.
-//
-//nolint:unparam // the item is the page's; shares are merely the only thing any result takes back
 func loseStashItem(item string) Effect {
 	return Effect{
 		Kind:   EffectStash,
