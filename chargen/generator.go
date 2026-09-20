@@ -429,8 +429,25 @@ func (g *Generator) leaveCareer(cause int, why string) error {
 	g.forcedTerms = 0
 	g.termsInCareer = 0
 	g.forfeitedTerms = 0
+	g.dropCareerModifiers()
 
 	return nil
+}
+
+// dropCareerModifiers forgets the modifiers a result granted "for the rest
+// of this career". Nothing else ends them: they carry no count, and a
+// modifier that outlived the career it was granted in would follow the
+// character for good.
+func (g *Generator) dropCareerModifiers() {
+	kept := make([]PendingModifier, 0, len(g.pending))
+
+	for _, pending := range g.pending {
+		if !pending.WhileInThisCareer {
+			kept = append(kept, pending)
+		}
+	}
+
+	g.pending = kept
 }
 
 // choose puts a choice point to the decider and returns a checked index.

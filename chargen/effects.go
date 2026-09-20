@@ -81,8 +81,12 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 	case career.EffectModifier:
 		g.pending = append(g.pending, PendingModifier{
 			Applies: effect.Applies, Value: effect.Modifier, Detail: effect.Detail,
-			OnTags: effect.OnTags, NotTags: effect.NotTags, NotCareers: effect.NotCareers,
-			OnCharacteristics: effect.OnCharacteristics, Standing: effect.Standing,
+			OnTags: effect.OnTags, NotTags: effect.NotTags,
+			OnCareers: effect.OnCareers, NotCareers: effect.NotCareers,
+			OnCharacteristics: effect.OnCharacteristics, OnSkill: effect.OnSkill,
+			WhileInThisCareer: effect.WhileInThisCareer,
+			Standing:          effect.Standing,
+			Uses:              effect.Uses,
 		})
 		g.consequence(ConsequenceModifier, cause, effect.Detail, "")
 

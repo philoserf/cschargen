@@ -75,7 +75,8 @@ func academyFailure() MishapTable {
 		{Summary: "a severe injury during training", Effects: []Effect{injury(1)}},
 		{
 			Summary: "dismissed for insubordination",
-			Effects: []Effect{throwModifier("enlistment in any military career", -4)},
+			Effects: []Effect{modifierFor(enlistmentThrow, -4, 0, "-4 to enlistment in any military career",
+				enlistmentNarrowing{OnTags: []Tag{TagMilitary}, Standing: true})},
 		},
 		{
 			Summary: "caught in academy politics, and made the scapegoat",
@@ -124,7 +125,9 @@ func academyEvents() []EventRow {
 			Summary: "a formal punishment that stains any future military career",
 			Effects: []Effect{
 				relationshipAt(Rival, 1, -35),
-				throwModifier("first two advancement rolls in a military career", -2),
+				modifierFor(advancementThrow, -2, 2,
+					"-2 to the first two advancement rolls in a military career",
+					enlistmentNarrowing{OnTags: []Tag{TagMilitary}}),
 			},
 		},
 		{
@@ -206,7 +209,13 @@ func academyEvents() []EventRow {
 			Summary: "a senior officer who becomes a patron",
 			Effects: []Effect{
 				relationshipAt(Ally, 1, 130),
-				throwModifier("first two survival and advancement rolls in a military career", 2),
+				group(
+					modifierFor(survivalThrow, 2, 2,
+						"+2 to the first two survival rolls in a military career",
+						enlistmentNarrowing{OnTags: []Tag{TagMilitary}}),
+					modifierFor(advancementThrow, 2, 2,
+						"+2 to the first two advancement rolls in a military career",
+						enlistmentNarrowing{OnTags: []Tag{TagMilitary}})),
 			},
 		},
 		distinguishedGraduate(),
@@ -223,10 +232,14 @@ func academyLifeEvents() []EventRow {
 		Summary: "a military action the academy was called into",
 		Effects: []Effect{pick("answer the call with what you have",
 			opt("Gun Combat", checkSkill("Gun Combat", 8,
-				[]Effect{throwModifier("first advancement roll in a military career", 2)},
+				[]Effect{modifierFor(advancementThrow, 2, 1,
+					"+2 to the first advancement roll in a military career",
+					enlistmentNarrowing{OnTags: []Tag{TagMilitary}})},
 				[]Effect{injury(1)})),
 			opt("Tactics", checkSkill("Tactics", 8,
-				[]Effect{throwModifier("first advancement roll in a military career", 2)},
+				[]Effect{modifierFor(advancementThrow, 2, 1,
+					"+2 to the first advancement roll in a military career",
+					enlistmentNarrowing{OnTags: []Tag{TagMilitary}})},
 				[]Effect{injury(1)})))},
 	}
 

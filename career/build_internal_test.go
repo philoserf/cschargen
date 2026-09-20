@@ -305,3 +305,54 @@ func TestSkillByNameFindsNothingForAName(t *testing.T) {
 		t.Error("a skill the book does not print was found on the list")
 	}
 }
+
+// TestEveryModifierNamesAThrowTheEngineTakes is the gate on a bug this
+// test was written to find: twenty-five results granted a modifier to
+// "next survival roll" and nothing in the engine consumed it, and about
+// twenty more were filed under names -- "next two advancement rolls",
+// "enlistment in any criminal career", "Melee checks in this career" --
+// that no part of the engine reads.
+//
+// A modifier under such a name is granted, recorded, shown in the
+// transcript, and never applied. Nothing else in the gate can tell: the
+// record looks right, and the throw is simply easier than the page says.
+func TestEveryModifierNamesAThrowTheEngineTakes(t *testing.T) {
+	t.Parallel()
+
+	known := Throws()
+	seen := 0
+
+	for _, effect := range everyEffect() {
+		collectThrowNames(t, effect, known, &seen)
+	}
+
+	if seen == 0 {
+		t.Fatal("no effect in the corpus names a throw")
+	}
+}
+
+// collectThrowNames walks one effect tree, holding every throw name it
+// finds against the list.
+func collectThrowNames(t *testing.T, effect Effect, known []string, seen *int) {
+	t.Helper()
+
+	if effect.Applies != "" {
+		*seen++
+
+		if !slices.Contains(known, effect.Applies) {
+			t.Errorf("%q is a throw no part of the engine takes: %s", effect.Applies, effect.Detail)
+		}
+	}
+
+	for _, nested := range [][]Effect{effect.Success, effect.Failure, effect.Group, effect.Fallback} {
+		for _, inner := range nested {
+			collectThrowNames(t, inner, known, seen)
+		}
+	}
+
+	for _, option := range effect.Options {
+		for _, inner := range option.Effects {
+			collectThrowNames(t, inner, known, seen)
+		}
+	}
+}

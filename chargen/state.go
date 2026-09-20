@@ -122,11 +122,23 @@ type PendingModifier struct {
 	// career". Empty means every career, which is the ordinary case.
 	OnTags            []career.Tag `json:"onTags,omitempty"`
 	NotTags           []career.Tag `json:"notTags,omitempty"`
+	OnCareers         []string     `json:"onCareers,omitempty"`
 	NotCareers        []string     `json:"notCareers,omitempty"`
 	OnCharacteristics []string     `json:"onCharacteristics,omitempty"`
 
+	// OnSkill narrows a check modifier to one skill, and
+	// WhileInThisCareer ends the modifier when the career does.
+	OnSkill           string `json:"onSkill,omitempty"`
+	WhileInThisCareer bool   `json:"whileInThisCareer,omitempty"`
+
+	// Uses is how many throws of that name the modifier survives. Zero and
+	// one are the same thing: the throw it was granted for. It is what
+	// "your next two Advancement rolls" needs.
+	Uses int `json:"uses,omitempty"`
+
 	// Standing keeps the modifier after the throw it modified: "every
-	// career after this one", as against "your next career".
+	// career after this one", as against "your next career". It is read on
+	// the enlistment throw alone; see takeModifiersFor.
 	Standing bool `json:"standing,omitempty"`
 }
 
@@ -134,6 +146,10 @@ type PendingModifier struct {
 // A modifier that names no classes reaches every career.
 func (p PendingModifier) AppliesTo(target career.Career) bool {
 	if slices.Contains(p.NotCareers, target.Name) {
+		return false
+	}
+
+	if len(p.OnCareers) > 0 && !slices.Contains(p.OnCareers, target.Name) {
 		return false
 	}
 

@@ -135,6 +135,37 @@ danger rather than violence.
   way — Undergraduate University's offer reaches four classes and no others.
 - **"Return to the career you held before this one"** resolves against the
   service record at the moment the transfer is taken.
+- Three results that send a released prisoner to Vagabond are transfers, which
+  the engine already did.
+
+### Modifiers that reach the throw they name
+
+Found while scoping the next pass, and a bug rather than a gap: the count of
+unresolved results does not move.
+
+**Twenty-five results grant a modifier to "next survival roll" and nothing in the
+engine consumed it.** A survival throw was made without them. The record showed
+the modifier granted, the transcript showed it in the log, and the throw was
+simply easier than the page said. About twenty more were filed under names no
+part of the engine reads — "next two advancement rolls", "enlistment in any
+criminal career", "Melee checks in this career", "advancement rolls for the rest
+of this career".
+
+`TestEveryModifierNamesAThrowTheEngineTakes` holds every modifier in the corpus
+against the five throws the engine takes. It is what found these, and what stops
+another one being written.
+
+Closing them needed three things beyond PR 6's narrowing:
+
+- **`Uses`** — "your next two Advancement rolls" is one modifier spent twice.
+- **`WhileInThisCareer`** — "for the rest of this career" ends when the career
+  does, because nothing else would ever end it.
+- **`OnSkill`** — "+1 DM to Melee checks in this career" is not spent by a check,
+  and no other skill's check takes it.
+
+Survival and advancement throws now read the class of the career they are made
+in, so "-2 DM to the first two Advancement rolls in a military career" reaches
+only those.
 
 ### Fixed
 

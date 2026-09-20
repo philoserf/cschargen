@@ -455,13 +455,28 @@ type Effect struct {
 	// career": a standing modifier is not consumed by the throw it
 	// modifies. Several results print each, and the difference is the
 	// rest of a character's life.
-	// NotCareers names careers by name rather than by class, which one
-	// result does: "-2 DM to enter any career other than Vagabond".
+	// OnCareers and NotCareers name careers rather than classes, which two
+	// results do: "+2 DM to enlistment in the Sports career", "-2 DM to
+	// enter any career other than Vagabond".
+	//
+	// OnSkill narrows a check modifier to one skill: "+1 DM to Melee
+	// checks in this career". WhileInThisCareer ends a modifier when the
+	// career does, which is what "for the rest of this career" means.
 	OnTags            []Tag
 	NotTags           []Tag
+	OnCareers         []string
 	NotCareers        []string
 	OnCharacteristics []string
+	OnSkill           string
+	WhileInThisCareer bool
 	Standing          bool
+
+	// Uses is how many throws of that name an [EffectModifier] survives:
+	// "take a -2 DM on your next two Advancement rolls", "-2 DM to all
+	// Advancement rolls for the remainder of this career". Zero is one
+	// throw, which is what most results grant. Standing is the same idea
+	// without a count, and the two do not combine.
+	Uses int
 
 	// Applies names the throw an [EffectModifier] attaches to.
 	Applies string

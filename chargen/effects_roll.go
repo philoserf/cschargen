@@ -33,7 +33,41 @@ func (g *Generator) rollCheck(target career.Target) dice.Throw {
 
 	level := max(g.char.State.SkillLevel(target.Skill), 0)
 
-	return g.dice.Throw(target.Number, dice.Mod{Name: target.Skill, Value: level})
+	mods := append(
+		[]dice.Mod{{Name: target.Skill, Value: level}},
+		g.takeSkillModifiers(target.Skill)...,
+	)
+
+	return g.dice.Throw(target.Number, mods...)
+}
+
+// takeSkillModifiers is the two results that modify a skill check for a
+// spell rather than once: "+1 DM to Melee checks in this career". The
+// modifier names the skill it applies to, and is not spent by a check of
+// any other skill.
+func (g *Generator) takeSkillModifiers(skill string) []dice.Mod {
+	var (
+		mods []dice.Mod
+		kept []PendingModifier
+	)
+
+	for _, pending := range g.pending {
+		if pending.Applies != skillCheckThrow || pending.OnSkill != skill {
+			kept = append(kept, pending)
+
+			continue
+		}
+
+		mods = append(mods, dice.Mod{Name: pending.Detail, Value: pending.Value})
+
+		// A skill modifier lasts for the career that granted it, which
+		// dropCareerModifiers ends; it is not spent by a check.
+		kept = append(kept, pending)
+	}
+
+	g.pending = kept
+
+	return mods
 }
 
 // applyInjury rolls the Injury table (p. 119) as many times as the result

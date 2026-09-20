@@ -70,14 +70,14 @@ func (g *Generator) resolveTerm(assignment career.Assignment, survived bool) err
 func (g *Generator) rollSurvival(assignment career.Assignment) bool {
 	step := g.log.Step("Step 12: Roll for Survival", "p. 112")
 
-	if g.takeAutomatic("next survival roll") {
+	if g.takeAutomatic(survivalThrow) {
 		g.consequence(ConsequenceCareer, step,
 			"an automatic success on the survival roll, granted earlier", g.career.Name)
 
 		return true
 	}
 
-	throw := g.characteristicThrow(assignment.Survival)
+	throw := g.characteristicThrow(assignment.Survival, g.takeCareerModifiers(survivalThrow)...)
 	cause := g.log.Throw(throw, "p. 112")
 
 	if throw.Natural() == naturalTwelve {
@@ -115,7 +115,7 @@ func (g *Generator) advance(assignment career.Assignment) error {
 		return g.promote(step, assignment)
 	}
 
-	mods := g.takeModifiers("next advancement roll")
+	mods := g.takeCareerModifiers(advancementThrow)
 
 	which, ok := characteristicByName(assignment.Advancement.Characteristic)
 	if ok {
@@ -806,23 +806,28 @@ const agingCite = "pp. 122-123"
 
 // characteristicThrow rolls 2d6 plus a characteristic's modifier against a
 // target, which is how every check in the book resolves (p. 110).
-func (g *Generator) characteristicThrow(check career.Check) dice.Throw {
+func (g *Generator) characteristicThrow(check career.Check, extra ...dice.Mod) dice.Throw {
 	which, ok := characteristicByName(check.Characteristic)
-	if !ok {
-		return g.dice.Throw(check.Number)
+	if ok {
+		extra = append(extra, dice.Mod{
+			Name:  check.Characteristic,
+			Value: g.char.State.Characteristics.Modifier(which),
+		})
 	}
 
-	return g.dice.Throw(check.Number, dice.Mod{
-		Name:  check.Characteristic,
-		Value: g.char.State.Characteristics.Modifier(which),
-	})
+	return g.dice.Throw(check.Number, extra...)
 }
 
 // takeAutomatic reports whether a named throw has already been decided by a
 // table result, and spends it if so.
 // enlistmentThrow is the name enlistment modifiers and automatics are
 // filed under, matching the career package's own constant.
-const enlistmentThrow = "next enlistment attempt"
+const (
+	enlistmentThrow  = "next enlistment attempt"
+	survivalThrow    = "next survival roll"
+	advancementThrow = "next advancement roll"
+	skillCheckThrow  = "a skill check"
+)
 
 func (g *Generator) takeAutomatic(applies string) bool {
 	return g.takeAutomaticFor(applies, career.Career{})
@@ -844,6 +849,18 @@ func (g *Generator) takeAutomaticFor(applies string, target career.Career) bool 
 	}
 
 	return false
+}
+
+// takeCareerModifiers is takeModifiers for the throws made inside a career
+// -- survival and advancement -- where a modifier may name the class of
+// career it applies to: "-2 DM to the first two Advancement rolls in a
+// military career".
+func (g *Generator) takeCareerModifiers(applies string) []dice.Mod {
+	if g.career == nil {
+		return g.takeModifiers(applies)
+	}
+
+	return g.takeModifiersFor(applies, *g.career)
 }
 
 // takeModifiers consumes every pending modifier that applies to a named
@@ -876,7 +893,21 @@ func (g *Generator) takeModifiersFor(applies string, target career.Career) []dic
 		default:
 			mods = append(mods, dice.Mod{Name: pending.Detail, Value: pending.Value})
 
-			if pending.Standing {
+			// Standing is read on the enlistment throw alone. No result in
+			// the book grants a standing modifier to any other throw, and
+			// one that reached every future advancement roll would be
+			// permanent with nothing to end it.
+			if pending.Standing && applies == enlistmentThrow {
+				kept = append(kept, pending)
+
+				continue
+			}
+
+			// "Your next two Advancement rolls" is one modifier spent
+			// twice rather than two modifiers.
+			if pending.Uses > 1 {
+				pending.Uses--
+
 				kept = append(kept, pending)
 			}
 		}

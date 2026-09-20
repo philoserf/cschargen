@@ -80,7 +80,8 @@ func universityFailure() MishapTable {
 				checkSkill("Streetwise", 8,
 					[]Effect{relationshipAt(Contact, 1, 35)},
 					[]Effect{transfer("Prisoner", "Prisoner", 1)}),
-				throwModifier("enlistment in any criminal career", 2),
+				modifierFor(enlistmentThrow, 2, 0, "+2 to enlistment in any criminal career",
+					enlistmentNarrowing{OnTags: []Tag{TagCriminal}, Standing: true}),
 			},
 		},
 		{
@@ -94,7 +95,7 @@ func universityFailure() MishapTable {
 		},
 		{
 			Summary: "violence or disaster on campus, and a university that closed",
-			Effects: []Effect{throwModifier("enlistment in any career", 2)},
+			Effects: []Effect{throwModifier(enlistmentThrow, 2)},
 		},
 		{
 			Summary: "brilliant, defiant, and expelled",

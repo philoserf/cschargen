@@ -114,7 +114,7 @@ func exoticMishaps() MishapTable {
 				opt("Hetaerae", chr("CHA", -2)),
 				opt("Brothel",
 					benefitRolls(-2, 0, ScopeBatch),
-					throwModifier("next enlistment roll", -2)),
+					throwModifier(enlistmentThrow, -2)),
 				opt("Streetwalker", loseAll, transfer("Vagabond", "", 0)))},
 		},
 		{

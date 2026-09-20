@@ -967,5 +967,14 @@ residue:
   argument keeps Belter, Explorer and Scavenger out of it — dangerous is not the
   same as violent, and the modifier is -6.
 
+One class the book names has no career to attach to. Teenage Path 4 result 15
+grants "+4 DM to enlistment in the National Navy, a System Defense Force, or any
+military or law enforcement career", and no career in the book's thirty-four is a
+law enforcement career: the Investigator's description puts them in "legal systems,
+corporate structures, and private practice" without saying which, and no other
+career comes close. The engine grants the modifier to military careers, which
+covers the three the result names by name, and the law-enforcement half reaches
+nothing.
+
 Disagreeing with a row changes one line of `career/*.go` and nothing else: nothing
 in the engine reads a tag except a result that asks about one.
