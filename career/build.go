@@ -795,7 +795,12 @@ func modifierFor(applies string, value, uses int, detail string, narrow enlistme
 	effect := enlistmentPenalty(value, detail, narrow)
 
 	effect.Applies = applies
-	effect.Uses = uses
+
+	// One use and none are the same thing -- the throw it was granted for
+	// -- so the record keeps one spelling of it rather than two.
+	if uses > 1 {
+		effect.Uses = uses
+	}
 
 	return effect
 }

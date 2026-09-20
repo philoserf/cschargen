@@ -70,7 +70,7 @@ func (g *Generator) resolveTerm(assignment career.Assignment, survived bool) err
 func (g *Generator) rollSurvival(assignment career.Assignment) bool {
 	step := g.log.Step("Step 12: Roll for Survival", "p. 112")
 
-	if g.takeAutomatic(survivalThrow) {
+	if g.takeAutomaticFor(survivalThrow, *g.career) {
 		g.consequence(ConsequenceCareer, step,
 			"an automatic success on the survival roll, granted earlier", g.career.Name)
 
@@ -176,7 +176,7 @@ func (g *Generator) attemptCommission(modifier, cause int) error {
 		return nil
 	}
 
-	if g.takeAutomatic("next commission roll") {
+	if g.takeAutomaticFor(commissionThrow, *g.career) {
 		return g.grantCommission(cause)
 	}
 
@@ -826,12 +826,10 @@ const (
 	enlistmentThrow  = "next enlistment attempt"
 	survivalThrow    = "next survival roll"
 	advancementThrow = "next advancement roll"
+	commissionThrow  = "next commission roll"
+	admissionThrow   = "admission to any higher education"
 	skillCheckThrow  = "a skill check"
 )
-
-func (g *Generator) takeAutomatic(applies string) bool {
-	return g.takeAutomaticFor(applies, career.Career{})
-}
 
 // takeAutomaticFor is takeAutomatic for an enlistment, where the result
 // that granted it may have named the class of career it reaches: "you may
@@ -851,15 +849,15 @@ func (g *Generator) takeAutomaticFor(applies string, target career.Career) bool 
 	return false
 }
 
+// takeCareerModifiers and rollSurvival's takeAutomaticFor are the pair: a
+// throw made inside a career reads the class of that career, whether what
+// it reads is a modifier or an already-decided success.
+//
 // takeCareerModifiers is takeModifiers for the throws made inside a career
 // -- survival and advancement -- where a modifier may name the class of
 // career it applies to: "-2 DM to the first two Advancement rolls in a
 // military career".
 func (g *Generator) takeCareerModifiers(applies string) []dice.Mod {
-	if g.career == nil {
-		return g.takeModifiers(applies)
-	}
-
 	return g.takeModifiersFor(applies, *g.career)
 }
 
