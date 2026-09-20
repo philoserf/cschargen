@@ -1,6 +1,9 @@
 package chargen
 
-import "github.com/philoserf/cschargen/career"
+import (
+	"github.com/philoserf/cschargen/career"
+	"github.com/philoserf/cschargen/setting"
+)
 
 // Step 6: Youth Events (pp. 67-69).
 //
@@ -11,8 +14,23 @@ import "github.com/philoserf/cschargen/career"
 // (p. 68) -- so the path is chosen again between them, against whatever the
 // first roll left behind.
 
-// youthPeriods is what the two rolls represent, in the book's own words.
+// youthPeriods is what a human's two rolls represent, in the book's own
+// words. An uplift's are in the setting data: "Uplifts will often have
+// shorter youths than humans. Whereas humans will roll on the following
+// charts twice to represent their lives from 4-8 and again from 9-12,
+// uplifts will have a different age range and may roll fewer times"
+// (p. 68).
 var youthPeriods = [...]string{"ages 4-8", "ages 9-12"}
+
+// lifePeriods is what this character's rolls on a life-period table
+// represent. The species' own pattern wins where it declares one.
+func (g *Generator) lifePeriods(rolls int, ages, human []string) []string {
+	if g.species == nil || rolls == 0 || len(ages) != rolls {
+		return human
+	}
+
+	return ages
+}
 
 // youthEvents is Step 6.
 func (g *Generator) youthEvents() error {
@@ -29,7 +47,10 @@ func (g *Generator) youthEvents() error {
 		return nil
 	}
 
-	for _, period := range youthPeriods {
+	periods := g.lifePeriods(
+		speciesYouthRolls(g.species), speciesYouthAges(g.species), youthPeriods[:])
+
+	for _, period := range periods {
 		err := g.oneYouthEvent(step, period)
 		if err != nil {
 			return err
@@ -40,7 +61,15 @@ func (g *Generator) youthEvents() error {
 }
 
 // oneYouthEvent chooses a path, rolls 2d10 on it, and applies the result.
+//
+// A character their homeworld owns takes a different table: an eleven-row
+// 2d6 rather than a nineteen-row 2d10, and the only one of the six that is
+// not a choice (p. 74).
 func (g *Generator) oneYouthEvent(step int, period string) error {
+	if g.enslaved {
+		return g.enslavedEvent(career.EnslavedYouth(), step, period)
+	}
+
 	path, err := g.chooseYouthPath(step, period)
 	if err != nil {
 		return err
@@ -133,4 +162,73 @@ func (g *Generator) rollYouthLifeEvent(cause int) error {
 	_ = cause
 
 	return g.applyAll(row.Effects, throw)
+}
+
+// speciesYouthRolls and speciesYouthAges read a species' youth pattern
+// without the caller having to know whether there is a species at all.
+func speciesYouthRolls(species *setting.Species) int {
+	if species == nil {
+		return 0
+	}
+
+	return species.YouthRolls
+}
+
+func speciesYouthAges(species *setting.Species) []string {
+	if species == nil {
+		return nil
+	}
+
+	return species.YouthAges
+}
+
+// speciesTeenRolls and speciesTeenAges are the same for Step 7.
+func speciesTeenRolls(species *setting.Species) int {
+	if species == nil {
+		return 0
+	}
+
+	return species.TeenRolls
+}
+
+func speciesTeenAges(species *setting.Species) []string {
+	if species == nil {
+		return nil
+	}
+
+	return species.TeenAges
+}
+
+// enslavedEvent rolls on one of the two tables of pp. 74 and 84.
+func (g *Generator) enslavedEvent(
+	path career.EnslavedPath, step int, period string,
+) error {
+	g.cite = path.Cite
+
+	roll := g.dice.TwoD6()
+	cause := g.log.Roll(roll, path.Cite)
+
+	row := path.Rows[roll.Total-2]
+
+	g.consequence(ConsequenceFamily, cause,
+		period+", on the "+path.Name+" table: "+row.Summary, "")
+
+	_ = step
+
+	return g.applyAll(row.Effects, cause)
+}
+
+// freed ends an enslavement, which three results in the book do: "Continue
+// your character as a free altrant or uplift."
+//
+// It clears the obligation to take the slave career first, where the
+// character has not taken it yet.
+func (g *Generator) freed(cause int) {
+	if !g.enslaved {
+		return
+	}
+
+	g.enslaved = false
+
+	g.consequence(ConsequenceSpecies, cause, "freed, and no longer owned", "")
 }

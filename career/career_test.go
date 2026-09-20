@@ -398,3 +398,46 @@ func itoa(n int) string {
 
 	return string(out)
 }
+
+// TestTheEnslavedPathsAreElevenRowTables. pp. 74 and 84 are 2d6 tables
+// where every other life-period path is a 2d10, and they share nine of
+// their eleven rows -- the teenage one prints a different result 4 and is
+// otherwise the youth table word for word.
+func TestTheEnslavedPathsAreElevenRowTables(t *testing.T) {
+	t.Parallel()
+
+	youth := career.EnslavedYouth()
+	teenage := career.EnslavedTeenage()
+
+	for _, path := range []career.EnslavedPath{youth, teenage} {
+		if len(path.Rows) != 11 {
+			t.Errorf("%s has %d rows; a 2d6 table has 11", path.Name, len(path.Rows))
+		}
+
+		if path.Cite == "" {
+			t.Errorf("%s has no page cite", path.Name)
+		}
+
+		for i, row := range path.Rows {
+			if row.Summary == "" {
+				t.Errorf("%s result %d has no summary", path.Name, i+2)
+			}
+		}
+	}
+
+	// Result 4 is the one that differs.
+	if youth.Rows[2].Summary == teenage.Rows[2].Summary {
+		t.Error("the two tables' result 4 is the same; pp. 74 and 84 print different ones")
+	}
+
+	for i := range youth.Rows {
+		if i == 2 {
+			continue
+		}
+
+		if youth.Rows[i].Summary != teenage.Rows[i].Summary {
+			t.Errorf("result %d differs between the two tables: %q and %q",
+				i+2, youth.Rows[i].Summary, teenage.Rows[i].Summary)
+		}
+	}
+}

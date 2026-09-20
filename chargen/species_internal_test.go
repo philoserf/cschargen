@@ -234,3 +234,30 @@ func TestNoWorldAnywhereWillHaveThem(t *testing.T) {
 		t.Errorf("err = %v, want ErrNoHomeworldAdmitsThem", err)
 	}
 }
+
+// TestBeingFreed is result 12 on both enslaved tables and result 66 of the
+// slave career: "Your owner has decided to set you free. Continue your
+// character as a free altrant or uplift."
+func TestBeingFreed(t *testing.T) {
+	t.Parallel()
+
+	gen := speciesEngine(t, 44, setting.Species{Name: "Owned", Kind: setting.KindUplift})
+
+	gen.enslaved = true
+
+	gen.freed(0)
+
+	if gen.enslaved {
+		t.Error("a freed character is still owned")
+	}
+
+	// And freeing a character who was never owned changes nothing and says
+	// nothing, because there was nothing to end.
+	before := gen.log.Len()
+
+	gen.freed(0)
+
+	if gen.log.Len() != before {
+		t.Error("freeing a free character wrote to the record")
+	}
+}

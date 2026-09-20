@@ -161,6 +161,11 @@ const (
 	// (p. 91).
 	EffectHonors
 
+	// EffectFreed ends a character's enslavement: "Your owner has decided
+	// to set you free. Continue your character as a free altrant or uplift"
+	// (pp. 75, 84, and the slave career's own event 66).
+	EffectFreed
+
 	// EffectUnimplemented is a result this milestone cannot carry out. It
 	// carries the book's demand in Detail.
 	EffectUnimplemented
