@@ -32,6 +32,9 @@ type newFlags struct {
 	noYouth   *bool
 	noTeenage *bool
 	noSchool  *bool
+	gender    *string
+	look      *string
+	goals     *string
 	output    *string
 	force     *bool
 	data      *string
@@ -45,7 +48,10 @@ func bindNewFlags() newFlags {
 	return newFlags{
 		seed:      flags.Uint64("seed", 0, "seed for the dice; omitted means a random one, recorded in the output"),
 		auto:      flags.Bool("auto", false, "resolve every choice with the auto policy (POLICY.md) instead of asking"),
-		name:      flags.String("name", "", "the character's name"),
+		name:      flags.String("name", "", "the character's name (Step 20, p. 129)"),
+		gender:    flags.String("gender", "", "the character's gender identity (Step 20, p. 130)"),
+		look:      flags.String("appearance", "", "what the character looks like (Step 20, p. 130)"),
+		goals:     flags.String("goals", "", "what the character wants (Step 20, p. 130)"),
 		species:   flags.String("species", "human", "human, or an engineered species from the setting data"),
 		techLevel: flags.Int("tech-level", 0, "the homeworld's tech level, which gates the aging tables (p. 122)"),
 		maxTerms:  flags.Int("max-terms", 0, "the homeworld's maximum terms (p. 42)"),
@@ -130,6 +136,9 @@ func newCommand(args []string, out *os.File) error {
 			SkipYouth:     *flags.noYouth,
 			SkipTeenage:   *flags.noTeenage,
 			SkipEducation: *flags.noSchool,
+			Gender:        *flags.gender,
+			Appearance:    *flags.look,
+			Goals:         *flags.goals,
 		},
 	}).Run()
 	if err != nil {

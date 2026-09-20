@@ -6,6 +6,7 @@
 **Primary language**: Litany Cant  
 **Terms**: 3
 
+
 ## Family
 
 Born to a heterosexual couple: a married couple.

@@ -47,7 +47,13 @@ type Inputs struct {
 	SkipYouth     bool   `json:"skipYouth,omitempty"`
 	SkipTeenage   bool   `json:"skipTeenage,omitempty"`
 	SkipEducation bool   `json:"skipEducation,omitempty"`
-	Interactive   bool   `json:"interactive"`
+
+	// The other three of Step 20's four fields (pp. 129-130). Name is
+	// above, because it has been an input since milestone 1.
+	Gender      string `json:"gender,omitempty"`
+	Appearance  string `json:"appearance,omitempty"`
+	Goals       string `json:"goals,omitempty"`
+	Interactive bool   `json:"interactive"`
 }
 
 // Provenance is everything a record carries about how it was made, as

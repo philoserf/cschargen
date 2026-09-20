@@ -30,6 +30,7 @@ func Sheet(character *chargen.Character) string {
 
 	writeSummary(&out, character)
 	writeOrigin(&out, character)
+	writeFinishing(&out, character)
 	writeGenetics(&out, character)
 	writeFamily(&out, character)
 	writeEducation(&out, character)
@@ -87,6 +88,27 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 	}
 
 	fmt.Fprint(out, "\n")
+}
+
+// writeFinishing prints Step 20's four fields (pp. 129-130), and only the
+// ones somebody supplied: the engine invents none, and a blank line is
+// worse than no line.
+func writeFinishing(out *strings.Builder, character *chargen.Character) {
+	finishing := character.State.Finishing
+
+	for _, field := range []struct{ label, value string }{
+		{"Gender", finishing.Gender},
+		{"Appearance", finishing.Appearance},
+		{"Goals", finishing.Goals},
+	} {
+		if field.value != "" {
+			fmt.Fprintf(out, "**%s**: %s  \n", field.label, field.value)
+		}
+	}
+
+	if !finishing.Empty() {
+		out.WriteString("\n")
+	}
 }
 
 // writeGenetics prints how an engineered character came to be (pp. 62-65).

@@ -114,6 +114,10 @@ type State struct {
 	// "family"; this is the shape of the household around them.
 	Family *Family `json:"family,omitempty"`
 
+	// Finishing is Step 20's four fields (pp. 129-130), none of them
+	// rolled and none invented.
+	Finishing Finishing `json:"finishing,omitzero"`
+
 	// Genetics is what pp. 62-65 made of an engineered character's
 	// parentage. Nil for a human or an uplift.
 	Genetics *Genetics `json:"genetics,omitempty"`

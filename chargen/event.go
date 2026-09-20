@@ -90,6 +90,7 @@ const (
 	ConsequenceFamily         ConsequenceKind = "family"
 	ConsequenceEducation      ConsequenceKind = "education"
 	ConsequenceSpecies        ConsequenceKind = "species"
+	ConsequenceFinishing      ConsequenceKind = "finishing"
 	ConsequenceAge            ConsequenceKind = "age"
 	ConsequenceModifier       ConsequenceKind = "modifier"
 	ConsequenceUnimplemented  ConsequenceKind = "unimplemented"

@@ -61,6 +61,40 @@ func (p *Player) Choose(ask Choice) (int, error) {
 	return p.read(len(ask.Options))
 }
 
+// Ask implements [Asker]: an open question with no list to answer from,
+// which Step 20 is four of.
+//
+// An empty answer is an answer. "The engine records them and leaves them
+// empty rather than inventing them" applies to the player too: a player who
+// does not want to name their character yet presses return.
+func (p *Player) Ask(question Question) (string, error) {
+	heading := question.Prompt
+
+	if question.Of > 1 {
+		heading += fmt.Sprintf(" (%d of %d)", question.Nth, question.Of)
+	}
+
+	if question.Cite != "" {
+		heading += "  [" + question.Cite + "]"
+	}
+
+	p.printf("\n%s\n> ", heading)
+
+	if p.failed != nil {
+		return "", p.failed
+	}
+
+	line, err := p.in.ReadString('\n')
+	if err != nil && line == "" {
+		// The end of input is not a refusal here. Step 20 is the last step
+		// and its fields are allowed to be empty, so a session that ends
+		// on them ends with a finished character.
+		return "", nil
+	}
+
+	return strings.TrimSpace(line), nil
+}
+
 // printf writes to the prompt stream and remembers the first failure.
 func (p *Player) printf(format string, args ...any) {
 	_, err := fmt.Fprintf(p.out, format, args...)
