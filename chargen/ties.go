@@ -297,6 +297,12 @@ func allIndexes(n int) []int {
 // loseTie carries out an [career.EffectLoseTie]: it removes one tie, trying
 // the kinds in the order the result prints them.
 func (g *Generator) loseTie(effect career.Effect, cause int) error {
+	// A result may name the family rather than a kind: "Choose a family
+	// member from your existing list and lose them" (p. 78).
+	if effect.Target == career.TargetFamily {
+		return g.loseOneOf(g.familyIndexes(), effect, cause)
+	}
+
 	order := effect.Order
 	if len(order) == 0 {
 		order = []career.Relationship{career.Ally, career.Contact, career.Rival, career.Enemy}
@@ -308,17 +314,34 @@ func (g *Generator) loseTie(effect career.Effect, cause int) error {
 			continue
 		}
 
-		index := candidates[0]
-		lost := g.char.State.Ties[index]
+		return g.loseOneOf(candidates, effect, cause)
+	}
 
-		g.char.State.Ties = append(g.char.State.Ties[:index], g.char.State.Ties[index+1:]...)
-		g.consequence(ConsequenceRelationship, cause,
-			"lost the "+lost.Kind+" at "+itoa(lost.Rating), lost.Origin)
+	g.consequence(ConsequenceRelationship, cause, effect.Detail+": nobody to lose", "")
+
+	return nil
+}
+
+// loseOneOf removes the first of a set of candidates, which is what the
+// policy takes where the page says "choose".
+func (g *Generator) loseOneOf(candidates []int, effect career.Effect, cause int) error {
+	if len(candidates) == 0 {
+		g.consequence(ConsequenceRelationship, cause, effect.Detail+": nobody to lose", "")
 
 		return nil
 	}
 
-	g.consequence(ConsequenceRelationship, cause, effect.Detail+": nobody to lose", "")
+	index := candidates[0]
+	lost := g.char.State.Ties[index]
+
+	g.char.State.Ties = append(g.char.State.Ties[:index], g.char.State.Ties[index+1:]...)
+
+	detail := "lost the " + lost.Kind + " at " + itoa(lost.Rating)
+	if lost.Role != "" {
+		detail = "lost a " + lost.Role + ", the " + lost.Kind + " at " + itoa(lost.Rating)
+	}
+
+	g.consequence(ConsequenceRelationship, cause, detail, lost.Origin)
 
 	return nil
 }

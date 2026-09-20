@@ -87,6 +87,8 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		g.consequence(ConsequenceCareer, cause, effect.Detail, "")
 
 		return nil
+	case career.EffectTeenageLifeEvent:
+		return g.rollTeenageLifeEvent(cause)
 	case career.EffectYouthLifeEvent:
 		return g.rollYouthLifeEvent(cause)
 	case career.EffectRating:

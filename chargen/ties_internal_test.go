@@ -514,3 +514,40 @@ func TestAimingAtARelativeNobodyHas(t *testing.T) {
 		t.Error("a result aimed at a parent moved somebody who is not one")
 	}
 }
+
+// TestLosingAFamilyMember is Teenage Path 2 result 3: "Choose a family
+// member from your existing list and lose them." It is the only result in
+// the book that removes a tie by what it is to the character rather than by
+// its kind.
+func TestLosingAFamilyMember(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t,
+		Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 40},
+		Tie{Kind: string(career.Ally), Origin: FamilyOrigin, Role: "sibling", Rating: 125},
+	)
+
+	lose := career.Effect{
+		Kind: career.EffectLoseTie, Detail: "lose a family member",
+		Target: career.TargetFamily,
+	}
+
+	err := gen.loseTie(lose, 0)
+	if err != nil {
+		t.Fatalf("loseTie: %v", err)
+	}
+
+	if len(gen.char.State.Ties) != 1 || gen.char.State.Ties[0].Origin != fromACareer {
+		t.Error("the family member was not the one lost")
+	}
+
+	// And a character with no family left keeps what they have.
+	err = gen.loseTie(lose, 0)
+	if err != nil {
+		t.Fatalf("loseTie with no family: %v", err)
+	}
+
+	if len(gen.char.State.Ties) != 1 {
+		t.Error("a family result took somebody who is not family")
+	}
+}

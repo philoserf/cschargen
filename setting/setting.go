@@ -177,6 +177,16 @@ type Data struct {
 	Species       []Species   `json:"species,omitempty"`
 	Subsectors    []Subsector `json:"subsectors"`
 
+	// PresentYear is the campaign's now, which Step 7 measures a world's
+	// settledYear against: two of its paths are gated on whether the
+	// homeworld "has been colonized or established for 100+ standard years"
+	// (p. 76).
+	//
+	// The book gives two answers. p. 43 says "the present day of 2350" and
+	// p. 124 says "the people living in 2345". Zero means p. 43's, which is
+	// the page that talks about dates. ERRATA E-27.
+	PresentYear int `json:"presentYear,omitempty"`
+
 	// Hash is the content hash of the file this was read from, stamped into
 	// every record so that a replay against different data is refused
 	// rather than silently diverging at Step 3.
@@ -185,6 +195,22 @@ type Data struct {
 	// Sample reports that this is the repository's invented data rather than
 	// a transcription of the book.
 	Sample bool `json:"-"`
+}
+
+// DefaultPresentYear is p. 43's: "the character could not have immigrated
+// to Clement Sector after 2331 when the Conduit collapsed and they must
+// have present in Clement Sector for the 19 years between the 2331 collapse
+// and the present day of 2350".
+const DefaultPresentYear = 2350
+
+// Now is the campaign's present year, which is the file's where it gives
+// one and p. 43's where it does not.
+func (d *Data) Now() int {
+	if d.PresentYear == 0 {
+		return DefaultPresentYear
+	}
+
+	return d.PresentYear
 }
 
 // Subsector finds a subsector by name.

@@ -144,6 +144,10 @@ const (
 	// the youth one is a d6 of six rows, the career one a 2d6 of eleven.
 	EffectYouthLifeEvent
 
+	// EffectTeenageLifeEvent sends the character to the Teenage Life Events
+	// table (p. 85), which result 10 of every teenage path reaches.
+	EffectTeenageLifeEvent
+
 	// EffectUnimplemented is a result this milestone cannot carry out. It
 	// carries the book's demand in Detail.
 	EffectUnimplemented

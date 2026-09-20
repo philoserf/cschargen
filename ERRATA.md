@@ -615,3 +615,34 @@ is no fact of the matter to record.
 
 The choice is the honest form of the rule. Under the auto policy the first option
 printed wins, which is STR, the first clause of the requirement.
+
+---
+
+## E-27 (reading) — the campaign's present year is given twice
+
+**Where:** p. 43 and p. 124.
+
+Two of Step 7's four paths are gated on whether the homeworld "has been
+colonized or established for 100+ standard years" (p. 76), which needs a year to
+measure a world's settlement date against. The book gives two:
+
+> the character could not have immigrated to Clement Sector after 2331 when the
+> Conduit collapsed and they must have present in Clement Sector for the 19 years
+> between the 2331 collapse and the present day of 2350 (p. 43)
+
+> To the people living in 2345, it is perfectly normal for an average 75-year-old
+> to appear to be and have the general health of an early 21st century person in
+> their 30s (p. 124)
+
+**Engine:** 2350, which is p. 43's. That page is about dates and their
+consequences for character generation, and it derives the year arithmetically
+from 2331 plus nineteen; p. 124's is an aside in a passage about how people
+perceive age.
+
+A setting data file may state its own `presentYear`, because a campaign is
+entitled to be set somewhere else in the timeline, and the settlement dates in
+that file are the ones it will be measured against.
+
+**If this is wrong:** a world settled in exactly 2245 through 2250 falls on the
+other side of the hundred-year line, and its characters take Teenage Path 2
+rather than Path 1. Nothing else in the engine reads the year.
