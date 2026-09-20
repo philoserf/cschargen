@@ -102,6 +102,13 @@ type Generator struct {
 	// divide on (p. 76).
 	settledYear int
 
+	// species is what the character is, and agingProfile and maximum are
+	// what that makes of them. A human has no species entry in the data
+	// file and takes the defaults.
+	species      *setting.Species
+	agingProfile AgingProfile
+	maximum      int
+
 	// institution is the one Step 8's events table is being rolled on, so
 	// that its result 10 knows which life-events table to reach.
 	institution *career.Institution
@@ -186,7 +193,12 @@ func (g *Generator) Run() (*Character, error) {
 
 	g.char.State.Age = startingAge
 
-	err := g.rollCharacteristics()
+	err := g.chooseSpecies()
+	if err != nil {
+		return nil, err
+	}
+
+	err = g.rollCharacteristics()
 	if err != nil {
 		return nil, err
 	}
@@ -348,18 +360,54 @@ func (g *Generator) choose(ask Choice) (int, error) {
 // because a player who assigned as they rolled would be making a different
 // decision, with less information, at every step.
 func (g *Generator) rollCharacteristics() error {
-	g.log.Step("Step 2: Roll Characteristics", "p. 39")
+	step := g.log.Step("Step 2: Roll Characteristics", "p. 39")
 
-	rolled := make([]int, 0, len(CharacteristicOrder))
-	for range CharacteristicOrder {
-		roll := g.dice.Characteristic()
-		g.log.Roll(roll, characteristicCite)
+	// A species' method names which characteristic it is for -- "roll
+	// 2d6-2 for STR and END ... DEX should be rolled as 2d6+2" (p. 23) --
+	// so those are rolled in place. Only the ones "rolled normally" go
+	// into the pool the player assigns freely.
+	free := make([]int, 0, len(CharacteristicOrder))
 
-		rolled = append(rolled, roll.Total)
+	for _, which := range CharacteristicOrder {
+		expr, fixed := g.speciesMethod(which)
+		if !fixed {
+			roll := g.dice.Characteristic()
+			g.log.Roll(roll, characteristicCite)
+
+			free = append(free, roll.Total)
+
+			continue
+		}
+
+		score, err := g.rollExpression(expr, speciesCite)
+		if err != nil {
+			return err
+		}
+
+		g.char.State.Characteristics.Set(which, min(score, g.maximum))
+
+		g.log.Consequence(ConsequenceEvent{
+			Kind:           ConsequenceCharacteristic,
+			Cause:          g.log.Len(),
+			Detail:         which.String() + " " + itoa(score) + ", rolled as " + expr,
+			Characteristic: which.String(),
+			Delta:          score,
+			Cite:           speciesCite,
+		})
 	}
 
-	return g.assignCharacteristics(rolled)
+	err := g.assignCharacteristics(free)
+	if err != nil {
+		return err
+	}
+
+	return g.grantSpeciesSkills(step)
 }
+
+// speciesCite is the page a species' characteristic method is printed on,
+// which differs per species. The engine cites Step 1 instead, because it
+// holds no species and cannot name the page of one.
+const speciesCite = "p. 21"
 
 // assignCharacteristics puts each characteristic, in printed order, to the
 // decider against the scores still unassigned. Six successive choices
@@ -369,6 +417,11 @@ func (g *Generator) assignCharacteristics(rolled []int) error {
 	remaining := rolled
 
 	for nth, which := range CharacteristicOrder {
+		// A characteristic the species rolled in place is already set.
+		if _, fixed := g.speciesMethod(which); fixed {
+			continue
+		}
+
 		options := make([]string, len(remaining))
 		for i, score := range remaining {
 			options[i] = strconv.Itoa(score)

@@ -161,3 +161,9 @@ func (c *Characteristics) Modifier(which Characteristic) int {
 func (c *Characteristics) AllPhysicalZero() bool {
 	return c.STR == 0 && c.DEX == 0 && c.END == 0
 }
+
+// CharacteristicByName maps the abbreviation the tables and a setting data
+// file write a characteristic in.
+func CharacteristicByName(name string) (Characteristic, bool) {
+	return characteristicByName(name)
+}

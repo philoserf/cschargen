@@ -577,14 +577,14 @@ func (g *Generator) age() error {
 func (g *Generator) agingThrows(step int) error {
 	term := len(g.char.State.Terms)
 
-	checks, due := agingChecksAt(g.techLevel, term)
+	checks, due := agingChecksAt(g.agingProfile, g.techLevel, term)
 	if !due {
 		return nil
 	}
 
 	g.consequence(ConsequenceAge, step,
-		"term "+itoa(term)+" on a tech level "+itoa(g.techLevel)+
-			" world: aging checks come due", "")
+		"term "+itoa(term)+", on the "+string(g.agingProfile)+
+			" aging profile: checks come due", "")
 
 	for _, check := range checks {
 		target := career.Check{Characteristic: check.Characteristic, Number: check.Number}

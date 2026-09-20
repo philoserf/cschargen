@@ -168,6 +168,43 @@ type Species struct {
 	// Kind is "engineered" for an engineered human or "uplift" for an
 	// uplifted animal.
 	Kind string `json:"kind"`
+
+	// Characteristics is the method Step 2 uses, one dice expression per
+	// characteristic: "All generations should roll 2d6-2 for STR and END.
+	// DEX should be rolled as 2d6+2 ... INT and EDU should be rolled
+	// normally" (p. 23, of a species this repository cannot name).
+	//
+	// A characteristic the map does not mention is rolled the human way,
+	// and a character's freely assigned scores are only the ones rolled
+	// that way -- a method names which characteristic it is for.
+	Characteristics map[string]string `json:"characteristics,omitempty"`
+
+	// Skills is what the species starts with at level 1, before any
+	// background or career: "All Gaishan should be given Survival
+	// (Freefall) and Survival (Low Gravity) at level 1" (p. 23).
+	Skills []Alternative `json:"skills,omitempty"`
+
+	// Aging names one of the engine's aging profiles. Empty is the
+	// tech-level profile, which humans and four of the book's five
+	// engineered species use.
+	Aging string `json:"aging,omitempty"`
+
+	// Maximum is the ceiling on this species' characteristics. p. 14 sets
+	// fifteen "for an unaltered human" and says "Some uplifts and
+	// engineered humans will have higher maximums". Zero is the human's.
+	Maximum int `json:"maximum,omitempty"`
+
+	// YouthRolls and TeenRolls are how many times this species rolls on
+	// the youth and teenage tables, and YouthAges and TeenAges are what
+	// each roll represents. "Uplifts will often have shorter youths than
+	// humans" (p. 68): one species rolls once for ages 2-4 where a human
+	// rolls twice for 4-8 and 9-12.
+	//
+	// Zero rolls means the human pattern.
+	YouthRolls int      `json:"youthRolls,omitempty"`
+	YouthAges  []string `json:"youthAges,omitempty"`
+	TeenRolls  int      `json:"teenRolls,omitempty"`
+	TeenAges   []string `json:"teenAges,omitempty"`
 }
 
 // Data is a whole setting file.
@@ -211,6 +248,17 @@ func (d *Data) Now() int {
 	}
 
 	return d.PresentYear
+}
+
+// SpeciesNamed finds a species by name.
+func (d *Data) SpeciesNamed(name string) (Species, bool) {
+	for _, species := range d.Species {
+		if species.Name == name {
+			return species, true
+		}
+	}
+
+	return Species{}, false
 }
 
 // Subsector finds a subsector by name.

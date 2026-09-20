@@ -62,3 +62,9 @@ const (
 	// package's completeness test exists to prevent.
 	ErrMissingEventRow stringError = "no event row for that d66 result"
 )
+
+// ErrUnknownSpecies is a character asked for a species the setting data
+// file does not declare. The engine holds no species of its own, so there
+// is nothing to fall back to.
+const ErrUnknownSpecies = stringError(
+	"species: not declared in the setting data")

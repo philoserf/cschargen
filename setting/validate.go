@@ -73,10 +73,7 @@ func validateSpecies(all []Species, names map[string]bool) []string {
 
 		names[kind.Name] = true
 
-		if kind.Kind != "engineered" && kind.Kind != "uplift" {
-			problems = append(problems, fmt.Sprintf(
-				"species %s has kind %q; it must be engineered or uplift", kind.Name, kind.Kind))
-		}
+		problems = append(problems, validateOneSpecies(kind, "species "+kind.Name)...)
 	}
 
 	return problems
@@ -166,6 +163,82 @@ func validateRange(world World, where string, covered map[int]string) []string {
 
 	return problems
 }
+
+// AgingProfiles is what a species' aging field may name.
+//
+// The names live here rather than in the engine because they are a fact
+// about the file format -- a validator that could not check them would pass
+// a file the engine then had to fall back on -- and the engine holds them
+// against its own tables in a test. The five are named for what they do,
+// because what the book names them by is a species (p. 335).
+var AgingProfiles = map[string]bool{
+	"techLevel": true,
+	"rapid":     true,
+	"moderate":  true,
+	"sturdy":    true,
+	"sudden":    true,
+}
+
+// validateOneSpecies holds a species' declarations against what the engine
+// can carry out: an aging profile it knows, a characteristic the book has,
+// and a ceiling inside the range a score can reach.
+func validateOneSpecies(species Species, where string) []string {
+	var problems []string
+
+	if species.Kind != "engineered" && species.Kind != "uplift" {
+		problems = append(problems, fmt.Sprintf(
+			"%s: kind %q; it must be engineered or uplift (p. 21)", where, species.Kind))
+	}
+
+	if species.Aging != "" && !AgingProfiles[species.Aging] {
+		problems = append(problems, fmt.Sprintf(
+			"%s: aging %q is not a profile the engine holds", where, species.Aging))
+	}
+
+	for name := range species.Characteristics {
+		if !characteristics[name] {
+			problems = append(problems, fmt.Sprintf(
+				"%s: %q is not one of the six characteristics (p. 13)", where, name))
+		}
+	}
+
+	if species.Maximum < 0 || species.Maximum > maxCharacteristic {
+		problems = append(problems, fmt.Sprintf(
+			"%s: maximum %d", where, species.Maximum))
+	}
+
+	problems = append(problems, validateRollPattern(
+		species.YouthRolls, species.YouthAges, where+", youth")...)
+	problems = append(problems, validateRollPattern(
+		species.TeenRolls, species.TeenAges, where+", teenage")...)
+
+	return problems
+}
+
+// validateRollPattern: a species that rolls n times on a life-period table
+// has to say what each of those n rolls represents.
+func validateRollPattern(rolls int, ages []string, where string) []string {
+	if rolls == 0 && len(ages) == 0 {
+		return nil
+	}
+
+	if rolls != len(ages) {
+		return []string{fmt.Sprintf(
+			"%s: %d rolls and %d age ranges; a roll represents a range", where, rolls, len(ages))}
+	}
+
+	return nil
+}
+
+// characteristics is the six, as a species' method names them.
+var characteristics = map[string]bool{
+	"STR": true, "DEX": true, "END": true, "INT": true, "EDU": true, "CHA": true,
+}
+
+// maxCharacteristic is a generous ceiling on a species' own ceiling. The
+// book's highest is well under it; the validator's job is to catch a typo
+// rather than to second-guess a setting.
+const maxCharacteristic = 30
 
 func validateWorld(world World, where string, species map[string]bool) []string {
 	var problems []string

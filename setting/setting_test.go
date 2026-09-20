@@ -615,3 +615,73 @@ func TestCoversTheEndsOfItsRange(t *testing.T) {
 		}
 	}
 }
+
+// aSpecies is the name the broken species below all carry; what is broken
+// about them is never the name.
+const aSpecies = "Thing"
+
+// TestASpeciesMustDeclareThingsTheEngineCanCarryOut. A species names an
+// aging profile the engine holds, characteristics the book has, and a
+// ceiling inside the range a score can reach.
+func TestASpeciesMustDeclareThingsTheEngineCanCarryOut(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		species setting.Species
+		want    string
+	}{
+		{
+			name:    "a kind that is neither",
+			species: setting.Species{Name: aSpecies, Kind: "robot"},
+			want:    "engineered or uplift",
+		},
+		{
+			name: "an aging profile the engine does not hold",
+			species: setting.Species{
+				Name: aSpecies, Kind: kindUplift, Aging: "glacial",
+			},
+			want: "not a profile the engine holds",
+		},
+		{
+			name: "a characteristic this ruleset does not have",
+			species: setting.Species{
+				Name: aSpecies, Kind: kindUplift,
+				Characteristics: map[string]string{"SOC": "2d6"},
+			},
+			want: "not one of the six characteristics",
+		},
+		{
+			name:    "a ceiling outside the range",
+			species: setting.Species{Name: aSpecies, Kind: kindUplift, Maximum: 400},
+			want:    "maximum 400",
+		},
+		{
+			name: "rolls with no age ranges to match",
+			species: setting.Species{
+				Name: aSpecies, Kind: kindUplift, YouthRolls: 2,
+				YouthAges: []string{"ages 2-4"},
+			},
+			want: "a roll represents a range",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			broken := minimal()
+
+			broken["species"] = []any{tc.species}
+
+			_, err := setting.Load(write(t, broken))
+			if err == nil {
+				t.Fatal("the file validated")
+			}
+
+			if !strings.Contains(err.Error(), tc.want) {
+				t.Errorf("error does not mention %q:\n%v", tc.want, err)
+			}
+		})
+	}
+}

@@ -704,3 +704,27 @@ then spent four years at Undergraduate College plainly has not.
 **If this is wrong:** a character who wanted both is offered only one, and can
 have the other by attending at Step 18 instead, where "return to higher
 education" is one of the choices (p. 125).
+
+---
+
+## E-30 (reading) — one aging table has a term in no band
+
+**Where:** the aging table shared by two uplift species (p. 122), which this
+repository calls the `sturdy` profile.
+
+Its three rows are 6-8, 9-11 and 13+. **Term 12 is in none of them.** Every other
+table on pp. 122-123 is contiguous: 6-8, 9-10, 11, 12+; 18-28, 29-38, 39-48, 49+;
+4-5, 6-7, 8+.
+
+**Engine:** the middle band holds through the gap, so terms 9 to 12 make the same
+five checks and term 13 moves to six.
+
+**Reasoning:** the alternative reading is that term 12 makes no checks at all, on
+a table whose whole shape is that ageing accelerates. A character would age at 11,
+not at 12, and then harder at 13 — which is not something any other table on the
+page does.
+
+**If this is wrong:** the intended row is "12+" rather than "13+", and a character
+in their twelfth term faces six checks rather than five. That is the only other
+plausible transcription, and it is the harsher one — so this reading never treats
+a character worse than the book intended.

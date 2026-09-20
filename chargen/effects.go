@@ -225,7 +225,10 @@ func (g *Generator) adjust(which string, delta int, detail string, cause int) {
 
 	before := g.char.State.Characteristics.Get(target)
 
-	after := min(max(before+delta, 0), HumanMaximum)
+	// The ceiling is the species': "For an unaltered human, these
+	// characteristics may never rise higher than 15. Some uplifts and
+	// engineered humans will have higher maximums" (p. 14).
+	after := min(max(before+delta, 0), g.ceiling())
 
 	g.char.State.Characteristics.Set(target, after)
 
