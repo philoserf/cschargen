@@ -1,6 +1,42 @@
 # Milestone 5: the pre-career steps
 
-2026-09-19. Status: plan. Tracks [#24](https://github.com/philoserf/cschargen/issues/24).
+2026-09-19. Status: done. Tracks [#24](https://github.com/philoserf/cschargen/issues/24).
+
+## What it turned out to be
+
+Six PRs in the order planned. Five things the plan did not know:
+
+1. **A tie never crosses zero.** p. 320 says so from three sides, and the obvious
+   implementation -- move the number, look up the band -- gets exactly those
+   cases wrong. An Ally at 110 who takes -120 is gone; they are not a Rival at
+   -10. That is E-24, and it was found by a table-driven test rather than by
+   reading.
+
+2. **The engine granted level-0 skills at level 1.** "Gain Streetwise 0" is not
+   "gain a level in Streetwise", and an unset `Level` meant one. Belter event 24
+   has said "gain Medic at level 0" since milestone 3 and has been granting Medic
+   1 the whole time.
+
+3. **Step 8 has to loop.** Graduate School and Medical School require a degree
+   the character earns in the same step, so a single pass makes them unreachable.
+   The loop then raised a question the book does not (E-29) and made the auto
+   policy collect four degrees, which POLICY.md now states plainly.
+
+4. **The apparent-age chart's two ends want opposite readings**, which is E-20 in
+   milestone 4 but was found here, while writing the teenage gates.
+
+5. **Eleven tests moved rather than broke**, and each move says something. The
+   Step 2 tests skip the three pre-career steps because those legitimately change
+   characteristics. Two Colonist tests scanned for a magic seed that stopped
+   enlisting once a step was added ahead of Step 10. The muster-out test learned
+   that a character who died in service did not leave a career. The age test
+   learned that a degree costs four years on a different page.
+
+Eight errata: E-22 to E-24 on the ratings, E-25 on a sibling's age, E-26 on which
+characteristic opened a path, E-27 on the campaign's present year, and E-28 and
+E-29 on the two schools.
+
+## The plan as filed
 
 Steps 5 to 8 (pp. 57–104): family, youth events, teenage events, and the four
 higher-education tracks. The PRD calls it "the largest milestone by volume and

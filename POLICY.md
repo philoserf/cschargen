@@ -40,6 +40,10 @@ belong with the choice points, which later milestones add.
 | `aging_crisis`           | p. 123, "the player may pay 1D6 × 1000 credits"                           | Pay for the treatment, which is the first option printed — and the only one a character survives |
 | `relationship_target`    | p. 320, "an existing Ally or Contact loses 1d6 × 20"                      | The first tie of a matching kind, in the order they were gained                                  |
 | `youth_path`             | p. 68, "the player may choose any path for which the character qualifies" | Path 1, the first the book prints — which every character qualifies for                          |
+| `teenage_path`           | p. 76, the same sentence again                                            | Whichever of Paths 1 and 2 the homeworld gives, which is always printed first                    |
+| `higher_education`       | p. 85, "characters are not required to attend college"                    | The first institution offered, and never "none" — so an eligible character attends               |
+| `degree_field`           | pp. 87, 92, "the character may now take ... at level 2"                   | The first skill the list prints                                                                  |
+| `washout_skill`          | pp. 87, 92, "gains a level in the player's choice of"                     | The first skill the list prints                                                                  |
 
 Rows are added as the engine reaches the choice points, in the PR that reaches
 them. A row here and no code is as wrong as code and no row.
@@ -69,6 +73,17 @@ always open. The other four are reached by a player choosing them, and by the
 tests that check they are open to the right characters. That is the policy being
 unrefined rather than the gates going unevaluated — the record still says which
 paths were offered.
+
+The education row has a visible consequence: **under the auto policy an eligible
+character attends everything they qualify for.** Step 8 loops, because otherwise
+Graduate School and Medical School are unreachable there — the degree they need
+is one the character earns in the same step — and the policy never declines. So a
+character with the characteristics for it walks out with a bachelor's, a
+master's, a doctorate and an MD, sixteen years older.
+
+That is the policy being unrefined rather than the rules being wrong: every one
+of those throws was made and could have failed. A player chooses to stop, and
+`--skip-education` is how a batch run says so.
 
 ## After an Aging Crisis
 

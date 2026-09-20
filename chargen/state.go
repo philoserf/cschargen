@@ -114,9 +114,10 @@ type State struct {
 	// "family"; this is the shape of the household around them.
 	Family *Family `json:"family,omitempty"`
 
-	// Education is what Step 8 established (pp. 85-104), and is what the
-	// three degree-based enlistment modifiers read.
-	Education *Education `json:"education,omitempty"`
+	// Education is what Step 8 established (pp. 85-104), one entry per
+	// institution attempted, and is what the three degree-based enlistment
+	// modifiers read.
+	Education []*Education `json:"education,omitempty"`
 
 	// ApparentAge is the band of p. 125, stamped at each Step 17 because it
 	// is derived from the homeworld's tech level -- which the renderer does

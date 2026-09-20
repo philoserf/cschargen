@@ -1,6 +1,7 @@
 package chargen_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/philoserf/cschargen/career"
@@ -14,6 +15,10 @@ import (
 type institutionBox struct {
 	admission, success, honors int
 	prerequisites              []career.Check
+
+	// graduate marks the two tracks that read the other characteristic on
+	// each throw and require a degree.
+	graduate bool
 }
 
 func institutionBoxes() map[string]institutionBox {
@@ -33,6 +38,23 @@ func institutionBoxes() map[string]institutionBox {
 				{Characteristic: "EDU", Number: 6},
 				{Characteristic: "END", Number: 8},
 			},
+		},
+		// "Admission INT 8+ / Success EDU 8+ / Honors INT 10+" (p. 97),
+		// and "EDU must be 10 or higher and the character must have
+		// achieved Success in an Undergraduate University or Military
+		// Academy" (p. 97).
+		"Graduate School": {
+			admission: 8, success: 8, honors: 10, graduate: true,
+			prerequisites: []career.Check{{Characteristic: "EDU", Number: 10}},
+		},
+		// "Admission INT 8+ / Success EDU 9+ / Honors INT 10+" (p. 100) --
+		// and then p. 101 says "The player must roll 8 or higher on 2d6
+		// for the character to be admitted ... The player must roll 8 or
+		// higher on 2d6 for the character to succeed", which is ERRATA
+		// E-28. The prose wins.
+		"Medical School": {
+			admission: 8, success: 8, honors: 10, graduate: true,
+			prerequisites: []career.Check{{Characteristic: "EDU", Number: 8}},
 		},
 	}
 }
@@ -75,14 +97,25 @@ func checkInstitutionBox(t *testing.T, got career.Institution, expected institut
 			t.Errorf("%s honors = %d+, want %d+", got.Name, got.Honors.Number, expected.honors)
 		}
 
-		// Admission and honours are helped by EDU, success by INT
-		// (pp. 87, 92).
-		if got.Admission.Characteristic != "EDU" || got.Honors.Characteristic != "EDU" {
-			t.Errorf("%s: admission and honours should read EDU", got.Name)
+		// The undergraduate tracks are helped by EDU on admission and
+		// honours and by INT on success (pp. 87, 92). The graduate tracks
+		// read the other one on each (pp. 97, 101).
+		helps, succeeds := "EDU", "INT"
+		if expected.graduate {
+			helps, succeeds = "INT", "EDU"
 		}
 
-		if got.Success.Characteristic != "INT" {
-			t.Errorf("%s: success should read INT", got.Name)
+		if got.Admission.Characteristic != helps || got.Honors.Characteristic != helps {
+			t.Errorf("%s: admission and honours should read %s", got.Name, helps)
+		}
+
+		if got.Success.Characteristic != succeeds {
+			t.Errorf("%s: success should read %s", got.Name, succeeds)
+		}
+
+		if got.RequiresDegree != expected.graduate {
+			t.Errorf("%s: RequiresDegree = %v, want %v",
+				got.Name, got.RequiresDegree, expected.graduate)
 		}
 
 		if len(got.Prerequisites) != len(expected.prerequisites) {
@@ -98,6 +131,14 @@ func TestEveryInstitutionHasItsPrintedTables(t *testing.T) {
 	t.Parallel()
 
 	for _, institution := range career.Institutions() {
+		checkInstitutionTables(t, institution)
+	}
+}
+
+func checkInstitutionTables(t *testing.T, institution career.Institution) {
+	t.Helper()
+
+	{
 		if len(institution.Failure) != 11 {
 			t.Errorf("%s failure table has %d rows; a 2d6 table has 11",
 				institution.Name, len(institution.Failure))
@@ -108,7 +149,14 @@ func TestEveryInstitutionHasItsPrintedTables(t *testing.T) {
 				institution.Name, len(institution.Events))
 		}
 
-		if len(institution.LifeEvents) != 6 {
+		// The graduate tracks reach the career Life Events table of
+		// p. 120 rather than one of their own, so they print none.
+		if institution.RequiresDegree {
+			if len(institution.LifeEvents) != 0 {
+				t.Errorf("%s prints a life events table; pp. 99, 103 send it to p. 120",
+					institution.Name)
+			}
+		} else if len(institution.LifeEvents) != 6 {
 			t.Errorf("%s life events table has %d rows; a d6 table has 6",
 				institution.Name, len(institution.LifeEvents))
 		}
@@ -117,16 +165,27 @@ func TestEveryInstitutionHasItsPrintedTables(t *testing.T) {
 			t.Errorf("%s has no skills to take a degree in", institution.Name)
 		}
 
-		for i, row := range institution.Failure {
-			if row.Summary == "" {
-				t.Errorf("%s failure result %d has no summary", institution.Name, i+2)
-			}
+		summaries := make([]string, 0, len(institution.Failure)+len(institution.Events))
+		for _, row := range institution.Failure {
+			summaries = append(summaries, row.Summary)
 		}
 
-		for i, row := range institution.Events {
-			if row.Summary == "" {
-				t.Errorf("%s event %d has no summary", institution.Name, i+2)
-			}
+		for _, row := range institution.Events {
+			summaries = append(summaries, row.Summary)
+		}
+
+		checkSummaries(t, institution.Name, summaries)
+	}
+}
+
+// checkSummaries: a row with no summary is a row the transcript cannot
+// print, which is how a table with a gap in it shows up.
+func checkSummaries(t *testing.T, where string, summaries []string) {
+	t.Helper()
+
+	for i, summary := range summaries {
+		if summary == "" {
+			t.Errorf("%s: a table row at index %d has no summary", where, i)
 		}
 	}
 }
@@ -169,12 +228,14 @@ func TestHigherEducationHappens(t *testing.T) {
 
 		opts.Inputs.TermLimit = -1
 
-		record := generate(t, opts).State.Education
-		if record == nil {
+		history := generate(t, opts).State.Education
+		if len(history) == 0 {
 			continue
 		}
 
 		attempted++
+
+		record := history[0]
 
 		if record.Admitted {
 			admitted++
@@ -236,7 +297,7 @@ func TestSkippingHigherEducation(t *testing.T) {
 	opts.Inputs.SkipEducation = true
 
 	character := generate(t, opts)
-	if character.State.Education != nil {
+	if len(character.State.Education) != 0 {
 		t.Error("Step 8 ran although it was skipped")
 	}
 
@@ -244,4 +305,60 @@ func TestSkippingHigherEducation(t *testing.T) {
 	if character.State.Family == nil {
 		t.Error("skipping Step 8 skipped Step 5 as well")
 	}
+}
+
+// TestADegreeHelpsEnlistment. Four careers modify enlistment on a degree --
+// Instructor, Journalist, Medic and Scientist -- and the engine recorded
+// all of them as unimplemented until Step 8 landed. The record has to show
+// the modifier applied, and nowhere show it recorded.
+func TestADegreeHelpsEnlistment(t *testing.T) {
+	t.Parallel()
+
+	applied := 0
+
+	for seed := range uint64(120) {
+		opts := options(t, seed)
+
+		opts.Inputs.TermLimit = 3
+		opts.Inputs.Career = "Instructor"
+
+		character := generate(t, opts)
+
+		applied += countDegreeModifiers(t, seed, character)
+	}
+
+	if applied == 0 {
+		t.Error("in 120 seeds no degree ever helped an enlistment throw")
+	}
+}
+
+// countDegreeModifiers walks a record for the degree bonuses, and fails on
+// any that are still recorded as unimplemented.
+func countDegreeModifiers(t *testing.T, seed uint64, character *chargen.Character) int {
+	t.Helper()
+
+	degrees := map[string]bool{
+		"a degree": true, "a master's": true, "a doctorate": true, "medical school": true,
+	}
+
+	applied := 0
+
+	for _, event := range character.Events {
+		if event.Consequence != nil &&
+			strings.Contains(event.Consequence.Detail, "modifies enlistment on a degree") {
+			t.Errorf("seed %d still records the degree modifier as unimplemented", seed)
+		}
+
+		if event.Kind != chargen.EventThrow || event.Throw == nil {
+			continue
+		}
+
+		for _, mod := range event.Throw.Mods {
+			if degrees[mod.Name] {
+				applied++
+			}
+		}
+	}
+
+	return applied
 }

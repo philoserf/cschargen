@@ -31,6 +31,7 @@ func Sheet(character *chargen.Character) string {
 	writeSummary(&out, character)
 	writeOrigin(&out, character)
 	writeFamily(&out, character)
+	writeEducation(&out, character)
 	writeCharacteristics(&out, character)
 	writeSkills(&out, character)
 	writeCareers(&out, character)
@@ -133,6 +134,34 @@ func rolesOf(character *chargen.Character, role string) []chargen.Tie {
 	}
 
 	return found
+}
+
+// writeEducation prints what Step 8 came to (pp. 85-104): every
+// institution attempted, whether they were admitted, and what they left
+// with.
+func writeEducation(out *strings.Builder, character *chargen.Character) {
+	history := character.State.Education
+	if len(history) == 0 {
+		return
+	}
+
+	out.WriteString("## Education\n\n")
+
+	for _, held := range history {
+		switch {
+		case held.Degree != "" && held.Honors:
+			fmt.Fprintf(out, "- %s: a %s in %s, with honours\n",
+				held.Institution, held.Degree, held.Field)
+		case held.Degree != "":
+			fmt.Fprintf(out, "- %s: a %s in %s\n", held.Institution, held.Degree, held.Field)
+		case held.Admitted:
+			fmt.Fprintf(out, "- %s: admitted, left without a degree\n", held.Institution)
+		default:
+			fmt.Fprintf(out, "- %s: not admitted\n", held.Institution)
+		}
+	}
+
+	out.WriteString("\n")
 }
 
 // writeCharacteristics prints the six with their modifiers. The modifier is

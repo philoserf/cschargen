@@ -15,13 +15,14 @@ func MilitaryAcademy() Institution {
 			{Characteristic: "EDU", Number: 6},
 			{Characteristic: "END", Number: 8},
 		},
-		Admission:  admission(9),
-		Success:    successThrow(8),
-		Honors:     honorsThrow(10),
-		Skills:     academySkills(),
-		Failure:    academyFailure(),
-		Events:     academyEvents(),
-		LifeEvents: academyLifeEvents(),
+		GraduateEDU: 10,
+		Admission:   admission(9),
+		Success:     successThrow(8),
+		Honors:      honorsThrow(10),
+		Skills:      academySkills(),
+		Failure:     academyFailure(),
+		Events:      academyEvents(),
+		LifeEvents:  academyLifeEvents(),
 		Note: "a graduate must enter a military career at Step 9 as an officer -- rank 0, " +
 			"or rank 1 with honours -- and serve at least two terms in it (p. 94)",
 	}
@@ -208,16 +209,7 @@ func academyEvents() []EventRow {
 				throwModifier("first two survival and advancement rolls in a military career", 2),
 			},
 		},
-		{
-			Summary: "among the finest of your class",
-			Effects: []Effect{
-				relationshipAt(Ally, 1, 110),
-				relationshipAt(Contact, 1, 60),
-				{Kind: EffectHonors, Detail: "achieve honours, if the throw did not"},
-				chr("CHA", 1),
-				pickSkill("Discipline", "Diplomat", "Admin", "Leadership", "Recon"),
-			},
-		},
+		distinguishedGraduate(),
 	}
 }
 

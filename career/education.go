@@ -23,6 +23,15 @@ type Institution struct {
 	// Military Academy wants EDU 6+ and END 8+.
 	Prerequisites []Check
 
+	// RequiresDegree is the prerequisite that is not a characteristic:
+	// "the character must have achieved Success in an Undergraduate
+	// University or Military Academy" (pp. 97, 101).
+	RequiresDegree bool
+
+	// GraduateEDU is the floor success raises EDU to (pp. 87, 97): ten for
+	// the two undergraduate tracks, twelve for the two graduate ones.
+	GraduateEDU int
+
 	// Admission, Success and Honors are 2d6 throws, each modified by one
 	// characteristic's modifier.
 	Admission Throw
@@ -57,8 +66,31 @@ type Throw struct {
 // School and Medical School require a degree, which is why they come last
 // in more than presentation.
 func Institutions() []Institution {
-	return []Institution{Undergraduate(), MilitaryAcademy()}
+	return []Institution{
+		Undergraduate(), MilitaryAcademy(), GraduateSchool(), MedSchool(),
+	}
 }
+
+// Degree names what a character holds after succeeding at an institution,
+// which is what three careers' enlistment modifiers read.
+type Degree string
+
+const (
+	// Bachelors is what Undergraduate College and the Military Academy
+	// grant (pp. 89, 94).
+	Bachelors Degree = "bachelor's"
+
+	// Masters is a first success at graduate school (p. 99).
+	Masters Degree = "master's"
+
+	// Doctorate is a second: "If the character chooses to return to
+	// graduate school for a second term and they achieve success, then the
+	// character has a doctorate" (p. 99).
+	Doctorate Degree = "doctorate"
+
+	// MedicalDoctor is what medical school grants (p. 103).
+	MedicalDoctor Degree = "medical doctor"
+)
 
 // The three throws every institution makes, named because the numbers
 // differ between them and the shape does not.
@@ -67,6 +99,20 @@ func admission(number int) Throw {
 }
 
 func successThrow(number int) Throw {
+	return Throw{Number: number, Characteristic: "INT"}
+}
+
+// The two graduate tracks read the other characteristic on each throw:
+// admission and honours on INT, success on EDU (pp. 97, 101).
+func graduateAdmission(number int) Throw {
+	return Throw{Number: number, Characteristic: "INT"}
+}
+
+func graduateSuccess(number int) Throw {
+	return Throw{Number: number, Characteristic: "EDU"}
+}
+
+func graduateHonors(number int) Throw {
 	return Throw{Number: number, Characteristic: "INT"}
 }
 
