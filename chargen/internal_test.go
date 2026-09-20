@@ -655,3 +655,523 @@ func expressionsIn(effects []career.Effect) []career.Effect {
 
 	return found
 }
+
+// TestTheAgingTablesMatchPages122And123 is a second reading of the four
+// human tables, typed independently of chargen/aging.go.
+//
+// The repetition is the mechanism, as it is in career/transcription_test.go:
+// two transcriptions that agree are evidence, and a constant shared between
+// them would be one reading wearing two hats. So this table is written as
+// the page prints it -- every characteristic on every row -- rather than
+// through threePhysical and its two siblings.
+func TestTheAgingTablesMatchPages122And123(t *testing.T) {
+	t.Parallel()
+
+	type row struct {
+		techLevel int
+		term      int
+		checks    string
+	}
+
+	// One string per row of pp. 122-123, read left to right.
+	rows := []row{
+		{9, 5, ""},
+		{9, 6, "STR 8+, DEX 8+, END 8+"},
+		{9, 8, "STR 8+, DEX 8+, END 8+"},
+		{9, 9, "STR 9+, DEX 9+, END 9+"},
+		{9, 10, "STR 9+, DEX 9+, END 9+"},
+		{9, 11, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{9, 12, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		{9, 40, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		{10, 17, ""},
+		{10, 18, "STR 8+, DEX 8+, END 8+"},
+		{10, 28, "STR 8+, DEX 8+, END 8+"},
+		{10, 29, "STR 9+, DEX 9+, END 9+"},
+		{10, 38, "STR 9+, DEX 9+, END 9+"},
+		{10, 39, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{10, 48, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
+		{10, 49, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
+		{11, 32, ""},
+		{11, 33, "STR 8+, DEX 8+, END 8+"},
+		{11, 48, "STR 8+, DEX 8+, END 8+"},
+		{11, 49, "STR 9+, DEX 9+, END 9+"},
+		{11, 58, "STR 9+, DEX 9+, END 9+"},
+		// ERRATA E-15: TL 11 and TL 12-13 print no band past 58, where
+		// TL 9 and TL 10 each end on an open one.
+		{11, 59, ""},
+		{12, 43, ""},
+		{12, 44, "STR 8+, DEX 8+, END 8+"},
+		{12, 58, "STR 8+, DEX 8+, END 8+"},
+		{12, 59, ""},
+		{13, 44, "STR 8+, DEX 8+, END 8+"},
+		// ERRATA E-16: nothing is printed above TL 13, and the validator
+		// accepts up to TL 20.
+		{14, 44, "STR 8+, DEX 8+, END 8+"},
+		{20, 59, ""},
+	}
+
+	for _, want := range rows {
+		checks, due := agingChecksAt(want.techLevel, want.term)
+		got := ""
+
+		if due {
+			parts := make([]string, len(checks))
+			for i, check := range checks {
+				parts[i] = check.Characteristic + " " + itoa(check.Number) + "+"
+			}
+
+			got = strings.Join(parts, ", ")
+		}
+
+		if got != want.checks {
+			t.Errorf("TL %d term %d: %q, want %q",
+				want.techLevel, want.term, got, want.checks)
+		}
+	}
+}
+
+// TestNoAgingBandLeavesAGapOrOverlaps holds the property the rows above
+// only sample: within one tech level the bands are contiguous and ordered,
+// so no term falls between two of them and no term is covered twice.
+func TestNoAgingBandLeavesAGapOrOverlaps(t *testing.T) {
+	t.Parallel()
+
+	for _, techLevel := range []int{9, 10, 11, 12, 13, 14} {
+		bands := humanAging(techLevel)
+
+		for i, band := range bands {
+			if band.Through != 0 && band.Through < band.From {
+				t.Errorf("TL %d band %d: %d-%d runs backwards",
+					techLevel, i, band.From, band.Through)
+			}
+
+			if i == 0 {
+				continue
+			}
+
+			previous := bands[i-1]
+			if previous.Through == 0 {
+				t.Errorf("TL %d band %d is open and is not the last", techLevel, i-1)
+
+				continue
+			}
+
+			if band.From != previous.Through+1 {
+				t.Errorf("TL %d: band %d ends at %d and band %d starts at %d",
+					techLevel, i-1, previous.Through, i, band.From)
+			}
+		}
+	}
+}
+
+// The Aging Crisis and the four states beneath it (pp. 123-124) are reached
+// through a term of aging throws that has to fail, so the tests below set
+// the characteristics directly and call the crisis path. A generated
+// character can reach them -- TestACharacterActuallyAges proves the throws
+// happen -- but not reliably enough for an assertion.
+
+func TestAnAgingCrisisIsPaidForWhenItCanBe(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 4)
+
+	gen.char.State.Credits = 100_000
+	gen.char.State.Characteristics.Set(STR, 0)
+
+	err := gen.agingCrisis("STR", 0)
+	if err != nil {
+		t.Fatalf("agingCrisis: %v", err)
+	}
+
+	if gen.char.State.Fate != "" {
+		t.Errorf("Fate = %q, want empty: the treatment was affordable", gen.char.State.Fate)
+	}
+
+	if got := gen.char.State.Characteristics.Get(STR); got != 1 {
+		t.Errorf("STR = %d, want 1 restored", got)
+	}
+
+	if gen.char.State.Credits >= 100_000 {
+		t.Error("the treatment was free")
+	}
+
+	if !gen.crisisSurvived {
+		t.Error("surviving a crisis did not restrict what comes next (p. 123)")
+	}
+}
+
+// TestAnAgingCrisisNobodyCanPayForIsFatal is ERRATA E-19: the book sets a
+// price and never says what happens to a character who cannot meet it.
+func TestAnAgingCrisisNobodyCanPayForIsFatal(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 5)
+
+	gen.char.State.Credits = 0
+	gen.char.State.Characteristics.Set(END, 0)
+
+	err := gen.agingCrisis("END", 0)
+	if err != nil {
+		t.Fatalf("agingCrisis: %v", err)
+	}
+
+	if gen.char.State.Fate != FateDied {
+		t.Errorf("Fate = %q, want %q", gen.char.State.Fate, FateDied)
+	}
+
+	if !gen.stopped {
+		t.Error("a dead character is still generating")
+	}
+}
+
+// TestACharacteristicAboveZeroIsNotACrisis: agingCrisis is called after
+// every failed check, and all but a handful of them leave the character
+// merely older.
+func TestACharacteristicAboveZeroIsNotACrisis(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 6)
+
+	gen.char.State.Credits = 100_000
+	gen.char.State.Characteristics.Set(DEX, 3)
+
+	err := gen.agingCrisis("DEX", 0)
+	if err != nil {
+		t.Fatalf("agingCrisis: %v", err)
+	}
+
+	if gen.char.State.Credits != 100_000 {
+		t.Error("treatment was bought for a characteristic that did not need it")
+	}
+
+	if gen.crisisSurvived {
+		t.Error("a crisis was recorded where none happened")
+	}
+}
+
+// terminalCase is one row of pp. 123-124's four states, plus the one that
+// is survivable.
+type terminalCase struct {
+	name         string
+	zero         []Characteristic
+	wantFate     Fate
+	wantNoEnlist bool
+	wantStopped  bool
+	wantVagabond bool
+}
+
+func terminalCases() []terminalCase {
+	return []terminalCase{
+		{
+			name:     "all three physical is death",
+			zero:     []Characteristic{STR, DEX, END},
+			wantFate: FateDied, wantStopped: true,
+		},
+		{
+			name:     "two physical is incapacity",
+			zero:     []Characteristic{STR, DEX},
+			wantFate: FateIncapacitated, wantStopped: true,
+		},
+		{
+			name:     "two mental is death",
+			zero:     []Characteristic{INT, EDU},
+			wantFate: FateDied, wantStopped: true,
+		},
+		{
+			name:         "one mental ends enlistment and nothing else",
+			zero:         []Characteristic{CHA},
+			wantNoEnlist: true, wantVagabond: true,
+		},
+		{
+			name: "one physical is survivable",
+			zero: []Characteristic{END},
+		},
+	}
+}
+
+func TestTheTerminalStatesOfPages123And124(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range terminalCases() {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			gen := engine(t, 7)
+
+			for _, which := range CharacteristicOrder {
+				gen.char.State.Characteristics.Set(which, 7)
+			}
+
+			for _, which := range tc.zero {
+				gen.char.State.Characteristics.Set(which, 0)
+			}
+
+			gen.settleTerminalStates(0)
+
+			if gen.char.State.Fate != tc.wantFate {
+				t.Errorf("Fate = %q, want %q", gen.char.State.Fate, tc.wantFate)
+			}
+
+			if gen.stopped != tc.wantStopped {
+				t.Errorf("stopped = %v, want %v", gen.stopped, tc.wantStopped)
+			}
+
+			if gen.mentalDecline != tc.wantNoEnlist {
+				t.Errorf("mentalDecline = %v, want %v", gen.mentalDecline, tc.wantNoEnlist)
+			}
+
+			if !tc.wantVagabond {
+				return
+			}
+
+			eligible := gen.eligibleCareers()
+			if len(eligible) != 1 || eligible[0].Name != "Vagabond" {
+				t.Errorf("after a mental characteristic reached 0 the career list is %d long, "+
+					"want Vagabond alone", len(eligible))
+			}
+		})
+	}
+}
+
+// TestAgingStopsAtTheFirstDeath. A term's checks run one after another, and
+// a character killed by the first of them does not make the rest.
+func TestAgingStopsAtTheFirstDeath(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 8)
+
+	gen.techLevel = 9
+	gen.char.State.Credits = 0
+
+	// Term 12 on a tech level 9 world is the last band: six checks, the
+	// first of which is STR. At 1 it cannot survive a failure, and the
+	// modifier for a characteristic of 1 is -2, so 10+ is unreachable.
+	gen.char.State.Terms = make([]Term, 12)
+
+	for _, which := range CharacteristicOrder {
+		gen.char.State.Characteristics.Set(which, 1)
+	}
+
+	err := gen.agingThrows(0)
+	if err != nil {
+		t.Fatalf("agingThrows: %v", err)
+	}
+
+	if gen.char.State.Fate != FateDied {
+		t.Fatalf("Fate = %q, want %q", gen.char.State.Fate, FateDied)
+	}
+
+	// Only the first check was made, so only one characteristic moved.
+	moved := 0
+
+	for _, which := range CharacteristicOrder {
+		if gen.char.State.Characteristics.Get(which) != 1 {
+			moved++
+		}
+	}
+
+	if moved != 1 {
+		t.Errorf("%d characteristics moved; the term should have stopped at the first death", moved)
+	}
+}
+
+// TestAnAbandonedCrisisEndsGeneration: a Decider that declines the payment
+// choice -- an interactive session the player walked away from -- is an
+// error rather than a decision, and it comes back out.
+func TestAnAbandonedCrisisEndsGeneration(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 9)
+
+	gen.decider = refusingDecider{}
+	gen.char.State.Characteristics.Set(INT, 0)
+
+	err := gen.agingCrisis("INT", 0)
+	if err == nil {
+		t.Fatal("a refused choice did not come back as an error")
+	}
+}
+
+// refusingDecider declines every choice, which is what an abandoned
+// interactive session looks like to the engine.
+type refusingDecider struct{}
+
+func (refusingDecider) Choose(Choice) (int, error) { return 0, ErrNoSetting }
+
+func (refusingDecider) Kind() DeciderKind { return DeciderPolicy }
+
+// lastOptionDecider takes the last option offered, which is the opposite of
+// what Policy does and the only way to reach a branch the policy declines.
+type lastOptionDecider struct{}
+
+func (lastOptionDecider) Choose(c Choice) (int, error) { return len(c.Options) - 1, nil }
+
+func (lastOptionDecider) Kind() DeciderKind { return DeciderPolicy }
+
+// TestACrisisDeclinedIsFatal. "The player may pay" (p. 123) is a may, and
+// the character who does not dies. POLICY.md takes the payment, so this is
+// the branch the auto policy never reaches.
+func TestACrisisDeclinedIsFatal(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 10)
+
+	gen.decider = lastOptionDecider{}
+	gen.char.State.Credits = 100_000
+	gen.char.State.Characteristics.Set(DEX, 0)
+
+	err := gen.agingCrisis("DEX", 0)
+	if err != nil {
+		t.Fatalf("agingCrisis: %v", err)
+	}
+
+	if gen.char.State.Fate != FateDied {
+		t.Errorf("Fate = %q, want %q: the treatment was refused", gen.char.State.Fate, FateDied)
+	}
+
+	if gen.char.State.Credits != 100_000 {
+		t.Error("a refused treatment was paid for anyway")
+	}
+}
+
+// TestARefusedCrisisStopsTheTerm: a refused choice is an error, and it has
+// to come back out of the term rather than being swallowed by the loop over
+// a band's checks.
+func TestARefusedCrisisStopsTheTerm(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 11)
+
+	gen.decider = refusingDecider{}
+	gen.techLevel = 9
+	gen.char.State.Terms = make([]Term, 12)
+
+	for _, which := range CharacteristicOrder {
+		gen.char.State.Characteristics.Set(which, 1)
+	}
+
+	err := gen.agingThrows(0)
+	if err == nil {
+		t.Fatal("a refused choice inside a term's aging did not come back as an error")
+	}
+}
+
+// TestTheApparentAgeChartMatchesPage125 is a second reading of the chart,
+// typed as the page prints it: the actual-age band on the left, then the
+// three tech level columns.
+func TestTheApparentAgeChartMatchesPage125(t *testing.T) {
+	t.Parallel()
+
+	// "Actual Age | TL 10 | TL 11 | TL 12-13", row by row down p. 125.
+	page := []struct {
+		age                       int
+		tenTL, elevenTL, twelveTL string
+	}{
+		{30, "20-25", "20-25", "20-25"},
+		{41, "20-25", "20-25", "20-25"},
+		{51, "30-35", "20-25", "20-25"},
+		{61, "30-35", "25-30", "20-25"},
+		{71, "35-40", "25-30", "25-30"},
+		{81, "35-40", "25-30", "25-30"},
+		{91, "40-45", "30-35", "25-30"},
+		{101, "40-45", "30-35", "25-30"},
+		{111, "45-50", "30-35", "30-35"},
+		{121, "45-50", "35-40", "30-35"},
+		{131, "50-55", "35-40", "30-35"},
+		{141, "50-55", "35-40", "30-35"},
+		{151, "55-60", "40-45", "35-40"},
+		{161, "55-60", "40-45", "35-40"},
+		{171, "60-65", "40-45", "35-40"},
+		{181, "60-65", "45-50", "35-40"},
+		{191, "65-70", "45-50", "40-45"},
+		{201, "65-70", "45-50", "40-45"},
+		{211, "70-75", "50-55", "40-45"},
+		{221, "70-75", "50-55", "40-45"},
+		{231, "75-80", "50-55", "45-50"},
+		{241, "75-80", "55-60", "45-50"},
+		{251, "80-85", "55-60", "45-50"},
+		{261, "80-85", "55-60", "45-50"},
+		{271, "85-90", "60-65", "50-55"},
+		{281, "85-90", "60-65", "50-55"},
+	}
+
+	if len(page) != len(apparentAgeChart) {
+		t.Fatalf("the reading above has %d rows and the chart has %d",
+			len(page), len(apparentAgeChart))
+	}
+
+	for _, want := range page {
+		for techLevel, column := range map[int]string{
+			10: want.tenTL, 11: want.elevenTL, 12: want.twelveTL,
+		} {
+			band, fromChart := apparentAge(techLevel, want.age)
+			if !fromChart {
+				t.Errorf("age %d at TL %d did not read the chart", want.age, techLevel)
+
+				continue
+			}
+
+			if band.String() != column {
+				t.Errorf("age %d at TL %d: %s, want %s",
+					want.age, techLevel, band, column)
+			}
+		}
+	}
+}
+
+// TestApparentAgeOutsideTheChart is ERRATA E-20: below tech level 10 and
+// below age 30 apparent age is actual age, and above 290 the last printed
+// row holds.
+func TestApparentAgeOutsideTheChart(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		techLevel, age int
+		want           string
+		fromChart      bool
+	}{
+		{9, 200, "200-200", false},
+		{0, 18, "18-18", false},
+		{12, 29, "29-29", false},
+		{12, 30, "20-25", true},
+		{10, 290, "85-90", true},
+		{10, 291, "85-90", true},
+		{10, 10_000, "85-90", true},
+		// ERRATA E-16 again: nothing is printed above TL 13, and a higher
+		// homeworld reads the TL 12-13 column.
+		{20, 151, "35-40", true},
+	}
+
+	for _, tc := range tests {
+		band, fromChart := apparentAge(tc.techLevel, tc.age)
+		if band.String() != tc.want || fromChart != tc.fromChart {
+			t.Errorf("apparentAge(%d, %d) = %s, %v; want %s, %v",
+				tc.techLevel, tc.age, band, fromChart, tc.want, tc.fromChart)
+		}
+	}
+}
+
+// TestOverFortyIsABandNotANumber is ERRATA E-21. Twelve careers say "if you
+// have an apparent age of over 40", and the chart answers in bands.
+func TestOverFortyIsABandNotANumber(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		band AgeBand
+		want bool
+	}{
+		{AgeBand{35, 40}, false},
+		{AgeBand{40, 45}, true},
+		{AgeBand{45, 50}, true},
+		{AgeBand{20, 25}, false},
+		// A character below the chart carries their own age as a band.
+		{AgeBand{39, 39}, false},
+		{AgeBand{40, 40}, true},
+	}
+
+	for _, tc := range tests {
+		if got := apparentAgeOverForty(tc.band); got != tc.want {
+			t.Errorf("apparentAgeOverForty(%s) = %v, want %v", tc.band, got, tc.want)
+		}
+	}
+}

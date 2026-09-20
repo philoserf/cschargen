@@ -94,6 +94,19 @@ func (g *Generator) chooseCareer(step int) (career.Career, bool, error) {
 // to enter this career" (p. 111). A career the character failed to enter
 // stays out for two full terms (p. 110).
 func (g *Generator) eligibleCareers() []career.Career {
+	// pp. 123-124: a character who has survived an Aging Crisis
+	// "automatically fails all future Enlistment checks", and one with a
+	// mental characteristic at 0 "may not attempt further Enlistment
+	// checks" at all. Both leave the same three options, and two of them --
+	// continue in the current career, end generation -- are not this
+	// function's to offer: it is only reached with no career in hand, and
+	// the term limit is what ends generation. What remains is Vagabond,
+	// which takes no enlistment throw, so the automatic failure never has
+	// to be rolled for.
+	if g.crisisSurvived || g.mentalDecline {
+		return []career.Career{career.Vagabond()}
+	}
+
 	var eligible []career.Career
 
 	for _, def := range career.All() {
@@ -188,8 +201,12 @@ func (g *Generator) enlistmentMods(target career.Career, step int) []dice.Mod {
 				})
 			}
 		case career.ApparentAgeOver40:
-			g.unimplemented(step,
-				"this career modifies enlistment on apparent age, which arrives with the aging rules (p. 125)")
+			if apparentAgeOverForty(g.char.State.ApparentAge) {
+				mods = append(mods, dice.Mod{
+					Name:  "apparent age " + g.char.State.ApparentAge.String(),
+					Value: mod.Value,
+				})
+			}
 		case career.UndergraduateDegree, career.GraduateDegree, career.MedicalSchool:
 			g.unimplemented(step,
 				"this career modifies enlistment on a degree, which arrives with higher education (p. 86)")

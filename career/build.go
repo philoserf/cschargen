@@ -240,7 +240,7 @@ func mustContinue() Effect {
 }
 
 // chooseNewCareer is "choose another career", which five Colonist mishaps
-// and three other results end on (ERRATA E-6). It leaves the career without
+// end on (ERRATA E-6). It leaves the career without
 // naming the next one, so the character enlists in whatever they choose on
 // the ordinary terms -- which is not what transfer does.
 func chooseNewCareer() Effect {

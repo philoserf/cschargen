@@ -412,9 +412,8 @@ func TestSkillLevels(t *testing.T) {
 // TestChoosingANewCareerIsNotATransfer is ERRATA E-6, applied.
 //
 // Five Colonist mishaps end "choose another career and a new homeworld"
-// (p. 174), and four others in the book do the same. They are not the
-// mishaps that name a career: Colonist 10 sends the character to Vagabond
-// by name. The difference the engine has to show is that an unnamed change
+// (p. 174). They are not the mishaps that name a career: Colonist 10 sends
+// the character to Vagabond by name. The difference the engine has to show is that an unnamed change
 // goes through Step 18's career list and its enlistment throw, where a
 // named one places the character without either.
 //

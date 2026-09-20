@@ -44,6 +44,14 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 	fmt.Fprintf(out, "**Species**: %s  \n", character.Provenance.Inputs.Species)
 	fmt.Fprintf(out, "**Age**: %d  \n", state.Age)
 
+	// "Apparent age is a game term used to indicate to the Players how old
+	// a character might appear to be to the early 21st century onlooker"
+	// (p. 124). It only says something the age does not once the chart on
+	// p. 125 has an answer of its own.
+	if band := state.ApparentAge; band.From != state.Age {
+		fmt.Fprintf(out, "**Apparent age**: %s  \n", band)
+	}
+
 	if world := character.Provenance.Inputs.Homeworld; world != "" {
 		fmt.Fprintf(out, "**Homeworld**: %s  \n", world)
 	}
@@ -52,7 +60,20 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 		fmt.Fprintf(out, "**Primary language**: %s  \n", state.Language)
 	}
 
-	fmt.Fprintf(out, "**Terms**: %d\n\n", len(state.Terms))
+	fmt.Fprintf(out, "**Terms**: %d\n", len(state.Terms))
+
+	// Aging is the one thing that can end a lifepath short of the term
+	// limit (pp. 123-124), and a sheet that did not say so would show a
+	// character with fewer terms than their homeworld allows and no reason
+	// for it.
+	switch state.Fate {
+	case chargen.FateDied:
+		fmt.Fprintf(out, "**Died** at age %d, during generation  \n", state.Age)
+	case chargen.FateIncapacitated:
+		fmt.Fprint(out, "**Incapacitated** by aging: generation ended here  \n")
+	}
+
+	fmt.Fprint(out, "\n")
 }
 
 // writeCharacteristics prints the six with their modifiers. The modifier is

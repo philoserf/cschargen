@@ -128,6 +128,14 @@ linters:
       - linters: [mnd]
         path: career/
 
+      # 15 findings, and every one is a number off pp. 122-123: a tech level
+      # in a case, a target number in a band. The file is four printed
+      # tables and the three row shapes they are built from. Naming 8 or 9
+      # would assert that every 8 in the tables is the same concept, which
+      # is the thing a second reading exists to disprove.
+      - linters: [mnd]
+        path: chargen/aging\.go
+
       # 27 findings, every one a skill name, a table heading or a mishap
       # summary that recurs because the book prints it in several places.
       # Collapsing a repeated cell into a constant is exactly the coupling
@@ -136,6 +144,17 @@ linters:
       # being independent of the first.
       - linters: [goconst]
         path: career/
+
+      # 2 findings in chargen/aging.go and 4 in its transcription test, and
+      # they are the same argument as career/'s. The table's cells are
+      # characteristic abbreviations and whole printed rows; a constant
+      # shared between the table and the test that checks it would make the
+      # second reading a restatement of the first rather than an
+      # independent one. The two findings the same run reports in
+      # characteristics.go are collateral: aging.go is what takes "INT" and
+      # "CHA" past the threshold, and they go with it.
+      - linters: [goconst]
+        path: chargen/(aging\.go|characteristics\.go|internal_test\.go)
 
       # 4 findings: three d66 event tables of 36 rows each, and one block of
       # three assignments. They are data, written as functions because Go

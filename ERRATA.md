@@ -313,3 +313,162 @@ A second, smaller slip runs across several tables: Scavenger event 26 (p. 267)
 and Exotic event 63 (p. 193) both say "Engineering (Any)" where the skill list
 (p. 304) has Engineer. The engine uses Engineer, because no skill named
 Engineering exists to grant.
+
+---
+
+## E-15 (reading) — two aging tables stop, and nothing is printed past them
+
+**Where:** the aging tables for tech level 11 and tech levels 12-13 (p. 122).
+
+Four human aging tables are printed. Two of them end on an open band — TL 9's
+last row is "12+", TL 10's is "49+" — and two do not. TL 11's last row is 49-58
+and TL 12-13's is 44-58, and the page prints nothing for a character past term
+58 on either.
+
+**Engine:** no check is made there. A TL 11 character who serves a 59th term
+makes no aging throw at all, which is what the page says rather than what it
+probably means.
+
+**If this is wrong:** the intended reading is almost certainly that the last
+band stays open, the way the other two tables' do, and a very long-lived
+character is being let off. That direction is the forgiving one — a character
+generated under this reading is never harmed by it — and it is reachable only
+past term 58, which no world in the sample setting data allows.
+
+---
+
+## E-16 (reading) — nothing is printed above tech level 13
+
+**Where:** the aging tables (pp. 122-123), against `setting`'s world schema.
+
+The tables are headed "Tech Level 9 or less", "Tech Level 10", "Tech Level 11"
+and "Tech Level 12-13". The setting data format accepts a world of any tech
+level up to 20, and the book's own setting reaches TL 13 but the schema does not
+stop there.
+
+**Engine:** a homeworld above TL 13 reads the TL 12-13 table.
+
+**Reasoning:** each band in the sequence delays the onset of aging and none of
+them abolishes it — TL 9 begins at term 6, TL 10 at 18, TL 11 at 33, TL 12-13 at 44. Reading the highest printed band forward continues that trend; reading
+"nothing printed" as "no aging" invents a rule the trend does not support, and
+would make a TL 14 homeworld strictly better than any the book describes.
+
+**If this is wrong:** a TL 14+ character ages slightly sooner than intended. No
+world in the sample setting data is above TL 12, so this is reachable only in a
+user-supplied file.
+
+---
+
+## E-17 (reading) — which characteristics are physical and which are mental
+
+**Where:** the Aging Crisis rules (pp. 123-124), read against p. 14.
+
+Four of the terminal states turn on the words "physical" and "mental":
+
+> If two or more physical characteristics reach 0 ... If all three physical
+> characteristics are reduced to 0 ... If any one mental characteristic is
+> reduced to 0 ... If two or more mental characteristics are reduced to 0
+
+That section enumerates neither group. **p. 14 enumerates one of them**, in the
+rule this one restates: "In the highly unlikely event that all three physical
+characteristics (Strength, Dexterity, and Endurance) are reduced to 0 during
+character creation, the character is considered to have died before play
+begins."
+
+**Engine:** STR, DEX and END are physical; INT, EDU and CHA are mental. There are
+six characteristics and the book uses only these two words for them, so naming
+the physical three names the other three by subtraction.
+
+This is closer to a cross-reference than a reading, and it is here because the
+aging section can be read on its own and does not say it. The aging tables agree
+independently: every band begins with STR, DEX and END and adds INT, EDU and CHA
+as the character gets older.
+
+---
+
+## E-18 (reading) — two crises in one term is two payments
+
+**Where:** the Aging Crisis (p. 123).
+
+A term can reduce more than one characteristic to 0: the last band of the TL 9
+and TL 10 tables makes six checks. The crisis rule is written for one — "the
+affected characteristic is restored to 1" — and says nothing about two.
+
+**Engine:** each characteristic that reaches 0 is its own crisis, with its own
+1d6 × 1000 credits and its own choice.
+
+**Reasoning:** the price is for treating a characteristic, not for surviving a
+term. One payment covering both would make the second free, which no reading of
+"emergency treatment" supports.
+
+---
+
+## E-19 (reading) — a character who cannot afford the treatment
+
+**Where:** the Aging Crisis (p. 123).
+
+> The player may pay 1D6 × 1000 credits for emergency treatment. ... If payment
+> is made, the affected characteristic is restored to 1.
+
+The book sets a price and treats payment as a choice. It does not say what
+happens to a character who would pay and cannot: cash is the one benefit a
+character can be entirely without, and 1d6 × 1000 is a real sum early in a
+lifepath.
+
+**Engine:** treatment that is not paid for is treatment that is not given, so
+this resolves the same way as declining it — the character dies.
+
+**If this is wrong:** the intended reading is probably that the price is a
+formality and the treatment is always available, in which case a character the
+engine killed should have lived. That is the direction to check first if a
+generated record looks unfair: the log names the price and the character's
+balance at the moment they died.
+
+---
+
+## E-20 (reading) — the apparent age chart's two ends
+
+**Where:** the Apparent Age chart (p. 125).
+
+The chart's first row is 30-40 and its last is 281-290. A character below 30 is
+off the top of it and one above 290 is off the bottom, and the page says nothing
+about either.
+
+**Engine:** below age 30, apparent age is the character's age; above 290, the
+last printed row holds.
+
+**Reasoning:** p. 124 already gives the rule for the other case where the chart
+does not apply — "If, by chance, your character happens to be from a world of
+Tech Level 9 and lower, your apparent age and your real age are the same" — and
+below 30 the same thing is true for a reason the chart itself shows: every
+column's first row is 20-25 against an actual age of 30-40, so the divergence has
+barely begun. A character of 18 who "appears to be" 20-25 would be made older by
+the chart, which is the opposite of what it does.
+
+Above 290 the reading is simply that the last row holds, because the alternative
+is a character with no apparent age at all.
+
+---
+
+## E-21 (reading) — "over 40" against a chart that gives bands
+
+**Where:** twelve careers' enlistment throws, e.g. Exotic (p. 190), Organized
+Crime (p. 246), Investigator (p. 216).
+
+> If you have an apparent age of over 40, take a -2 modifier to this roll.
+
+The Apparent Age chart does not give a number. It gives a five-year band — 35-40,
+40-45 — so "over 40" has to be read against a range that can straddle it.
+
+**Engine:** the modifier applies where the band's **lower** bound is 40 or more.
+A character whose apparent age is 35-40 is not over 40; one at 40-45 is.
+
+**Reasoning:** the alternative — any band that reaches 40 — would catch 35-40,
+and a character at the bottom of that band appears to be 35. Reading the lower
+bound makes the modifier apply to characters who are over 40 on any reading of
+their band, which is the conservative direction for a penalty.
+
+Sports (p. 273) prints "If the character's apparent age is 40+" where the other
+eleven print "over 40". The engine treats them as one modifier at one bar: 40+
+and "over 40" differ only for a band whose lower bound is exactly 40, and that
+band is 40-45, which both readings catch.

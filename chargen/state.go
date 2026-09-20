@@ -97,6 +97,15 @@ type State struct {
 	Terms           []Term          `json:"terms,omitempty"`
 	Benefits        []BenefitBatch  `json:"benefits,omitempty"`
 	Age             int             `json:"age"`
+
+	// ApparentAge is the band of p. 125, stamped at each Step 17 because it
+	// is derived from the homeworld's tech level -- which the renderer does
+	// not have and the record does not otherwise carry.
+	ApparentAge AgeBand `json:"apparentAge"`
+
+	// Fate is set only where aging ended generation (pp. 123-124). Empty
+	// is the ordinary case, and death is a value rather than an error.
+	Fate Fate `json:"fate,omitempty"`
 }
 
 // startingAge is where a lifepath begins: "career terms are normally

@@ -240,3 +240,61 @@ func TestTheSheetNamesTheHomeworldAndLanguage(t *testing.T) {
 		}
 	}
 }
+
+// TestTheSheetSaysWhenAgingEndedIt. A character who dies or is
+// incapacitated during generation has fewer terms than their homeworld
+// allows, and a sheet that did not say why would look like a truncated
+// record rather than a finished one (pp. 123-124).
+func TestTheSheetSaysWhenAgingEndedIt(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		fate chargen.Fate
+		want string
+	}{
+		{chargen.FateDied, "**Died** at age"},
+		{chargen.FateIncapacitated, "**Incapacitated** by aging"},
+	}
+
+	for _, tc := range tests {
+		t.Run(string(tc.fate), func(t *testing.T) {
+			t.Parallel()
+
+			got := character(t, 3, 2, "Ended")
+
+			got.State.Fate = tc.fate
+
+			sheet := render.Sheet(got)
+			if !strings.Contains(sheet, tc.want) {
+				t.Errorf("the sheet of a character who %s does not say so:\n%s", tc.fate, sheet)
+			}
+		})
+	}
+
+	// And a character who finished ordinarily says nothing of the kind.
+	alive := render.Sheet(character(t, 3, 2, "Ended"))
+	for _, unwanted := range []string{"**Died**", "**Incapacitated**"} {
+		if strings.Contains(alive, unwanted) {
+			t.Errorf("a living character's sheet says %s", unwanted)
+		}
+	}
+}
+
+// TestApparentAgeOnlyAppearsWhenItSaysSomething. Below tech level 10, and
+// below age 30 at any tech level, apparent age is the character's age
+// (pp. 124-125) -- and a line repeating the one above it is noise.
+func TestApparentAgeOnlyAppearsWhenItSaysSomething(t *testing.T) {
+	t.Parallel()
+
+	got := character(t, 3, 2, "Young")
+	if strings.Contains(render.Sheet(got), "**Apparent age**") {
+		t.Error("a character whose apparent age is their age has a line saying so")
+	}
+
+	got.State.Age = 120
+	got.State.ApparentAge = chargen.AgeBand{From: 45, To: 50}
+
+	if !strings.Contains(render.Sheet(got), "**Apparent age**: 45-50") {
+		t.Error("the sheet does not carry an apparent age the chart supplied")
+	}
+}

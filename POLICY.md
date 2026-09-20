@@ -34,9 +34,10 @@ belong with the choice points, which later milestones add.
 
 ## Choice points at milestone 1
 
-| Point                    | Where                                          | Policy                                                                    |
-| ------------------------ | ---------------------------------------------- | ------------------------------------------------------------------------- |
-| `assign_characteristics` | p. 13, "apply the numbers ... as they see fit" | Assign in roll order: the first roll to STR, the second to DEX, and so on |
+| Point                    | Where                                           | Policy                                                                                           |
+| ------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `assign_characteristics` | p. 13, "apply the numbers ... as they see fit"  | Assign in roll order: the first roll to STR, the second to DEX, and so on                        |
+| `aging_crisis`           | p. 123, "the player may pay 1D6 × 1000 credits" | Pay for the treatment, which is the first option printed — and the only one a character survives |
 
 Rows are added as the engine reaches the choice points, in the PR that reaches
 them. A row here and no code is as wrong as code and no row.
@@ -59,3 +60,16 @@ first one printed wins whether or not it is the one that applies.
 None of these is an errata reading: the book is clear about what it wants, and
 the engine simply cannot see the state it wants read. They are listed here so a
 generated record can be checked against the page by hand.
+
+## After an Aging Crisis
+
+A character who survives one "automatically fails all future Enlistment checks",
+and one with a mental characteristic at 0 "may not attempt further Enlistment
+checks" at all (pp. 123-124). Both leave three options: continue in the current
+career if permitted, end character generation, or enter Vagabond.
+
+The engine offers Vagabond. The other two are not the career list's to offer — it
+is reached only with no career in hand, and the term limit is what ends
+generation — and Vagabond takes no enlistment throw, so the automatic failure
+never has to be rolled for. A player who wants to stop instead sets the term
+limit.
