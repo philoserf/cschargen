@@ -685,3 +685,183 @@ func TestASpeciesMustDeclareThingsTheEngineCanCarryOut(t *testing.T) {
 		})
 	}
 }
+
+// The words a genetics table is written in, and how many rows a 1d6 table
+// has.
+const (
+	kindEngineered = "engineered"
+	kindHybrid     = "hybrid"
+	kindPurebred   = "purebred"
+	d6             = 6
+)
+
+// brokenGenetic is one species whose genetics tables are broken in one
+// named way, and the problem the validator must name for it.
+type brokenGenetic struct {
+	name    string
+	species setting.Species
+	want    string
+}
+
+func brokenGenetics() []brokenGenetic {
+	six := make([]setting.GeneticOutcome, d6)
+	for i := range six {
+		six[i] = setting.GeneticOutcome{Detail: "something"}
+	}
+
+	pure := setting.GeneticStatus{Kind: kindPurebred, Generation: 1}
+	hybrids := []setting.GeneticStatus{
+		{Kind: kindHybrid},
+		{Kind: kindHybrid},
+		{Kind: kindHybrid},
+		{Kind: kindHybrid},
+		{Kind: kindHybrid},
+		{Kind: kindHybrid},
+	}
+
+	return append(brokenGeneticTables(six), brokenGeneticStatuses(pure, hybrids)...)
+}
+
+// brokenGeneticTables is the hybrid and compound tables broken.
+func brokenGeneticTables(six []setting.GeneticOutcome) []brokenGenetic {
+	return []brokenGenetic{
+		{
+			name: "a hybrid table of the wrong length",
+			species: setting.Species{
+				Name: aSpecies, Kind: kindEngineered,
+				Genetics: &setting.Genetics{Hybrid: six[:3]},
+			},
+			want: "the hybrid table has 3 rows",
+		},
+		{
+			name: "an outcome that says nothing",
+			species: setting.Species{
+				Name: aSpecies, Kind: kindEngineered,
+				Genetics: &setting.Genetics{
+					Compound: append([]setting.GeneticOutcome{{}}, six[1:]...),
+				},
+			},
+			want: "compound result 1 says nothing",
+		},
+		{
+			name: "an adjustment to something that is not a characteristic",
+			species: setting.Species{
+				Name: aSpecies, Kind: kindEngineered,
+				Genetics: &setting.Genetics{
+					Hybrid: append([]setting.GeneticOutcome{
+						{Detail: "odd", Adjust: map[string]int{"SOC": 1}},
+					}, six[1:]...),
+				},
+			},
+			want: "which is not a characteristic",
+		},
+	}
+}
+
+// brokenGeneticStatuses is the status table broken.
+func brokenGeneticStatuses(pure setting.GeneticStatus, hybrids []setting.GeneticStatus) []brokenGenetic {
+	return []brokenGenetic{
+		{
+			name: "a status row with nowhere to send them",
+			species: setting.Species{
+				Name: aSpecies, Kind: kindEngineered,
+				Genetics: &setting.Genetics{Status: hybrids},
+			},
+			want: "a hybrid table it has none of",
+		},
+		{
+			name: "a status row that is none of the three",
+			species: setting.Species{
+				Name: aSpecies, Kind: kindEngineered,
+				Genetics: &setting.Genetics{
+					Status: []setting.GeneticStatus{
+						{Kind: "clone"}, pure, pure, pure, pure, pure,
+					},
+				},
+			},
+			want: "it must be purebred, hybrid or compound",
+		},
+		{
+			name: "genetics on an uplift",
+			species: setting.Species{
+				Name: aSpecies, Kind: kindUplift, Genetics: &setting.Genetics{},
+			},
+			want: "which pp. 62-65 give only to engineered species",
+		},
+	}
+}
+
+// TestGeneticsTablesMustBeTheShapeThePagePrints. Each of the three is a
+// 1d6, so each has six rows, and a status row that sends a character to a
+// table the species has none of is a file that cannot be generated from.
+func TestGeneticsTablesMustBeTheShapeThePagePrints(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range brokenGenetics() {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			broken := minimal()
+
+			broken["species"] = []any{tc.species}
+
+			_, err := setting.Load(write(t, broken))
+			if err == nil {
+				t.Fatal("the file validated")
+			}
+
+			if !strings.Contains(err.Error(), tc.want) {
+				t.Errorf("error does not mention %q:\n%v", tc.want, err)
+			}
+		})
+	}
+}
+
+// TestAStatusTableOfTheWrongLength and a compound row with nowhere to send
+// the character: the two branches the table above does not reach.
+func TestAStatusTableOfTheWrongLength(t *testing.T) {
+	t.Parallel()
+
+	pure := setting.GeneticStatus{Kind: kindPurebred, Generation: 1}
+
+	tests := []struct {
+		name   string
+		status []setting.GeneticStatus
+		want   string
+	}{
+		{
+			name:   "three rows",
+			status: []setting.GeneticStatus{pure, pure, pure},
+			want:   "the genetic status table has 3 rows",
+		},
+		{
+			name: "a compound row with no compound table",
+			status: []setting.GeneticStatus{
+				{Kind: "compound"}, pure, pure, pure, pure, pure,
+			},
+			want: "a compound table it has none of",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			broken := minimal()
+
+			broken["species"] = []any{setting.Species{
+				Name: aSpecies, Kind: kindEngineered,
+				Genetics: &setting.Genetics{Status: tc.status},
+			}}
+
+			_, err := setting.Load(write(t, broken))
+			if err == nil {
+				t.Fatal("the file validated")
+			}
+
+			if !strings.Contains(err.Error(), tc.want) {
+				t.Errorf("error does not mention %q:\n%v", tc.want, err)
+			}
+		})
+	}
+}

@@ -17,7 +17,57 @@
           "specialties": ["High Pressure"]
         }
       ],
-      "maximum": 17
+      "maximum": 17,
+      "genetics": {
+        "hybrid": [
+          {
+            "detail": "the pressure tolerance did not carry, and neither did the build",
+            "rollAs": "human"
+          },
+          {
+            "detail": "treated as a second-generation Deepwalker"
+          },
+          {
+            "detail": "treated as a second-generation Deepwalker"
+          },
+          {
+            "detail": "treated as a second-generation Deepwalker"
+          },
+          {
+            "detail": "treated as a second-generation Deepwalker"
+          },
+          {
+            "detail": "passes for baseline until the pressure rises"
+          }
+        ],
+        "compound": [
+          {
+            "detail": "a Deepwalker, and none of the other parent"
+          },
+          {
+            "detail": "a Deepwalker, and none of the other parent"
+          },
+          {
+            "detail": "a Deepwalker crossed with a Sunstruck: thinner, and quicker",
+            "adjust": {
+              "DEX": 1
+            }
+          },
+          {
+            "detail": "a Deepwalker crossed with a Sunstruck: the eyes are wrong for both"
+          },
+          {
+            "detail": "a Deepwalker crossed with a Sunstruck: heavier, and slower",
+            "adjust": {
+              "DEX": -1
+            }
+          },
+          {
+            "detail": "the player chooses",
+            "choose": true
+          }
+        ]
+      }
     },
     {
       "name": "Sunstruck",
@@ -39,7 +89,41 @@
         }
       ],
       "aging": "sudden",
-      "maximum": 16
+      "maximum": 16,
+      "genetics": {
+        "status": [
+          {
+            "kind": "purebred",
+            "generation": 1,
+            "detail": "a first generation Sunstruck"
+          },
+          {
+            "kind": "purebred",
+            "generation": 1,
+            "detail": "a first generation Sunstruck"
+          },
+          {
+            "kind": "purebred",
+            "generation": 1,
+            "detail": "a first generation Sunstruck"
+          },
+          {
+            "kind": "purebred",
+            "generation": 2,
+            "detail": "a second generation Sunstruck"
+          },
+          {
+            "kind": "purebred",
+            "generation": 2,
+            "detail": "a second generation Sunstruck"
+          },
+          {
+            "kind": "purebred",
+            "generation": 2,
+            "detail": "a second generation Sunstruck"
+          }
+        ]
+      }
     },
     {
       "name": "Corvid",

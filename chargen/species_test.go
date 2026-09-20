@@ -480,3 +480,105 @@ func checkNoPathOffered(t *testing.T, seed uint64, character *chargen.Character)
 		}
 	}
 }
+
+// TestAnEngineeredCharacterHasGenetics is pp. 62-65: they are a purebred of
+// some generation, a hybrid with a baseline human, or a compound of two
+// engineered species.
+func TestAnEngineeredCharacterHasGenetics(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+	kinds := map[string]int{}
+
+	for _, species := range data.Species {
+		for seed := range uint64(60) {
+			opts := options(t, seed)
+
+			opts.Inputs.Species = species.Name
+			opts.Inputs.TermLimit = -1
+
+			genetics := generate(t, opts).State.Genetics
+
+			if species.Kind != "engineered" {
+				if genetics != nil {
+					t.Errorf("a %s has genetics; pp. 62-65 give them to engineered "+
+						"species only", species.Name)
+				}
+
+				continue
+			}
+
+			if genetics == nil {
+				t.Fatalf("seed %d: a %s has no genetics", seed, species.Name)
+			}
+
+			kinds[genetics.Kind]++
+
+			checkGenetics(t, seed, species.Name, genetics)
+		}
+	}
+
+	for _, kind := range []string{"purebred", "hybrid", "compound"} {
+		if kinds[kind] == 0 {
+			t.Errorf("no character in the sample was ever a %s", kind)
+		}
+	}
+}
+
+// TestAHybridMayBeRolledAsAHuman is the one mechanical thing the genetics
+// tables do: "Roll characteristics as a human" (p. 63). A character whose
+// hybrid outcome says so does not use their species' method at all.
+func TestAHybridMayBeRolledAsAHuman(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+	asHuman := 0
+
+	for _, species := range data.Species {
+		if species.Genetics == nil || len(species.Genetics.Hybrid) == 0 {
+			continue
+		}
+
+		for seed := range uint64(80) {
+			opts := options(t, seed)
+
+			opts.Inputs.Species = species.Name
+			opts.Inputs.TermLimit = -1
+
+			character := generate(t, opts)
+			if character.State.Genetics == nil || !character.State.Genetics.RolledAsHuman {
+				continue
+			}
+
+			asHuman++
+
+			// A human's six scores come from 3d6-drop-lowest, which runs 2
+			// to 12 -- so none of them can exceed what that can produce,
+			// whatever the species' own method would have given.
+			for _, which := range chargen.CharacteristicOrder {
+				if got := character.State.Characteristics.Get(which); got > 12 {
+					t.Errorf("seed %d: a hybrid rolled as a human has %s %d",
+						seed, which, got)
+				}
+			}
+		}
+	}
+
+	if asHuman == 0 {
+		t.Error("no hybrid in the sample was ever rolled as a human")
+	}
+}
+
+// checkGenetics: every outcome says something, and a purebred is a
+// purebred of some generation.
+func checkGenetics(t *testing.T, seed uint64, name string, genetics *chargen.Genetics) {
+	t.Helper()
+
+	if genetics.Detail == "" {
+		t.Errorf("seed %d: a %s's genetics say nothing", seed, name)
+	}
+
+	if genetics.Kind == "purebred" && genetics.Generation == 0 {
+		t.Errorf("seed %d: a purebred of no generation", seed)
+	}
+}

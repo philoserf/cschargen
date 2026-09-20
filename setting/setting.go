@@ -211,6 +211,92 @@ type Species struct {
 	YouthAges  []string `json:"youthAges,omitempty"`
 	TeenRolls  int      `json:"teenRolls,omitempty"`
 	TeenAges   []string `json:"teenAges,omitempty"`
+
+	// Genetics is how this species is born (pp. 62-65): a purebred of some
+	// generation, a hybrid with a baseline human, or a compound of two
+	// engineered species. Absent for a species the book gives no such
+	// table -- uplifts have classes instead.
+	Genetics *Genetics `json:"genetics,omitempty"`
+}
+
+// Genetics is a species' three tables of pp. 62-65.
+//
+// Every row of the compound table names another species, and every one of
+// those names is Product Identity -- which is why the whole thing is data
+// rather than engine.
+type Genetics struct {
+	// Status is the 1d6 genetic status table, six rows. Empty takes the
+	// shared table of p. 63, which four of the book's five engineered
+	// species use; the fifth prints its own, with no hybrids or compounds
+	// in it (p. 62).
+	Status []GeneticStatus `json:"status,omitempty"`
+
+	// Hybrid and Compound are the 1d6 tables the status table's last three
+	// rows send a character to, six rows each.
+	Hybrid   []GeneticOutcome `json:"hybrid,omitempty"`
+	Compound []GeneticOutcome `json:"compound,omitempty"`
+}
+
+// GeneticStatus is one row of the status table: what the character is, and
+// which of the two other tables it sends them to.
+type GeneticStatus struct {
+	// Kind is "purebred", "hybrid" or "compound".
+	Kind string `json:"kind"`
+
+	// Generation is which one, for a purebred. Zero on the row that lets
+	// the player choose "third, fourth or later" (p. 63).
+	Generation int `json:"generation,omitempty"`
+
+	Detail string `json:"detail,omitempty"`
+}
+
+// GeneticOutcome is one row of a hybrid or compound table.
+type GeneticOutcome struct {
+	Detail string `json:"detail"`
+
+	// RollAs is "human" where the row says "Roll characteristics as a
+	// human". Empty rolls them as the species, which is what every other
+	// row means.
+	RollAs string `json:"rollAs,omitempty"`
+
+	// Adjust is a one-off change a row prints: "take a -1 to their DEX".
+	Adjust map[string]int `json:"adjust,omitempty"`
+
+	// Choose is the last row of every compound table: "The player chooses
+	// from the above results."
+	Choose bool `json:"choose,omitempty"`
+}
+
+// The three kinds of genetic status (pp. 62-65).
+const (
+	Purebred = "purebred"
+	Hybrid   = "hybrid"
+	Compound = "compound"
+)
+
+// DefaultGeneticStatus is the 1d6 table of p. 63, which four of the book's
+// five engineered species share: "1 first generation purebred, 2 second
+// generation, 3 third or later, 4-5 hybrid, 6 compound".
+func DefaultGeneticStatus() []GeneticStatus {
+	const secondGeneration = 2
+
+	return []GeneticStatus{
+		{Kind: Purebred, Generation: 1, Detail: "a first generation purebred"},
+		{Kind: Purebred, Generation: secondGeneration, Detail: "a second generation purebred"},
+		{Kind: Purebred, Detail: "a third, fourth or later generation purebred"},
+		{Kind: Hybrid, Detail: "a hybrid with a baseline human"},
+		{Kind: Hybrid, Detail: "a hybrid with a baseline human"},
+		{Kind: Compound, Detail: "a compound of two engineered species"},
+	}
+}
+
+// GeneticStatusTable is this species' own status table, or the shared one.
+func (s Species) GeneticStatusTable() []GeneticStatus {
+	if s.Genetics == nil || len(s.Genetics.Status) == 0 {
+		return DefaultGeneticStatus()
+	}
+
+	return s.Genetics.Status
 }
 
 // Data is a whole setting file.

@@ -65,7 +65,9 @@ func (g *Generator) chooseSpecies() error {
 // not mention is "rolled normally" (p. 23), which is the human method and
 // the free assignment that goes with it.
 func (g *Generator) speciesMethod(which Characteristic) (string, bool) {
-	if g.species == nil {
+	// A hybrid may come out "otherwise human", and then the species' own
+	// method does not apply at all (p. 63).
+	if g.species == nil || g.rollAsHuman {
 		return "", false
 	}
 

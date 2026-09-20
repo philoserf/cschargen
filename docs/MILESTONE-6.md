@@ -1,6 +1,38 @@
 # Milestone 6: species
 
-2026-09-20. Status: plan. Tracks [#33](https://github.com/philoserf/cschargen/issues/33).
+2026-09-20. Status: done. Tracks [#33](https://github.com/philoserf/cschargen/issues/33).
+
+## What it turned out to be
+
+Five PRs in the order planned. Four things the plan did not know:
+
+1. **The way into the slave career is p. 42, not the enslaved event paths.**
+   The plan looked for it where the career's own note points -- "automatically
+   enlisted by result of early life tables" -- and p. 42 gives it outright and
+   earlier: "If an altrant or uplift character is born on a world where they are
+   enslaved, then the character must take the Altrant/Uplift Slave career as
+   their first career term." The enslaved paths are what happens to a character
+   already there.
+
+2. **The aging profile names belong in `setting`, not `chargen`.** A validator
+   that could not check them would pass a file the engine then had to fall back
+   on. The engine holds its tables against that list in a test, which is the only
+   thing keeping the two together.
+
+3. **The genetics tables do one mechanical thing.** Everything else on pp. 62-65
+   is description -- pointed ears, nasal filters, who is taller than whom -- but
+   a hybrid row may say "Roll characteristics as a human", and then the species'
+   own method does not apply at all. That is why the genetics run before Step 2
+   although the book prints them at Step 5.
+
+4. **The homeworld caps do not bind an altered character**, which is a sentence
+   on the same page as the permissions and was never read: "Altrant and Uplift
+   characters age differently and these restrictions will not apply to them."
+
+Two errata: E-30 on the aging table with a term in no band, and E-31 on a world
+below tech level 10 that admits uplifts.
+
+## The plan as filed
 
 Step 1 (pp. 21–38) and everything the previous five milestones deferred because
 it belonged to a species rather than to a human: the characteristic methods, the
