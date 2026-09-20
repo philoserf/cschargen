@@ -383,7 +383,8 @@ func stash(held []chargen.Possession) string {
 func writeBelongings(out *strings.Builder, character *chargen.Character) {
 	state := character.State
 
-	if state.Credits == 0 && len(state.Stash) == 0 && len(state.Injuries) == 0 {
+	if state.Credits == 0 && len(state.Stash) == 0 &&
+		len(state.Conditions) == 0 && len(state.Injuries) == 0 {
 		return
 	}
 
@@ -397,7 +398,17 @@ func writeBelongings(out *strings.Builder, character *chargen.Character) {
 		fmt.Fprintf(out, "**Stash**: %s\n\n", stash(state.Stash))
 	}
 
-	for _, injury := range state.Injuries {
+	if len(state.Conditions) > 0 {
+		fmt.Fprintf(out, "**Carrying**: %s\n\n", strings.Join(state.Conditions, ", "))
+	}
+
+	writeInjuries(out, state.Injuries)
+}
+
+// writeInjuries lists what a character carries from the Injury table,
+// marking the ones that never healed.
+func writeInjuries(out *strings.Builder, injuries []chargen.Injury) {
+	for _, injury := range injuries {
 		permanence := ""
 		if injury.Permanent {
 			permanence = " (permanent)"
@@ -406,7 +417,7 @@ func writeBelongings(out *strings.Builder, character *chargen.Character) {
 		fmt.Fprintf(out, "- Term %d: %s%s\n", injury.Term, injury.Detail, permanence)
 	}
 
-	if len(state.Injuries) > 0 {
+	if len(injuries) > 0 {
 		out.WriteString("\n")
 	}
 }

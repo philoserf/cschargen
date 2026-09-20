@@ -978,3 +978,28 @@ nothing.
 
 Disagreeing with a row changes one line of `career/*.go` and nothing else: nothing
 in the engine reads a tag except a result that asks about one.
+
+---
+
+## E-38 (limit) — an addiction, with nothing printed beside it
+
+**Where:** thirteen results across the corpus that leave a character addicted.
+
+Most of them read like Undergraduate University's twelfth event: "you have also
+gained an addiction to alcohol or a drug which will haunt you for years to come."
+The substance is the player's to choose, and the book prints no characteristic
+loss, no modifier and no rule beside it.
+
+Two results do attach a cost — Vagabond mishap 8 takes a CHA and two END, and
+prints its addiction as part of the same sentence — but they are the exception,
+and neither says what an addiction does in general.
+
+**Engine:** it records that the character has one and says no more. The Clement
+Sector Core Rulebook may carry the rule; this book does not, and a cost invented
+here would be a house rule wearing a page number. `State.Conditions` is where it
+goes, in the shape `State.Stash` already has: named, and not priced.
+
+The same holds for the nine results that give a character a religion. "Choose or
+invent a religion" is the player's answer on the sheet, and the engine records
+that there is one — with the one mechanical consequence the results do print,
+a level in Science (Philosophy) on a 1d6 of 6, carried out.

@@ -148,7 +148,7 @@ func slaveMishaps() MishapTable {
 			Summary: "an addiction",
 			Effects: []Effect{
 				chr("END", -2),
-				unimplemented("choose the alcohol or drug you are addicted to"),
+				addiction("alcohol or a drug of the character's choice"),
 			},
 		},
 		{Summary: "injured", Effects: []Effect{injury(1)}},

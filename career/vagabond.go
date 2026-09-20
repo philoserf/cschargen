@@ -142,8 +142,12 @@ func vagabondMishaps() MishapTable {
 		{Summary: "you contract a deadly disease and recover badly", Effects: []Effect{chr("END", -2)}},
 		{
 			Summary: "an aid station turns out to be a secret drug trial on the expendable",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1, lose 2 from two physical characteristics; on 2-5 nothing; on 6, +1 END and an addiction")},
+			Effects: []Effect{rollSub("what the trial does to you",
+				on(1, "it damages you", chr("STR", -2), chr("DEX", -2)),
+				onRange(2, 5, "nothing you notice"),
+				on(6, "it works, and leaves you needing it",
+					chr("END", 1),
+					addiction("the drug under trial")))},
 		},
 		{
 			Summary: "you become addicted to drugs or alcohol",

@@ -116,7 +116,7 @@ func scavengerMishaps() MishapTable {
 		{
 			Summary: "an addiction that costs you the career",
 			Effects: []Effect{
-				unimplemented("choose the alcohol or drug you are addicted to"),
+				addiction("alcohol or a drug of the character's choice"),
 				chr("INT", -2),
 				loseAll,
 			},

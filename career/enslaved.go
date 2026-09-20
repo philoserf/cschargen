@@ -89,7 +89,7 @@ func enslavedRows(fourth EventRow, lifeEvent EffectKind) []EventRow {
 		},
 		{
 			Summary: "a religion, as a way to search for hope",
-			Effects: []Effect{unimplemented("choose a religion")},
+			Effects: []Effect{religion()},
 		},
 		{
 			Summary: "sold to another corporation or government",

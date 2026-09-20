@@ -192,3 +192,21 @@ func (g *Generator) specialtiesOnTheHomeworld(name string) []string {
 
 	return options
 }
+
+// addCondition records something a character carries that is neither a
+// skill, a characteristic nor a possession: an addiction, a religion.
+//
+// A condition is recorded once. A character who is already addicted to
+// alcohol and takes the result again is no more addicted than before, and
+// a second entry on the sheet would read as a second addiction.
+func (g *Generator) addCondition(effect career.Effect, cause int) {
+	if slices.Contains(g.char.State.Conditions, effect.Condition) {
+		g.consequence(ConsequenceCharacteristic, cause,
+			effect.Detail+", which the character already carries", "")
+
+		return
+	}
+
+	g.char.State.Conditions = append(g.char.State.Conditions, effect.Condition)
+	g.consequence(ConsequenceCharacteristic, cause, effect.Detail, "")
+}

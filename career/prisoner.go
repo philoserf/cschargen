@@ -119,12 +119,17 @@ func prisonerMishaps() MishapTable {
 		{Summary: "you contract a disease", Effects: []Effect{chr("END", -2)}},
 		{
 			Summary: "aid workers turn out to be running a medical experiment on prisoners",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1, -2 END permanently; on 2-5 nothing; on 6, +1 STR and +1 END with an addiction")},
+			Effects: []Effect{rollSub("what the experiment does to you",
+				on(1, "it damages you permanently", chr("END", -2)),
+				onRange(2, 5, "nothing you notice"),
+				on(6, "it works, and leaves you needing it",
+					chr("STR", 1),
+					chr("END", 1),
+					addiction("the drug under trial")))},
 		},
 		{
 			Summary: "you become addicted to what is made in or smuggled into the prison",
-			Effects: []Effect{unimplemented("an addiction, with no printed characteristic cost")},
+			Effects: []Effect{addiction("alcohol or a drug of the character's choice")},
 		},
 		{Summary: "injured", Effects: []Effect{injury(1)}},
 		{

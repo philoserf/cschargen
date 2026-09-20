@@ -178,7 +178,10 @@ func undergraduateEvents() []EventRow {
 			Summary: "a lot of fun in your college years",
 			Effects: []Effect{
 				skill("Carouse"),
-				unimplemented("roll 1d6: on a 1 an addiction to alcohol or a drug"),
+				rollSub("whether it takes hold",
+					on(1, "it does",
+						addiction("alcohol or a drug of the character's choice")),
+					onRange(2, 6, "it does not")),
 			},
 		},
 		{
