@@ -100,6 +100,24 @@ that would otherwise compile.
 - **Every test calls `t.Parallel()`**, top level and subtest.
 - Table-driven tests throughout; expected values from the book, cited.
 
+## Releases
+
+No release automation. `CHANGELOG.md` is written by hand and **the tag goes last**,
+after the gate is green and the README's Status section says what the release
+actually is — that section went stale for five milestones and was caught only at
+the first release.
+
+Versions are prereleases until something has been played: `v0.1.0-alpha.N`. Two
+other version strings ship in every record and move independently of the tag:
+
+- `chargen.SchemaVersion`, which a record stamps and a replay refuses to cross.
+- `policyVersion` in `cmd/cschargen/version.go`, which identifies `POLICY.md`.
+  **Bump it when that document changes**, because a different policy is a
+  different character from the same seed.
+
+`cschargen version` prints all three plus the ruleset, so a bug report can be
+matched against any record the binary wrote.
+
 ## Lint posture
 
 `.golangci.yml` runs `default: all`. Three of its disables are linters deprecated
