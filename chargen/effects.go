@@ -87,6 +87,10 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		g.consequence(ConsequenceCareer, cause, effect.Detail, "")
 
 		return nil
+	case career.EffectRating:
+		return g.moveRatings(effect, cause)
+	case career.EffectLoseTie:
+		return g.loseTie(effect, cause)
 	case career.EffectChooseCareer:
 		// ERRATA E-6: an unnamed career change is the ordinary path out of
 		// a career, not a transfer. Ejecting is the whole of it -- Step 18
