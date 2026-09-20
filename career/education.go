@@ -154,3 +154,35 @@ func improveARelationship() Effect {
 		"one relationship improves by a band -- an Enemy becomes a Rival, a Rival a " +
 			"Contact, a Contact an Ally -- and with none, gain a Contact")
 }
+
+// RaiseSkill is a skill raised by a named number of levels, which Step 8
+// grants where a career table grants one: "increase the skill they
+// increased in Undergraduate University by two levels" (p. 97).
+func RaiseSkill(name string, levels int) Effect {
+	granted := skill(name)
+
+	granted.Detail = "gain " + itoa(levels) + " levels in " + name
+	granted.Level = levels
+
+	return granted
+}
+
+// MedicSpecialties is the list a medical degree's four levels are spread
+// across, from the skill list on p. 310.
+//
+// The book prints eight. One of them is the specialty for treating
+// genetically engineered humans, and its name is the term the OGL notice
+// reserves, so it is here under the name this repository uses for that
+// people -- see CLAUDE.md.
+func MedicSpecialties() []string {
+	return []string{
+		"Alteration",
+		"Cryogenics",
+		"Cybernetics",
+		"Diagnosis",
+		"Engineered Humans",
+		"First Aid",
+		"Surgery",
+		"Uplifts",
+	}
+}

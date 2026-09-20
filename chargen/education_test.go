@@ -362,3 +362,132 @@ func countDegreeModifiers(t *testing.T, seed uint64, character *chargen.Characte
 
 	return applied
 }
+
+// TestAMedicalDegreeIsFourDifferentSpecialties is p. 101: "Gain Medic (Any)
+// at level 3, Medic (Any) at level 2, Medic (Any) at level 2, and Medic
+// (Any) at level 1. Specialties should all be different."
+func TestAMedicalDegreeIsFourDifferentSpecialties(t *testing.T) {
+	t.Parallel()
+
+	checked := 0
+
+	for seed := range uint64(120) {
+		opts := options(t, seed)
+
+		opts.Inputs.TermLimit = -1
+
+		character := generate(t, opts)
+		if !holdsA(character, "medical doctor") {
+			continue
+		}
+
+		checked++
+
+		levels := map[int]int{}
+
+		for _, held := range character.State.Skills {
+			if held.Name != "Medic" {
+				continue
+			}
+
+			levels[held.Level]++
+		}
+
+		// Four specialties at 3, 2, 2 and 1. A character who held Medic
+		// before medical school may have more.
+		for level, want := range map[int]int{3: 1, 2: 2, 1: 1} {
+			if levels[level] < want {
+				t.Errorf("seed %d holds %d Medic specialties at level %d, want %d",
+					seed, levels[level], level, want)
+			}
+		}
+	}
+
+	if checked == 0 {
+		t.Fatal("in 120 seeds nobody finished medical school")
+	}
+}
+
+// TestAGraduateDegreeRaisesTheUndergraduateField is p. 97: "The character
+// may now increase the skill they increased in Undergraduate University by
+// two levels."
+//
+// The raise has to name the same specialty the bachelor's took. "Advocate"
+// and "Advocate (Any)" are two skills, and raising the wrong one leaves a
+// character holding both.
+func TestAGraduateDegreeRaisesTheUndergraduateField(t *testing.T) {
+	t.Parallel()
+
+	checked := 0
+
+	for seed := range uint64(120) {
+		opts := options(t, seed)
+
+		opts.Inputs.TermLimit = -1
+
+		character := generate(t, opts)
+		if !holdsA(character, "master's") {
+			continue
+		}
+
+		checked++
+
+		field := ""
+
+		for _, held := range character.State.Education {
+			if held.Degree == "bachelor's" {
+				field = held.Field
+			}
+		}
+
+		if field == "" {
+			t.Errorf("seed %d holds a master's and no bachelor's", seed)
+
+			continue
+		}
+
+		checkTheFieldRose(t, seed, character, field)
+	}
+
+	if checked == 0 {
+		t.Fatal("in 120 seeds nobody finished graduate school")
+	}
+}
+
+// checkTheFieldRose: the bachelor's took the field to 2 and the master's
+// adds two, so it is at 4 or higher -- and it is one skill, not two under
+// different specialties.
+func checkTheFieldRose(t *testing.T, seed uint64, character *chargen.Character, field string) {
+	t.Helper()
+
+	names := 0
+
+	for _, held := range character.State.Skills {
+		if held.Name != field {
+			continue
+		}
+
+		names++
+
+		if held.Level < 4 {
+			t.Errorf("seed %d: %s is at %d after a master's, want 4 or more",
+				seed, held.Full(), held.Level)
+		}
+	}
+
+	if names != 1 {
+		t.Errorf("seed %d holds %s under %d different specialties", seed, field, names)
+	}
+}
+
+// holdsA reports whether a character finished an institution with a degree
+// of this name.
+func holdsA(character *chargen.Character, degree career.Degree) bool {
+	for _, held := range character.State.Education {
+		if held.Degree == degree {
+			return true
+		}
+	}
+
+	return false
+}
