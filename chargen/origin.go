@@ -70,7 +70,12 @@ func (g *Generator) determineOrigin() error {
 		return err
 	}
 
-	return g.teenageEvents()
+	err = g.teenageEvents()
+	if err != nil {
+		return err
+	}
+
+	return g.higherEducation()
 }
 
 // chooseSubsector is Step 3 (p. 39): "you start with rolling on the

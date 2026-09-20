@@ -276,6 +276,8 @@ func rating(target TieTarget, only Relationship, amount int, rolled string) Effe
 
 // ratingOfRole moves the Relationship Rating of one relative of a named
 // role, or of all of them.
+//
+//nolint:unparam // the role is the page's; every result that names one happens to name a parent
 func ratingOfRole(role string, all bool, amount int) Effect {
 	which := "one " + role + "'s"
 	if all {

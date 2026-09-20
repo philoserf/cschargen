@@ -36,17 +36,18 @@ type SettingData struct {
 // option list to a single entry, so a replay that did not know a record was
 // forced would offer the full list and read the recorded index against it.
 type Inputs struct {
-	Name        string `json:"name,omitempty"`
-	Species     string `json:"species"`
-	Career      string `json:"career,omitempty"`
-	Homeworld   string `json:"homeworld,omitempty"`
-	TechLevel   int    `json:"techLevel"`
-	MaxTerms    int    `json:"maxTerms"`
-	TermLimit   int    `json:"termLimit,omitempty"`
-	SkipFamily  bool   `json:"skipFamily,omitempty"`
-	SkipYouth   bool   `json:"skipYouth,omitempty"`
-	SkipTeenage bool   `json:"skipTeenage,omitempty"`
-	Interactive bool   `json:"interactive"`
+	Name          string `json:"name,omitempty"`
+	Species       string `json:"species"`
+	Career        string `json:"career,omitempty"`
+	Homeworld     string `json:"homeworld,omitempty"`
+	TechLevel     int    `json:"techLevel"`
+	MaxTerms      int    `json:"maxTerms"`
+	TermLimit     int    `json:"termLimit,omitempty"`
+	SkipFamily    bool   `json:"skipFamily,omitempty"`
+	SkipYouth     bool   `json:"skipYouth,omitempty"`
+	SkipTeenage   bool   `json:"skipTeenage,omitempty"`
+	SkipEducation bool   `json:"skipEducation,omitempty"`
+	Interactive   bool   `json:"interactive"`
 }
 
 // Provenance is everything a record carries about how it was made, as

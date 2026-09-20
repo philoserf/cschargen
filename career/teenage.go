@@ -282,9 +282,7 @@ func TeenageLifeEvents() []EventRow {
 			// Contact, a Contact an Ally, and with none of them a new
 			// Contact arrives.
 			Summary: "a relationship that improves",
-			Effects: []Effect{unimplemented(
-				"one relationship improves by a band -- an Enemy becomes a Rival, a Rival " +
-					"a Contact, a Contact an Ally -- and with none, gain a Contact")},
+			Effects: []Effect{improveARelationship()},
 		},
 		{
 			Summary: "something wonderful",
@@ -292,8 +290,7 @@ func TeenageLifeEvents() []EventRow {
 				opt("CHA", chr("CHA", 2)),
 				opt("a new Ally", relationship(Ally, 1, "")),
 				opt("a boon", credits("100000")),
-				opt("a relationship improves", unimplemented(
-					"one relationship improves by a band, as result 5")))},
+				opt("a relationship improves", improveARelationship()))},
 		},
 	}
 }

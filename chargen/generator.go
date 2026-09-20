@@ -100,7 +100,16 @@ type Generator struct {
 
 	// settledYear is the homeworld's, which Step 7's first two paths
 	// divide on (p. 76).
-	settledYear     int
+	settledYear int
+
+	// institution is the one Step 8's events table is being rolled on, so
+	// that its result 10 knows which life-events table to reach.
+	institution *career.Institution
+
+	// academyClosed is p. 93's standing bar: "If a character fails their
+	// success roll while in a military academy, they may not attempt to
+	// enter a military academy again."
+	academyClosed   bool
 	homeworldTerms  int
 	maximumAge      int
 	primaryLanguage string

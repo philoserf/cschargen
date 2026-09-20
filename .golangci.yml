@@ -154,16 +154,16 @@ linters:
       - linters: [goconst]
         path: career/
 
-      # 2 findings in chargen/aging.go and 4 in its transcription test, and
-      # they are the same argument as career/'s. The table's cells are
+      # The same argument as career/'s, for the transcribed tables outside
+      # it and for the second readings that check them. The cells are
       # characteristic abbreviations and whole printed rows; a constant
-      # shared between the table and the test that checks it would make the
+      # shared between a table and the test that checks it would make the
       # second reading a restatement of the first rather than an
-      # independent one. The two findings the same run reports in
-      # characteristics.go are collateral: aging.go is what takes "INT" and
-      # "CHA" past the threshold, and they go with it.
+      # independent one. characteristics.go is collateral: it holds "INT",
+      # "CHA" and "EDU" below the threshold on its own, and the tables are
+      # what take them past it.
       - linters: [goconst]
-        path: chargen/(aging\.go|characteristics\.go|internal_test\.go)
+        path: chargen/(aging\.go|characteristics\.go|education\.go|.*_test\.go)
 
       # 4 findings: three d66 event tables of 36 rows each, and one block of
       # three assignments. They are data, written as functions because Go

@@ -31,6 +31,7 @@ type newFlags struct {
 	noFamily  *bool
 	noYouth   *bool
 	noTeenage *bool
+	noSchool  *bool
 	output    *string
 	force     *bool
 	data      *string
@@ -53,6 +54,7 @@ func bindNewFlags() newFlags {
 		noFamily:  flags.Bool("skip-family", false, "skip Step 5, which the book allows (p. 57)"),
 		noYouth:   flags.Bool("skip-youth", false, "skip Step 6, which the book allows (p. 67)"),
 		noTeenage: flags.Bool("skip-teenage", false, "skip Step 7, which the book allows (p. 76)"),
+		noSchool:  flags.Bool("skip-education", false, "skip Step 8; higher education is never required (p. 85)"),
 		data:      flags.String("data", "", "setting data file; omitted means the repository's invented sample"),
 		output:    flags.String("o", "", "write the record here instead of stdout"),
 		force:     flags.Bool("force", false, "overwrite the output file if it exists"),
@@ -106,15 +108,16 @@ func newCommand(args []string, out *os.File) error {
 		PolicyVersion: policyVersion,
 		Setting:       world,
 		Inputs: chargen.Inputs{
-			Name:        *flags.name,
-			Species:     *flags.species,
-			TechLevel:   *flags.techLevel,
-			MaxTerms:    *flags.maxTerms,
-			TermLimit:   *flags.terms,
-			Career:      *flags.forceCar,
-			SkipFamily:  *flags.noFamily,
-			SkipYouth:   *flags.noYouth,
-			SkipTeenage: *flags.noTeenage,
+			Name:          *flags.name,
+			Species:       *flags.species,
+			TechLevel:     *flags.techLevel,
+			MaxTerms:      *flags.maxTerms,
+			TermLimit:     *flags.terms,
+			Career:        *flags.forceCar,
+			SkipFamily:    *flags.noFamily,
+			SkipYouth:     *flags.noYouth,
+			SkipTeenage:   *flags.noTeenage,
+			SkipEducation: *flags.noSchool,
 		},
 	}).Run()
 	if err != nil {
