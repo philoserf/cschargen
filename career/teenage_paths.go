@@ -23,7 +23,8 @@ func teenagePathOne() []EventRow {
 			Summary: "people who are not good for you, and the mark they leave",
 			Effects: []Effect{
 				pickSkill("Deception", "Streetwise"),
-				throwModifier("enlistment in any criminal career", 2),
+				modifierFor(enlistmentThrow, 2, 0, "+2 to enlistment in any criminal career",
+					enlistmentNarrowing{OnTags: []Tag{TagCriminal}, Standing: true}),
 			},
 		},
 		{
@@ -65,7 +66,7 @@ func teenagePathOne() []EventRow {
 			Summary: "a sponsorship or scholarship to a local university",
 			Effects: []Effect{
 				relationshipAt(Contact, 1, 45),
-				throwModifier("admission to Undergraduate College or the Military Academy", 2),
+				throwModifier(admissionThrow, 2),
 				chr("EDU", 2),
 			},
 		},

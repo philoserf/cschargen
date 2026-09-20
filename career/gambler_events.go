@@ -149,7 +149,9 @@ func gamblerEvents() EventTable {
 					},
 					[]Effect{injury(2), relationship(Enemy, 1, "")})),
 				opt("decline it",
-					throwModifier("advancement rolls for the rest of this career", -2),
+					modifierFor(advancementThrow, -2, 0,
+						"-2 to every advancement roll for the rest of this career",
+						enlistmentNarrowing{WhileInThisCareer: true}),
 					relationship(Enemy, 1, "")))},
 		},
 		63: {

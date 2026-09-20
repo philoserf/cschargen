@@ -221,7 +221,8 @@ func earnedRecommendation() EventRow {
 		Summary: "a recommendation from somebody with standing",
 		Effects: []Effect{
 			relationshipAt(Contact, 1, 90),
-			throwModifier("enlistment in the first career you choose", 2),
+			modifierFor(enlistmentThrow, 2, 0, "+2 to the first enlistment attempt",
+				enlistmentNarrowing{}),
 		},
 	}
 }

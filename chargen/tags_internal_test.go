@@ -184,3 +184,100 @@ func TestATransferToThePreviousCareerResolvesIt(t *testing.T) {
 		t.Errorf("the transfer resolved to %q (forced %v), want Colonist", chosen.Name, forced)
 	}
 }
+
+// TestAModifierSpentTwiceIsOneModifier is "take a -2 DM on your next two
+// Advancement rolls": one modifier with two uses, not two modifiers.
+func TestAModifierSpentTwiceIsOneModifier(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 137)
+
+	gen.pending = []PendingModifier{
+		{Applies: advancementThrow, Value: -2, Detail: "twice", Uses: 2},
+	}
+
+	for i := range 2 {
+		got := gen.takeModifiers(advancementThrow)
+		if len(got) != 1 {
+			t.Fatalf("throw %d took %d modifiers, want 1", i+1, len(got))
+		}
+	}
+
+	if got := gen.takeModifiers(advancementThrow); len(got) != 0 {
+		t.Errorf("a third throw took %v, want nothing", got)
+	}
+}
+
+// TestAModifierNamingACareerReachesThatCareerOnly is "+2 DM to enlistment
+// in the Sports career", which is narrower than any class.
+func TestAModifierNamingACareerReachesThatCareerOnly(t *testing.T) {
+	t.Parallel()
+
+	pending := PendingModifier{OnCareers: []string{"Sports"}}
+
+	if pending.AppliesTo(career.Marine()) {
+		t.Error("a modifier naming Sports reached the Marine career")
+	}
+
+	if !pending.AppliesTo(career.Sports()) {
+		t.Error("a modifier naming Sports did not reach it")
+	}
+}
+
+// TestASkillModifierLastsTheCareerAndIsNotSpent is "+1 DM to Melee checks
+// in this career": every Melee check takes it, no other skill's does, and
+// leaving the career ends it.
+func TestASkillModifierLastsTheCareerAndIsNotSpent(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 139)
+
+	gen.pending = []PendingModifier{{
+		Applies: skillCheckThrow, Value: 1, Detail: "Melee in this career",
+		OnSkill: "Melee", WhileInThisCareer: true,
+	}}
+
+	if got := gen.takeSkillModifiers("Stealth"); len(got) != 0 {
+		t.Errorf("a Melee modifier reached a Stealth check: %v", got)
+	}
+
+	for i := range 2 {
+		if got := gen.takeSkillModifiers("Melee"); len(got) != 1 {
+			t.Errorf("Melee check %d took %d modifiers, want 1", i+1, len(got))
+		}
+	}
+
+	gen.dropCareerModifiers()
+
+	if got := gen.takeSkillModifiers("Melee"); len(got) != 0 {
+		t.Errorf("the modifier outlived the career: %v", got)
+	}
+}
+
+// TestASurvivalModifierReachesTheSurvivalRoll is the bug this pass was
+// written for: twenty-five results grant one and nothing consumed it.
+func TestASurvivalModifierReachesTheSurvivalRoll(t *testing.T) {
+	t.Parallel()
+
+	gen := rankedEngine(t, 0)
+
+	gen.pending = []PendingModifier{
+		{Applies: survivalThrow, Value: -2, Detail: "a hard term"},
+	}
+
+	gen.rollSurvival(gen.assignment)
+
+	for _, event := range gen.log.Events() {
+		if event.Kind != EventThrow {
+			continue
+		}
+
+		for _, mod := range event.Throw.Mods {
+			if mod.Name == "a hard term" && mod.Value == -2 {
+				return
+			}
+		}
+	}
+
+	t.Error("the survival throw did not carry the modifier granted to it")
+}

@@ -52,7 +52,8 @@ func prisonerEvents() EventTable {
 			Summary: "you find a knife",
 			Effects: []Effect{
 				stashItem("a knife"),
-				throwModifier("Melee checks in this career", 1),
+				modifierFor(skillCheckThrow, 1, 0, "+1 to Melee checks in this career",
+					enlistmentNarrowing{OnSkill: "Melee", WhileInThisCareer: true}),
 			},
 		},
 		24: {

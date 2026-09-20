@@ -22,9 +22,11 @@ func organizedCrimeEvents() EventTable {
 			Effects: []Effect{checkSkill("Persuade", 8,
 				[]Effect{
 					pickSkill("Etiquette", "Diplomat"),
-					throwModifier("next two advancement rolls", 2),
+					modifierFor(advancementThrow, 2, 2, "+2 to the next two advancement rolls",
+						enlistmentNarrowing{}),
 				},
-				[]Effect{throwModifier("next two advancement rolls", -2)})},
+				[]Effect{modifierFor(advancementThrow, -2, 2, "-2 to the next two advancement rolls",
+					enlistmentNarrowing{})})},
 		},
 		15: {
 			Summary: "a bomb is sometimes the best way to annoy the opposition",
@@ -61,7 +63,8 @@ func organizedCrimeEvents() EventTable {
 			Summary: "the boss has decided you are a degenerate gambler",
 			Effects: []Effect{
 				skill("Gambler"),
-				throwModifier("next two advancement rolls", -2),
+				modifierFor(advancementThrow, -2, 2, "-2 to the next two advancement rolls",
+					enlistmentNarrowing{}),
 			},
 		},
 		25: {
@@ -153,7 +156,9 @@ func organizedCrimeEvents() EventTable {
 				[]Effect{benefitRolls(3, 0, ScopeBatch)},
 				[]Effect{
 					loseRank(1),
-					throwModifier("advancement rolls for the rest of this career", -2),
+					modifierFor(advancementThrow, -2, 0,
+						"-2 to every advancement roll for the rest of this career",
+						enlistmentNarrowing{WhileInThisCareer: true}),
 				})},
 		},
 		63: {

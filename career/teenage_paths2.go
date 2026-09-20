@@ -7,7 +7,9 @@ func teenagePathThree() []EventRow {
 		{
 			Summary: "a serious violation of local law that stays on the record",
 			Effects: []Effect{
-				throwModifier("enlistment in any non-criminal, non-military career", -2),
+				modifierFor(enlistmentThrow, -2, 0,
+					"-2 to enlistment in any non-criminal, non-military career",
+					enlistmentNarrowing{NotTags: []Tag{TagCriminal, TagMilitary}, Standing: true}),
 				pickSkill("Streetwise", "Deception"),
 			},
 		},
@@ -49,7 +51,8 @@ func teenagePathThree() []EventRow {
 			Summary: "chosen for a team or youth program on ability",
 			Effects: []Effect{
 				skill("Athletics", "Any"),
-				throwModifier("enlistment in the Sports career", 2),
+				modifierFor(enlistmentThrow, 2, 0, "+2 to enlistment in the Sports career",
+					enlistmentNarrowing{OnCareers: []string{"Sports"}, Standing: true}),
 			},
 		},
 		{
@@ -65,9 +68,9 @@ func teenagePathThree() []EventRow {
 		earnedRecommendation(),
 		{
 			Summary: "time alongside adults in real labor and emergency response",
-			Effects: []Effect{throwModifier(
-				"enlistment in the National Navy, a System Defense Force, or any "+
-					"military or law enforcement career", 4)},
+			Effects: []Effect{modifierFor(enlistmentThrow, 4, 0,
+				"+4 to enlistment in any military career", // see ERRATA E-37 on law enforcement
+				enlistmentNarrowing{OnTags: []Tag{TagMilitary}, Standing: true})},
 		},
 		socialNetwork(),
 		opportunityKnocks(),

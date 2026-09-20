@@ -122,7 +122,8 @@ func youthPathTwo() []EventRow {
 			Effects: []Effect{
 				chr("STR", 1), chr("END", 1),
 				skill("Athletics", "Any"),
-				throwModifier("enlistment in any sports-related career", 4),
+				modifierFor(enlistmentThrow, 4, 0, "+4 to enlistment in the Sports career",
+					enlistmentNarrowing{OnCareers: []string{"Sports"}, Standing: true}),
 			},
 		},
 	}

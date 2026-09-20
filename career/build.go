@@ -788,6 +788,23 @@ func throwModifier(applies string, value int) Effect {
 	}
 }
 
+// modifierFor attaches a modifier to a named throw for a number of uses,
+// narrowed the way an enlistment penalty is. Every other constructor in
+// this file is a shorthand for a shape of it.
+func modifierFor(applies string, value, uses int, detail string, narrow enlistmentNarrowing) Effect {
+	effect := enlistmentPenalty(value, detail, narrow)
+
+	effect.Applies = applies
+
+	// One use and none are the same thing -- the throw it was granted for
+	// -- so the record keeps one spelling of it rather than two.
+	if uses > 1 {
+		effect.Uses = uses
+	}
+
+	return effect
+}
+
 // enlistmentPenalty is the twelve results that modify an enlistment by the
 // class of career being entered rather than by name. The narrowing sets
 // may each be empty, which means the modifier reaches every career.
@@ -803,8 +820,11 @@ func enlistmentPenalty(value int, detail string, narrow enlistmentNarrowing) Eff
 		Applies:           enlistmentThrow,
 		OnTags:            narrow.OnTags,
 		NotTags:           narrow.NotTags,
+		OnCareers:         narrow.OnCareers,
 		NotCareers:        narrow.NotCareers,
 		OnCharacteristics: narrow.OnCharacteristics,
+		OnSkill:           narrow.OnSkill,
+		WhileInThisCareer: narrow.WhileInThisCareer,
 		Standing:          narrow.Standing,
 	}
 }
@@ -814,13 +834,46 @@ func enlistmentPenalty(value int, detail string, narrow enlistmentNarrowing) Eff
 type enlistmentNarrowing struct {
 	OnTags            []Tag
 	NotTags           []Tag
+	OnCareers         []string
 	NotCareers        []string
 	OnCharacteristics []string
+	OnSkill           string
+	WhileInThisCareer bool
 	Standing          bool
 }
 
-// enlistmentThrow is the name the engine files enlistment modifiers under.
-const enlistmentThrow = "next enlistment attempt"
+// The names a modifier or an automatic can be filed under. A result grants
+// one of these and the engine consumes it at the throw of that name; a name
+// no part of the engine reads is a modifier that silently never applies,
+// which TestEveryModifierNamesAThrowTheEngineTakes is what prevents.
+const (
+	enlistmentThrow  = "next enlistment attempt"
+	survivalThrow    = "next survival roll"
+	advancementThrow = "next advancement roll"
+	commissionThrow  = "next commission roll"
+	admissionThrow   = "admission to any higher education"
+	skillCheckThrow  = "a skill check"
+)
+
+// Throws is every name a modifier or an automatic may be filed under. The
+// engine consumes each of them at the throw it names, and
+// TestEveryModifierNamesAThrowTheEngineTakes holds the corpus to the list:
+// a result filed under a name nothing reads is a modifier that is recorded,
+// shown in the transcript, and never applied.
+//
+// It is a small list because the book has few throws. A result that wants
+// to narrow one -- "every advancement roll in a military career" -- says so
+// in the narrowing fields rather than in the name.
+func Throws() []string {
+	return []string{
+		enlistmentThrow,
+		survivalThrow,
+		advancementThrow,
+		commissionThrow,
+		admissionThrow,
+		skillCheckThrow,
+	}
+}
 
 // autoEnlist is "you may enlist automatically", which several results
 // grant: the next enlistment succeeds without a throw. The narrowing is an
@@ -833,6 +886,7 @@ func autoEnlist(detail string, narrow enlistmentNarrowing) Effect {
 		Applies:           enlistmentThrow,
 		OnTags:            narrow.OnTags,
 		NotTags:           narrow.NotTags,
+		OnCareers:         narrow.OnCareers,
 		NotCareers:        narrow.NotCareers,
 		OnCharacteristics: narrow.OnCharacteristics,
 	}

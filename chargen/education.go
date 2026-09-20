@@ -600,7 +600,7 @@ func honorsGain(held int, institution career.Institution) int {
 // educationThrow is a 2d6 against a target, plus one characteristic's
 // modifier -- and plus whatever a teenage result attached to it.
 func (g *Generator) educationThrow(target career.Throw, cite string) bool {
-	mods := g.takeModifiers("admission to any higher education")
+	mods := g.takeModifiers(admissionThrow)
 
 	which, ok := characteristicByName(target.Characteristic)
 	if ok {

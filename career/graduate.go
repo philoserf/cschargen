@@ -155,7 +155,7 @@ func medicalFailure() MishapTable {
 		{
 			Summary: "a programme permanently shut down",
 			Effects: []Effect{
-				throwModifier("admission to a different medical school in two or more terms", 2),
+				throwModifier(admissionThrow, 2),
 				pickSkill("Admin", "Broker"),
 				relationshipAt(Contact, 1, 50),
 			},
