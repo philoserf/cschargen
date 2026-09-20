@@ -139,7 +139,7 @@ Seed 7, 188 events.
 -  111  -> first term in the career: Art (Any) at level 0 [skill, from 108]
 -  112  -> first term in the career: Language (Any) at level 0 [skill, from 108]
 -  113  -> first term in the career: Investigate at level 0 [skill, from 108]
--  114  -> Art (Any) 1 [skill, from 108]
+-  114  -> rank benefit: Art (Any) 1 [skill, from 108]
 
 ## Step 12: Roll for Survival (p. 112)
 
@@ -221,7 +221,7 @@ Seed 7, 188 events.
 -  165  -> first term in the career: Survival (Any) at level 0 [skill, from 162]
 -  166  -> first term in the career: Navigation at level 0 [skill, from 162]
 -  167  -> first term in the career: Flyer (Any) at level 0 [skill, from 162]
--  168  -> Survival (Any) 1 [skill, from 162]
+-  168  -> rank benefit: Survival (Any) 1 [skill, from 162]
 
 ## Step 12: Roll for Survival (p. 112)
 

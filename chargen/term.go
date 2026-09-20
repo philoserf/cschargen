@@ -288,7 +288,7 @@ func (g *Generator) beginService(entered career.Career) error {
 	// (p. 115), so the Rank 0 row applies on entry.
 	g.char.Provenance.Deviate("E-8")
 
-	return g.applyAll(ranksFor(assignment, false)[0], step)
+	return g.applyRankBenefits(ranksFor(assignment, false)[0], step)
 }
 
 func (g *Generator) chooseAssignment(entered career.Career) (career.Assignment, error) {
