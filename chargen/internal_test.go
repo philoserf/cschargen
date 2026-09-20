@@ -763,3 +763,295 @@ func TestNoAgingBandLeavesAGapOrOverlaps(t *testing.T) {
 		}
 	}
 }
+
+// The Aging Crisis and the four states beneath it (pp. 123-124) are reached
+// through a term of aging throws that has to fail, so the tests below set
+// the characteristics directly and call the crisis path. A generated
+// character can reach them -- TestACharacterActuallyAges proves the throws
+// happen -- but not reliably enough for an assertion.
+
+func TestAnAgingCrisisIsPaidForWhenItCanBe(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 4)
+
+	gen.char.State.Credits = 100_000
+	gen.char.State.Characteristics.Set(STR, 0)
+
+	err := gen.agingCrisis("STR", 0)
+	if err != nil {
+		t.Fatalf("agingCrisis: %v", err)
+	}
+
+	if gen.char.State.Fate != "" {
+		t.Errorf("Fate = %q, want empty: the treatment was affordable", gen.char.State.Fate)
+	}
+
+	if got := gen.char.State.Characteristics.Get(STR); got != 1 {
+		t.Errorf("STR = %d, want 1 restored", got)
+	}
+
+	if gen.char.State.Credits >= 100_000 {
+		t.Error("the treatment was free")
+	}
+
+	if !gen.crisisSurvived {
+		t.Error("surviving a crisis did not restrict what comes next (p. 123)")
+	}
+}
+
+// TestAnAgingCrisisNobodyCanPayForIsFatal is ERRATA E-19: the book sets a
+// price and never says what happens to a character who cannot meet it.
+func TestAnAgingCrisisNobodyCanPayForIsFatal(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 5)
+
+	gen.char.State.Credits = 0
+	gen.char.State.Characteristics.Set(END, 0)
+
+	err := gen.agingCrisis("END", 0)
+	if err != nil {
+		t.Fatalf("agingCrisis: %v", err)
+	}
+
+	if gen.char.State.Fate != FateDied {
+		t.Errorf("Fate = %q, want %q", gen.char.State.Fate, FateDied)
+	}
+
+	if !gen.stopped {
+		t.Error("a dead character is still generating")
+	}
+}
+
+// TestACharacteristicAboveZeroIsNotACrisis: agingCrisis is called after
+// every failed check, and all but a handful of them leave the character
+// merely older.
+func TestACharacteristicAboveZeroIsNotACrisis(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 6)
+
+	gen.char.State.Credits = 100_000
+	gen.char.State.Characteristics.Set(DEX, 3)
+
+	err := gen.agingCrisis("DEX", 0)
+	if err != nil {
+		t.Fatalf("agingCrisis: %v", err)
+	}
+
+	if gen.char.State.Credits != 100_000 {
+		t.Error("treatment was bought for a characteristic that did not need it")
+	}
+
+	if gen.crisisSurvived {
+		t.Error("a crisis was recorded where none happened")
+	}
+}
+
+// terminalCase is one row of pp. 123-124's four states, plus the one that
+// is survivable.
+type terminalCase struct {
+	name         string
+	zero         []Characteristic
+	wantFate     Fate
+	wantNoEnlist bool
+	wantStopped  bool
+	wantVagabond bool
+}
+
+func terminalCases() []terminalCase {
+	return []terminalCase{
+		{
+			name:     "all three physical is death",
+			zero:     []Characteristic{STR, DEX, END},
+			wantFate: FateDied, wantStopped: true,
+		},
+		{
+			name:     "two physical is incapacity",
+			zero:     []Characteristic{STR, DEX},
+			wantFate: FateIncapacitated, wantStopped: true,
+		},
+		{
+			name:     "two mental is death",
+			zero:     []Characteristic{INT, EDU},
+			wantFate: FateDied, wantStopped: true,
+		},
+		{
+			name:         "one mental ends enlistment and nothing else",
+			zero:         []Characteristic{CHA},
+			wantNoEnlist: true, wantVagabond: true,
+		},
+		{
+			name: "one physical is survivable",
+			zero: []Characteristic{END},
+		},
+	}
+}
+
+func TestTheTerminalStatesOfPages123And124(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range terminalCases() {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			gen := engine(t, 7)
+
+			for _, which := range CharacteristicOrder {
+				gen.char.State.Characteristics.Set(which, 7)
+			}
+
+			for _, which := range tc.zero {
+				gen.char.State.Characteristics.Set(which, 0)
+			}
+
+			gen.settleTerminalStates(0)
+
+			if gen.char.State.Fate != tc.wantFate {
+				t.Errorf("Fate = %q, want %q", gen.char.State.Fate, tc.wantFate)
+			}
+
+			if gen.stopped != tc.wantStopped {
+				t.Errorf("stopped = %v, want %v", gen.stopped, tc.wantStopped)
+			}
+
+			if gen.mentalDecline != tc.wantNoEnlist {
+				t.Errorf("mentalDecline = %v, want %v", gen.mentalDecline, tc.wantNoEnlist)
+			}
+
+			if !tc.wantVagabond {
+				return
+			}
+
+			eligible := gen.eligibleCareers()
+			if len(eligible) != 1 || eligible[0].Name != "Vagabond" {
+				t.Errorf("after a mental characteristic reached 0 the career list is %d long, "+
+					"want Vagabond alone", len(eligible))
+			}
+		})
+	}
+}
+
+// TestAgingStopsAtTheFirstDeath. A term's checks run one after another, and
+// a character killed by the first of them does not make the rest.
+func TestAgingStopsAtTheFirstDeath(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 8)
+
+	gen.techLevel = 9
+	gen.char.State.Credits = 0
+
+	// Term 12 on a tech level 9 world is the last band: six checks, the
+	// first of which is STR. At 1 it cannot survive a failure, and the
+	// modifier for a characteristic of 1 is -2, so 10+ is unreachable.
+	gen.char.State.Terms = make([]Term, 12)
+
+	for _, which := range CharacteristicOrder {
+		gen.char.State.Characteristics.Set(which, 1)
+	}
+
+	err := gen.agingThrows(0)
+	if err != nil {
+		t.Fatalf("agingThrows: %v", err)
+	}
+
+	if gen.char.State.Fate != FateDied {
+		t.Fatalf("Fate = %q, want %q", gen.char.State.Fate, FateDied)
+	}
+
+	// Only the first check was made, so only one characteristic moved.
+	moved := 0
+
+	for _, which := range CharacteristicOrder {
+		if gen.char.State.Characteristics.Get(which) != 1 {
+			moved++
+		}
+	}
+
+	if moved != 1 {
+		t.Errorf("%d characteristics moved; the term should have stopped at the first death", moved)
+	}
+}
+
+// TestAnAbandonedCrisisEndsGeneration: a Decider that declines the payment
+// choice -- an interactive session the player walked away from -- is an
+// error rather than a decision, and it comes back out.
+func TestAnAbandonedCrisisEndsGeneration(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 9)
+
+	gen.decider = refusingDecider{}
+	gen.char.State.Characteristics.Set(INT, 0)
+
+	err := gen.agingCrisis("INT", 0)
+	if err == nil {
+		t.Fatal("a refused choice did not come back as an error")
+	}
+}
+
+// refusingDecider declines every choice, which is what an abandoned
+// interactive session looks like to the engine.
+type refusingDecider struct{}
+
+func (refusingDecider) Choose(Choice) (int, error) { return 0, ErrNoSetting }
+
+func (refusingDecider) Kind() DeciderKind { return DeciderPolicy }
+
+// lastOptionDecider takes the last option offered, which is the opposite of
+// what Policy does and the only way to reach a branch the policy declines.
+type lastOptionDecider struct{}
+
+func (lastOptionDecider) Choose(c Choice) (int, error) { return len(c.Options) - 1, nil }
+
+func (lastOptionDecider) Kind() DeciderKind { return DeciderPolicy }
+
+// TestACrisisDeclinedIsFatal. "The player may pay" (p. 123) is a may, and
+// the character who does not dies. POLICY.md takes the payment, so this is
+// the branch the auto policy never reaches.
+func TestACrisisDeclinedIsFatal(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 10)
+
+	gen.decider = lastOptionDecider{}
+	gen.char.State.Credits = 100_000
+	gen.char.State.Characteristics.Set(DEX, 0)
+
+	err := gen.agingCrisis("DEX", 0)
+	if err != nil {
+		t.Fatalf("agingCrisis: %v", err)
+	}
+
+	if gen.char.State.Fate != FateDied {
+		t.Errorf("Fate = %q, want %q: the treatment was refused", gen.char.State.Fate, FateDied)
+	}
+
+	if gen.char.State.Credits != 100_000 {
+		t.Error("a refused treatment was paid for anyway")
+	}
+}
+
+// TestARefusedCrisisStopsTheTerm: a refused choice is an error, and it has
+// to come back out of the term rather than being swallowed by the loop over
+// a band's checks.
+func TestARefusedCrisisStopsTheTerm(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 11)
+
+	gen.decider = refusingDecider{}
+	gen.techLevel = 9
+	gen.char.State.Terms = make([]Term, 12)
+
+	for _, which := range CharacteristicOrder {
+		gen.char.State.Characteristics.Set(which, 1)
+	}
+
+	err := gen.agingThrows(0)
+	if err == nil {
+		t.Fatal("a refused choice inside a term's aging did not come back as an error")
+	}
+}

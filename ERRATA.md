@@ -356,3 +356,70 @@ would make a TL 14 homeworld strictly better than any the book describes.
 **If this is wrong:** a TL 14+ character ages slightly sooner than intended. No
 world in the sample setting data is above TL 12, so this is reachable only in a
 user-supplied file.
+
+---
+
+## E-17 (reading) — which characteristics are physical and which are mental
+
+**Where:** the Aging Crisis rules (pp. 123-124), read against p. 14.
+
+Four of the terminal states turn on the words "physical" and "mental":
+
+> If two or more physical characteristics reach 0 ... If all three physical
+> characteristics are reduced to 0 ... If any one mental characteristic is
+> reduced to 0 ... If two or more mental characteristics are reduced to 0
+
+That section enumerates neither group. **p. 14 enumerates one of them**, in the
+rule this one restates: "In the highly unlikely event that all three physical
+characteristics (Strength, Dexterity, and Endurance) are reduced to 0 during
+character creation, the character is considered to have died before play
+begins."
+
+**Engine:** STR, DEX and END are physical; INT, EDU and CHA are mental. There are
+six characteristics and the book uses only these two words for them, so naming
+the physical three names the other three by subtraction.
+
+This is closer to a cross-reference than a reading, and it is here because the
+aging section can be read on its own and does not say it. The aging tables agree
+independently: every band begins with STR, DEX and END and adds INT, EDU and CHA
+as the character gets older.
+
+---
+
+## E-18 (reading) — two crises in one term is two payments
+
+**Where:** the Aging Crisis (p. 123).
+
+A term can reduce more than one characteristic to 0: the last band of the TL 9
+and TL 10 tables makes six checks. The crisis rule is written for one — "the
+affected characteristic is restored to 1" — and says nothing about two.
+
+**Engine:** each characteristic that reaches 0 is its own crisis, with its own
+1d6 × 1000 credits and its own choice.
+
+**Reasoning:** the price is for treating a characteristic, not for surviving a
+term. One payment covering both would make the second free, which no reading of
+"emergency treatment" supports.
+
+---
+
+## E-19 (reading) — a character who cannot afford the treatment
+
+**Where:** the Aging Crisis (p. 123).
+
+> The player may pay 1D6 × 1000 credits for emergency treatment. ... If payment
+> is made, the affected characteristic is restored to 1.
+
+The book sets a price and treats payment as a choice. It does not say what
+happens to a character who would pay and cannot: cash is the one benefit a
+character can be entirely without, and 1d6 × 1000 is a real sum early in a
+lifepath.
+
+**Engine:** treatment that is not paid for is treatment that is not given, so
+this resolves the same way as declining it — the character dies.
+
+**If this is wrong:** the intended reading is probably that the price is a
+formality and the treatment is always available, in which case a character the
+engine killed should have lived. That is the direction to check first if a
+generated record looks unfair: the log names the price and the character's
+balance at the moment they died.

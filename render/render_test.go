@@ -240,3 +240,42 @@ func TestTheSheetNamesTheHomeworldAndLanguage(t *testing.T) {
 		}
 	}
 }
+
+// TestTheSheetSaysWhenAgingEndedIt. A character who dies or is
+// incapacitated during generation has fewer terms than their homeworld
+// allows, and a sheet that did not say why would look like a truncated
+// record rather than a finished one (pp. 123-124).
+func TestTheSheetSaysWhenAgingEndedIt(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		fate chargen.Fate
+		want string
+	}{
+		{chargen.FateDied, "**Died** at age"},
+		{chargen.FateIncapacitated, "**Incapacitated** by aging"},
+	}
+
+	for _, tc := range tests {
+		t.Run(string(tc.fate), func(t *testing.T) {
+			t.Parallel()
+
+			got := character(t, 3, 2, "Ended")
+
+			got.State.Fate = tc.fate
+
+			sheet := render.Sheet(got)
+			if !strings.Contains(sheet, tc.want) {
+				t.Errorf("the sheet of a character who %s does not say so:\n%s", tc.fate, sheet)
+			}
+		})
+	}
+
+	// And a character who finished ordinarily says nothing of the kind.
+	alive := render.Sheet(character(t, 3, 2, "Ended"))
+	for _, unwanted := range []string{"**Died**", "**Incapacitated**"} {
+		if strings.Contains(alive, unwanted) {
+			t.Errorf("a living character's sheet says %s", unwanted)
+		}
+	}
+}

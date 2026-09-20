@@ -52,7 +52,20 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 		fmt.Fprintf(out, "**Primary language**: %s  \n", state.Language)
 	}
 
-	fmt.Fprintf(out, "**Terms**: %d\n\n", len(state.Terms))
+	fmt.Fprintf(out, "**Terms**: %d\n", len(state.Terms))
+
+	// Aging is the one thing that can end a lifepath short of the term
+	// limit (pp. 123-124), and a sheet that did not say so would show a
+	// character with fewer terms than their homeworld allows and no reason
+	// for it.
+	switch state.Fate {
+	case chargen.FateDied:
+		fmt.Fprintf(out, "**Died** at age %d, during generation  \n", state.Age)
+	case chargen.FateIncapacitated:
+		fmt.Fprint(out, "**Incapacitated** by aging: generation ended here  \n")
+	}
+
+	fmt.Fprint(out, "\n")
 }
 
 // writeCharacteristics prints the six with their modifiers. The modifier is

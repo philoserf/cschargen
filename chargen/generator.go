@@ -75,6 +75,14 @@ type Generator struct {
 	// where they went.
 	stopped bool
 
+	// crisisSurvived and mentalDecline are the two standing restrictions
+	// pp. 123-124 leave behind: a character who has survived an Aging
+	// Crisis automatically fails every future enlistment check, and one
+	// with a mental characteristic at 0 "may not attempt further Enlistment
+	// checks" at all.
+	crisisSurvived bool
+	mentalDecline  bool
+
 	pending []PendingModifier
 
 	// automatic holds throws a table result has already decided: "Gain an

@@ -441,9 +441,7 @@ func (g *Generator) age() error {
 	g.char.State.Age += years
 	g.consequence(ConsequenceAge, cause, "age "+itoa(g.char.State.Age), "")
 
-	g.agingThrows(step)
-
-	return nil
+	return g.agingThrows(step)
 }
 
 // agingThrows is the aging table itself (pp. 122-123). Each check is an
@@ -452,12 +450,12 @@ func (g *Generator) age() error {
 //
 // The index is the character's lifetime term count, which is why this reads
 // len(State.Terms) rather than g.termsInCareer.
-func (g *Generator) agingThrows(step int) {
+func (g *Generator) agingThrows(step int) error {
 	term := len(g.char.State.Terms)
 
 	checks, due := agingChecksAt(g.techLevel, term)
 	if !due {
-		return
+		return nil
 	}
 
 	g.consequence(ConsequenceAge, step,
@@ -476,8 +474,127 @@ func (g *Generator) agingThrows(step int) {
 
 		g.adjust(check.Characteristic, -1,
 			"aged: "+check.Characteristic+" "+itoa(check.Number)+"+ failed", rolled)
+
+		err := g.agingCrisis(check.Characteristic, rolled)
+		if err != nil {
+			return err
+		}
+
+		if g.char.State.Fate != "" {
+			return nil
+		}
+	}
+
+	g.settleTerminalStates(step)
+
+	return nil
+}
+
+// agingCrisis is p. 123: a characteristic aging has reduced to 0 leaves the
+// character "on the verge of death or permanent incapacity", and 1d6 x 1000
+// credits of emergency treatment restores it to 1.
+//
+// Two characteristics reaching 0 in the same term is two payments, which the
+// page does not say and ERRATA E-18 records.
+func (g *Generator) agingCrisis(which string, cause int) error {
+	target, ok := characteristicByName(which)
+	if !ok || g.char.State.Characteristics.Get(target) > 0 {
+		return nil
+	}
+
+	g.consequence(ConsequenceAge, cause,
+		"aging crisis: "+which+" is at 0, and without treatment the character dies",
+		"")
+
+	chosen, err := g.choose(Choice{
+		Point:   "aging_crisis",
+		Prompt:  "Pay for emergency treatment to restore " + which + " to 1?",
+		Options: []string{"pay for treatment", "go without"},
+		Cite:    crisisCite,
+	})
+	if err != nil {
+		return err
+	}
+
+	if chosen != 0 {
+		g.die(cause, which+" was left at 0")
+
+		return nil
+	}
+
+	price, err := g.rollExpression(crisisPayment, crisisCite)
+	if err != nil {
+		return err
+	}
+
+	// ERRATA E-19: the book sets a price and never says what happens to a
+	// character who cannot meet it. Treatment not paid for is treatment not
+	// given, so this is the same outcome as declining it.
+	if g.char.State.Credits < price {
+		g.die(cause, "emergency treatment costs "+itoa(price)+
+			" credits and the character has "+itoa(g.char.State.Credits))
+
+		return nil
+	}
+
+	g.char.State.Credits -= price
+	g.char.State.Characteristics.Set(target, 1)
+
+	g.crisisSurvived = true
+
+	g.consequence(ConsequenceAge, cause,
+		"paid "+itoa(price)+" credits for emergency treatment: "+which+" restored to 1",
+		"")
+
+	return nil
+}
+
+// settleTerminalStates is pp. 123-124, read after a term's aging checks:
+// three physical characteristics at 0 is death, two is incapacity, two
+// mental is death, and one mental ends enlistment.
+func (g *Generator) settleTerminalStates(cause int) {
+	physical := g.char.State.Characteristics.zeroed(physicalCharacteristics)
+	mental := g.char.State.Characteristics.zeroed(mentalCharacteristics)
+
+	switch {
+	case g.char.State.Characteristics.AllPhysicalZero():
+		g.die(cause, "all three physical characteristics are at 0")
+
+		return
+	case mental >= atZeroEndsIt:
+		g.die(cause, "two or more mental characteristics are at 0")
+
+		return
+	case physical >= atZeroEndsIt:
+		g.char.State.Fate = FateIncapacitated
+		g.stopped = true
+
+		g.consequence(ConsequenceAge, cause,
+			"two physical characteristics are at 0: incapable of independent movement, "+
+				"and character generation ends here", "")
+
+		return
+	}
+
+	if mental == 1 && !g.mentalDecline {
+		g.mentalDecline = true
+
+		g.consequence(ConsequenceAge, cause,
+			"a mental characteristic is at 0: no further enlistment may be attempted", "")
 	}
 }
+
+// die ends generation. There is no mustering out: the character did not
+// leave a career, they stopped.
+func (g *Generator) die(cause int, why string) {
+	g.char.State.Fate = FateDied
+	g.stopped = true
+
+	g.consequence(ConsequenceAge, cause, "died at age "+itoa(g.char.State.Age)+": "+why, "")
+}
+
+// crisisCite is the page the Aging Crisis is printed on.
+const crisisCite = "p. 123"
 
 // agingCite is the page the aging tables are printed on. The step above is
 // cited to p. 121, where the step begins.

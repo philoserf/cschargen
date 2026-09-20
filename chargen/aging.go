@@ -116,3 +116,57 @@ func agingChecksAt(techLevel, term int) ([]AgingCheck, bool) {
 
 	return nil, false
 }
+
+// The Aging Crisis (p. 123) and the four states beneath it (pp. 123-124).
+//
+// A characteristic reduced to 0 by aging puts the character "on the verge of
+// death or permanent incapacity": 1d6 x 1000 credits of emergency treatment
+// restores it to 1, and without the payment they die.
+//
+// The crisis rules say "physical" and "mental" and enumerate neither, but
+// p. 14 does name one of them -- "all three physical characteristics
+// (Strength, Dexterity, and Endurance)" -- and there are six, so the other
+// three follow. ERRATA E-17 records the cross-reference.
+var (
+	physicalCharacteristics = []Characteristic{STR, DEX, END}
+	mentalCharacteristics   = []Characteristic{INT, EDU, CHA}
+)
+
+// atZeroEndsIt is "two or more", which three of the four terminal states
+// turn on (pp. 123-124).
+const atZeroEndsIt = 2
+
+// Fate is a terminal state aging reached. Empty is the ordinary case.
+//
+// Death is a value rather than an error: the record is complete and valid,
+// the sheet says the character died at the age they died, and the CLI exits
+// 0. Only a misused command line and a malformed data file exit non-zero.
+type Fate string
+
+const (
+	// FateDied is p. 124's two deaths: all three physical characteristics
+	// at 0, or two or more mental ones.
+	FateDied Fate = "died"
+
+	// FateIncapacitated is two or more physical characteristics at 0 and
+	// unrestored: "incapable of independent movement ... may not continue
+	// in career generation".
+	FateIncapacitated Fate = "incapacitated"
+)
+
+// crisisPayment is the emergency treatment's price, as an expression
+// rollExpression reads.
+const crisisPayment = "1d6x1000"
+
+// zeroed counts how many of a group have been reduced to 0.
+func (c *Characteristics) zeroed(group []Characteristic) int {
+	count := 0
+
+	for _, which := range group {
+		if c.Get(which) == 0 {
+			count++
+		}
+	}
+
+	return count
+}

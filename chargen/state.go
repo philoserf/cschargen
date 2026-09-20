@@ -97,6 +97,10 @@ type State struct {
 	Terms           []Term          `json:"terms,omitempty"`
 	Benefits        []BenefitBatch  `json:"benefits,omitempty"`
 	Age             int             `json:"age"`
+
+	// Fate is set only where aging ended generation (pp. 123-124). Empty
+	// is the ordinary case, and death is a value rather than an error.
+	Fate Fate `json:"fate,omitempty"`
 }
 
 // startingAge is where a lifepath begins: "career terms are normally
