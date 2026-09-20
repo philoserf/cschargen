@@ -77,13 +77,28 @@ func TestDifferentSeedsDivergeSomewhere(t *testing.T) {
 	}
 }
 
+// step2Only is a character generated with Steps 5 and 6 skipped. The tests
+// below are about Step 2, and the youth events of Step 6 legitimately move
+// characteristics -- a permutation of the rolls is what Step 2 produces,
+// not what a finished character holds.
+func step2Only(t *testing.T, seed uint64) *chargen.Character {
+	t.Helper()
+
+	opts := options(t, seed)
+
+	opts.Inputs.SkipFamily = true
+	opts.Inputs.SkipYouth = true
+
+	return generate(t, opts)
+}
+
 // TestCharacteristicsArePermutationOfTheRolls: the assignment moves scores
 // around, it does not invent them. Six rolls in, the same six out.
 func TestCharacteristicsArePermutationOfTheRolls(t *testing.T) {
 	t.Parallel()
 
 	for seed := range uint64(50) {
-		character := generate(t, options(t, seed))
+		character := step2Only(t, seed)
 
 		rolled := make([]int, 0, len(chargen.CharacteristicOrder))
 
@@ -139,7 +154,7 @@ func TestEveryScoreIsReachable(t *testing.T) {
 func TestPolicyAssignsInRollOrder(t *testing.T) {
 	t.Parallel()
 
-	character := generate(t, options(t, 11))
+	character := step2Only(t, 11)
 
 	rolled := make([]int, 0, len(chargen.CharacteristicOrder))
 

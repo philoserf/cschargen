@@ -494,3 +494,23 @@ func TestARatingChangeWithAnUnreadableAmount(t *testing.T) {
 		t.Errorf("err = %v, want ErrBadExpression", err)
 	}
 }
+
+// TestAimingAtARelativeNobodyHas. Two youth results address a parent
+// specifically, and a character who was orphaned by result 2 has none.
+func TestAimingAtARelativeNobodyHas(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t, Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 40})
+
+	err := gen.moveRatings(career.Effect{
+		Kind: career.EffectRating, Target: career.TargetRole,
+		Role: "parent", Modifier: -150,
+	}, 0)
+	if err != nil {
+		t.Fatalf("moveRatings: %v", err)
+	}
+
+	if len(gen.char.State.Ties) != 1 || gen.char.State.Ties[0].Rating != 40 {
+		t.Error("a result aimed at a parent moved somebody who is not one")
+	}
+}

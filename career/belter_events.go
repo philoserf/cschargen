@@ -50,10 +50,10 @@ func belterEvents() EventTable {
 		},
 		24: {
 			Summary: "basic first aid",
-			Effects: []Effect{{
-				Kind: EffectSkill, Detail: "gain Medic at level 0",
-				Skill: "Medic", Level: 0,
-			}},
+			// The engine granted this at level 1 until AtLevelZero
+			// existed: an unset Level means "the result did not say",
+			// which is one.
+			Effects: []Effect{skillZero("Medic")},
 		},
 		25: {
 			Summary: "chosen for the organization's training staff",

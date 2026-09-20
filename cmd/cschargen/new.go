@@ -29,6 +29,7 @@ type newFlags struct {
 	terms     *int
 	forceCar  *string
 	noFamily  *bool
+	noYouth   *bool
 	output    *string
 	force     *bool
 	data      *string
@@ -49,6 +50,7 @@ func bindNewFlags() newFlags {
 		terms:     flags.Int("terms", 0, "how many terms to serve; the rules impose no limit, so this is policy (POLICY.md)"),
 		forceCar:  flags.String("career", "", "attempt only this career"),
 		noFamily:  flags.Bool("skip-family", false, "skip Step 5, which the book allows (p. 57)"),
+		noYouth:   flags.Bool("skip-youth", false, "skip Step 6, which the book allows (p. 67)"),
 		data:      flags.String("data", "", "setting data file; omitted means the repository's invented sample"),
 		output:    flags.String("o", "", "write the record here instead of stdout"),
 		force:     flags.Bool("force", false, "overwrite the output file if it exists"),
@@ -109,6 +111,7 @@ func newCommand(args []string, out *os.File) error {
 			TermLimit:  *flags.terms,
 			Career:     *flags.forceCar,
 			SkipFamily: *flags.noFamily,
+			SkipYouth:  *flags.noYouth,
 		},
 	}).Run()
 	if err != nil {

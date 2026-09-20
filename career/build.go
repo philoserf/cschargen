@@ -40,6 +40,22 @@ func skillAt(name string, level int, specialties ...string) Effect {
 	return granted
 }
 
+// skillZero is "Gain Streetwise 0": the skill at level 0, which the youth
+// and teenage tables grant where a career table grants a level.
+//
+// Level 0 is not nothing. A character who holds a skill at 0 makes its
+// checks without the -3 penalty for having no training at all, which is
+// what the pre-career steps are handing out.
+func skillZero(name string, specialties ...string) Effect {
+	granted := skill(name, specialties...)
+
+	granted.Detail = "gain " + name + " at level 0"
+	granted.Level = 0
+	granted.AtLevelZero = true
+
+	return granted
+}
+
 // chr moves a characteristic.
 func chr(which string, delta int) Effect {
 	sign := "+"
@@ -228,6 +244,8 @@ func rating(target TieTarget, only Relationship, amount int, rolled string) Effe
 		detail = "every relationship's " + detail
 	case TargetFamily:
 		detail = "every family member's " + detail
+	case TargetRole, TargetAllOfRole:
+		detail = "a relative's " + detail
 	case TargetOne:
 		detail = "one " + string(only) + "'s " + detail
 		if only == "" {
@@ -254,6 +272,45 @@ func rating(target TieTarget, only Relationship, amount int, rolled string) Effe
 		Modifier:     amount,
 		Dice:         rolled,
 	}
+}
+
+// ratingOfRole moves the Relationship Rating of one relative of a named
+// role, or of all of them.
+func ratingOfRole(role string, all bool, amount int) Effect {
+	which := "one " + role + "'s"
+	if all {
+		which = "every " + role + "'s"
+	}
+
+	verb := "raise "
+	if amount < 0 {
+		verb = "lower "
+	}
+
+	target := TargetRole
+	if all {
+		target = TargetAllOfRole
+	}
+
+	return Effect{
+		Kind:     EffectRating,
+		Detail:   verb + which + " Relationship Rating by " + itoa(amount),
+		Target:   target,
+		Role:     role,
+		Modifier: amount,
+	}
+}
+
+// relationshipRolledAt is relationshipAt where the count is a throw: "1d3
+// Contacts with a Relationship Rating of 50" (Youth Path 5 result 11).
+func relationshipRolledAt(kind Relationship, rolled string, rating int) Effect {
+	tie := relationship(kind, 0, rolled)
+
+	tie.Detail += " at a Relationship Rating of " + itoa(rating)
+
+	tie.Rating = rating
+
+	return tie
 }
 
 // loseTie removes a relationship, trying the kinds in the order given --

@@ -132,7 +132,9 @@ func TestEveryThrowInTheTranscriptShowsItsDice(t *testing.T) {
 			t.Errorf("a throw line shows no dice: %q", line)
 		}
 
-		if !strings.Contains(line, "(p. ") {
+		// A cite is "(p. 110)" or "(pp. 68-69)": some tables run over
+		// a page and the transcript says so.
+		if !strings.Contains(line, "(p. ") && !strings.Contains(line, "(pp. ") {
 			t.Errorf("a throw line carries no page cite: %q", line)
 		}
 	}
