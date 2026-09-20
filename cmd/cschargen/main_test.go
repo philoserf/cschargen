@@ -57,7 +57,6 @@ func TestUsageErrorsSayUsage(t *testing.T) {
 	}{
 		{"no command", nil},
 		{"an unknown command", []string{"fly"}},
-		{"new without --auto", []string{cmdNew}},
 		{"new with a positional argument", []string{cmdNew, "--auto", "extra"}},
 		{"an unknown flag", []string{cmdNew, "--auto", "--nope"}},
 	}
@@ -632,5 +631,26 @@ func TestSkipFamilyReachesTheRecord(t *testing.T) {
 
 	if record.State.Family != nil {
 		t.Error("the family step ran although --skip-family was given")
+	}
+}
+
+// TestNewWithoutAutoAsksTheirPlayer. `new` refused without --auto until
+// interactive mode landed; it now asks, and a run with nothing to answer
+// with ends rather than falling back on the policy.
+func TestNewWithoutAutoAsksTheirPlayer(t *testing.T) {
+	t.Parallel()
+
+	_, err := capture(t, cmdNew, "--seed", "3", "--terms", "1")
+	if err == nil {
+		t.Fatal("a run with no answers generated a character anyway")
+	}
+
+	if !strings.Contains(err.Error(), "the player stopped answering") {
+		t.Errorf("err = %v, want the abandoned session", err)
+	}
+
+	// And it is not a usage error: the command line was fine.
+	if strings.HasPrefix(err.Error(), "usage:") {
+		t.Errorf("err = %v, which blames the command line", err)
 	}
 }
