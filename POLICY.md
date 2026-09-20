@@ -34,11 +34,12 @@ belong with the choice points, which later milestones add.
 
 ## Choice points at milestone 1
 
-| Point                    | Where                                                | Policy                                                                                           |
-| ------------------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `assign_characteristics` | p. 13, "apply the numbers ... as they see fit"       | Assign in roll order: the first roll to STR, the second to DEX, and so on                        |
-| `aging_crisis`           | p. 123, "the player may pay 1D6 × 1000 credits"      | Pay for the treatment, which is the first option printed — and the only one a character survives |
-| `relationship_target`    | p. 320, "an existing Ally or Contact loses 1d6 × 20" | The first tie of a matching kind, in the order they were gained                                  |
+| Point                    | Where                                                                     | Policy                                                                                           |
+| ------------------------ | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `assign_characteristics` | p. 13, "apply the numbers ... as they see fit"                            | Assign in roll order: the first roll to STR, the second to DEX, and so on                        |
+| `aging_crisis`           | p. 123, "the player may pay 1D6 × 1000 credits"                           | Pay for the treatment, which is the first option printed — and the only one a character survives |
+| `relationship_target`    | p. 320, "an existing Ally or Contact loses 1d6 × 20"                      | The first tie of a matching kind, in the order they were gained                                  |
+| `youth_path`             | p. 68, "the player may choose any path for which the character qualifies" | Path 1, the first the book prints — which every character qualifies for                          |
 
 Rows are added as the engine reaches the choice points, in the PR that reaches
 them. A row here and no code is as wrong as code and no row.
@@ -61,6 +62,13 @@ first one printed wins whether or not it is the one that applies.
 None of these is an errata reading: the book is clear about what it wants, and
 the engine simply cannot see the state it wants read. They are listed here so a
 generated record can be checked against the page by hand.
+
+One consequence of that last row is worth stating plainly: **under the auto
+policy a character always takes Youth Path 1**, because it is first and it is
+always open. The other four are reached by a player choosing them, and by the
+tests that check they are open to the right characters. That is the policy being
+unrefined rather than the gates going unevaluated — the record still says which
+paths were offered.
 
 ## After an Aging Crisis
 

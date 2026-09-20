@@ -590,3 +590,28 @@ older, whichever parent that was.
 
 The consequence is cosmetic: a sibling may be recorded as older than a parent
 could plausibly have made them. Nothing downstream reads a sibling's age.
+
+---
+
+## E-26 (limit) — "the characteristic that you used to get into this path"
+
+**Where:** Youth Path 2 result 6 (p. 70).
+
+> Gain +1 in the characteristic that you used to get into this path but lose 1
+> from another physical characteristic. For instance, if you gained access to this
+> path by your STR being 8+, lose one from DEX or END.
+
+Path 2 is open on "STR 8+ or END 8+", and a character may satisfy both. The
+result assumes exactly one characteristic let them in.
+
+**Engine:** both halves are a choice. The character picks which of STR and END
+opened the path, and then which of the other two physical characteristics to
+lose.
+
+**Why it is a limit rather than a reading:** nothing in the record says which
+requirement was checked, because the path was open and the engine did not need to
+know which clause opened it — and for a character with both at 8 or higher there
+is no fact of the matter to record.
+
+The choice is the honest form of the rule. Under the auto policy the first option
+printed wins, which is STR, the first clause of the requirement.

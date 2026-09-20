@@ -198,6 +198,18 @@ func (g *Generator) ratingTargets(effect career.Effect, cause int) ([]int, error
 		return allIndexes(len(g.char.State.Ties)), nil
 	case career.TargetFamily:
 		return g.familyIndexes(), nil
+	case career.TargetAllOfRole:
+		return g.roleIndexes(effect.Role), nil
+	case career.TargetRole:
+		found := g.roleIndexes(effect.Role)
+		if len(found) == 0 {
+			return nil, nil
+		}
+
+		// The page says "choose one of your parents", and the policy takes
+		// the first. A relative is not distinguishable from another of the
+		// same role in the record, so there is nothing to choose between.
+		return found[:1], nil
 	case career.TargetOne:
 	}
 
@@ -249,6 +261,19 @@ func (g *Generator) familyIndexes() []int {
 
 	for i, tie := range g.char.State.Ties {
 		if tie.Origin == FamilyOrigin {
+			found = append(found, i)
+		}
+	}
+
+	return found
+}
+
+// roleIndexes is every family tie of one role.
+func (g *Generator) roleIndexes(role string) []int {
+	var found []int
+
+	for i, tie := range g.char.State.Ties {
+		if tie.Role == role {
 			found = append(found, i)
 		}
 	}

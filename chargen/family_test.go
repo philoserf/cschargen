@@ -43,6 +43,10 @@ func TestEveryCharacterHasAFamily(t *testing.T) {
 
 		opts.Inputs.TermLimit = -1
 
+		// Step 6 moves these ratings on almost every row, and the rating a
+		// parent is granted at is what this test is about.
+		opts.Inputs.SkipYouth = true
+
 		character := generate(t, opts)
 
 		family := character.State.Family
@@ -141,6 +145,7 @@ func TestBirthOrderConstrainsTheSiblings(t *testing.T) {
 		opts := options(t, seed)
 
 		opts.Inputs.TermLimit = -1
+		opts.Inputs.SkipYouth = true
 
 		character := generate(t, opts)
 		family := character.State.Family

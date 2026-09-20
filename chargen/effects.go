@@ -87,6 +87,8 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		g.consequence(ConsequenceCareer, cause, effect.Detail, "")
 
 		return nil
+	case career.EffectYouthLifeEvent:
+		return g.rollYouthLifeEvent(cause)
 	case career.EffectRating:
 		return g.moveRatings(effect, cause)
 	case career.EffectLoseTie:
@@ -156,8 +158,11 @@ func (g *Generator) applySkill(effect career.Effect, cause int) error {
 		specialty = effect.Specialties[chosen]
 	}
 
+	// Level zero on an ordinary result means the result did not say, and
+	// every ordinary result reads "gain a level in X". AtLevelZero is what
+	// a result that really means level 0 sets.
 	level := effect.Level
-	if level == 0 {
+	if level == 0 && !effect.AtLevelZero {
 		level = 1
 	}
 

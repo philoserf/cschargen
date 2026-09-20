@@ -138,6 +138,12 @@ const (
 	// order to try them.
 	EffectLoseTie
 
+	// EffectYouthLifeEvent sends the character to the Youth Life Events
+	// table (p. 75), which result 10 of every youth path reaches. It is
+	// distinct from EffectLifeEvent because the two tables are different:
+	// the youth one is a d6 of six rows, the career one a 2d6 of eleven.
+	EffectYouthLifeEvent
+
 	// EffectUnimplemented is a result this milestone cannot carry out. It
 	// carries the book's demand in Detail.
 	EffectUnimplemented
@@ -191,6 +197,16 @@ const (
 	// TargetFamily moves every tie that came from Step 5: "Gain +20 to the
 	// Relationship Rating of all family members" (Youth Path 1 result 16).
 	TargetFamily TieTarget = "family"
+
+	// TargetRole moves one tie of a named family role: "Choose one of your
+	// parents and that parent will leave your life" (Youth Path 1 result
+	// 5). The Role field says which.
+	TargetRole TieTarget = "role"
+
+	// TargetAllOfRole moves every tie of a named role: "increase your
+	// Relationship Rating with both parents by 25" (Youth Path 1 result
+	// 20).
+	TargetAllOfRole TieTarget = "all of role"
 )
 
 // BenefitScope says how far an [EffectBenefitRolls] modifier reaches.
@@ -249,6 +265,20 @@ type Effect struct {
 	// ties are moved, and the order in which kinds are tried for removal.
 	Target TieTarget
 	Order  []Relationship
+
+	// Role narrows a [TargetRole] to one kind of relative: "parent",
+	// "sibling", and the rest of Step 5's roles.
+	Role string
+
+	// AtLevelZero makes an [EffectSkill] grant the skill at level 0 rather
+	// than raising it by Level: "Gain Streetwise 0 or Admin 0" (Youth
+	// Path 1 result 5, p. 68), "gain Medic at level 0" (Belter event 24,
+	// p. 162).
+	//
+	// It is a flag rather than a Level of zero because Level zero means
+	// "the result did not say", which is one level -- every ordinary result
+	// reads "gain a level in X".
+	AtLevelZero bool
 
 	// Rating is the Relationship Rating an [EffectRelationship] starts a
 	// tie at, where the result that grants it names one. Zero means the

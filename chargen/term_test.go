@@ -158,17 +158,39 @@ func TestAgeIsFourYearsPerTermUnlessAMishapEjected(t *testing.T) {
 	}
 }
 
+// aColonist generates a character who actually entered Colonist.
+//
+// Forcing a career is not the same as entering one: the enlistment throw
+// can still fail, and which seed makes it moves whenever a step is added
+// ahead of Step 10. Scanning for one is what keeps these tests about the
+// rule rather than about a seed.
+func aColonist(t *testing.T) *chargen.Character {
+	t.Helper()
+
+	for seed := range uint64(sample) {
+		opts := options(t, seed)
+
+		opts.Inputs.TermLimit = 1
+		opts.Inputs.Career = careerColonist
+
+		character := generate(t, opts)
+		if len(character.State.Services) > 0 &&
+			character.State.Services[0].Career == careerColonist {
+			return character
+		}
+	}
+
+	t.Fatalf("no seed in %d enlisted in Colonist", sample)
+
+	return nil
+}
+
 // TestFirstTermGrantsTheServiceSkillsAtLevelZero is p. 117's rule, checked
-// on the one career a forced run always enters.
+// on the one career a forced run enters.
 func TestFirstTermGrantsTheServiceSkillsAtLevelZero(t *testing.T) {
 	t.Parallel()
 
-	opts := options(t, 5)
-
-	opts.Inputs.TermLimit = 1
-	opts.Inputs.Career = careerColonist
-
-	character := generate(t, opts)
+	character := aColonist(t)
 
 	// Colonist's Service Skills table, p. 173.
 	for _, want := range []string{"Animals", "Broker", "Mechanic", "Gun Combat", "Survival", "Chef"} {
@@ -185,12 +207,7 @@ func TestFirstTermGrantsTheServiceSkillsAtLevelZero(t *testing.T) {
 func TestRankZeroBenefitAppliesOnEntry(t *testing.T) {
 	t.Parallel()
 
-	opts := options(t, 5)
-
-	opts.Inputs.TermLimit = 1
-	opts.Inputs.Career = careerColonist
-
-	character := generate(t, opts)
+	character := aColonist(t)
 
 	// The Settler assignment's Rank 0 benefit, p. 174.
 	got, found := character.State.Skill("Animals", "Farming")

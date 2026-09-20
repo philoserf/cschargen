@@ -142,6 +142,12 @@ func TestMusteringOutHappensOnceForEachCareerLeft(t *testing.T) {
 			continue
 		}
 
+		// Nor does a character who died in service (pp. 123-124). They did
+		// not leave their career; they stopped.
+		if character.State.Fate != "" {
+			continue
+		}
+
 		if musters != len(character.State.Services) {
 			t.Errorf("seed %d: %d services, %d muster outs", seed, len(character.State.Services), musters)
 		}
