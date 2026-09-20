@@ -16,6 +16,10 @@ import (
 // a deliberate act: `go test ./render/ -update`, then read the diff.
 var update = flag.Bool("update", false, "rewrite the golden renders")
 
+// testVersion is what the fixtures stamp, so a golden's provenance line does
+// not move with the build.
+const testVersion = "test"
+
 // character generates the fixture the goldens are taken from. The inputs
 // are fixed, so a change to any of them is a change to every golden and
 // shows up as one.
@@ -25,8 +29,8 @@ func character(t *testing.T, seed uint64, terms int, name string) *chargen.Chara
 	got, err := chargen.New(chargen.Options{
 		Seed:          seed,
 		Decider:       chargen.Policy{},
-		EngineVersion: "test",
-		PolicyVersion: "test",
+		EngineVersion: testVersion,
+		PolicyVersion: testVersion,
 		Setting:       sampleSetting(t),
 		Inputs: chargen.Inputs{
 			Name: name, Species: "human", TermLimit: terms, TechLevel: 11, MaxTerms: 28,
@@ -80,7 +84,24 @@ func TestTranscript(t *testing.T) {
 func TestSheetOfACharacterWithNothing(t *testing.T) {
 	t.Parallel()
 
-	got := render.Sheet(character(t, 3, -1, ""))
+	// Step 5 is skipped so that "nothing" really is nothing: a character
+	// with a family has relatives, and relatives are Relationships.
+	built, err := chargen.New(chargen.Options{
+		Seed:          3,
+		Decider:       chargen.Policy{},
+		EngineVersion: testVersion,
+		PolicyVersion: testVersion,
+		Setting:       sampleSetting(t),
+		Inputs: chargen.Inputs{
+			Species: "human", TermLimit: -1, TechLevel: 11, MaxTerms: 28,
+			SkipFamily: true,
+		},
+	}).Run()
+	if err != nil {
+		t.Fatalf("generating: %v", err)
+	}
+
+	got := render.Sheet(built)
 
 	for _, want := range []string{"# (unnamed)", "## Characteristics", "_No career service._"} {
 		if !strings.Contains(got, want) {

@@ -43,6 +43,7 @@ type Inputs struct {
 	TechLevel   int    `json:"techLevel"`
 	MaxTerms    int    `json:"maxTerms"`
 	TermLimit   int    `json:"termLimit,omitempty"`
+	SkipFamily  bool   `json:"skipFamily,omitempty"`
 	Interactive bool   `json:"interactive"`
 }
 

@@ -109,6 +109,20 @@ type World struct {
 	PrimaryLanguages []string      `json:"primaryLanguages"`
 	BackgroundSkills []Requirement `json:"backgroundSkills,omitempty"`
 
+	// BirthSituation modifies the Human Birth Situation throw (p. 58). The
+	// book gives that modifier as a list of world names -- "Add 30 to the
+	// roll if born on ..." -- and every one of those names is Product
+	// Identity, so the number lives with the world rather than in the
+	// engine. Zero is no modifier.
+	BirthSituation int `json:"birthSituation,omitempty"`
+
+	// BirthSituationOnly forces the throw's result where a world does not
+	// modify it but replaces it: "If born on Kyiv, Erlik, Galawdewos,
+	// Sarawak, or Superior, then heterosexual couple will be the only
+	// result possible" (p. 58), and three worlds where it is always a
+	// communal group. Empty means the throw decides.
+	BirthSituationOnly string `json:"birthSituationOnly,omitempty"`
+
 	Engineered Permission `json:"engineered"`
 	Uplifts    Permission `json:"uplifts"`
 }

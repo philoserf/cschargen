@@ -234,3 +234,87 @@ func TestND6PanicsBelowOne(t *testing.T) {
 		})
 	}
 }
+
+// TestD10StaysInRange. Step 5 reads the face of this die as well as its
+// value -- a 1 makes the character the firstborn and a 10 the last (p. 59) --
+// so both ends have to be reachable and nothing outside them.
+func TestD10StaysInRange(t *testing.T) {
+	t.Parallel()
+
+	d := dice.New(13)
+	seen := map[int]bool{}
+
+	for range 2000 {
+		roll := d.D10()
+
+		if roll.Total < 1 || roll.Total > 10 {
+			t.Fatalf("D10 = %d, outside 1-10", roll.Total)
+		}
+
+		if len(roll.Dice) != 1 || roll.Dice[0] != roll.Total {
+			t.Fatalf("D10 total %d does not match its die %v", roll.Total, roll.Dice)
+		}
+
+		if roll.Expr != "1d10" {
+			t.Fatalf("D10.Expr = %q", roll.Expr)
+		}
+
+		seen[roll.Total] = true
+	}
+
+	for face := 1; face <= 10; face++ {
+		if !seen[face] {
+			t.Errorf("a d10 never came up %d in two thousand throws", face)
+		}
+	}
+}
+
+func TestND10Sums(t *testing.T) {
+	t.Parallel()
+
+	d := dice.New(14)
+
+	for n := 1; n <= 5; n++ {
+		r := d.ND10(n)
+
+		sum := 0
+		for _, die := range r.Dice {
+			sum += die
+		}
+
+		if r.Total != sum {
+			t.Errorf("ND10(%d): total %d, dice sum to %d", n, r.Total, sum)
+		}
+
+		if len(r.Dice) != n {
+			t.Errorf("ND10(%d): %d dice", n, len(r.Dice))
+		}
+	}
+}
+
+func TestND10ExprNamesTheShape(t *testing.T) {
+	t.Parallel()
+
+	d := dice.New(15)
+
+	for _, tc := range []struct {
+		n    int
+		want string
+	}{{1, "1d10"}, {2, "2d10"}, {3, "3d10"}} {
+		if got := d.ND10(tc.n).Expr; got != tc.want {
+			t.Errorf("ND10(%d).Expr = %q, want %q", tc.n, got, tc.want)
+		}
+	}
+}
+
+func TestND10PanicsBelowOne(t *testing.T) {
+	t.Parallel()
+
+	defer func() {
+		if recover() == nil {
+			t.Error("ND10(0) did not panic")
+		}
+	}()
+
+	dice.New(16).ND10(0)
+}

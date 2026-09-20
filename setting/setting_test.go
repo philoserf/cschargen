@@ -252,6 +252,12 @@ func brokenFiles() []brokenFile {
 		{name: "no primary language", breakIt: func(m map[string]any) {
 			world(m)[keyLanguages] = []string{}
 		}, want: "primaryLanguages"},
+		// A world may force one of the three results the Human Birth
+		// Situation chart prints (p. 58). A fourth would generate a
+		// household with no parents in it.
+		{name: "a birth situation the chart does not print", breakIt: func(m map[string]any) {
+			world(m)["birthSituationOnly"] = "a wolf pack"
+		}, want: "birthSituationOnly"},
 		{name: "no maximum terms", breakIt: func(m map[string]any) {
 			world(m)[keyTerms] = 0
 		}, want: "maximumTerms"},

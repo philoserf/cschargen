@@ -31,6 +31,7 @@
           "techLevel": 12,
           "maximumAge": 180,
           "maximumTerms": 40,
+          "birthSituation": 30,
           "settledYear": 2088,
           "primaryLanguages": ["Rivertongue", "Old Signal"],
           "backgroundSkills": [
@@ -198,6 +199,7 @@
           "techLevel": 10,
           "maximumAge": 128,
           "maximumTerms": 27,
+          "birthSituation": 10,
           "settledYear": 2211,
           "primaryLanguages": ["Court Speech", "Rivertongue"],
           "backgroundSkills": [
@@ -265,6 +267,7 @@
           "techLevel": 9,
           "maximumAge": 96,
           "maximumTerms": 19,
+          "birthSituationOnly": "a heterosexual couple",
           "settledYear": 2247,
           "primaryLanguages": ["Litany Cant"],
           "backgroundSkills": [
@@ -365,6 +368,7 @@
           "techLevel": 9,
           "maximumAge": 88,
           "maximumTerms": 17,
+          "birthSituation": -20,
           "settledYear": 2255,
           "primaryLanguages": ["Drift Pidgin"],
           "backgroundSkills": [
@@ -396,6 +400,7 @@
           "techLevel": 11,
           "maximumAge": 32,
           "maximumTerms": 3,
+          "birthSituationOnly": "a communal group",
           "settledYear": 2318,
           "primaryLanguages": ["Rivertongue"],
           "backgroundSkills": [

@@ -78,6 +78,36 @@ func (d *Dice) D3() Roll {
 	return Roll{Expr: "1d3", Dice: []int{n}, Total: n}
 }
 
+// D10 throws 1d10, which Step 5 reads as more than a number: parental age
+// is "15 x 1d10" and a 1 on that die makes the character the firstborn
+// while a 10 makes them the last (p. 59). The face is in Dice, as it is for
+// every other shape here.
+func (d *Dice) D10() Roll {
+	n := d.rng.IntN(d10Sides) + 1
+
+	return Roll{Expr: "1d10", Dice: []int{n}, Total: n}
+}
+
+// ND10 throws n ten-sided dice and sums them: the youth and teenage paths
+// are 2d10 tables (pp. 68-84) and a sibling can be 3d10 years older than
+// the character (p. 60). Panics for n below one, for ND6's reason.
+func (d *Dice) ND10(n int) Roll {
+	if n < 1 {
+		panic("dice: ND10 needs at least one die")
+	}
+
+	rolled := make([]int, n)
+	total := 0
+
+	for i := range rolled {
+		rolled[i] = d.rng.IntN(d10Sides) + 1
+
+		total += rolled[i]
+	}
+
+	return Roll{Expr: strconv.Itoa(n) + "d10", Dice: rolled, Total: total}
+}
+
 // ND6 throws n six-sided dice and sums them. Panics for n below one: there
 // is no such throw in the book, so a caller asking for one is a bug rather
 // than a rule.

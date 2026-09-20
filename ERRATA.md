@@ -563,3 +563,30 @@ This is closer to a reading of three sentences together than an interpretation o
 any one of them, and it is here because the obvious implementation — move the
 number, look up the band — gets it wrong in exactly the cases the page bothered to
 call out.
+
+---
+
+## E-25 (limit) — a sibling's age is not checked against the parents'
+
+**Where:** the Sibling Age table (p. 60).
+
+> Always compare the result to the age of the parents at that point. If one of
+> the parents will have been less than 16 years of age when the child will have
+> been born, then reduce the age difference to account for this.
+
+An older sibling pushes a parent's age at that birth back by the age difference,
+and a 3d10 result can push it back by thirty years. The rule is a floor on how
+young a parent may have been.
+
+**Engine:** the age difference is generated and not adjusted.
+
+**Why it is a limit rather than a reading:** the check needs a parent's age at
+the sibling's birth, and Step 5 records their age at the **character's** birth
+for each parent separately. With more than two parents — a communal household can
+have a dozen — "one of the parents" does not identify which, and the rule gives no
+way to choose. A household where every parent was over 46 satisfies it
+automatically; one where a parent was 17 cannot have a sibling more than a year
+older, whichever parent that was.
+
+The consequence is cosmetic: a sibling may be recorded as older than a parent
+could plausibly have made them. Nothing downstream reads a sibling's age.

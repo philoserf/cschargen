@@ -231,10 +231,10 @@ func (g *Generator) changeStash(effect career.Effect, cause int) {
 }
 
 // rollExpression evaluates the small language the tables are written in:
-// a bare number, "NdM", "NdMxK" or "NdM+K", where M is 6 or 3 -- the only
-// two dice the book throws for a quantity. Anything else is a transcription
-// error rather than a rule, so it errors rather than guessing what the page
-// meant.
+// a bare number, "NdM", "NdMxK" or "NdM+K", where M is 6, 3 or 10 -- the
+// three dice the book throws for a quantity. Anything else is a
+// transcription error rather than a rule, so it errors rather than guessing
+// what the page meant.
 //
 // The multiplier and the offset are exclusive because the book never writes
 // both: "1d6 x ₶100,000" is a sum of money and "1d3+1 Contacts" is a count
@@ -270,12 +270,28 @@ func (g *Generator) rollExpression(expr, cite string) (int, error) {
 		return 0, ErrBadExpression
 	}
 
+	total, ok := g.throwDice(count, sides, cite)
+	if !ok {
+		return 0, ErrBadExpression
+	}
+
+	return total*multiplier + offset, nil
+}
+
+// throwDice throws count dice of one shape and sums them. Three shapes are
+// all the book asks for a quantity: d6, d10 and d3.
+func (g *Generator) throwDice(count, sides int, cite string) (int, bool) {
 	switch sides {
 	case sixSided:
 		roll := g.dice.ND6(count)
 		g.log.Roll(roll, cite)
 
-		return roll.Total*multiplier + offset, nil
+		return roll.Total, true
+	case tenSided:
+		roll := g.dice.ND10(count)
+		g.log.Roll(roll, cite)
+
+		return roll.Total, true
 	case threeSided:
 		total := 0
 
@@ -286,10 +302,10 @@ func (g *Generator) rollExpression(expr, cite string) (int, error) {
 			total += roll.Total
 		}
 
-		return total*multiplier + offset, nil
+		return total, true
 	}
 
-	return 0, ErrBadExpression
+	return 0, false
 }
 
 // suffix splits a trailing "<sep><number>" off an expression, returning the
@@ -315,6 +331,7 @@ func suffix(expr, sep string, absent int) (string, int, bool) {
 const (
 	sixSided   = 6
 	threeSided = 3
+	tenSided   = 10
 	decimal    = 10
 )
 

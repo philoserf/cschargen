@@ -1,6 +1,7 @@
 package chargen
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
@@ -440,5 +441,56 @@ func TestDefaultRatingOfSomethingThatIsNotARelationship(t *testing.T) {
 
 	if got := defaultRating("colleague"); got != ratingUnspecified {
 		t.Errorf("defaultRating of an unknown kind = %d, want %d", got, ratingUnspecified)
+	}
+}
+
+// TestARatingChangeCanLoseATie. The three ends of a rating change are all
+// worth a consequence of their own: a move within a band, a move across
+// one, and a move that ends the relationship (p. 320).
+func TestARatingChangeCanLoseATie(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t,
+		Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 20},
+		Tie{Kind: string(career.Ally), Origin: fromACareer, Rating: 150},
+	)
+
+	// Youth Path 1 result 7 at its harshest: everyone falls, and the
+	// Contact at 20 falls out of the scale.
+	err := gen.moveRatings(career.Effect{
+		Kind: career.EffectRating, Target: career.TargetAll, Modifier: -60,
+	}, 0)
+	if err != nil {
+		t.Fatalf("moveRatings: %v", err)
+	}
+
+	if len(gen.char.State.Ties) != 1 {
+		t.Fatalf("%d ties remain, want 1", len(gen.char.State.Ties))
+	}
+
+	// The Ally at 150 is a Contact at 90.
+	remaining := gen.char.State.Ties[0]
+	if remaining.Kind != string(career.Contact) || remaining.Rating != 90 {
+		t.Errorf("the survivor is a %s at %d, want a contact at 90",
+			remaining.Kind, remaining.Rating)
+	}
+}
+
+// TestARatingChangeWithAnUnreadableAmount. The amount comes from the same
+// expression language the rest of the tables are written in, so a
+// mistranscribed one fails here the way it fails anywhere else -- and
+// TestEveryTranscribedExpressionParses is what keeps it from reaching a
+// record.
+func TestARatingChangeWithAnUnreadableAmount(t *testing.T) {
+	t.Parallel()
+
+	gen := tiedEngine(t, Tie{Kind: string(career.Contact), Origin: fromACareer, Rating: 40})
+
+	err := gen.moveRatings(career.Effect{
+		Kind: career.EffectRating, Target: career.TargetOne,
+		Relationship: career.Contact, Modifier: -1, Dice: "1d6 x 20",
+	}, 0)
+	if !errors.Is(err, ErrBadExpression) {
+		t.Errorf("err = %v, want ErrBadExpression", err)
 	}
 }
