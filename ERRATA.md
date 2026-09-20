@@ -1003,3 +1003,25 @@ The same holds for the nine results that give a character a religion. "Choose or
 invent a religion" is the player's answer on the sheet, and the engine records
 that there is one — with the one mechanical consequence the results do print,
 a level in Science (Philosophy) on a 1d6 of 6, carried out.
+
+---
+
+## E-39 (reading) — "you lose the Ally", where the character has several
+
+**Where:** the nine results printed identically in four careers and the National
+Navy: "a superior officer sets out to groom you for higher things. Gain an Ally
+and a +4 DM to your next Advancement roll. If you fail that Advancement roll, you
+lose the Ally and take a -2 DM to your next Advancement roll."
+
+"The Ally" is the superior officer the result granted a sentence earlier. A
+character who has been playing for four terms may have a dozen Allies, and the
+record does not mark which of them is a superior officer — it marks which career
+each came from and what their rating is, and nothing else.
+
+**Engine:** the most recently gained Ally that is not family. The first is the
+closest the record can come to "the one this result just gave you"; the second is
+because a parent granted at Step 5 is an Ally at 125, and a promotion that goes
+wrong at work does not cost a character their mother.
+
+The same argument does not apply to the results that say "lose an Ally" without a
+referent — those mean any, and the engine takes the first, which is the oldest.

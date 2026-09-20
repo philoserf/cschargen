@@ -142,10 +142,17 @@ func merchantEvents() EventTable {
 				opt("opt out"),
 				opt("agree",
 					credits("5000"),
-					unimplemented(
-						"roll 1d6 for how it lands: from a disaster costing two advancement rolls "+
-							"to a runaway success worth three benefit rolls and a forced term "+
-							"in the Celebrity career as a Star")))},
+					rollSub("how the holovid lands (p. 210)",
+						on(1, "an absolute disaster, watched only for the ridicule",
+							modifierFor(advancementThrow, -2, 2,
+								"-2 to the next two advancement rolls",
+								enlistmentNarrowing{})),
+						onRange(2, 3, "a failure nobody admits to watching",
+							throwModifier(advancementThrow, -2)),
+						onRange(4, 5, "a success", credits("5000")),
+						on(6, "a runaway success",
+							benefitRolls(3, 0, ScopeBatch),
+							transfer("Celebrity", "Star", 1)))))},
 		},
 		56: {
 			Summary: "training during a long stretch in Zimmspace",

@@ -365,7 +365,7 @@ func (g *Generator) loseTie(effect career.Effect, cause int) error {
 	taken := 0
 
 	for count == everyTie || taken < count {
-		index, found := g.firstOfAnyKind(order, effect.ThisCareer)
+		index, found := g.firstOfAnyKind(order, effect)
 		if !found {
 			break
 		}
@@ -415,18 +415,33 @@ func (g *Generator) tieCount(effect career.Effect) (int, error) {
 
 // firstOfAnyKind is the index of the first tie matching the kinds given, in
 // the order given. thisCareer narrows it to the ties this career granted.
-func (g *Generator) firstOfAnyKind(order []career.Relationship, thisCareer bool) (int, bool) {
+func (g *Generator) firstOfAnyKind(order []career.Relationship, effect career.Effect) (int, bool) {
 	for _, kind := range order {
+		found, ok := -1, false
+
 		for i, tie := range g.char.State.Ties {
 			if tie.Kind != string(kind) {
 				continue
 			}
 
-			if thisCareer && !g.fromThisCareer(tie) {
+			if effect.ThisCareer && !g.fromThisCareer(tie) {
 				continue
 			}
 
-			return i, true
+			if effect.ExcludeFamily && tie.Origin == FamilyOrigin {
+				continue
+			}
+
+			found, ok = i, true
+
+			// Newest keeps looking; the ordinary case stops at the first.
+			if !effect.Newest {
+				break
+			}
+		}
+
+		if ok {
+			return found, true
 		}
 	}
 

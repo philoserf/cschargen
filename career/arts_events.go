@@ -163,10 +163,22 @@ func artsEvents() EventTable {
 				opt("refuse",
 					loseRank(1),
 					relationship(Enemy, 1, "")),
-				opt("accept", unimplemented(
-					"roll 1d6 for the host's disposition, then a Diplomat check at a difficulty "+
-						"the Core Rulebook sets; the outcomes run from -2 CHA and a -2 survival "+
-						"modifier to +2 CHA, a Contact or an Ally")))},
+				opt("accept", rollSub("how the host is disposed towards you (p. 158)",
+					on(1, "the host hates your work and means to embarrass you",
+						unimplemented("a Diplomat check at Very Difficult: "+
+							"failing takes -2 CHA and -2 to the next survival roll, "+
+							"succeeding gains +2 CHA and +2 to it (ERRATA E-12)")),
+					onRange(2, 3, "the host did not want you on the show",
+						unimplemented("a Diplomat check at Difficult: "+
+							"failing takes -1 CHA, succeeding gains +1 (ERRATA E-12)")),
+					onRange(4, 5, "the host is somewhat impressed",
+						unimplemented("a Diplomat check at Routine: "+
+							"failing takes -2 to the next survival roll, succeeding gains "+
+							"+2 to it and a Contact (ERRATA E-12)")),
+					on(6, "the host is already enamoured of your work",
+						unimplemented("a Diplomat check at Easy: "+
+							"succeeding gains the host as an Ally and +2 to the next survival "+
+							"roll, failing takes -2 to it and gains an Enemy (ERRATA E-12)")))))},
 		},
 		64: {
 			Summary: "very talented in your field",

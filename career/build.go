@@ -489,6 +489,20 @@ func loseTie(order ...Relationship) Effect {
 	return Effect{Kind: EffectLoseTie, Detail: detail, Order: order, Count: 1}
 }
 
+// loseThatTie is the nine hooks that read "if you fail that Advancement
+// roll, you lose the Ally": the Ally the event granted a line earlier,
+// which the engine reaches as the most recently gained one that is not
+// family. ERRATA E-39.
+func loseThatTie(kind Relationship) Effect {
+	effect := loseTie(kind)
+
+	effect.Newest = true
+	effect.ExcludeFamily = true
+	effect.Detail = "lose that " + string(kind)
+
+	return effect
+}
+
 // loseTies is loseTie several times over: "lose 1D3 Allies and Contacts",
 // "lose two Contacts". Each removal tries the kinds in the order given, so
 // a character with one Ally and three Contacts losing three of "Ally and

@@ -468,9 +468,18 @@ type Effect struct {
 	// why the two halves cannot be written as two effects in a row.
 	LoseTheRest bool
 
-	// ExcludeFamily and Minimum belong to [EffectRating]: "1D6-2 (minimum
-	// 1) of your Contacts or Allies who are not family members lose 50
-	// Relationship Rating" (Teenage Path 3 result 4).
+	// Newest takes the most recently gained tie rather than the first,
+	// which is what a result meaning "that Ally" needs: the nine hooks
+	// that read "if you fail that Advancement roll, you lose the Ally"
+	// mean the one the event granted a line earlier. ERRATA E-39.
+	Newest bool
+
+	// ExcludeFamily belongs to [EffectRating] and [EffectLoseTie]: "1D6-2
+	// (minimum 1) of your Contacts or Allies who are not family members
+	// lose 50 Relationship Rating" (Teenage Path 3 result 4), and the
+	// hooks of E-39, which mean a colleague rather than a parent.
+	//
+	// Minimum belongs to [EffectRating] alone.
 	ExcludeFamily bool
 	Minimum       int
 
