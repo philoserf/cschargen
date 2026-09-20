@@ -24,7 +24,7 @@ func instructorEvents() EventTable {
 				relationship(Rival, 1, ""),
 				checkSkill("Admin", 8,
 					[]Effect{advance()},
-					[]Effect{unimplemented("lose one rank")}),
+					[]Effect{loseRank(1)}),
 			},
 		},
 		13: {
@@ -165,6 +165,6 @@ func talentedInYourField() Effect {
 	return pick("what the talent earned",
 		opt("a level in a skill you already have",
 			raiseHeldSkill()),
-		opt("a promotion", Effect{Kind: EffectRank, Detail: "gain a rank"}),
+		opt("a promotion", gainRank()),
 	)
 }

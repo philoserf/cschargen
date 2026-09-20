@@ -79,6 +79,24 @@ func anySkillNotHeld() Effect {
 	}
 }
 
+// gainRank is a promotion granted without an advancement throw, which
+// several events and the Military Events table award.
+func gainRank() Effect {
+	return Effect{Kind: EffectRank, Detail: "gain a rank", Levels: 1}
+}
+
+// loseRank is a demotion. Sixteen results across the corpus print one, two
+// of them adding "retaining any benefit already gained" -- which is what
+// the other fourteen do as well, for the reason ERRATA E-36 gives.
+func loseRank(levels int) Effect {
+	detail := "lose one rank"
+	if levels > 1 {
+		detail = "lose " + itoa(levels) + " ranks"
+	}
+
+	return Effect{Kind: EffectRank, Detail: detail, Levels: -levels}
+}
+
 // homeworldSpecialty is the five results that send the character back to
 // where they grew up for a specialty: "a Survival specialty which is used
 // on your homeworld". Which specialties those are is in the setting data,

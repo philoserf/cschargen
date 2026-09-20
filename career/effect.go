@@ -78,8 +78,10 @@ const (
 	// EffectAdvance is an automatic advancement, granted without a throw.
 	EffectAdvance
 
-	// EffectRank raises the character's rank by one without an advancement
-	// throw.
+	// EffectRank moves the character's rank without an advancement throw.
+	// Levels says how far and which way: a promotion is positive and a
+	// demotion negative, and zero means one rank up, which is what every
+	// bare promotion result asks for.
 	EffectRank
 
 	// EffectContinue forces the character to serve another term in this
@@ -396,6 +398,10 @@ type Effect struct {
 	From       []Relationship
 	ThisCareer bool
 	Fallback   []Effect
+
+	// Levels is how many ranks an [EffectRank] moves, and which way. Zero
+	// is one rank up.
+	Levels int
 
 	// NotHeld narrows an [EffectAnySkill] to the skills the character does
 	// not already have: "any skill at level 1 which you do not already

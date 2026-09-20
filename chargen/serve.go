@@ -357,6 +357,68 @@ func (g *Generator) promote(cause int, assignment career.Assignment) error {
 	return g.applyRankBenefits(ranks[g.rank], cause)
 }
 
+// changeRank carries out an [career.EffectRank]: a promotion granted
+// without an advancement throw, or a demotion.
+//
+// A promotion goes through promote, so the rank's printed benefits are
+// granted: p. 116 attaches them to holding the rank, not to the throw that
+// reached it, and an event that says "you are promoted" reaches it.
+//
+// A demotion grants nothing back and takes nothing away. Two results add
+// "retaining any benefit already gained" and fourteen do not; ERRATA E-36
+// reads them as the same thing, because the book has no rule anywhere for
+// un-granting a skill.
+func (g *Generator) changeRank(effect career.Effect, cause int) error {
+	if g.career == nil {
+		g.unimplemented(cause, effect.Detail+" -- outside a career, where there is no rank")
+
+		return nil
+	}
+
+	levels := effect.Levels
+	if levels == 0 {
+		levels = 1
+	}
+
+	if levels > 0 {
+		for range levels {
+			err := g.promote(cause, g.assignment)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	g.demote(-levels, cause)
+
+	return nil
+}
+
+// demote lowers the rank, stopping at the bottom of the table rather than
+// going below it. A character already at rank 0 loses nothing, and the
+// record says so: the result fired, and what it did is what happened.
+func (g *Generator) demote(levels, cause int) {
+	before := g.rank
+
+	g.rank = max(g.rank-levels, 0)
+
+	if service, found := g.char.State.Service(g.career.Name); found {
+		service.Rank = g.rank
+	}
+
+	if g.rank == before {
+		g.consequence(ConsequenceRank, cause,
+			"already at the lowest rank in "+g.assignment.Name, g.career.Name)
+
+		return
+	}
+
+	g.consequence(ConsequenceRank, cause,
+		"reduced to rank "+itoa(g.rank)+" in "+g.assignment.Name, g.career.Name)
+}
+
 // applyRankBenefits is p. 116's rule, which an ordinary applyAll gets
 // wrong:
 //

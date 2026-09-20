@@ -24,7 +24,7 @@ func bribeOffered(check Effect) Effect {
 	return pick("take the bribe or refuse",
 		opt("take it", check),
 		opt("refuse",
-			Effect{Kind: EffectRank, Detail: "an instant promotion"},
+			gainRank(),
 			relationship(Enemy, 1, "")),
 	)
 }
@@ -135,7 +135,7 @@ func sdfNavyEvents() EventTable {
 				opt("attempt it", checkChr("END", 8,
 					[]Effect{relationship(Contact, 1, "")}, []Effect{injury(1)})),
 				opt("leave them", checkSkill("Persuade", 8,
-					nil, []Effect{unimplemented("a demotion in rank")})))},
+					nil, []Effect{loseRank(1)})))},
 		},
 		61: {
 			Summary: "personal training on the side",

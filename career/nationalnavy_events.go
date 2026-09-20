@@ -84,7 +84,7 @@ func navyEvents() EventTable {
 					},
 					[]Effect{
 						relationship(Ally, 1, ""),
-						unimplemented("lose two levels of rank as a result of the reprimand"),
+						loseRank(2),
 					})),
 				opt("refuse",
 					throwModifier("next advancement roll", 2),
@@ -117,7 +117,7 @@ func navyEvents() EventTable {
 					[]Effect{injury(1)})),
 				opt("leave them", checkChr("CHA", 8,
 					nil,
-					[]Effect{unimplemented("a demotion in rank")})),
+					[]Effect{loseRank(1)})),
 			)},
 		},
 		55: {
@@ -147,7 +147,7 @@ func navyEvents() EventTable {
 						throwModifier("next advancement roll", -2),
 					})),
 				opt("refuse",
-					Effect{Kind: EffectRank, Detail: "an instant promotion"},
+					gainRank(),
 					relationship(Enemy, 1, "")),
 			)},
 		},
@@ -178,14 +178,14 @@ func navyEvents() EventTable {
 				pick("what the talent earned",
 					opt("a level in a skill you already have",
 						raiseHeldSkill()),
-					opt("a promotion", Effect{Kind: EffectRank, Detail: "gain a rank"})),
+					opt("a promotion", gainRank())),
 			},
 		},
 		66: {
 			Summary: "great heroism in battle",
 			Effects: []Effect{
 				pick("what the heroism earned",
-					opt("a promotion", Effect{Kind: EffectRank, Detail: "gain a rank"}),
+					opt("a promotion", gainRank()),
 					opt("a commission", commission(0))),
 			},
 		},

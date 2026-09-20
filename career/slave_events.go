@@ -54,7 +54,7 @@ func slaveEvents() EventTable {
 					chr("CHA", -2),
 					relationship(Enemy, 0, "1d6+2")),
 				opt("decline",
-					unimplemented("lose one rank, retaining any benefit already gained"),
+					loseRank(1),
 					relationship(Enemy, 1, ""),
 					chr("CHA", 1),
 					relationship(Ally, 0, "1d3")))},

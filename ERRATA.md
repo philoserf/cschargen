@@ -870,3 +870,32 @@ engine, in a setting file's background skills, so `data validate` holds those
 against the list too — which caught `Gun Combat (Slug)` in this repository's own
 sample data the first time it ran. Science, Trade and Language are exempt from the
 specialty check: the book says their lists are examples, "by no means a full list".
+
+---
+
+## E-36 (reading) — "lose one rank", with and without "retaining any benefit"
+
+**Where:** sixteen results across the corpus that demote a character. Two of them
+add a clause the other fourteen do not: Altrant/Uplift Slave event 35 reads "lose
+one rank, retaining any benefit already gained", and one more like it.
+
+Two readings are available. Either the clause is redundant and every demotion
+leaves what the rank already gave; or its absence means the other fourteen strip
+the rank's benefits along with the rank.
+
+The second requires a rule the book does not have. p. 116 says what a rank benefit
+is — "Rank Benefits represent required competence, not bonus stacking" — and says
+it is a floor rather than an increment, but nothing anywhere says how to take a
+skill level away, and no other result in the book asks for one to be taken away.
+A character demoted from rank 3 to rank 2 under the second reading would need the
+engine to decide which of the skills they hold came from rank 3, and the record
+does not say.
+
+**Engine:** the first. A demotion moves the number and nothing else, and the two
+results that spell that out are the book being explicit rather than the other
+fourteen meaning something different. A character already at rank 0 loses nothing,
+and the record says so rather than staying silent.
+
+The reverse follows: a promotion granted by an event grants that rank's printed
+benefits, because p. 116 attaches them to holding the rank rather than to the
+advancement throw that usually reaches it.
