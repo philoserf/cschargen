@@ -109,6 +109,15 @@ type Generator struct {
 	agingProfile AgingProfile
 	maximum      int
 
+	// class is an uplift's, which the homeworld's tech level decides
+	// between (p. 66). Zero for anyone who is not one.
+	class int
+
+	// enslaved is set where the homeworld owns this character's people:
+	// "the character must take the Altrant/Uplift Slave career as their
+	// first career term" (p. 42). It is cleared once they have.
+	enslaved bool
+
 	// institution is the one Step 8's events table is being rolled on, so
 	// that its result 10 knows which life-events table to reach.
 	institution *career.Institution

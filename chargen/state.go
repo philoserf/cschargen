@@ -114,6 +114,10 @@ type State struct {
 	// "family"; this is the shape of the household around them.
 	Family *Family `json:"family,omitempty"`
 
+	// UpliftClass is p. 66's, where the character is an uplift: what their
+	// homeworld's technology could make of them. Zero for anyone else.
+	UpliftClass int `json:"upliftClass,omitempty"`
+
 	// Education is what Step 8 established (pp. 85-104), one entry per
 	// institution attempted, and is what the three degree-based enlistment
 	// modifiers read.

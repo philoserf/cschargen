@@ -120,8 +120,7 @@
             "status": "free"
           },
           "uplifts": {
-            "allowed": true,
-            "status": "free"
+            "allowed": false
           }
         },
         {
@@ -253,7 +252,8 @@
           ],
           "engineered": {
             "allowed": true,
-            "status": "free"
+            "status": "free",
+            "banned": ["Sunstruck"]
           },
           "uplifts": {
             "allowed": true,

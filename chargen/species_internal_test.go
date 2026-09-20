@@ -99,3 +99,138 @@ func TestASpeciesWithNothingToSay(t *testing.T) {
 		t.Errorf("the record says %q", character.Provenance.Inputs.Species)
 	}
 }
+
+// TestAWorldWithNoStatedStatus. A permission that admits a species and says
+// nothing about their standing is a world where they are free: most worlds
+// "do not enslave altrants or uplifts, and such characters live as free
+// citizens or residents" (p. 42).
+func TestAWorldWithNoStatedStatus(t *testing.T) {
+	t.Parallel()
+
+	gen := speciesEngine(t, 39, setting.Species{Name: "Quiet", Kind: setting.KindUplift})
+
+	gen.species = &setting.Species{Name: "Quiet", Kind: setting.KindUplift}
+
+	status, admitted := gen.permits(setting.World{
+		Name:    "Nowhere",
+		Uplifts: setting.Permission{Allowed: true},
+	})
+	if !admitted || status != setting.Free {
+		t.Errorf("a world that admits them without a status gave %q, %v", status, admitted)
+	}
+
+	// And one that bars them admits nobody.
+	_, admitted = gen.permits(setting.World{Name: "Closed"})
+	if admitted {
+		t.Error("a world that allows no uplifts admitted one")
+	}
+}
+
+// TestARefusedUpliftClassEndsGeneration. The class is a choice wherever the
+// tech level allows one (p. 66).
+func TestARefusedUpliftClassEndsGeneration(t *testing.T) {
+	t.Parallel()
+
+	gen := speciesEngine(t, 40, setting.Species{Name: "Choosy", Kind: setting.KindUplift})
+
+	gen.species = &setting.Species{Name: "Choosy", Kind: setting.KindUplift}
+	gen.techLevel = classThreeTech
+	gen.decider = refusingDecider{}
+
+	err := gen.upliftClass(0)
+	if err == nil {
+		t.Fatal("a refused class did not come back as an error")
+	}
+}
+
+// TestAWorldBelowTenThatAdmitsUplifts is ERRATA E-31: p. 66's chart starts
+// at tech level 10, and a data file may put an uplift on a world below it.
+func TestAWorldBelowTenThatAdmitsUplifts(t *testing.T) {
+	t.Parallel()
+
+	gen := speciesEngine(t, 41, setting.Species{Name: "Early", Kind: setting.KindUplift})
+
+	gen.species = &setting.Species{Name: "Early", Kind: setting.KindUplift}
+	gen.techLevel = 8
+
+	err := gen.upliftClass(0)
+	if err != nil {
+		t.Fatalf("upliftClass: %v", err)
+	}
+
+	if gen.class != 1 {
+		t.Errorf("class = %d, want the least a class can be", gen.class)
+	}
+}
+
+// TestASubsectorThatWillNotHaveThem. p. 42 says to choose another world.
+// Where the character's own subsector has none that admits them, the
+// search widens to the whole sector -- and where the sector has none
+// either, there is no character to generate.
+func TestASubsectorThatWillNotHaveThem(t *testing.T) {
+	t.Parallel()
+
+	closed := testWorld("Closed", &[2]int{1, 100})
+
+	closed.Uplifts = setting.Permission{Allowed: false}
+	closed.Engineered = setting.Permission{Allowed: false}
+
+	open := testWorld("Open", &[2]int{1, 100})
+
+	data := settingWith(setting.Subsector{
+		Name: "Shut", OriginRoll: 1, Worlds: []setting.World{closed},
+	})
+
+	data.Subsectors = append(data.Subsectors, setting.Subsector{
+		Name: "Elsewhere", OriginRoll: 2, Worlds: []setting.World{open},
+	})
+
+	data.Species = append(data.Species, setting.Species{
+		Name: "Wanderer", Kind: setting.KindUplift,
+	})
+
+	character, err := New(Options{
+		Seed:          42,
+		Decider:       Policy{},
+		EngineVersion: testVersion,
+		PolicyVersion: testVersion,
+		Setting:       data,
+		Inputs:        Inputs{Species: "Wanderer", TermLimit: -1},
+	}).Run()
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	if born := character.State.Homeworlds[0].World; born != "Open" {
+		t.Errorf("born on %s; only Open admits them", born)
+	}
+}
+
+// TestNoWorldAnywhereWillHaveThem is the end of that search.
+func TestNoWorldAnywhereWillHaveThem(t *testing.T) {
+	t.Parallel()
+
+	closed := testWorld("Closed", &[2]int{1, 100})
+
+	closed.Uplifts = setting.Permission{Allowed: false}
+
+	data := settingWith(setting.Subsector{
+		Name: "Shut", OriginRoll: 1, Worlds: []setting.World{closed},
+	})
+
+	data.Species = append(data.Species, setting.Species{
+		Name: "Homeless", Kind: setting.KindUplift,
+	})
+
+	_, err := New(Options{
+		Seed:          43,
+		Decider:       Policy{},
+		EngineVersion: testVersion,
+		PolicyVersion: testVersion,
+		Setting:       data,
+		Inputs:        Inputs{Species: "Homeless", TermLimit: -1},
+	}).Run()
+	if !errors.Is(err, ErrNoHomeworldAdmitsThem) {
+		t.Errorf("err = %v, want ErrNoHomeworldAdmitsThem", err)
+	}
+}
