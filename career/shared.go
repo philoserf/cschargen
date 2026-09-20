@@ -78,7 +78,7 @@ func LifeEvents() MishapTable {
 			Summary: "you have been betrayed",
 			Effects: []Effect{
 				rating(TargetOne, "", -1, "1d6x20"),
-				unimplemented("with no Ally or Contact to lose, gain an Enemy at -110 instead"),
+				loseTieOrElse([]Relationship{Ally, Contact}, relationshipAt(Enemy, 1, -110)),
 			},
 		},
 		{

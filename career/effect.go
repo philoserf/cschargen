@@ -137,11 +137,33 @@ const (
 	// one kind, and Modifier or Dice carries the amount.
 	EffectRating
 
-	// EffectLoseTie removes a tie outright: "lose one Contact or Ally"
+	// EffectLoseTie removes ties outright: "lose one Contact or Ally"
 	// (Teenage Life Event 3), "lose an Ally, Contact, Rival or Enemy in
-	// that order" (Life Event 4). Order lists the kinds to try, in the
-	// order to try them.
+	// that order" (Life Event 4), "lose 1D3 Allies and Contacts". Order
+	// lists the kinds to try, in the order to try them; Count or CountDice
+	// is how many to take; ThisCareer narrows them to this career's.
 	EffectLoseTie
+
+	// EffectBecome changes what a tie is rather than what it is worth: "If
+	// you currently have Enemies, one of those is now a Rival" (p. 91),
+	// "one Contact or Ally from this career becomes an Enemy". From lists
+	// the kinds eligible, Relationship is what they become, Count or
+	// CountDice how many, and ThisCareer narrows them to the ties this
+	// career gave. Fallback is what happens when there are none.
+	EffectBecome
+
+	// EffectImproveTies is the upgrade three life-event tables print in
+	// the same words (pp. 91, 96, and the teenage table of p. 85): "If you
+	// have no Contacts, then you will gain one Contact. If you currently
+	// have Enemies, one of those is now a Rival. If you have Rivals, one of
+	// those is now a Contact. If you have Contacts, one of those is now an
+	// Ally."
+	//
+	// It is its own kind rather than four EffectBecomes in a row because
+	// the four clauses are read against the state as it was: running them
+	// in sequence would let one NPC climb three bands on a result the book
+	// calls "an improvement to a relationship". ERRATA E-34.
+	EffectImproveTies
 
 	// EffectYouthLifeEvent sends the character to the Youth Life Events
 	// table (p. 75), which result 10 of every youth path reaches. It is
@@ -334,6 +356,27 @@ type Effect struct {
 	// ties are moved, and the order in which kinds are tried for removal.
 	Target TieTarget
 	Order  []Relationship
+
+	// From is the kinds an [EffectBecome] may change, in the order to try
+	// them. ThisCareer narrows an [EffectLoseTie] or an [EffectBecome] to
+	// the ties this career gave, which is what "every Contact made in this
+	// career" means. Fallback is what a result does when it finds nobody:
+	// "with no Ally or Contact to lose, gain an Enemy at -110 instead".
+	From       []Relationship
+	ThisCareer bool
+	Fallback   []Effect
+
+	// LoseTheRest belongs to [EffectBecome]: "one Contact or Ally from this
+	// career becomes an Enemy, and every other relationship gained here is
+	// lost" (Gambler mishap 11). The one that changed survives, which is
+	// why the two halves cannot be written as two effects in a row.
+	LoseTheRest bool
+
+	// ExcludeFamily and Minimum belong to [EffectRating]: "1D6-2 (minimum
+	// 1) of your Contacts or Allies who are not family members lose 50
+	// Relationship Rating" (Teenage Path 3 result 4).
+	ExcludeFamily bool
+	Minimum       int
 
 	// Role narrows a [TargetRole] to one kind of relative: "parent",
 	// "sibling", and the rest of Step 5's roles.

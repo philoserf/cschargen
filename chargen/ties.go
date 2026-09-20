@@ -195,7 +195,7 @@ func (g *Generator) dropLostTies(_ int) {
 func (g *Generator) ratingTargets(effect career.Effect, cause int) ([]int, error) {
 	switch effect.Target {
 	case career.TargetAll:
-		return allIndexes(len(g.char.State.Ties)), nil
+		return g.narrowedIndexes(effect)
 	case career.TargetFamily:
 		return g.familyIndexes(), nil
 	case career.TargetAllOfRole:
@@ -238,6 +238,48 @@ func (g *Generator) ratingTargets(effect career.Effect, cause int) ([]int, error
 	_ = cause
 
 	return []int{candidates[chosen]}, nil
+}
+
+// narrowedIndexes is TargetAll, with the two narrowings Teenage Path 3
+// result 4 puts on it: "1D6-2 (minimum 1) of your Contacts or Allies who
+// are not family members". With neither it is every tie, which is what
+// "everyone in your life" means.
+func (g *Generator) narrowedIndexes(effect career.Effect) ([]int, error) {
+	found := make([]int, 0, len(g.char.State.Ties))
+
+	for i, tie := range g.char.State.Ties {
+		if effect.ExcludeFamily && tie.Origin == FamilyOrigin {
+			continue
+		}
+
+		if len(effect.From) > 0 && !matchesAnyKind(tie, effect.From) {
+			continue
+		}
+
+		found = append(found, i)
+	}
+
+	if effect.CountDice == "" {
+		return found, nil
+	}
+
+	rolled, err := g.rollExpression(effect.CountDice, ratingCite)
+	if err != nil {
+		return nil, err
+	}
+
+	return found[:min(max(rolled, effect.Minimum), len(found))], nil
+}
+
+// matchesAnyKind reports whether a tie is one of the kinds given.
+func matchesAnyKind(tie Tie, kinds []career.Relationship) bool {
+	for _, kind := range kinds {
+		if tie.Kind == string(kind) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // tiesOfKind is the indexes of every tie of one kind, or of every tie where
@@ -285,17 +327,12 @@ func (g *Generator) roleIndexes(role string) []int {
 // youth tables reach "all family members".
 const FamilyOrigin = "family"
 
-func allIndexes(n int) []int {
-	found := make([]int, n)
-	for i := range found {
-		found[i] = i
-	}
+// everyTie is the Count a result carries when it means all of them.
+const everyTie = -1
 
-	return found
-}
-
-// loseTie carries out an [career.EffectLoseTie]: it removes one tie, trying
-// the kinds in the order the result prints them.
+// loseTie carries out an [career.EffectLoseTie]: it removes ties, trying
+// the kinds in the order the result prints them, as many times as the
+// result says.
 func (g *Generator) loseTie(effect career.Effect, cause int) error {
 	// A result may name the family rather than a kind: "Choose a family
 	// member from your existing list and lose them" (p. 78).
@@ -308,18 +345,250 @@ func (g *Generator) loseTie(effect career.Effect, cause int) error {
 		order = []career.Relationship{career.Ally, career.Contact, career.Rival, career.Enemy}
 	}
 
-	for _, kind := range order {
-		candidates := g.tiesOfKind(kind)
-		if len(candidates) == 0 {
-			continue
+	count, err := g.tieCount(effect)
+	if err != nil {
+		return err
+	}
+
+	taken := 0
+
+	for count == everyTie || taken < count {
+		index, found := g.firstOfAnyKind(order, effect.ThisCareer)
+		if !found {
+			break
 		}
 
-		return g.loseOneOf(candidates, effect, cause)
+		g.dropTie(index, effect, cause)
+
+		taken++
+	}
+
+	if taken > 0 {
+		return nil
+	}
+
+	if len(effect.Fallback) > 0 {
+		g.consequence(ConsequenceRelationship, cause, effect.Detail+": nobody to lose", "")
+
+		return g.applyAll(effect.Fallback, cause)
 	}
 
 	g.consequence(ConsequenceRelationship, cause, effect.Detail+": nobody to lose", "")
 
 	return nil
+}
+
+// tieCount is how many ties a result takes or changes: a printed number, a
+// thrown one, or everyTie.
+func (g *Generator) tieCount(effect career.Effect) (int, error) {
+	if effect.CountDice != "" {
+		rolled, err := g.rollExpression(effect.CountDice, ratingCite)
+		if err != nil {
+			return 0, err
+		}
+
+		// "1D6-3 Contacts" can throw at or below zero, and a result that
+		// takes a negative number of people does nothing rather than
+		// reversing itself.
+		return max(rolled, 0), nil
+	}
+
+	if effect.Count == everyTie {
+		return everyTie, nil
+	}
+
+	// A result that names no number names one: "Lose one Contact or Ally".
+	return max(effect.Count, 1), nil
+}
+
+// firstOfAnyKind is the index of the first tie matching the kinds given, in
+// the order given. thisCareer narrows it to the ties this career granted.
+func (g *Generator) firstOfAnyKind(order []career.Relationship, thisCareer bool) (int, bool) {
+	for _, kind := range order {
+		for i, tie := range g.char.State.Ties {
+			if tie.Kind != string(kind) {
+				continue
+			}
+
+			if thisCareer && !g.fromThisCareer(tie) {
+				continue
+			}
+
+			return i, true
+		}
+	}
+
+	return 0, false
+}
+
+// fromThisCareer reports whether a tie came from the career being served.
+func (g *Generator) fromThisCareer(tie Tie) bool {
+	return g.career != nil && tie.Origin == g.career.Name
+}
+
+// dropTie removes one tie by index and records what went.
+func (g *Generator) dropTie(index int, effect career.Effect, cause int) {
+	lost := g.char.State.Ties[index]
+
+	g.char.State.Ties = append(g.char.State.Ties[:index], g.char.State.Ties[index+1:]...)
+
+	detail := "lost the " + lost.Kind + " at " + itoa(lost.Rating)
+	if lost.Role != "" {
+		detail = "lost a " + lost.Role + ", the " + lost.Kind + " at " + itoa(lost.Rating)
+	}
+
+	_ = effect
+
+	g.consequence(ConsequenceRelationship, cause, detail, lost.Origin)
+}
+
+// becomeTies carries out an [career.EffectBecome]: ties of one kind become
+// another. The new rating is the middle of the new band, because a change
+// of kind is not a change of rating and the book gives no number -- the
+// same argument as ERRATA E-23.
+func (g *Generator) becomeTies(effect career.Effect, cause int) error {
+	count, err := g.tieCount(effect)
+	if err != nil {
+		return err
+	}
+
+	changed := 0
+	skip := map[int]bool{}
+
+	for count == everyTie || changed < count {
+		index, found := g.firstOfAnyKindExcept(effect.From, effect.ThisCareer, skip)
+		if !found {
+			break
+		}
+
+		g.turnTie(index, effect.Relationship, cause)
+
+		skip[index] = true
+		changed++
+	}
+
+	if changed > 0 {
+		if effect.LoseTheRest {
+			g.loseEveryOtherTieInCareer(skip, cause)
+		}
+
+		return nil
+	}
+
+	g.consequence(ConsequenceRelationship, cause, effect.Detail+": nobody to change", "")
+
+	if len(effect.Fallback) > 0 {
+		return g.applyAll(effect.Fallback, cause)
+	}
+
+	return nil
+}
+
+// loseEveryOtherTieInCareer is the second half of Gambler mishap 11: every
+// relationship this career gave goes except the ones the result has just
+// changed, which are the ones that survive it.
+func (g *Generator) loseEveryOtherTieInCareer(spared map[int]bool, cause int) {
+	kept := make([]Tie, 0, len(g.char.State.Ties))
+
+	for i, tie := range g.char.State.Ties {
+		if spared[i] || !g.fromThisCareer(tie) {
+			kept = append(kept, tie)
+
+			continue
+		}
+
+		g.consequence(ConsequenceRelationship, cause,
+			"lost the "+tie.Kind+" at "+itoa(tie.Rating), tie.Origin)
+	}
+
+	g.char.State.Ties = kept
+}
+
+// firstOfAnyKindExcept is firstOfAnyKind with a set of indexes already
+// used. A tie that has just become an Enemy must not be found again as an
+// Enemy to change: the result names the kinds as they were.
+func (g *Generator) firstOfAnyKindExcept(
+	order []career.Relationship, thisCareer bool, skip map[int]bool,
+) (int, bool) {
+	for _, kind := range order {
+		for i, tie := range g.char.State.Ties {
+			if skip[i] || tie.Kind != string(kind) {
+				continue
+			}
+
+			if thisCareer && !g.fromThisCareer(tie) {
+				continue
+			}
+
+			return i, true
+		}
+	}
+
+	return 0, false
+}
+
+// turnTie changes one tie's kind and reseats its rating in the new band.
+func (g *Generator) turnTie(index int, to career.Relationship, cause int) {
+	before := g.char.State.Ties[index]
+
+	g.char.State.Ties[index].Kind = string(to)
+	g.char.State.Ties[index].Rating = defaultRating(to)
+
+	g.consequence(ConsequenceRelationship, cause,
+		"the "+before.Kind+" at "+itoa(before.Rating)+" is now a "+string(to)+
+			" at "+itoa(defaultRating(to)), before.Origin)
+}
+
+// improveTies is the four clauses pp. 85, 91 and 96 print together:
+//
+//	"If you have no Contacts, then you will gain one Contact. If you
+//	currently have Enemies, one of those is now a Rival. If you have
+//	Rivals, one of those is now a Contact. If you have Contacts, one of
+//	those is now an Ally."
+//
+// They are read against the state as it was, not one after another: a
+// sequential reading would let a single Enemy climb to Ally on a result the
+// book calls "an improvement to a relationship". ERRATA E-34.
+func (g *Generator) improveTies(cause int) error {
+	steps := []struct {
+		from career.Relationship
+		to   career.Relationship
+	}{
+		{career.Enemy, career.Rival},
+		{career.Rival, career.Contact},
+		{career.Contact, career.Ally},
+	}
+
+	chosen := make([]int, 0, len(steps))
+	taken := map[int]bool{}
+	hadAContact := len(g.tiesOfKind(career.Contact)) > 0
+
+	for _, step := range steps {
+		index, found := g.firstOfAnyKindExcept([]career.Relationship{step.from}, false, taken)
+		if !found {
+			chosen = append(chosen, -1)
+
+			continue
+		}
+
+		chosen = append(chosen, index)
+		taken[index] = true
+	}
+
+	for i, index := range chosen {
+		if index >= 0 {
+			g.turnTie(index, steps[i].to, cause)
+		}
+	}
+
+	if hadAContact {
+		return nil
+	}
+
+	return g.gainTies(career.Effect{
+		Kind: career.EffectRelationship, Relationship: career.Contact, Count: 1,
+		Detail: "with no Contacts, one is gained",
+	}, cause)
 }
 
 // loseOneOf removes the first of a set of candidates, which is what the

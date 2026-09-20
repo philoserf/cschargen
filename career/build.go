@@ -418,7 +418,191 @@ func loseTie(order ...Relationship) Effect {
 		detail = "lose " + joinOr(names) + ", in that order"
 	}
 
-	return Effect{Kind: EffectLoseTie, Detail: detail, Order: order}
+	return Effect{Kind: EffectLoseTie, Detail: detail, Order: order, Count: 1}
+}
+
+// loseTies is loseTie several times over: "lose 1D3 Allies and Contacts",
+// "lose two Contacts". Each removal tries the kinds in the order given, so
+// a character with one Ally and three Contacts losing three of "Ally and
+// Contact" loses the Ally and two Contacts.
+func loseTies(count int, order ...Relationship) Effect {
+	effect := loseTie(order...)
+
+	effect.Count = count
+	effect.Detail = "lose " + itoa(count) + " x (" + effect.Detail + ")"
+
+	return effect
+}
+
+// loseTiesRolled is loseTies where the book rolls for how many.
+//
+//nolint:unparam // the expression is the page's; 1d3 is merely the only one transcribed so far
+func loseTiesRolled(rolled string, order ...Relationship) Effect {
+	effect := loseTie(order...)
+
+	effect.Count = 0
+	effect.CountDice = rolled
+	effect.Detail = "lose " + rolled + " x (" + effect.Detail + ")"
+
+	return effect
+}
+
+// loseEveryTie removes every tie of the kinds given. ThisCareer narrows it
+// to the ties this career gave, which is what "every Contact made in this
+// career" means; without it the result reaches the character's whole life.
+func loseEveryTie(thisCareer bool, kinds ...Relationship) Effect {
+	effect := loseTie(kinds...)
+
+	effect.Count = everyTie
+	effect.ThisCareer = thisCareer
+
+	where := ""
+	if thisCareer {
+		where = " gained in this career"
+	}
+
+	names := make([]string, len(kinds))
+	for i, kind := range kinds {
+		names[i] = string(kind) + "s"
+	}
+
+	effect.Detail = "lose every " + joinOr(names) + where
+
+	return effect
+}
+
+// everyTie is the Count that means "all of them" rather than a number.
+const everyTie = -1
+
+// loseTieOrElse is the results that say what happens when there is nobody
+// to lose: "Lose one Ally or Contact. If you have none, gain an Enemy with
+// a Relationship Rating of -110."
+func loseTieOrElse(order []Relationship, fallback ...Effect) Effect {
+	effect := loseTie(order...)
+
+	details := make([]string, len(fallback))
+	for i, e := range fallback {
+		details[i] = e.Detail
+	}
+
+	effect.Fallback = fallback
+
+	effect.Detail += ", or with nobody to lose, " + strings.Join(details, " and ")
+
+	return effect
+}
+
+// becomes changes what ties are: "one Contact or Ally from this career
+// becomes an Enemy", "1D3 existing Contacts become Allies". The new rating
+// is the middle of the band the new kind sits in, because a change of kind
+// is not a change of rating and the book gives no number for it -- the same
+// argument as ERRATA E-23.
+func becomes(count int, to Relationship, from ...Relationship) Effect {
+	names := make([]string, len(from))
+	for i, kind := range from {
+		names[i] = string(kind)
+	}
+
+	return Effect{
+		Kind:         EffectBecome,
+		Detail:       itoa(count) + " x " + joinOr(names) + " becomes " + string(to),
+		From:         from,
+		Relationship: to,
+		Count:        count,
+	}
+}
+
+// becomesRolled is becomes where the book rolls for how many.
+func becomesRolled(rolled string, to Relationship, from ...Relationship) Effect {
+	effect := becomes(1, to, from...)
+
+	effect.Count = 0
+	effect.CountDice = rolled
+	effect.Detail = rolled + " x " + effect.Detail[len("1 x "):]
+
+	return effect
+}
+
+// becomesInCareer is becomes, narrowed to the ties this career gave.
+func becomesInCareer(count int, to Relationship, from ...Relationship) Effect {
+	effect := becomes(count, to, from...)
+
+	effect.ThisCareer = true
+
+	effect.Detail += " gained in this career"
+
+	return effect
+}
+
+// becomesEveryOneInCareer turns every tie this career gave: "every Contact,
+// Rival and Ally made in this career becomes an Enemy".
+func becomesEveryOneInCareer(to Relationship, from ...Relationship) Effect {
+	effect := becomes(everyTie, to, from...)
+
+	effect.ThisCareer = true
+	effect.Detail = "every " + effect.Detail[len("-1 x "):] + " gained in this career"
+
+	return effect
+}
+
+// becomesTheLastOne is Gambler mishap 11: "one Contact or Ally from this
+// career becomes an Enemy, and every other relationship gained here is
+// lost". The one that changed is the one that survives.
+func becomesTheLastOne(to Relationship, from ...Relationship) Effect {
+	effect := becomes(1, to, from...)
+
+	effect.ThisCareer = true
+	effect.LoseTheRest = true
+
+	effect.Detail += " and every other relationship gained in this career is lost"
+
+	return effect
+}
+
+// ratingOfSome is Teenage Path 3 result 4: a rolled number of ties, none of
+// them family, move by a fixed amount.
+func ratingOfSome(rolled string, minimum, amount int, first Relationship, rest ...Relationship) Effect {
+	only := append([]Relationship{first}, rest...)
+
+	names := make([]string, len(only))
+	for i, kind := range only {
+		names[i] = string(kind)
+	}
+
+	direction, size := "gain ", amount
+	if amount < 0 {
+		direction, size = "lose ", -amount
+	}
+
+	return Effect{
+		Kind: EffectRating,
+		Detail: rolled + " (minimum " + itoa(minimum) + ") non-family " + joinOr(names) +
+			" " + direction + itoa(size) + " relationship rating",
+		Target:        TargetAll,
+		Relationship:  first,
+		From:          only,
+		CountDice:     rolled,
+		Minimum:       minimum,
+		Modifier:      amount,
+		ExcludeFamily: true,
+	}
+}
+
+// becomesOrElse is "a Rival becomes an Enemy, or a Rival is gained where
+// there was none".
+func becomesOrElse(to Relationship, from []Relationship, fallback ...Effect) Effect {
+	effect := becomes(1, to, from...)
+
+	details := make([]string, len(fallback))
+	for i, e := range fallback {
+		details[i] = e.Detail
+	}
+
+	effect.Fallback = fallback
+
+	effect.Detail += ", or with none, " + strings.Join(details, " and ")
+
+	return effect
 }
 
 // credits pays the character an amount the book gives as dice.

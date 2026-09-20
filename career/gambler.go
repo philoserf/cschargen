@@ -147,8 +147,7 @@ func gamblerMishaps() MishapTable {
 			Summary: "accused of cheating, and believed",
 			Effects: []Effect{
 				gamblerLoseAll(),
-				unimplemented("one Contact or Ally from this career becomes an Enemy, " +
-					"and every other relationship gained here is lost"),
+				becomesTheLastOne(Enemy, Contact, Ally),
 			},
 		},
 		{
@@ -164,7 +163,7 @@ func gamblerMishaps() MishapTable {
 			Effects: []Effect{
 				injury(2),
 				gamblerLoseAll(),
-				unimplemented("lose every relationship gained in this career"),
+				loseEveryTie(true, Ally, Contact, Rival, Enemy),
 				pick("take the legend, or leave it",
 					opt("become a Star", celebrityAsStar()),
 					opt("leave the tables behind")),

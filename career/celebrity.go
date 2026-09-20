@@ -132,7 +132,7 @@ func celebrityMishaps() MishapTable {
 		},
 		{
 			Summary: "a Contact or Ally dies violently, and you cannot perform in public again",
-			Effects: []Effect{unimplemented("lose a Contact or an Ally")},
+			Effects: []Effect{loseTie(Contact, Ally)},
 		},
 		{
 			Summary: "an assassin cites your career as their influence, and the backlash is palpable",

@@ -130,7 +130,7 @@ func investigatorMishaps() MishapTable {
 		{
 			Summary: "someone you jailed escapes and goes after the people around you",
 			Effects: []Effect{
-				unimplemented("lose 1d3 Allies and Contacts"),
+				loseTiesRolled("1d3", Ally, Contact),
 				relationship(Enemy, 1, ""),
 			},
 		},
@@ -148,7 +148,7 @@ func investigatorMishaps() MishapTable {
 		},
 		{
 			Summary: "your partner is killed, and you vow revenge",
-			Effects: []Effect{relationship(Enemy, 1, ""), unimplemented("lose an Ally")},
+			Effects: []Effect{relationship(Enemy, 1, ""), loseTie(Ally)},
 		},
 		{
 			Summary: "a dangerous disease contracted",

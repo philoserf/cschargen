@@ -95,7 +95,7 @@ func adventurerEvents() EventTable {
 		54: {
 			Summary: "a conference on exploring the frontier",
 			Effects: []Effect{
-				unimplemented("gain 1d6-3 Contacts"),
+				relationship(Contact, 0, "1d6-3"),
 				relationship(Rival, 1, ""),
 				chr("CHA", 1),
 			},

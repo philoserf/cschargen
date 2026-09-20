@@ -46,7 +46,7 @@ func fringeMarketerEvents() EventTable {
 			Summary: "it is all about the customers",
 			Effects: []Effect{checkSkill("Carouse", 8,
 				[]Effect{relationship(Contact, 1, "1d3")},
-				[]Effect{unimplemented("lose one Contact")})},
+				[]Effect{loseTie(Contact)})},
 		},
 		24: {
 			Summary: "a gambling circle in your peer group",

@@ -16,8 +16,7 @@ func teenagePathOne() []EventRow {
 			Summary: "pushed out of a circle of friends",
 			Effects: []Effect{
 				skill("Recon"), chr("CHA", -1),
-				unimplemented("1d6-2 (minimum 1) non-family Contacts or Allies lose 50 " +
-					"Relationship Rating, which may change what they are"),
+				ratingOfSome("1d6-2", 1, -50, Contact, Ally),
 			},
 		},
 		{

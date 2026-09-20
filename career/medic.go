@@ -146,7 +146,7 @@ func medicMishaps() MishapTable {
 		{
 			Summary: "a personal scandal tarnishes your reputation",
 			Effects: []Effect{
-				unimplemented("lose an Ally"),
+				loseTie(Ally),
 				throwModifier("next enlistment attempt", -2),
 				benefitRolls(-2, 0, ScopeBatch),
 			},

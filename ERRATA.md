@@ -803,3 +803,30 @@ row reading "Three Company Shares" grants three of those.
 it was granted. The same holds for the other benefits p. 128 defines by value —
 Pieces of Art, Rare Item, Prize Share, Pension, Gambler Kit, Tool Kit — which is
 why a career row that names one without a number still carries one.
+
+---
+
+## E-34 (reading) — "an improvement to a relationship", which improves three
+
+**Where:** the Teenage Life Events table (p. 85) and both institutions' life-event
+tables (pp. 91, 96), which print the same result in the same words.
+
+The heading is singular: "You have made an improvement to a relationship." The
+mechanics beneath it are four independent conditionals:
+
+> If you have no Contacts, then you will gain one Contact. If you currently have
+> Enemies, one of those is now a Rival. If you have Rivals, one of those is now a
+> Contact. If you have Contacts, one of those is now an Ally.
+
+Read in sequence, a character with a single Enemy and nothing else ends the result
+with an Ally: the Enemy becomes a Rival, that Rival becomes a Contact, that Contact
+becomes an Ally. One NPC climbs the whole scale on a result called an improvement.
+
+Read as a snapshot, up to three different NPCs each move up one band, and a
+character with no Contacts also gains one.
+
+**Engine:** the snapshot. It is the only reading under which each clause does what
+it says without the clause before it having changed its input, and the only one
+that keeps a single result from moving one relationship from hatred to devotion.
+A changed tie takes the middle of its new band, for the reason given in E-23: a
+change of kind is not a change of rating, and the book supplies no number.
