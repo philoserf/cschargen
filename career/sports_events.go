@@ -103,9 +103,11 @@ func sportsEvents() EventTable {
 		},
 		45: {
 			Summary: "a nickname earned",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1 take -2 CHA, on 2-3 nothing, on 4-5 gain +1 CHA, " +
-					"on 6 gain +2 CHA")},
+			Effects: []Effect{rollSub("how the public took it",
+				on(1, "badly", chr("CHA", -2)),
+				onRange(2, 3, "not at all"),
+				onRange(4, 5, "well", chr("CHA", 1)),
+				on(6, "very well", chr("CHA", 2)))},
 		},
 		46: {Summary: "a lot of traveling", Effects: []Effect{skill("Suit", "Vacc Suit")}},
 		51: {
@@ -133,10 +135,14 @@ func sportsEvents() EventTable {
 			Summary: "an endorsement deal, and your likeness in a widely seen advertisement",
 			Effects: []Effect{
 				credits("25000"),
-				unimplemented("roll 1d6 for how the product does: on 1 take -2 to the next " +
-					"advancement roll, on 2-3 lose a benefit roll, on 4-5 gain 25,000 credits " +
-					"and a benefit roll, on 6 gain 100,000 credits, two benefit rolls and " +
-					"+1 to all benefit rolls from this career"),
+				rollSub("how the product does",
+					on(1, "it embarrasses you", throwModifier(advancementThrow, -2)),
+					onRange(2, 3, "it does not sell", benefitRolls(-1, 0, ScopeBatch)),
+					onRange(4, 5, "it sells", credits("25000"), benefitRolls(1, 0, ScopeBatch)),
+					on(6, "it is everywhere",
+						credits("100000"),
+						benefitRolls(2, 0, ScopeBatch),
+						benefitRolls(0, 1, ScopeCareer))),
 			},
 		},
 		56: {

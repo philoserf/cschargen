@@ -187,6 +187,32 @@ occurrences become 127.
   next Advancement roll fails automatically": the throw is not made, the record
   says why, and what waited on its failure still fires.
 
+### A 1d6 table printed inside a result
+
+Twenty-nine more occurrences resolve — 97 distinct results become 76, 127
+occurrences become 98.
+
+(The count itself is more honest than it was: the walk that produces it did not
+descend into an effect's grouped, fallback or sub-table branches, which the last
+few passes gave it. Earlier figures in this changelog were therefore a little
+optimistic.)
+
+Forty-two results print a small table of their own: "Roll 1d6. On a 1 … on a
+2-5 … on a 6 …". `EffectSubTable` is a **roll**, not a choice — the character
+has no say in which row comes up, so the record carries the die as it fell and
+a replay of the same seed finds the same row.
+
+`TestEverySubTableCoversTheDie` holds every one of them to covering 1 through 6
+exactly once. A gap would leave the engine with nothing to apply and an overlap
+would let the first row printed win silently.
+
+Twenty-five of the forty-two are transcribed against mechanisms the earlier
+passes built — the Vagabond's parting pay, the Diplomatic Service's conspiracy,
+the Medic's lawsuit, the Independent Merchant's distress call, the slave's
+escape attempt. The rest wait on the two things they need: a list of the
+conditions a character carries, for the thirteen addiction results, and a
+player's own words for the religion ones.
+
 ### Fixed
 
 - A character dismissed from a career could still muster out of it.

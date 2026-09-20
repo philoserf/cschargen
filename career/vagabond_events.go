@@ -1,6 +1,33 @@
 package career
 
 // vagabondEvents is the d66 table of pp. 298-300.
+// oddJobPay is the manager's parting payment, printed identically in
+// Vagabond events 23, 53 and 56 (pp. 298-300): "Roll 1d6. On a roll of 1,
+// you are paid 200 for your time there. On a roll of 2-5, you are paid 500.
+// On a roll of 6, you are paid 500 and the manager recommends you for your
+// choice of career."
+func oddJobPay() Effect {
+	return rollSub("the manager's parting payment",
+		on(1, "paid 200 credits", credits("200")),
+		onRange(2, 5, "paid 500 credits", credits("500")),
+		on(6, "paid 500 credits and recommended",
+			credits("500"),
+			throwModifier(enlistmentThrow, 2)))
+}
+
+// farmhandPay is Vagabond event 42, which pays differently: "On a roll of
+// 1, the farmer reneges on his promise of payment. On a 2-5, you are paid
+// 500 credits. On a 6, the farmer pays you 750 and offers to help you find
+// a job in another field."
+func farmhandPay() Effect {
+	return rollSub("the farmer's payment",
+		on(1, "the farmer reneges on the promise of payment"),
+		onRange(2, 5, "paid 500 credits", credits("500")),
+		on(6, "paid 750 credits and helped to another field",
+			credits("750"),
+			throwModifier(enlistmentThrow, 2)))
+}
+
 func vagabondEvents() EventTable {
 	table := EventTable{
 		11: {Summary: "something terrible happens", Effects: []Effect{mishapNoEject()}},
@@ -41,7 +68,7 @@ func vagabondEvents() EventTable {
 				pick("what you drove",
 					opt("Drive", skill("Drive", "Wheeled")),
 					opt("Flyer", skill("Flyer", "Grav"))),
-				unimplemented("roll 1d6 for the pay: 200 credits, 500, or 500 and a +2 to enter a career of your choice"),
+				oddJobPay(),
 			},
 		},
 		24: {
@@ -60,7 +87,7 @@ func vagabondEvents() EventTable {
 			Summary: "a local farmer takes you on as an extra hand",
 			Effects: []Effect{
 				skill("Animals", "Any"),
-				unimplemented("roll 1d6 for the pay: nothing, 500 credits, or 750 and a +2 to enter a career of your choice"),
+				farmhandPay(),
 			},
 		},
 		43: {
@@ -87,7 +114,7 @@ func vagabondEvents() EventTable {
 			Summary: "a vehicle repair shop wants an extra worker",
 			Effects: []Effect{
 				skill("Mechanic"),
-				unimplemented("roll 1d6 for the pay: 200 credits, 500, or 500 and a +2 to enter a career of your choice"),
+				oddJobPay(),
 			},
 		},
 		54: {
@@ -103,7 +130,7 @@ func vagabondEvents() EventTable {
 			Summary: "a local diner wants an extra worker",
 			Effects: []Effect{
 				skill("Chef"),
-				unimplemented("roll 1d6 for the pay: 200 credits, 500, or 500 and a +2 to enter a career of your choice"),
+				oddJobPay(),
 			},
 		},
 		61: {

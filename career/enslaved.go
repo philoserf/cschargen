@@ -67,7 +67,9 @@ func enslavedRows(fourth EventRow, lifeEvent EffectKind) []EventRow {
 		{
 			Summary: "beaten by the taskmaster for a minor mistake",
 			Effects: []Effect{
-				unimplemented("roll 1d6: on 1-3 roll twice on the Injury table, on 4-6 once"),
+				rollSub("how badly you were beaten",
+					onRange(1, 3, "badly", injury(2)),
+					onRange(4, 6, "not so badly", injury(1))),
 				ownerAsEnemy(-175),
 			},
 		},

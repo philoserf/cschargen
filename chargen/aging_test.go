@@ -113,6 +113,11 @@ func TestTheEnlistmentModifierIsApplied(t *testing.T) {
 // level, which the record does not otherwise carry, so the generator stamps
 // it -- and a character old enough for the chart to say something the age
 // does not is the case worth checking.
+//
+// The homeworld it reads is the last one, not the first. ERRATA E-9: a
+// homeworld reassigned during a career changes the tech level that gates
+// the aging throws, so a character born on a tech level 11 world and
+// deported to a tech level 8 one looks their age again.
 func TestApparentAgeReachesTheSheet(t *testing.T) {
 	t.Parallel()
 
@@ -125,8 +130,9 @@ func TestApparentAgeReachesTheSheet(t *testing.T) {
 		opts.Inputs.TermLimit = 40
 
 		character := generate(t, opts)
+		homeworlds := character.State.Homeworlds
 
-		born, _, found := data.World(character.State.Homeworlds[0].World)
+		born, _, found := data.World(homeworlds[len(homeworlds)-1].World)
 		if !found || born.TechLevel < 10 || character.State.Age < 30 {
 			continue
 		}

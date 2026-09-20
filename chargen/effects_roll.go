@@ -70,6 +70,34 @@ func (g *Generator) takeSkillModifiers(skill string) []dice.Mod {
 	return mods
 }
 
+// rollSubTable is the forty-two results that print a 1d6 table inside
+// themselves: "Roll 1d6. On a 1 ... on a 2-5 ... on a 6 ...".
+//
+// It is a roll rather than a choice, so the record carries the die as it
+// fell and the row it selected, and a replay of the same seed finds the
+// same row.
+func (g *Generator) rollSubTable(effect career.Effect, _ int) error {
+	roll := g.dice.D6()
+	rolled := g.log.Roll(roll, g.cite)
+
+	for _, row := range effect.Sub {
+		if roll.Total < row.From || roll.Total > row.To {
+			continue
+		}
+
+		g.consequence(ConsequenceCareer, rolled, row.Summary, "")
+
+		return g.applyAll(row.Effects, rolled)
+	}
+
+	// Unreachable while TestEverySubTableCoversTheDie holds: every result
+	// of the die falls in exactly one row. The record says so rather than
+	// the engine doing nothing quietly.
+	g.unimplemented(rolled, effect.Detail+" -- no row covers a roll of "+itoa(roll.Total))
+
+	return nil
+}
+
 // applyInjury rolls the Injury table (p. 119) as many times as the result
 // asked for.
 func (g *Generator) applyInjury(effect career.Effect, cause int) error {

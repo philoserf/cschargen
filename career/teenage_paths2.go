@@ -78,9 +78,15 @@ func teenagePathThree() []EventRow {
 			Summary: "local sports, with your school or an organized league",
 			Effects: []Effect{
 				skill("Athletics", "Any"),
-				unimplemented("roll 1d6 for how it went: on 1 nothing, on 2-3 gain 1d3 " +
-					"Contacts at 50, on 4-5 gain 1d6 Contacts at 50, on 6 gain another " +
-					"level in Athletics, +2 CHA and +2 to enter the Sports career"),
+				rollSub("how the season went",
+					on(1, "nowhere"),
+					onRange(2, 3, "a few friends made", relationshipRolledAt(Contact, "1d3", 50)),
+					onRange(4, 5, "many friends made", relationshipRolledAt(Contact, "1d6", 50)),
+					on(6, "noticed by the scouts",
+						skill("Athletics", "Any"),
+						chr("CHA", 2),
+						modifierFor(enlistmentThrow, 2, 0, "+2 to enter the Sports career",
+							enlistmentNarrowing{OnCareers: []string{"Sports"}, Standing: true}))),
 			},
 		},
 		{
@@ -125,10 +131,18 @@ func teenagePathFour() []EventRow {
 			Summary: "a group of elite computer hackers",
 			Effects: []Effect{
 				skill("Electronics", "Computers"),
-				unimplemented("roll 1d6: on 1 a term in the Prisoner career; on 2-3 the " +
-					"group as a Contact at 50; on 4-5 another level in Electronics " +
-					"(Computers) and the group as an Ally at 110; on 6 that and " +
-					"1d6 x 100,000 credits, but a homeworld you can never return to"),
+				rollSub("where the group takes you",
+					on(1, "caught, and a term inside", transfer("Prisoner", "", 1)),
+					onRange(2, 3, "the group stays in touch",
+						relationshipAt(Contact, 1, 50)),
+					onRange(4, 5, "you learn from them",
+						skill("Electronics", "Computers"),
+						relationshipAt(Ally, 1, 110)),
+					on(6, "you learn from them, and the job pays",
+						skill("Electronics", "Computers"),
+						relationshipAt(Ally, 1, 110),
+						credits("1d6x100000"),
+						newHomeworld())),
 			},
 		},
 		teenageLifeEvent(),
@@ -165,10 +179,15 @@ func teenagePathFour() []EventRow {
 			Summary: "a band joined",
 			Effects: []Effect{
 				skill("Art", "Instrument"),
-				unimplemented("roll 1d6 for how it went: on 1 a Rival at -60; on 2-3 the " +
-					"other three as Contacts at 50; on 4-5 +2 CHA and the other three as " +
-					"Allies at 125; on 6 gain 1d3+1 CHA and +2 to enter any " +
-					"entertainment-based career"),
+				rollSub("how the band went",
+					on(1, "it ends in a falling-out", relationshipAt(Rival, 1, -60)),
+					onRange(2, 3, "the others stay friendly", relationshipAt(Contact, 3, 50)),
+					onRange(4, 5, "the others stay close", chr("CHA", 2), relationshipAt(Ally, 3, 125)),
+					on(6, "you are noticed",
+						chrRolled("CHA", "1d3+1", true),
+						modifierFor(enlistmentThrow, 2, 0,
+							"+2 to enter the Celebrity career",
+							enlistmentNarrowing{OnCareers: []string{"Celebrity"}, Standing: true}))),
 			},
 		},
 		{

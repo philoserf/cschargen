@@ -91,6 +91,8 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		g.consequence(ConsequenceModifier, cause, effect.Detail, "")
 
 		return nil
+	case career.EffectSubTable:
+		return g.rollSubTable(effect, cause)
 	case career.EffectPool:
 		g.grantPool(effect, cause)
 

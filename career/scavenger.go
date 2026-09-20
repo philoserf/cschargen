@@ -130,8 +130,10 @@ func scavengerMishaps() MishapTable {
 			// takes everything either way.
 			Summary: "a fire in your storehouse",
 			Effects: []Effect{
-				unimplemented("roll 1d6: on 1-2 you were present, and roll DEX 8+ " +
-					"or take two rolls on the Injury table"),
+				rollSub("whether you were there when it started",
+					onRange(1, 2, "you were",
+						checkChr("DEX", 8, nil, []Effect{injury(2)})),
+					onRange(3, 6, "you were not")),
 				loseAll,
 			},
 		},

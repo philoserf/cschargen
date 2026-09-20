@@ -17,10 +17,16 @@ func theConspiracyRecruits() Effect {
 		opt("decline",
 			relationship(Rival, 1, ""),
 			throwModifier("next advancement roll", -2)),
-		opt("tell your superiors", unimplemented(
-			"roll 1d6: on 1 the superior is in on it, costing a rank and gaining a Rival; "+
-				"on 2-5 thanks and +2 to the next advancement; on 6 an order to infiltrate, "+
-				"which is Deception (Lie) 8+ for an advancement and two benefit rolls, or torture")),
+		opt("tell your superiors", rollSub("how the report is received",
+			on(1, "your superior is one of them",
+				loseRank(1),
+				relationship(Rival, 1, "")),
+			onRange(2, 5, "you are thanked",
+				throwModifier(advancementThrow, 2)),
+			on(6, "you are ordered to infiltrate them",
+				checkSkill("Deception", 8,
+					[]Effect{advance(), benefitRolls(2, 0, ScopeBatch)},
+					[]Effect{injury(2)})))),
 	)
 }
 

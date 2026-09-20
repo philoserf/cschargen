@@ -21,9 +21,13 @@ func distressCall(ignored, reported Effect) Effect {
 	return pick("answer it, report it, or ignore it",
 		opt("ignore it", ignored),
 		opt("report it and do nothing", reported),
-		opt("help", unimplemented(
-			"roll 1d6: on 1-3 it is a pirate ship and the boarding fight follows; "+
-				"on 4-5 a grateful captain becomes a Contact; on 6 an Ally and 5,000 credits")),
+		opt("help", rollSub("what the distress call was",
+			onRange(1, 3, "a trap, and the boarding fight follows", injury(1)),
+			onRange(4, 5, "genuine, and the captain is grateful",
+				relationship(Contact, 1, "")),
+			on(6, "genuine, and the captain is generous",
+				relationship(Ally, 1, ""),
+				credits("5000")))),
 	)
 }
 

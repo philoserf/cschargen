@@ -148,9 +148,12 @@ func merchantMishaps() MishapTable {
 		{Summary: "a life-threatening illness", Effects: []Effect{chr("END", -2)}},
 		{
 			Summary: "an act of piracy, and no free trader will have you",
-			Effects: []Effect{unimplemented(
-				"roll 1d6: on 1 two terms in the Prisoner career; on 2-5 the Pirate career, " +
-					"retaining rank; on 6 marooned on a low-port world and into the Vagabond career")},
+			Effects: []Effect{rollSub("where the accusation leaves you",
+				on(1, "convicted", transfer("Prisoner", "", 2)),
+				onRange(2, 5, "taken in by the pirates", transfer("Pirate", "", 0)),
+				on(6, "marooned on a low-port world",
+					newHomeworld(),
+					transfer("Vagabond", "", 0)))},
 		},
 	}
 }
