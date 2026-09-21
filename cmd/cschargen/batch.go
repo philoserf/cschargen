@@ -35,8 +35,13 @@ func itoa(n int) string { return strconv.Itoa(n) }
 // It requires --auto, because a batch of twenty characters is twenty
 // lifepaths of questions and nobody wants to answer four hundred of them.
 // The seed of member i is the base seed plus i and is recorded in that
-// member's own provenance, so any one of them can be regenerated alone with
-// `new --seed`.
+// member's own provenance, which is what `replay` reproduces it from.
+//
+// It is not what `new --seed` reproduces it from. Since policy_version
+// 0.3.0 a batch draws its career and assignment where `new --auto` takes
+// the first of each, so one seed makes two different characters under the
+// two commands, deliberately. `-o dir` keeps each member as its own file
+// for exactly this reason.
 func batchCommand(args []string, out *os.File) error {
 	flags := bindNewFlags("batch")
 
@@ -65,7 +70,7 @@ func batchCommand(args []string, out *os.File) error {
 		return err
 	}
 
-	encoded, err := generateBatch(*count, seed, world, flags)
+	encoded, err := generateFrom(*count, seed, world, flags)
 	if err != nil {
 		return err
 	}
@@ -122,6 +127,20 @@ func writeRecordsInto(dir string, batch []byte, force bool) error {
 	return nil
 }
 
+// generateFrom reads the name list, if there is one, and runs the batch.
+// It exists so that batchCommand reads as the sequence of things it does
+// rather than as the sum of their error handling.
+func generateFrom(
+	count int, base uint64, world *setting.Data, flags newFlags,
+) ([]byte, error) {
+	names, err := readNames(*flags.names)
+	if err != nil {
+		return nil, err
+	}
+
+	return generateBatch(count, base, world, flags, names)
+}
+
 // rejectFinishingFlags refuses the four that set one character's Step 20
 // fields. They are shared with `new` because the two commands take the same
 // inputs otherwise, and on a batch they would give twenty people the same
@@ -145,7 +164,7 @@ func rejectFinishingFlags(flags newFlags) error {
 // generateBatch is the loop. A batch is not a new generator: it is the one
 // that already exists, run once per member.
 func generateBatch(
-	count int, base uint64, world *setting.Data, flags newFlags,
+	count int, base uint64, world *setting.Data, flags newFlags, names []string,
 ) ([]byte, error) {
 	var (
 		lines []byte
@@ -153,13 +172,19 @@ func generateBatch(
 	)
 
 	for i := range count {
+		seed := base + uint64(i)
+
+		inputs := flags.inputs()
+
+		inputs.Name = nameFor(names, seed)
+
 		character, err := chargen.New(chargen.Options{
-			Seed:          base + uint64(i),
-			Decider:       chargen.Policy{},
+			Seed:          seed,
+			Decider:       chargen.NewBatchPolicy(seed),
 			EngineVersion: version(),
 			PolicyVersion: policyVersion,
 			Setting:       world,
-			Inputs:        flags.inputs(),
+			Inputs:        inputs,
 		}).Run()
 		if err != nil {
 			return nil, fmt.Errorf("generating character %d of %d: %w", i+1, count, err)

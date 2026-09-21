@@ -39,6 +39,7 @@ cschargen new --auto --seed 7 --terms 3 --data setting.json -o character.json
 cschargen batch --auto --count 20 --seed 100 -o crew.jsonl
 cschargen batch --auto --count 20 --seed 100 -o crew/    # or one file each
 cschargen render --roster crew.jsonl        # one line per character
+cschargen batch --auto --count 20 --names names.txt -o crew.jsonl
 cschargen render character.json             # the character sheet
 cschargen render --history character.json   # the lifepath, throw by throw
 cschargen replay character.json             # re-run it from the seed

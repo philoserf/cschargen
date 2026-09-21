@@ -4,7 +4,7 @@ The auto-mode decision table. Every choice point the engine offers is
 resolved here when `--auto` is set, and `policy_version` in each record
 identifies which version of this document made the choices.
 
-Version: **0.2.0**
+Version: **0.3.0**
 
 ## The rule
 
@@ -55,8 +55,8 @@ policy has no entry for is a build error, not a silent default.
 | `degree_field`           | pp. 87, 92, "the character may now take ... at level 2"        | The first skill the list prints                                                                  |
 | `washout_skill`          | pp. 87, 92, "gains a level in the player's choice of"          | The first skill the list prints                                                                  |
 | `medic_specialty`        | p. 101, "Specialties should all be different"                  | The first specialty still unspoken for, so the four end up different                             |
-| `career`                 | p. 107, the career to attempt                                  | The first the book prints that the character may enter                                           |
-| `assignment`             | p. 112, the assignment within a career                         | The first the career prints                                                                      |
+| `career`                 | p. 107, the career to attempt                                  | `new`: the first the book prints that they may enter. `batch`: drawn — see below                 |
+| `assignment`             | p. 112, the assignment within a career                         | `new`: the first the career prints. `batch`: drawn — see below                                   |
 | `commission`             | p. 114, "this step is optional"                                | Attempt it — the first option, and the one that opens the officer ranks                          |
 | `skill_table`            | p. 117, which of a career's skill tables to roll on            | The first the career prints                                                                      |
 | `other_assignment`       | p. 117, "an assignment table other than your own"              | The first that is not the character's own                                                        |
@@ -69,8 +69,9 @@ policy has no entry for is a build error, not a silent default.
 | `spend_pool`             | pp. 188, 218, "+6 ... in increments of up to +3 at any time"   | The largest increment the result allows, every time — see below                                  |
 | `aging_crisis`           | p. 123, "the player may pay 1D6 × 1000 credits"                | Pay for the treatment, which is the first option printed — and the only one a character survives |
 
-Two entries are not "the first option printed", because the page prints no list
-for them to be first in.
+Three entries are not "the first option printed". Two of them are choices the
+page prints no list for; the third is `batch` answering two rows differently from
+`new`, which is the whole of the difference between the two commands.
 
 **`spend_pool`** is the two results that grant a modifier the character spends
 themselves. The options run from the largest increment down, so the policy
@@ -92,11 +93,41 @@ them. A row here and no code is as wrong as code and no row — which this table
 went twelve PRs without honouring, and `policy_version` 0.2.0 is where it caught
 up.
 
-## What the rule does to a population
+**`batch` draws the career and the assignment** rather than taking the first of
+each, which is the one place the two commands differ. `new --auto` is unchanged:
+the first eligible career, the first assignment that career prints.
 
-The `career` row has a consequence the other twenty-seven do not, because it is
-the only one a batch repeats a hundred times. Measured on `batch --auto --count
-100 --seed 31337` under this policy version:
+The draw is seeded from the record's own seed, not from the member's position, so
+a batch is not a sequence that has to be replayed from the start: member _i_ is a
+function of the seed it records.
+
+It is a different character from `new --seed N+i`, which takes the first career
+and the first assignment. That is the point of the change and it is worth saying
+plainly: one seed now makes two characters under the two commands. Reproducing a
+member is `replay` on its record, which is exact — or `-o dir`, which keeps each
+one as its own file.
+
+Why two rows and not all twenty-eight: the section below measures what "first
+listed" did to a population, and the career is the row a batch repeats a hundred
+times. The assignment is in for a reason with a number on it. With the career
+alone, a hundred characters covered every career the book prints but nobody in
+three hundred held **Gunner** — every National Navy character took the first
+assignment the career prints, which is not Gunnery, and three hundred characters
+between them reached ten distinct assignments. With both drawn, eighteen of three
+hundred hold Gunner and eighty-eight assignments appear. A crew can be cast from
+that and could not be cast from the other.
+
+**`--names`** draws a character's name from a file the caller supplies, one name
+per line, by the character's own seed. The engine still invents nothing: FR12
+leaves Step 20's fields empty in auto mode and this fills one of them only when
+somebody hands it a list. Two characters in a batch may draw the same name, which
+is what a list shorter than the batch has to mean and is true of people anyway.
+`--name` beats `--names` where both are given, and `batch` refuses `--name`.
+
+## What the rule did to a population, before 0.3.0
+
+This is what `policy_version` 0.2.0 did, and it is why 0.3.0 draws instead.
+Measured on `batch --auto --count 100 --seed 31337` under 0.2.0:
 
 |                       |             |
 | --------------------- | ----------- |
@@ -115,15 +146,22 @@ in the book's own order, "first listed" takes the earliest, and the earliest are
 alphabetical. Every later choice point then inherits the same narrowness: a
 hundred Adventurers take the same skill tables and meet the same events.
 
-This is the policy being unrefined rather than the rules being wrong — the same
-thing the youth-path and education paragraphs above say — but it is worth its own
-section because `batch` is the command the auto policy exists to serve, and a
-population that is three careers over and over is not a population.
+That was the policy being unrefined rather than the rules being wrong — the same
+thing the youth-path and education paragraphs above say — but `batch` is the
+command the auto policy exists to serve, and a population that is three careers
+over and over is not a population. Under 0.3.0 the same hundred cover every
+career the book prints.
+
+Every other choice point still takes the first option, so a hundred characters
+still resemble each other in their skills, their paths and their schooling. That
+is deliberate: varying the rest would be a different policy rather than the same
+one applied to a crowd.
 
 **A record made under 0.2.0 is not wrong.** Every throw was made and every one
 could have gone another way. It is one character generated honestly, and a
 hundred of them are a hundred honest characters who happen to resemble each
-other.
+other. `policy_version` is recorded but never verified on replay, so those
+records replay under 0.3.0 exactly as they were made.
 
 ## Choices the book conditions on state the engine cannot read
 

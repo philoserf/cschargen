@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"testing"
 )
@@ -735,38 +734,62 @@ func TestBatchNeedsWhatItNeeds(t *testing.T) {
 }
 
 // TestABatchMemberRegeneratesAlone is the point of recording each seed.
-func TestABatchMemberRegeneratesAlone(t *testing.T) {
+func TestABatchMemberCarriesItsOwnSeedAndReplays(t *testing.T) {
 	t.Parallel()
 
-	batch, err := capture(t, "batch", "--auto", "--count", "3", "--seed", "200", "--terms", "1")
+	dir := t.TempDir()
+	pool := filepath.Join(dir, "crew.jsonl")
+
+	_, err := capture(t, cmdBatch, "--auto", "--count", "3", "--seed", "200",
+		"--terms", "1", "-o", pool)
 	if err != nil {
 		t.Fatalf("batch: %v", err)
 	}
 
-	third := strings.Split(strings.TrimSpace(batch), "\n")[2]
-
-	alone, err := capture(t, cmdNew, "--auto", "--seed", "202", "--terms", "1")
+	records, err := readRecords(pool)
 	if err != nil {
-		t.Fatalf("new: %v", err)
+		t.Fatalf("reading the batch: %v", err)
 	}
 
-	// The batch writes compact JSON and `new` writes it indented, so the
-	// two are compared as values rather than as text.
-	var fromBatch, fromNew any
+	// The seed of member i is the base plus i, and it is recorded.
+	for i, record := range records {
+		if got := record.Provenance.RNG.Seed; got != 200+uint64(i) {
+			t.Errorf("member %d carries seed %d, want %d", i+1, got, 200+uint64(i))
+		}
+	}
 
-	err = json.Unmarshal([]byte(third), &fromBatch)
+	// And that is enough to reproduce it exactly, which is what the seed is
+	// for. `new --seed` is not: since policy_version 0.3.0 a batch draws its
+	// career and assignment where `new --auto` takes the first of each, so
+	// the two commands make different characters from one seed on purpose.
+	// The record is the input to reproducing a member, and `replay` is how.
+	third := filepath.Join(dir, "third.json")
+
+	err = writeFile(third, mustMarshal(t, records[2]), false)
 	if err != nil {
-		t.Fatalf("decoding the batch member: %v", err)
+		t.Fatalf("writing the member: %v", err)
 	}
 
-	err = json.Unmarshal([]byte(alone), &fromNew)
+	out, err := capture(t, "replay", third)
 	if err != nil {
-		t.Fatalf("decoding the single record: %v", err)
+		t.Fatalf("replay: %v", err)
 	}
 
-	if !reflect.DeepEqual(fromBatch, fromNew) {
-		t.Error("the third member of the batch is not what its own seed generates")
+	if !strings.Contains(out, "identical") {
+		t.Errorf("replaying a batch member gave %q", out)
 	}
+}
+
+// mustMarshal encodes a record or fails the test.
+func mustMarshal(t *testing.T, value any) []byte {
+	t.Helper()
+
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		t.Fatalf("encoding: %v", err)
+	}
+
+	return encoded
 }
 
 // TestBatchWritesAFile, and refuses to overwrite one without --force,
@@ -1100,5 +1123,23 @@ func TestReplayRejectsAFileThatIsNotARecord(t *testing.T) {
 
 	if !strings.Contains(err.Error(), "is not a character record") {
 		t.Errorf("error %q does not say what is wrong", err)
+	}
+}
+
+// TestABadNameFileStopsBothCommands, rather than generating a hundred
+// unnamed characters and leaving the referee to notice.
+func TestABadNameFileStopsBothCommands(t *testing.T) {
+	t.Parallel()
+
+	absent := filepath.Join(t.TempDir(), "absent.txt")
+
+	for name, args := range map[string][]string{
+		"new":   {cmdNew, "--auto", "--seed", "1", "--terms", "1", "--names", absent},
+		"batch": {cmdBatch, "--auto", "--count", "2", "--seed", "1", "--names", absent},
+	} {
+		_, err := capture(t, args...)
+		if err == nil {
+			t.Errorf("%s accepted a name file that is not there", name)
+		}
 	}
 }

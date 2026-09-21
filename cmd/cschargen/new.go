@@ -38,6 +38,7 @@ type newFlags struct {
 	output    *string
 	force     *bool
 	data      *string
+	names     *string
 
 	set *flag.FlagSet
 }
@@ -66,6 +67,7 @@ func bindNewFlags(command string) newFlags {
 		noTeenage: flags.Bool("skip-teenage", false, "skip Step 7, which the book allows (p. 76)"),
 		noSchool:  flags.Bool("skip-education", false, "skip Step 8; higher education is never required (p. 85)"),
 		data:      flags.String("data", "", "setting data file; omitted means the repository's invented sample"),
+		names:     flags.String("names", "", "a file of names, one per line, to draw the character's name from"),
 		output:    flags.String("o", "", "write the record here instead of stdout"),
 		force:     flags.Bool("force", false, "overwrite the output file if it exists"),
 		set:       flags,
@@ -149,13 +151,23 @@ func newCommand(args []string, out *os.File) error {
 		return err
 	}
 
+	names, err := readNames(*flags.names)
+	if err != nil {
+		return err
+	}
+
+	inputs := flags.inputs()
+	if inputs.Name == "" {
+		inputs.Name = nameFor(names, seed)
+	}
+
 	character, err := chargen.New(chargen.Options{
 		Seed:          seed,
 		Decider:       decider(*flags.auto),
 		EngineVersion: version(),
 		PolicyVersion: policyVersion,
 		Setting:       world,
-		Inputs:        flags.inputs(),
+		Inputs:        inputs,
 	}).Run()
 	if err != nil {
 		return fmt.Errorf("generating: %w", err)

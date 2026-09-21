@@ -331,3 +331,83 @@ func TestNothingWillHaveThemSaysWhy(t *testing.T) {
 		}
 	}
 }
+
+// TestABatchPolicyDrawsTheCareerAndTakesTheRest is what separates
+// policy_version 0.3.0 from 0.2.0. Every choice point still takes the first
+// option the book prints except the two a batch repeats a hundred times.
+func TestABatchPolicyDrawsTheCareerAndTakesTheRest(t *testing.T) {
+	t.Parallel()
+
+	options := []string{"first", "second", "third", "fourth", "fifth"}
+
+	// The career and the assignment are drawn, so across seeds they are not
+	// always the first.
+	for _, point := range []string{"career", "assignment"} {
+		seen := map[int]bool{}
+
+		for seed := range uint64(40) {
+			chosen, err := NewBatchPolicy(seed).Choose(Choice{Point: point, Options: options})
+			if err != nil {
+				t.Fatalf("%s: %v", point, err)
+			}
+
+			if chosen < 0 || chosen >= len(options) {
+				t.Fatalf("%s: chose %d, which is not an option", point, chosen)
+			}
+
+			seen[chosen] = true
+		}
+
+		if len(seen) < 2 {
+			t.Errorf("%s came back as %v across forty seeds, which is not a draw", point, seen)
+		}
+	}
+
+	// Everything else is Policy, unchanged.
+	for _, point := range []string{"youth_path", "degree_field", "benefit_table", "spend_pool"} {
+		chosen, err := NewBatchPolicy(11).Choose(Choice{Point: point, Options: options})
+		if err != nil {
+			t.Fatalf("%s: %v", point, err)
+		}
+
+		if chosen != 0 {
+			t.Errorf("%s chose %d; a batch varies the career and the assignment, nothing else",
+				point, chosen)
+		}
+	}
+}
+
+// TestABatchPolicyDrawsFromTheSeed, so that a member of a batch is a
+// function of the seed it records rather than of its position in the file.
+func TestABatchPolicyDrawsFromTheSeed(t *testing.T) {
+	t.Parallel()
+
+	ask := Choice{Point: "career", Options: []string{"a", "b", "c", "d", "e", "f", "g"}}
+
+	for seed := range uint64(20) {
+		first, err := NewBatchPolicy(seed).Choose(ask)
+		if err != nil {
+			t.Fatalf("seed %d: %v", seed, err)
+		}
+
+		again, err := NewBatchPolicy(seed).Choose(ask)
+		if err != nil {
+			t.Fatalf("seed %d: %v", seed, err)
+		}
+
+		if first != again {
+			t.Errorf("seed %d drew %d and then %d", seed, first, again)
+		}
+	}
+}
+
+// TestABatchPolicyStillRefusesAnEmptyChoice, the way Policy does: a choice
+// point with no options is a bug in the caller, not a decision.
+func TestABatchPolicyStillRefusesAnEmptyChoice(t *testing.T) {
+	t.Parallel()
+
+	_, err := NewBatchPolicy(1).Choose(Choice{Point: "career"})
+	if err == nil {
+		t.Error("a choice with no options was answered")
+	}
+}
