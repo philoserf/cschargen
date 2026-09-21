@@ -552,3 +552,105 @@ func TestTheSheetCarriesTheFinishingTouches(t *testing.T) {
 		}
 	}
 }
+
+// TestTheSheetSeparatesTheFamilyFromEverybodyElse. Across a sample pool,
+// 90% of every character's relationships were family, each an Ally at 100
+// to 150 from Step 5. A single line reading "Allies: 76" buried the one
+// colleague a plot could hang on among sixty-two cousins.
+//
+// The record has always known which was which — every tie carries an origin
+// (FR15) — and the sheet was throwing it away.
+func TestTheSheetSeparatesTheFamilyFromEverybodyElse(t *testing.T) {
+	t.Parallel()
+
+	for seed := range uint64(60) {
+		built := character(t, seed, 6, "Test")
+
+		family, made := 0, 0
+
+		for _, tie := range built.State.Ties {
+			if tie.Origin == chargen.FamilyOrigin {
+				family++
+
+				continue
+			}
+
+			made++
+		}
+
+		if family == 0 || made == 0 {
+			continue
+		}
+
+		checkTheSplit(t, seed, built)
+
+		return
+	}
+
+	t.Fatal("no character in the sample has both family and other relationships")
+}
+
+// checkTheSplit holds one character's sheet to carrying both headings and
+// attributing every relationship they made.
+func checkTheSplit(t *testing.T, seed uint64, built *chargen.Character) {
+	t.Helper()
+
+	got := render.Sheet(built)
+
+	for _, want := range []string{"**Made along the way**", "**Family**"} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("seed %d: the sheet has no %q:\n%s", seed, want, got)
+		}
+	}
+
+	// Every relationship a character made names where it came from, which
+	// is the whole point of splitting the section.
+	for _, tie := range built.State.Ties {
+		if tie.Origin == chargen.FamilyOrigin {
+			continue
+		}
+
+		if !strings.Contains(got, "— "+tie.Origin) {
+			t.Errorf("seed %d: a tie from %q is not attributed on the sheet", seed, tie.Origin)
+		}
+	}
+}
+
+// TestASheetWithOnlyFamilyHasNoStrayHeading. A character can reach Step 20
+// having met nobody — skip the pre-career steps and fail every enlistment —
+// and an empty "Made along the way" would read as a fault.
+func TestASheetWithOnlyFamilyHasNoStrayHeading(t *testing.T) {
+	t.Parallel()
+
+	built := character(t, 7, 3, "Test")
+
+	built.State.Ties = []chargen.Tie{
+		{Kind: "ally", Origin: chargen.FamilyOrigin, Rating: 125, Role: "parent"},
+	}
+
+	got := render.Sheet(built)
+	if strings.Contains(got, "**Made along the way**") {
+		t.Errorf("a character who met nobody has the heading anyway:\n%s", got)
+	}
+
+	if !strings.Contains(got, "**Family**") {
+		t.Errorf("the family is missing:\n%s", got)
+	}
+
+	// And the other way: a character with --skip-family who made a friend
+	// at school has no family to count.
+	orphaned := character(t, 7, 3, "Test")
+
+	orphaned.State.Ties = []chargen.Tie{
+		{Kind: "contact", Origin: "Undergraduate College", Rating: 50},
+	}
+
+	got = render.Sheet(orphaned)
+	if strings.Contains(got, "**Family**") {
+		t.Errorf("a character with no family has the heading anyway:\n%s", got)
+	}
+
+	if !strings.Contains(got, "Undergraduate College") {
+		t.Errorf("the school tie is missing:\n%s", got)
+	}
+}
