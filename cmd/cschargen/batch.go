@@ -187,12 +187,16 @@ func generateBatch(
 		made  []*chargen.Character
 	)
 
+	// Dealt once for the whole batch rather than drawn per character: a
+	// cast wants as many people as it has names.
+	dealt := dealNames(names, count, base)
+
 	for i := range count {
 		seed := base + uint64(i)
 
 		inputs := flags.inputs()
 
-		inputs.Name = nameFor(names, seed)
+		inputs.Name = dealt[i]
 
 		character, err := chargen.New(chargen.Options{
 			Seed:          seed,
