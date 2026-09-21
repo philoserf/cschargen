@@ -1,5 +1,135 @@
 # Changelog
 
+## v0.1.0-alpha.4 — 2026-09-21
+
+Thirteen issues out of one afternoon of playtesting the tool the way a referee
+would: a transcribed setting file loaded with `--data`, a cast of NPCs, a
+character built to a concept, and a list of the mistakes anybody makes on their
+first day.
+
+Three of them put a wrong character on the sheet and said nothing about it.
+
+### The character the book would not recognise
+
+**A baseline human could choose the slave career.** `eligibleCareers` excluded
+Prisoner and not the career of pp. 150-154, which the book reaches only from
+p. 42 and which `career/slave.go` says in its own words "cannot be chosen".
+Neither takes an enlistment throw, so neither can fail one, and a career on
+that list that cannot fail is a career whoever draws it enters. 14 characters
+in 100 against the repository's own sample data
+([#75](https://github.com/philoserf/cschargen/issues/75)).
+
+**`(Any)` landed on skills that have none.** p. 116 gives "(Any)" its meaning —
+it "allows the character to select a specialty within that skill" — and
+`pickSkill` attached it to all thirty-six skill names it is called with.
+Seventeen of those have no specialty to select. On a sheet that read
+`Admin-1, Admin (Any)-3`: two skills where the book means one, on 19 characters
+in 100 ([#77](https://github.com/philoserf/cschargen/issues/77)).
+
+**A subsector throw into a gap became a choice, and the policy answers a choice
+with its first option.** p. 39's chart is a 1d6 and a setting file may name
+fewer than six subsectors. On the sample, which claims three of the six
+results, that put 71 characters in 100 on one subsector and none at all on the
+fourth. A throw that lands nowhere is thrown again now, which is what a table
+does and what keeps the chart's own weighting
+([#85](https://github.com/philoserf/cschargen/issues/85)).
+
+### What the book permits and the engine did not
+
+**A homeworld can be chosen.** p. 39 says "the Referee may choose the subsector
+for the character" and p. 40 says a player may "simply choose a world that fits
+the character concept you have in mind". The engine offered neither, and
+`chooseHomeworld` had quoted that second sentence in its doc comment since
+milestone 1, above a function that only rolled. There are three ways in now:
+`--homeworld` and `--subsector` pin it, an interactive run is offered the
+page's own choice with the throw first, and `--auto` rolls as before
+([#76](https://github.com/philoserf/cschargen/issues/76)).
+
+That reaches a whole page that nothing could. The Recently Colonized Worlds
+table (p. 55) has no `originRoll`, so the 1d6 never selected it: across 200
+generated characters, not one was born on any of its fourteen worlds. p. 40
+introduces that table with "you cannot randomly be assigned one of these
+worlds, **you may choose them**", and the choosing is what was missing.
+
+**A path is offered by what opens it.** Steps 6 and 7 offered `Path 1, Path 3,
+Path 4` — ordinals for the character's childhood and adolescence, with the gaps
+reading as a bug rather than a requirement the character missed. The book gives
+the paths no titles; it heads each with what opens it, so the heading is both
+the description and the answer
+([#80](https://github.com/philoserf/cschargen/issues/80)).
+
+**`--tech-level` and `--max-terms` do what they say.** Both were read from the
+command line, stamped into the record, and used by nothing — a record naming a
+tech level that never gated an aging throw, against a `version` command that
+exists so a bug report can be matched to the record the binary wrote. The
+override is logged where it happens and cites its page
+([#101](https://github.com/philoserf/cschargen/issues/101)).
+
+### The referee's table
+
+- **`--names` deals rather than draws.** Twelve names over twelve NPCs produced
+  nine people, three of them twice, and left four names unused. The duplicates
+  were holding up an identity alpha.3 gave away on purpose
+  ([#78](https://github.com/philoserf/cschargen/issues/78)).
+- **`render --roster` says where they are from.** The casting view left out the
+  field that places an NPC and that the setting file exists to supply
+  ([#79](https://github.com/philoserf/cschargen/issues/79)).
+- **An unknown `--career` is a flag error.** It used to report that the
+  character "failed to enlist" and to "try another seed", when nothing enlisted
+  and no seed would help. `--career belter` entered the career on none of eight
+  seeds where `Belter` entered it on three. Matching is case-insensitive now,
+  and a near miss is suggested where exactly one career matches
+  ([#81](https://github.com/philoserf/cschargen/issues/81)).
+- **`--terms 0` means zero terms**, where it used to mean the policy's four
+  ([#82](https://github.com/philoserf/cschargen/issues/82)).
+- **`--tech-level` and `--max-terms` are held to the range a world's own
+  numbers are held to**, against the same exported constants rather than a
+  second copy of them ([#84](https://github.com/philoserf/cschargen/issues/84)).
+- **A prompt reads as a question.** Four choice points take their prompt from
+  the table result that raised them, and a result is written as the page writes
+  it ([#83](https://github.com/philoserf/cschargen/issues/83)).
+
+### The gate
+
+**Four and a half minutes to ninety-three seconds**, and `chargen` was 99.6% of
+it. Thirty-two `lifepath` call sites sweep the same seeds at seven distinct
+term counts, so the suite walked 1,860 lifepaths to look at 420 characters —
+ten separate sweeps each generating sixty eight-term characters. A character is
+a pure function of its seed, term limit, setting and decider, and nothing in
+the tests writes to one, so `lifepath` keeps what it makes
+([#92](https://github.com/philoserf/cschargen/issues/92)).
+
+CI also stopped linting twice. `golangci-lint-action@v8` dropped the
+`install-only` input and ignored it with a warning, so the action linted the
+tree and `task lint` linted it again — which meant CI was running a lint the
+Taskfile did not control, with the action's own arguments, against a workflow
+whose first line says CI runs exactly `task`. Nothing failed, so nothing said
+anything. The actions are current and Dependabot watches them now, because that
+half of the build cannot report its own drift the way the unpinned toolchain
+can.
+
+### Replay
+
+**A record written before this release will not replay.** `(Any)` no longer
+lands on a skill that has no specialties, so a seed produces a different
+character than it did under alpha.3. The divergence names the value that moved:
+
+```
+replay diverged at event 80: consequence "Admin (Any) 1" against "Admin 1"
+```
+
+`schema_version` stays at 2. Its own definition is the shape of the record, and
+the shape has not changed — `specialty` is still an optional string. A bump
+would replace a message that names the skill with a blanket refusal that names
+nothing, and `--ignore-provenance` does not help either: it skips the version
+checks, not the comparison.
+
+`policy_version` moves 0.3.0 → 0.3.1. POLICY.md gained rows for the two choice
+points Step 3 and Step 4 now offer, and the rule is to bump when that document
+changes. It moves in the last place because the decisions did not: only an
+interactive run reaches either point, so the policy decides nothing new and the
+same seed yields the same character.
+
 ## v0.1.0-alpha.3 — 2026-09-21
 
 Ten issues out of one afternoon of using the tool the way a referee would.
