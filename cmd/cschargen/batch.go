@@ -81,7 +81,7 @@ func batchCommand(args []string, out *os.File) error {
 		return err
 	}
 
-	err = checkOrigin(world, *flags.subsector, *flags.homeworld)
+	err = checkNames(world, flags)
 	if err != nil {
 		return err
 	}
