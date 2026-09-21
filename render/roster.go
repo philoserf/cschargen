@@ -45,8 +45,9 @@ func Roster(characters []*chargen.Character) string {
 func writeRosterEntry(out *strings.Builder, nth int, character *chargen.Character) {
 	state := character.State
 
-	fmt.Fprintf(out, "%3d  %s, age %d  %s\n",
-		nth, rosterName(character), state.Age, rosterCareers(state.Services))
+	fmt.Fprintf(out, "%3d  %s, age %d, %s  %s\n",
+		nth, rosterName(character), state.Age, rosterHomeworld(state),
+		rosterCareers(state.Services))
 	fmt.Fprintf(out, "     %s\n", rosterSkills(state.Skills))
 	fmt.Fprintf(out, "     %s\n", rosterBelongings(state))
 }
@@ -58,6 +59,23 @@ func rosterName(character *chargen.Character) string {
 	}
 
 	return unnamed
+}
+
+// rosterHomeworld is where the character was born, which is the first entry
+// of the homeworld history: a Colonist mishap can move them later, and where
+// they are from is what places them.
+//
+// It is the most useful word on the line for a setting the referee supplied.
+// It carries the primary language, the tech level they grew up at, and
+// whether engineered people are free where they were born -- and without it,
+// casting a scene from a sector meant opening every record to find out where
+// anyone came from.
+func rosterHomeworld(state chargen.State) string {
+	if len(state.Homeworlds) == 0 {
+		return "no homeworld"
+	}
+
+	return "of " + state.Homeworlds[0].World
 }
 
 // rosterCareers is the career history in one phrase: "Belter 2t → Pirate 1t".

@@ -142,3 +142,48 @@ func TestARosterOfSomebodyWithNothing(t *testing.T) {
 		}
 	}
 }
+
+// TestARosterLineSaysWhereTheyAreFrom. The roster is the casting view, and
+// a homeworld is what places an NPC: it carries the primary language, the
+// tech level they grew up at, and whether engineered people are free there.
+//
+// It was on the sheet and not on the line, so casting a scene from a sector
+// meant opening every record to find out where anyone came from.
+func TestARosterLineSaysWhereTheyAreFrom(t *testing.T) {
+	t.Parallel()
+
+	character := &chargen.Character{
+		State: chargen.State{
+			Age: 34,
+			Homeworlds: []chargen.Homeworld{
+				{World: "Avicenna", Subsector: "Franklin"},
+				{World: "Elsewhere", Subsector: "Hub", FromTerm: 2},
+			},
+		},
+	}
+
+	line := render.Roster([]*chargen.Character{character})
+
+	if !strings.Contains(line, "Avicenna") {
+		t.Errorf("the roster line does not say where they are from:\n%s", line)
+	}
+
+	// The birth world, not wherever a mishap moved them to: the history
+	// begins where they were born, and that is what places them.
+	if strings.Contains(line, "Elsewhere") {
+		t.Errorf("the roster line names a later homeworld:\n%s", line)
+	}
+}
+
+// TestARosterLineWithNoHomeworld is a record made before Step 4 ran, which
+// `--terms -1` produces: the line still has to render.
+func TestARosterLineWithNoHomeworld(t *testing.T) {
+	t.Parallel()
+
+	character := &chargen.Character{State: chargen.State{Age: 18}}
+
+	line := render.Roster([]*chargen.Character{character})
+	if line == "" {
+		t.Error("a character with no homeworld rendered no line")
+	}
+}
