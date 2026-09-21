@@ -18,7 +18,7 @@ func Transcript(character *chargen.Character) string {
 
 	name := character.Provenance.Inputs.Name
 	if name == "" {
-		name = "(unnamed)"
+		name = unnamed
 	}
 
 	fmt.Fprintf(&out, "# Lifepath: %s\n\n", name)

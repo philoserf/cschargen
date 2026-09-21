@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### A batch you can read
+
+`batch` wrote JSONL and `render` read one record, so the two commands the README
+prints next to each other did not compose: twenty NPCs were 777 KB of JSON and no
+sheets.
+
+- **`batch -o dir/` writes one file per record**, numbered to the width of the
+  count so a listing and a glob sort correctly. This was in the PRD's own CLI
+  sketch — `-o dir|file.jsonl` — and had never been built. Every other command
+  works on the result unchanged: `render crew/npc-03.json` needed no new code.
+- **`render` reads a batch.** Given JSONL it writes each sheet with a rule
+  between them. A record `new` wrote is indented across many lines, so one record
+  is tried first and only a file that is not one is read as a file of many.
+- **`render --roster`** is one entry per character — age, careers, best four
+  skills, money, and the ties that are not family. Casting a crew from a pool
+  means skimming, and the sheet is the right document for one character and the
+  wrong one for a hundred.
+
+The roster counts ties without the family because 90% of a character's
+relationships are relatives, and the one ally at 190 is the one a plot can hang
+on.
+
 ### The command says what it did
 
 - **`--career` says when it did not get the career.** A failed enlistment closes

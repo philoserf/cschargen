@@ -913,3 +913,192 @@ func TestEachCommandsHelpNamesItself(t *testing.T) {
 		})
 	}
 }
+
+// TestRenderReadsWhatBatchWrote is the two commands the README prints next
+// to each other, made to compose. Twenty NPCs used to be 777 KB of JSON and
+// no way to see them: `batch` wrote JSONL and `render` read one record.
+func TestRenderReadsWhatBatchWrote(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	pool := filepath.Join(dir, "crew.jsonl")
+
+	_, err := capture(t, cmdBatch, "--auto", "--count", "4", "--seed", "7", "-o", pool)
+	if err != nil {
+		t.Fatalf("batch: %v", err)
+	}
+
+	sheets, err := capture(t, "render", pool)
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+
+	if got := strings.Count(sheets, "## Characteristics"); got != 4 {
+		t.Errorf("rendered %d sheets from a batch of four", got)
+	}
+
+	roster, err := capture(t, "render", "--roster", pool)
+	if err != nil {
+		t.Fatalf("render --roster: %v", err)
+	}
+
+	if got := strings.Count(strings.TrimRight(roster, "\n"), "\n") + 1; got != 4*3 {
+		t.Errorf("the roster is %d lines for four characters, want 12", got)
+	}
+}
+
+// TestBatchWritesADirectoryWhenGivenOne is the PRD's own CLI sketch --
+// `-o dir|file.jsonl` -- which had never been built. A directory of records
+// makes every other command work on them unchanged.
+func TestBatchWritesADirectoryWhenGivenOne(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	_, err := capture(t, cmdBatch, "--auto", "--count", "12", "--seed", "7", "-o", dir)
+	if err != nil {
+		t.Fatalf("batch: %v", err)
+	}
+
+	// Two digits for twelve, so a listing and a glob sort correctly.
+	for _, name := range []string{"npc-01.json", "npc-12.json"} {
+		sheet, err := capture(t, "render", filepath.Join(dir, name))
+		if err != nil {
+			t.Fatalf("render %s: %v", name, err)
+		}
+
+		if !strings.Contains(sheet, "## Characteristics") {
+			t.Errorf("%s did not render as a sheet", name)
+		}
+	}
+}
+
+// TestAFileOfNoRecordsIsAnError, and says so as one record rather than as a
+// batch whose first line is broken.
+func TestAFileOfNoRecordsIsAnError(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "junk.json")
+
+	err := os.WriteFile(path, []byte("not json at all\n"), 0o600)
+	if err != nil {
+		t.Fatalf("writing the fixture: %v", err)
+	}
+
+	_, err = capture(t, "render", path)
+	if err == nil {
+		t.Fatal("render accepted a file that is not a record")
+	}
+
+	if !strings.Contains(err.Error(), "is not a character record") {
+		t.Errorf("error %q does not say what is wrong", err)
+	}
+}
+
+// TestRenderSaysWhichLineOfABatchIsBroken, because "line 9" is what a
+// person needs in order to find it in a file of a hundred.
+func TestRenderSaysWhichLineOfABatchIsBroken(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	pool := filepath.Join(dir, "crew.jsonl")
+
+	_, err := capture(t, cmdBatch, "--auto", "--count", "3", "--seed", "7", "-o", pool)
+	if err != nil {
+		t.Fatalf("batch: %v", err)
+	}
+
+	content, err := os.ReadFile(pool)
+	if err != nil {
+		t.Fatalf("reading the batch: %v", err)
+	}
+
+	const wanted = 3
+
+	lines := strings.SplitN(string(content), "\n", wanted)
+	if len(lines) < wanted {
+		t.Fatalf("the batch is %d lines, want at least %d", len(lines), wanted)
+	}
+
+	broken := lines[0] + "\n{not a record}\n" + lines[2]
+
+	err = os.WriteFile(pool, []byte(broken), 0o600)
+	if err != nil {
+		t.Fatalf("writing the broken batch: %v", err)
+	}
+
+	_, err = capture(t, "render", pool)
+	if err == nil {
+		t.Fatal("render accepted a batch with a broken line")
+	}
+
+	if !strings.Contains(err.Error(), "line 2") {
+		t.Errorf("error %q does not name the line", err)
+	}
+}
+
+// TestBatchIntoADirectoryRespectsForce. A directory of records is written
+// one file at a time, and each goes through the same guard a single record
+// does: writing over somebody's cast is not something to do quietly.
+func TestBatchIntoADirectoryRespectsForce(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	_, err := capture(t, cmdBatch, "--auto", "--count", "2", "--seed", "7", "-o", dir)
+	if err != nil {
+		t.Fatalf("batch: %v", err)
+	}
+
+	_, err = capture(t, cmdBatch, "--auto", "--count", "2", "--seed", "9", "-o", dir)
+	if err == nil {
+		t.Fatal("a second batch overwrote the first without --force")
+	}
+
+	if !strings.Contains(err.Error(), "--force") {
+		t.Errorf("error %q does not say how to proceed", err)
+	}
+
+	_, err = capture(t, cmdBatch, "--auto", "--count", "2", "--seed", "9", "--force", "-o", dir)
+	if err != nil {
+		t.Errorf("--force did not allow the overwrite: %v", err)
+	}
+}
+
+// TestRenderRejectsAnUnknownFlag, reported under its own name.
+func TestRenderRejectsAnUnknownFlag(t *testing.T) {
+	t.Parallel()
+
+	_, err := capture(t, "render", "--nope", "x.json")
+	if err == nil {
+		t.Fatal("render accepted an unknown flag")
+	}
+
+	if !strings.HasPrefix(err.Error(), "usage: render:") {
+		t.Errorf("error %q is not reported under render", err)
+	}
+}
+
+// TestReplayRejectsAFileThatIsNotARecord. `render` learned to read a batch
+// and stopped sharing `readRecord` with `replay`, which took this path's
+// only test with it — replay is the one that needs it most, because it is
+// the command people reach for when a record looks wrong.
+func TestReplayRejectsAFileThatIsNotARecord(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "junk.json")
+
+	err := os.WriteFile(path, []byte("{\"nope\":\n"), 0o600)
+	if err != nil {
+		t.Fatalf("writing the fixture: %v", err)
+	}
+
+	_, err = capture(t, "replay", path)
+	if err == nil {
+		t.Fatal("replay accepted a file that is not a record")
+	}
+
+	if !strings.Contains(err.Error(), "is not a character record") {
+		t.Errorf("error %q does not say what is wrong", err)
+	}
+}
