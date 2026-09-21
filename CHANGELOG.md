@@ -1,6 +1,30 @@
 # Changelog
 
-## Unreleased
+## v0.1.0-alpha.3 — 2026-09-21
+
+Ten issues out of one afternoon of using the tool the way a referee would.
+[#57](https://github.com/philoserf/cschargen/issues/57) cast a campaign's worth
+of NPCs from the alpha.2 binary and wrote down what happened; #58 to #67 are that
+report split into work, and this is the work.
+
+None of it was reachable from the gate. Every one of the ten is something the
+engine did correctly and said badly, two commands the README prints next to each
+other that did not compose, or a policy that was right for one character and
+wrong for a hundred of them.
+
+### Breaking
+
+- **Policy version 0.2.0 → 0.3.0.** `batch` draws the career and the assignment
+  from each character's own seed, where it used to take the first option the book
+  prints at every choice point. `new --auto` is unchanged. The table below is what
+  that did to a population.
+- **A batch member is no longer `new --seed base+i`.** The two used the same
+  decider and produced the same character; they now produce different characters
+  from one seed, deliberately. Reproducing a member is `replay` on its record,
+  which is exact — or `batch -o dir/`, which keeps each one as its own file.
+- A record made under 0.2.0 still replays either way: `policy_version` is recorded
+  and never verified, and replay reapplies recorded choices without asking the
+  policy.
 
 ### A batch is a population — `policy_version` 0.3.0
 
@@ -33,13 +57,6 @@ name per line, by that character's own seed. The engine still invents nothing �
 FR12 leaves Step 20's fields empty in auto mode, and this fills one of them only
 when somebody hands it a list. `--name` beats `--names`, and `batch` refuses
 `--name`.
-
-**One property is deliberately gone.** A batch member used to be exactly what
-`new --seed base+i` generated, because both used the same decider. They now make
-different characters from one seed, on purpose. Reproducing a member is `replay`
-on its record, which is exact — or `batch -o dir`, which keeps each one as its own
-file. A record made under 0.2.0 still replays: `policy_version` is recorded and
-never verified.
 
 ### POLICY.md says what the rule does to a population
 
