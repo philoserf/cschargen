@@ -28,6 +28,8 @@ type newFlags struct {
 	maxTerms  *int
 	terms     *int
 	forceCar  *string
+	subsector *string
+	homeworld *string
 	noFamily  *bool
 	noYouth   *bool
 	noTeenage *bool
@@ -62,6 +64,8 @@ func bindNewFlags(command string) newFlags {
 		maxTerms:  flags.Int("max-terms", 0, "the homeworld's maximum terms (p. 42)"),
 		terms:     flags.Int("terms", 0, "how many terms to serve; the rules impose no limit, so this is policy (POLICY.md)"),
 		forceCar:  flags.String("career", "", "attempt only this career"),
+		subsector: flags.String("subsector", "", "be born in this subsector rather than rolling for one (p. 39)"),
+		homeworld: flags.String("homeworld", "", "be born on this world rather than rolling for one (p. 40)"),
 		noFamily:  flags.Bool("skip-family", false, "skip Step 5, which the book allows (p. 57)"),
 		noYouth:   flags.Bool("skip-youth", false, "skip Step 6, which the book allows (p. 67)"),
 		noTeenage: flags.Bool("skip-teenage", false, "skip Step 7, which the book allows (p. 76)"),
@@ -110,6 +114,8 @@ func (f newFlags) inputs() chargen.Inputs {
 		MaxTerms:      *f.maxTerms,
 		TermLimit:     *f.terms,
 		Career:        *f.forceCar,
+		Subsector:     *f.subsector,
+		Homeworld:     *f.homeworld,
 		SkipFamily:    *f.noFamily,
 		SkipYouth:     *f.noYouth,
 		SkipTeenage:   *f.noTeenage,
@@ -117,6 +123,13 @@ func (f newFlags) inputs() chargen.Inputs {
 		Gender:        *f.gender,
 		Appearance:    *f.look,
 		Goals:         *f.goals,
+
+		// Recorded because the engine reads it back: Steps 3 and 4 offer
+		// a choice the policy is not asked to make, and a replay has to
+		// reach the same choice points the run did. Deciding it from the
+		// decider would not survive replay, whose decider is neither the
+		// player nor the policy.
+		Interactive: !*f.auto,
 	}
 }
 
@@ -147,6 +160,11 @@ func newCommand(args []string, out *os.File) error {
 	}
 
 	world, err := loadSetting(*flags.data)
+	if err != nil {
+		return err
+	}
+
+	err = checkOrigin(world, *flags.subsector, *flags.homeworld)
 	if err != nil {
 		return err
 	}

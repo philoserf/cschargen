@@ -1143,3 +1143,99 @@ func TestABadNameFileStopsBothCommands(t *testing.T) {
 		}
 	}
 }
+
+// TestAnOriginFlagIsCheckedBeforeGenerating. A name the setting data does
+// not have is a flag error, not a generation failure: the engine refuses it
+// too, but partway through Step 3, which reads as the run having gone wrong
+// rather than the command line having a typo in it.
+func TestAnOriginFlagIsCheckedBeforeGenerating(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		args    []string
+		mention string
+	}{
+		{"an unknown world", []string{"--homeworld", "Nowhere At All"}, "Nowhere At All"},
+		{"an unknown subsector", []string{"--subsector", "No Such Reach"}, "No Such Reach"},
+		{
+			"a world that is not in the subsector named beside it",
+			[]string{"--homeworld", "Quillon", "--subsector", "Tallow Drift"},
+			"Quillon",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			args := append([]string{cmdNew, "--auto"}, test.args...)
+
+			_, err := capture(t, args...)
+			if err == nil {
+				t.Fatal("the flag was accepted")
+			}
+
+			if !strings.HasPrefix(err.Error(), "usage:") {
+				t.Errorf("error %q does not begin with usage:", err)
+			}
+
+			if !strings.Contains(err.Error(), test.mention) {
+				t.Errorf("error %q does not name %q", err, test.mention)
+			}
+		})
+	}
+}
+
+// TestAnOriginFlagReachesABatch: a cast is the reason the flags exist, so
+// the check has to be in front of `batch` as well as `new`.
+func TestAnOriginFlagReachesABatch(t *testing.T) {
+	t.Parallel()
+
+	_, err := capture(t, cmdBatch, "--auto", "--count", "2", "--homeworld", "Nowhere At All")
+	if err == nil {
+		t.Fatal("the flag was accepted")
+	}
+
+	if !strings.HasPrefix(err.Error(), "usage:") {
+		t.Errorf("error %q does not begin with usage:", err)
+	}
+}
+
+// TestAHomeworldFlagPutsTheCharacterThere, all the way through the command
+// rather than in the engine alone.
+func TestAHomeworldFlagPutsTheCharacterThere(t *testing.T) {
+	t.Parallel()
+
+	out, err := capture(t, cmdNew, "--auto", "--seed", "3", "--terms", "1",
+		"--homeworld", "Quillon")
+	if err != nil {
+		t.Fatalf("new: %v", err)
+	}
+
+	var record struct {
+		Provenance struct {
+			Inputs struct {
+				Homeworld string `json:"homeworld"`
+			} `json:"inputs"`
+		} `json:"provenance"`
+		State struct {
+			Homeworlds []struct {
+				World string `json:"world"`
+			} `json:"homeworlds"`
+		} `json:"state"`
+	}
+
+	err = json.Unmarshal([]byte(out), &record)
+	if err != nil {
+		t.Fatalf("the record is not valid JSON: %v", err)
+	}
+
+	if got := record.State.Homeworlds[0].World; got != "Quillon" {
+		t.Errorf("asked for Quillon, born on %s", got)
+	}
+
+	if record.Provenance.Inputs.Homeworld != "Quillon" {
+		t.Error("the record does not say the homeworld was asked for")
+	}
+}

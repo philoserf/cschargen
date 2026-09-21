@@ -66,8 +66,11 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 		fmt.Fprintf(out, "**Apparent age**: %s  \n", band)
 	}
 
-	if world := character.Provenance.Inputs.Homeworld; world != "" {
-		fmt.Fprintf(out, "**Homeworld**: %s  \n", world)
+	// Where the character was born, which is the first entry of the
+	// homeworld history rather than the inputs: the inputs say what was
+	// asked for, and most characters ask for nothing.
+	if len(state.Homeworlds) > 0 {
+		fmt.Fprintf(out, "**Homeworld**: %s  \n", state.Homeworlds[0].World)
 	}
 
 	if state.Language != "" {

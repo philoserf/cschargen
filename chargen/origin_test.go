@@ -34,9 +34,49 @@ func TestEveryCharacterHasAHomeworld(t *testing.T) {
 			t.Errorf("seed %d: born on %q, which is not in the setting data", seed, birth.World)
 		}
 
-		if character.Provenance.Inputs.Homeworld != birth.World {
-			t.Errorf("seed %d: the record names %q as the homeworld but the history begins on %q",
-				seed, character.Provenance.Inputs.Homeworld, birth.World)
+		// Nobody asked for one, so the inputs name none. Inputs carry
+		// what was requested, not what happened -- the history is where
+		// the world a character was born on is recorded, and the only
+		// place, because it is also where a reassignment goes.
+		if asked := character.Provenance.Inputs.Homeworld; asked != "" {
+			t.Errorf("seed %d: the inputs name %q as a homeworld that was never asked for",
+				seed, asked)
+		}
+	}
+}
+
+// TestAHomeworldAskedForIsTheHomeworld is p. 40's other half: "You may
+// either roll percentile dice (d100) to determine your homeworld randomly
+// or simply choose a world that fits the character concept you have in
+// mind." A world named in the inputs is chosen, and no throw decides it.
+func TestAHomeworldAskedForIsTheHomeworld(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+
+	// Every world in the sample, including the ones on the choose-only
+	// subsector that no d100 can reach.
+	for _, sub := range data.Subsectors {
+		for _, world := range sub.Worlds {
+			t.Run(world.Name, func(t *testing.T) {
+				t.Parallel()
+
+				opts := options(t, 3)
+
+				opts.Inputs.TermLimit = 1
+				opts.Inputs.Homeworld = world.Name
+
+				character := generate(t, opts)
+
+				birth := character.State.Homeworlds[0]
+				if birth.World != world.Name {
+					t.Errorf("asked to be born on %s, born on %s", world.Name, birth.World)
+				}
+
+				if birth.Subsector != sub.Name {
+					t.Errorf("%s is in %s, recorded as %s", world.Name, sub.Name, birth.Subsector)
+				}
+			})
 		}
 	}
 }
@@ -371,5 +411,220 @@ func TestGeneratingWithoutSettingDataIsRefused(t *testing.T) {
 
 	if !strings.Contains(err.Error(), "setting data") {
 		t.Errorf("the error does not name the problem: %v", err)
+	}
+}
+
+// picking is a decider that answers the two origin choice points by the
+// option's own text and takes the first option everywhere else, so a test
+// can name the subsector or world it wants without counting how many
+// choices the lifepath made before it.
+type picking struct {
+	want map[string]string
+	seen map[string][]string
+}
+
+func (p *picking) Kind() chargen.DeciderKind { return chargen.DeciderPlayer }
+
+func (p *picking) Choose(ask chargen.Choice) (int, error) {
+	if p.seen == nil {
+		p.seen = map[string][]string{}
+	}
+
+	p.seen[ask.Point] = ask.Options
+
+	label, wanted := p.want[ask.Point]
+	if !wanted {
+		return 0, nil
+	}
+
+	for i, option := range ask.Options {
+		if option == label {
+			return i, nil
+		}
+	}
+
+	return 0, nil
+}
+
+// TestAnInteractiveRunIsOfferedTheOriginItIsPromised is p. 39 and p. 40
+// both: the Referee may choose the subsector, and a player may "simply
+// choose a world that fits the character concept". Neither was offered
+// before, so a setting file's worlds could only be reached by dice.
+func TestAnInteractiveRunIsOfferedTheOriginItIsPromised(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+
+	// The choose-only subsector: no world in it carries a roll, so nothing
+	// but a choice can reach it, and before this nothing could.
+	var target setting.Subsector
+
+	for _, sub := range data.Subsectors {
+		if sub.OriginRoll == 0 {
+			target = sub
+
+			break
+		}
+	}
+
+	if target.Name == "" {
+		t.Skip("the sample has no choose-only subsector")
+	}
+
+	world := target.Worlds[len(target.Worlds)-1]
+
+	decider := &picking{want: map[string]string{
+		"subsector_source": target.Name,
+		"homeworld_source": world.Name,
+	}}
+
+	opts := options(t, 4)
+
+	opts.Decider = decider
+	opts.Inputs.Interactive = true
+
+	character := generate(t, opts)
+
+	birth := character.State.Homeworlds[0]
+	if birth.World != world.Name || birth.Subsector != target.Name {
+		t.Errorf("chose %s in %s, born on %s in %s",
+			world.Name, target.Name, birth.World, birth.Subsector)
+	}
+
+	// Both prompts offer the throw first, so that the policy -- which takes
+	// the first option everywhere -- keeps rolling.
+	for _, point := range []string{"subsector_source", "homeworld_source"} {
+		offered := decider.seen[point]
+		if len(offered) == 0 {
+			t.Fatalf("%s was never offered", point)
+		}
+
+		if offered[0] != "roll for it" {
+			t.Errorf("%s offers %q first, not the throw", point, offered[0])
+		}
+	}
+}
+
+// TestAnInteractiveRunMayStillRoll: the choice the pages offer includes
+// rolling, and taking it has to land where the dice land rather than
+// falling through to some first entry.
+func TestAnInteractiveRunMayStillRoll(t *testing.T) {
+	t.Parallel()
+
+	rolled := options(t, 9)
+
+	rolled.Inputs.TermLimit = 1
+
+	fromPolicy := generate(t, rolled)
+
+	chose := options(t, 9)
+
+	chose.Inputs.TermLimit = 1
+	chose.Inputs.Interactive = true
+	chose.Decider = &picking{want: map[string]string{
+		"subsector_source": "roll for it",
+		"homeworld_source": "roll for it",
+	}}
+
+	fromPlayer := generate(t, chose)
+
+	if fromPolicy.State.Homeworlds[0].World != fromPlayer.State.Homeworlds[0].World {
+		t.Errorf("the policy rolled %s and a player choosing the throw got %s",
+			fromPolicy.State.Homeworlds[0].World, fromPlayer.State.Homeworlds[0].World)
+	}
+}
+
+// TestAnOriginTheDataDoesNotHaveIsRefused. The command checks both names
+// before generating, so this is the engine's own guard against being driven
+// directly with a name the setting never had.
+func TestAnOriginTheDataDoesNotHaveIsRefused(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		name   string
+		inputs func(*chargen.Inputs)
+	}{
+		{"homeworld", func(in *chargen.Inputs) { in.Homeworld = "Nowhere At All" }},
+		{"subsector", func(in *chargen.Inputs) { in.Subsector = "No Such Reach" }},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			opts := options(t, 2)
+			test.inputs(&opts.Inputs)
+
+			_, err := chargen.New(opts).Run()
+			if err == nil {
+				t.Fatal("a name the setting data does not have was accepted")
+			}
+		})
+	}
+}
+
+// TestASubsectorAskedForRollsInsideIt is the half of p. 39 that is not a
+// whole homeworld: the Referee names the subsector and the d100 still
+// decides the world.
+func TestASubsectorAskedForRollsInsideIt(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+
+	for _, sub := range data.Subsectors {
+		if sub.OriginRoll == 0 {
+			continue
+		}
+
+		t.Run(sub.Name, func(t *testing.T) {
+			t.Parallel()
+
+			opts := options(t, 6)
+
+			opts.Inputs.TermLimit = 1
+			opts.Inputs.Subsector = sub.Name
+
+			character := generate(t, opts)
+
+			if got := character.State.Homeworlds[0].Subsector; got != sub.Name {
+				t.Errorf("asked for %s, born in %s", sub.Name, got)
+			}
+		})
+	}
+}
+
+// refusingAt is a player who stops answering at one named choice point,
+// which is the abandoned session the Decider interface names.
+type refusingAt struct{ point string }
+
+func (refusingAt) Kind() chargen.DeciderKind { return chargen.DeciderPlayer }
+
+func (r refusingAt) Choose(ask chargen.Choice) (int, error) {
+	if ask.Point == r.point {
+		return 0, chargen.ErrPlayerGone
+	}
+
+	return 0, nil
+}
+
+// TestAbandoningTheOriginEndsGeneration. Both new prompts come before any
+// career, so a session abandoned at either one has to stop rather than fall
+// back on a default homeworld -- which would put the character somewhere
+// nobody chose.
+func TestAbandoningTheOriginEndsGeneration(t *testing.T) {
+	t.Parallel()
+
+	for _, point := range []string{"subsector_source", "homeworld_source"} {
+		t.Run(point, func(t *testing.T) {
+			t.Parallel()
+
+			opts := options(t, 8)
+
+			opts.Inputs.Interactive = true
+			opts.Decider = refusingAt{point: point}
+
+			_, err := chargen.New(opts).Run()
+			if err == nil {
+				t.Fatalf("generation continued after %s was abandoned", point)
+			}
+		})
 	}
 }

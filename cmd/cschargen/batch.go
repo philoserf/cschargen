@@ -42,6 +42,25 @@ func itoa(n int) string { return strconv.Itoa(n) }
 // the first of each, so one seed makes two different characters under the
 // two commands, deliberately. `-o dir` keeps each member as its own file
 // for exactly this reason.
+// checkBatchFlags holds the flags a batch needs that a single character
+// does not, so that batchCommand reads as the sequence it is.
+func checkBatchFlags(flags newFlags, count int) error {
+	err := rejectFinishingFlags(flags)
+	if err != nil {
+		return err
+	}
+
+	if count < 1 {
+		return usagef("batch needs --count N")
+	}
+
+	if !*flags.auto {
+		return usagef("batch needs --auto: a batch is not an interview")
+	}
+
+	return nil
+}
+
 func batchCommand(args []string, out *os.File) error {
 	flags := bindNewFlags("batch")
 
@@ -52,20 +71,17 @@ func batchCommand(args []string, out *os.File) error {
 		return err
 	}
 
-	err = rejectFinishingFlags(flags)
+	err = checkBatchFlags(flags, *count)
 	if err != nil {
 		return err
 	}
 
-	if *count < 1 {
-		return usagef("batch needs --count N")
-	}
-
-	if !*flags.auto {
-		return usagef("batch needs --auto: a batch is not an interview")
-	}
-
 	world, err := loadSetting(*flags.data)
+	if err != nil {
+		return err
+	}
+
+	err = checkOrigin(world, *flags.subsector, *flags.homeworld)
 	if err != nil {
 		return err
 	}

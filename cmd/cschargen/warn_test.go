@@ -190,3 +190,31 @@ func TestADirectoryIsNotANameFile(t *testing.T) {
 		t.Errorf("error %q does not say what failed", err)
 	}
 }
+
+// TestJoinNames. The list goes into the message naming what a setting file
+// does have, so it has to read as a sentence at every length the validator
+// permits -- which includes one, since a file is valid with a single
+// subsector in it and " and Earth" is not a list.
+func TestJoinNames(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		names []string
+		want  string
+	}{
+		{"one subsector, which a file may have", []string{"Earth"}, "Earth"},
+		{"two", []string{"Earth", "Hub"}, "Earth and Hub"},
+		{"more", []string{"Earth", "Hub", "Cascadia"}, "Earth, Hub and Cascadia"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := joinNames(test.names); got != test.want {
+				t.Errorf("joinNames(%v) = %q, want %q", test.names, got, test.want)
+			}
+		})
+	}
+}
