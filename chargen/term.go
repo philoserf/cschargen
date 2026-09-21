@@ -170,9 +170,17 @@ func (g *Generator) ownedFirstCareer(step int) career.Career {
 }
 
 // eligibleCareers is every implemented career the character may attempt
-// now. Prisoner is never among them: "A character cannot voluntarily choose
-// to enter this career" (p. 111). A career the character failed to enter
-// stays out for two full terms (p. 110).
+// now. Two are never among them, for the same reason worded twice.
+//
+// Prisoner: "A character cannot voluntarily choose to enter this career"
+// (p. 111). The slave career: the book gives it no enlistment throw and
+// reaches it only from p. 42, which is why ownedFirstCareer above says it
+// "is the only way into that career" -- a claim this list has to hold up.
+// Neither career fails an enlistment, so either one left in would be
+// entered by whoever drew it.
+//
+// A career the character failed to enter stays out for two full terms
+// (p. 110).
 func (g *Generator) eligibleCareers() []career.Career {
 	// pp. 123-124: a character who has survived an Aging Crisis
 	// "automatically fails all future Enlistment checks", and one with a
@@ -190,7 +198,7 @@ func (g *Generator) eligibleCareers() []career.Career {
 	var eligible []career.Career
 
 	for _, def := range career.All() {
-		if def.Name == "Prisoner" {
+		if def.Name == "Prisoner" || def.Name == career.Slave().Name {
 			continue
 		}
 
