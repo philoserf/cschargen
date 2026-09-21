@@ -35,7 +35,14 @@ const SettledYearsForPathOne = 100
 
 // TeenagePath is one of the four columns of pp. 76-83.
 type TeenagePath struct {
-	Name     string
+	Name string
+
+	// Qualifier is what the book prints beside the name -- see YouthPath,
+	// which carries one for the same reason. Paths 1 and 2 are the two
+	// halves of one condition, so theirs are sentences rather than a
+	// characteristic, and exactly one of them is ever open.
+	Qualifier string
+
 	Cite     string
 	Gate     TeenagePathGate
 	Requires []Check
@@ -65,10 +72,19 @@ func (p TeenagePath) Open(score func(string) int, settledYears int) bool {
 // TeenagePaths is the four, in the order the book prints them.
 func TeenagePaths() []TeenagePath {
 	return []TeenagePath{
-		{Name: "Path 1", Cite: "pp. 76-78", Gate: GateSettledLong, Rows: teenagePathOne()},
-		{Name: "Path 2", Cite: "pp. 78-79", Gate: GateSettledRecently, Rows: teenagePathTwo()},
 		{
-			Name: "Path 3", Cite: "pp. 80-81", Gate: GateCharacteristic,
+			Name:      "Path 1",
+			Qualifier: "Homeworld is a location which has been colonized or established for 100+ standard years",
+			Cite:      "pp. 76-78", Gate: GateSettledLong, Rows: teenagePathOne(),
+		},
+		{
+			Name:      "Path 2",
+			Qualifier: "Homeworld is a location which has been colonized or established for less than 100 standard years",
+			Cite:      "pp. 78-79", Gate: GateSettledRecently, Rows: teenagePathTwo(),
+		},
+		{
+			Name: "Path 3", Qualifier: "Teenagers with STR 9+, DEX 9+, or END 9+",
+			Cite: "pp. 80-81", Gate: GateCharacteristic,
 			Requires: []Check{
 				{Characteristic: "STR", Number: 9},
 				{Characteristic: "DEX", Number: 9},
@@ -77,7 +93,8 @@ func TeenagePaths() []TeenagePath {
 			Rows: teenagePathThree(),
 		},
 		{
-			Name: "Path 4", Cite: "pp. 82-83", Gate: GateCharacteristic,
+			Name: "Path 4", Qualifier: "Teenagers with INT 9+ or EDU 9+",
+			Cite: "pp. 82-83", Gate: GateCharacteristic,
 			Requires: []Check{
 				{Characteristic: "INT", Number: 9},
 				{Characteristic: "EDU", Number: 9},
@@ -179,7 +196,8 @@ func broadeningHorizons() EventRow {
 		Summary: "travel beyond your world for the first time",
 		Effects: []Effect{unimplemented(
 			"choose a world within three parsecs, take one of its background skills, " +
-				"and a level in its primary language where it differs from your own")},
+				"and a level in its primary language where it differs from your own",
+		)},
 	}
 }
 
@@ -241,7 +259,8 @@ func opportunityKnocks() EventRow {
 		Summary: "a scholarship, recruitment offer, or transport slot",
 		Effects: []Effect{unimplemented(
 			"move immediately to Step 8 or Step 9, and enlist or be admitted " +
-				"automatically wherever you qualify")},
+				"automatically wherever you qualify",
+		)},
 	}
 }
 
@@ -294,4 +313,10 @@ func TeenageLifeEvents() []EventRow {
 				opt("a relationship improves", improveARelationship()))},
 		},
 	}
+}
+
+// Label is the path as the book heads it, which is how it is offered to a
+// player: the name and the condition that opens it.
+func (p TeenagePath) Label() string {
+	return p.Name + " (" + p.Qualifier + ")"
 }
