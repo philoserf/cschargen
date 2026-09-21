@@ -14,8 +14,12 @@ Enterprises.
 
 ## Status
 
-**v0.1.0-alpha.2** — all twenty steps, all thirty-four careers, and every
-species a setting data file declares.
+**v0.1.0-alpha.3** — all twenty steps, all thirty-four careers, and every
+species a setting data file declares. This release is what one afternoon of
+casting NPCs with alpha.2 turned up
+([#57](https://github.com/philoserf/cschargen/issues/57)): the record and the
+commands say what they did, `batch` and `render` compose, and a batch draws a
+population rather than a hundred copies of one policy.
 
 `docs/PRD.md` is the v1 contract; the seven `docs/MILESTONE-*.md` files are what
 each milestone turned out to be, which is not always what it was planned as.
