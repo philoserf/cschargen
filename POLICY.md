@@ -44,6 +44,8 @@ policy has no entry for is a build error, not a silent default.
 | `generation`             | p. 63, the engineered-human generation tables                  | The first generation the data offers                                                             |
 | `genetic_outcome`        | p. 63, a compound outcome the character chooses between        | The first the data prints                                                                        |
 | `uplift_class`           | p. 66, the class an uplift character is                        | The highest the homeworld's tech level allows, which is the one offered first                    |
+| `subsector_source`       | p. 39, roll for the subsector or choose one                    | Rolling — it is what the page describes first, and the policy has no character concept to fit    |
+| `homeworld_source`       | p. 40, roll for the homeworld or choose one                    | Rolling, for the same reason                                                                     |
 | `subsector`              | p. 39, a chart entry the d100 roll did not reach               | The first subsector the data lists                                                               |
 | `homeworld`              | p. 39, a choose-only subsector                                 | The first world the chart prints                                                                 |
 | `primary_language`       | p. 41, a world with more than one                              | The first the chart prints                                                                       |

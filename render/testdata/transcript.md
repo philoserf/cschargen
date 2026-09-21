@@ -32,16 +32,16 @@ Seed 7, 182 events.
 
 -   23  throw  1d6 [2] = 2  (p. 39)
 -   24  -> born in Kestrel Reach [homeworld, from 23]
--   25  throw  d100 [8 3] = 83  (p. 39)
--   26  -> a d100 of 83 lands on Ironpsalm [homeworld, from 25]
 
 ## Step 4: Determine Homeworld (p. 39)
 
--   28  -> Ironpsalm in Kestrel Reach: born there [homeworld, from 27]
--   29  -> primary language: Litany Cant [skill, from 27]
+-   26  throw  d100 [8 3] = 83  (p. 39)
+-   27  -> a d100 of 83 lands on Ironpsalm [homeworld, from 26]
+-   28  -> Ironpsalm in Kestrel Reach: born there [homeworld, from 25]
+-   29  -> primary language: Litany Cant [skill, from 25]
 -   30  choice Choose a background skill: Melee (Blade) (policy)
--   31  -> background skill: Melee (Blade) 1 [skill, from 27]
--   32  -> every character, regardless of origin: Electronics at level 0 [skill, from 27]
+-   31  -> background skill: Melee (Blade) 1 [skill, from 25]
+-   32  -> every character, regardless of origin: Electronics at level 0 [skill, from 25]
 
 ## Step 5: Determine Family (p. 57)
 

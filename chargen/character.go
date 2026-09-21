@@ -38,9 +38,22 @@ type SettingData struct {
 // option list to a single entry, so a replay that did not know a record was
 // forced would offer the full list and read the recorded index against it.
 type Inputs struct {
-	Name          string `json:"name,omitempty"`
-	Species       string `json:"species"`
-	Career        string `json:"career,omitempty"`
+	Name    string `json:"name,omitempty"`
+	Species string `json:"species"`
+	Career  string `json:"career,omitempty"`
+
+	// Subsector and Homeworld are Steps 3 and 4 asked for rather than
+	// rolled: "the Referee may choose the subsector for the character"
+	// (p. 39) and "simply choose a world that fits the character concept
+	// you have in mind" (p. 40). A homeworld names its own subsector, so
+	// giving both is only useful to pick a subsector and roll inside it.
+	//
+	// Both are empty on a character who asked for neither, which is most
+	// of them. Where a character was actually born is State.Homeworlds,
+	// the way Career here is the career asked for and State.Services is
+	// the career served: Homeworld used to hold the result as well, and a
+	// replay could not then tell a rolled record from a chosen one.
+	Subsector     string `json:"subsector,omitempty"`
 	Homeworld     string `json:"homeworld,omitempty"`
 	TechLevel     int    `json:"techLevel"`
 	MaxTerms      int    `json:"maxTerms"`

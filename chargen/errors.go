@@ -58,6 +58,13 @@ const (
 	// validator also refuses.
 	ErrNoLanguage stringError = "the homeworld lists no primary language"
 
+	// ErrNoSuchSubsector and ErrNoSuchHomeworld are an origin asked for by
+	// name that the setting data does not have. The command checks both
+	// before generating, so reaching one here means the engine was driven
+	// directly.
+	ErrNoSuchSubsector stringError = "the setting data has no such subsector"
+	ErrNoSuchHomeworld stringError = "the setting data has no such homeworld"
+
 	// ErrMissingEventRow is a d66 result with no row, which the career
 	// package's completeness test exists to prevent.
 	ErrMissingEventRow stringError = "no event row for that d66 result"

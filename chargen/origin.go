@@ -1,6 +1,8 @@
 package chargen
 
 import (
+	"fmt"
+
 	"github.com/philoserf/cschargen/setting"
 )
 
@@ -23,12 +25,14 @@ func (g *Generator) determineOrigin() error {
 		return err
 	}
 
-	world, err := g.chooseHomeworld(sub)
+	// The heading comes before the work it heads. It used to be written
+	// after, which put Step 4's own d100 under Step 3 in the transcript.
+	step := g.log.Step("Step 4: Determine Homeworld", "p. 39")
+
+	world, err := g.chooseHomeworld(sub, step)
 	if err != nil {
 		return err
 	}
-
-	step := g.log.Step("Step 4: Determine Homeworld", "p. 39")
 
 	world, err = g.worldThatAdmitsThem(world, sub, step)
 	if err != nil {
@@ -102,8 +106,116 @@ func (g *Generator) earlyLife(world setting.World, step int) error {
 func (g *Generator) chooseSubsector() (setting.Subsector, error) {
 	step := g.log.Step("Step 3: Determine Subsector of Origin", "p. 39")
 
+	// Asked for, by name or by the subsector the asked-for homeworld is
+	// in. p. 39 offers this before it offers the throw, and a subsector
+	// named on the command line is the Referee having chosen.
+	named, asked, err := g.namedSubsector(step)
+	if err != nil {
+		return setting.Subsector{}, err
+	}
+
+	if asked {
+		return named, nil
+	}
+
+	// A player at the table is offered the same choice the page offers
+	// them. The policy is not: it has no character concept to fit, so it
+	// rolls, which is what the page describes first and what every record
+	// written before this existed did.
+	if g.char.Provenance.Inputs.Interactive {
+		return g.offerSubsector(step)
+	}
+
+	return g.rollSubsector(step)
+}
+
+// namedSubsector is the subsector the inputs asked for, and whether they
+// asked for one. A homeworld names one implicitly, and wins: it is the more
+// specific request.
+//
+// The inputs say where the character was born, so a reassignment mid-career
+// is free of them -- which is what the homeworld history being non-empty
+// means here.
+func (g *Generator) namedSubsector(step int) (setting.Subsector, bool, error) {
+	inputs := g.char.Provenance.Inputs
+
+	if len(g.char.State.Homeworlds) > 0 {
+		return setting.Subsector{}, false, nil
+	}
+
+	if inputs.Homeworld != "" {
+		_, sub, found := g.setting.World(inputs.Homeworld)
+		if !found {
+			return setting.Subsector{}, false,
+				fmt.Errorf("%w: %s", ErrNoSuchHomeworld, inputs.Homeworld)
+		}
+
+		g.consequence(ConsequenceHomeworld, step,
+			"born in "+sub.Name+", which is where "+inputs.Homeworld+" is ("+originCite+")", "")
+
+		return sub, true, nil
+	}
+
+	if inputs.Subsector == "" {
+		return setting.Subsector{}, false, nil
+	}
+
+	sub, found := g.setting.Subsector(inputs.Subsector)
+	if !found {
+		return setting.Subsector{}, false,
+			fmt.Errorf("%w: %s", ErrNoSuchSubsector, inputs.Subsector)
+	}
+
+	g.consequence(ConsequenceHomeworld, step,
+		"born in "+sub.Name+", chosen rather than rolled ("+originCite+")", "")
+
+	return sub, true, nil
+}
+
+// offerSubsector puts p. 39's own choice to the player: roll on the chart,
+// or name the subsector. Rolling is the first option because it is what the
+// page describes first.
+func (g *Generator) offerSubsector(step int) (setting.Subsector, error) {
+	options := make([]string, 0, len(g.setting.Subsectors)+1)
+
+	options = append(options, rollInstead)
+
+	for _, sub := range g.setting.Subsectors {
+		options = append(options, sub.Name)
+	}
+
+	index, err := g.choose(Choice{
+		Point:   "subsector_source",
+		Prompt:  "Roll for the subsector of origin, or choose one",
+		Options: options,
+		Cite:    originCite,
+	})
+	if err != nil {
+		return setting.Subsector{}, err
+	}
+
+	if index == 0 {
+		return g.rollSubsector(step)
+	}
+
+	sub := g.setting.Subsectors[index-1]
+
+	g.consequence(ConsequenceHomeworld, step,
+		"born in "+sub.Name+", chosen rather than rolled (p. 39)", "")
+
+	return sub, nil
+}
+
+// rollInstead is the first option wherever the page offers a throw and a
+// choice, so that the policy takes the throw.
+const rollInstead = "roll for it"
+
+// originCite is the page Steps 3 and 4 both begin on.
+const originCite = "p. 39"
+
+func (g *Generator) rollSubsector(step int) (setting.Subsector, error) {
 	roll := g.dice.D6()
-	cause := g.log.Roll(roll, "p. 39")
+	cause := g.log.Roll(roll, originCite)
 
 	for _, sub := range g.setting.Subsectors {
 		if sub.OriginRoll == roll.Total {
@@ -129,7 +241,7 @@ func (g *Generator) chooseSubsector() (setting.Subsector, error) {
 		Point:   "subsector",
 		Prompt:  "The subsector roll landed on no chart entry; choose one",
 		Options: names,
-		Cite:    "p. 39",
+		Cite:    originCite,
 	})
 	if err != nil {
 		return setting.Subsector{}, err
@@ -214,7 +326,70 @@ func (g *Generator) recordStatus(status setting.Status, world setting.World, ste
 // chooseHomeworld is Step 4 (p. 39): "You may either roll percentile dice
 // (d100) to determine your homeworld randomly or simply choose a world that
 // fits the character concept you have in mind."
-func (g *Generator) chooseHomeworld(sub setting.Subsector) (setting.World, error) {
+func (g *Generator) chooseHomeworld(sub setting.Subsector, step int) (setting.World, error) {
+	// Asked for by name. Checked against this subsector rather than the
+	// whole setting, because Step 3 has already put the character in it --
+	// if a homeworld was named, that is the subsector it named.
+	if named := g.char.Provenance.Inputs.Homeworld; named != "" && len(g.char.State.Homeworlds) == 0 {
+		for _, world := range sub.Worlds {
+			if world.Name == named {
+				g.consequence(ConsequenceHomeworld, step,
+					named+", chosen rather than rolled (p. 40)", "")
+
+				return world, nil
+			}
+		}
+
+		return setting.World{}, fmt.Errorf("%w: %s is not in %s", ErrNoSuchHomeworld, named, sub.Name)
+	}
+
+	if g.char.Provenance.Inputs.Interactive {
+		return g.offerHomeworld(sub, step)
+	}
+
+	return g.rollHomeworld(sub)
+}
+
+// offerHomeworld puts p. 40's own choice to the player: "You may either
+// roll percentile dice (d100) to determine your homeworld randomly or
+// simply choose a world that fits the character concept you have in mind."
+//
+// Every world in the subsector is offered, including the ones no throw can
+// reach -- which is the whole of the Recently Colonized Worlds table, whose
+// page says "you cannot randomly be assigned one of these worlds, you may
+// choose them" (p. 40). Before this they could not be reached at all.
+func (g *Generator) offerHomeworld(sub setting.Subsector, step int) (setting.World, error) {
+	options := make([]string, 0, len(sub.Worlds)+1)
+
+	options = append(options, rollInstead)
+
+	for _, world := range sub.Worlds {
+		options = append(options, world.Name)
+	}
+
+	index, err := g.choose(Choice{
+		Point:   "homeworld_source",
+		Prompt:  "Roll for a homeworld in " + sub.Name + ", or choose one",
+		Options: options,
+		Cite:    "p. 40",
+	})
+	if err != nil {
+		return setting.World{}, err
+	}
+
+	if index == 0 {
+		return g.rollHomeworld(sub)
+	}
+
+	world := sub.Worlds[index-1]
+
+	g.consequence(ConsequenceHomeworld, step,
+		world.Name+", chosen rather than rolled (p. 40)", "")
+
+	return world, nil
+}
+
+func (g *Generator) rollHomeworld(sub setting.Subsector) (setting.World, error) {
 	percentile := g.dice.D100()
 	cause := g.log.Roll(percentile, "p. 39")
 
@@ -243,7 +418,7 @@ func (g *Generator) chooseHomeworld(sub setting.Subsector) (setting.World, error
 		Point:   "homeworld",
 		Prompt:  "Choose a homeworld in " + sub.Name,
 		Options: names,
-		Cite:    "p. 39",
+		Cite:    originCite,
 	})
 	if err != nil {
 		return setting.World{}, err
@@ -276,7 +451,12 @@ func (g *Generator) settleOn(world setting.World, sub setting.Subsector, cause i
 	g.settledYear = world.SettledYear
 
 	if first {
-		g.char.Provenance.Inputs.Homeworld = world.Name
+		// The world a character ended up on is State.Homeworlds, not
+		// Inputs. Inputs is what was asked for, the way Inputs.Career
+		// keeps the career asked for beside the career served -- and
+		// writing the result back here made a record indistinguishable
+		// from one that had named its own homeworld, which replay then
+		// honoured instead of re-rolling.
 
 		// "Altrant and Uplift characters age differently and these
 		// restrictions will not apply to them" (p. 42), so only a human
@@ -312,7 +492,7 @@ func (g *Generator) reassignHomeworld(cause int, detail string) error {
 		return err
 	}
 
-	world, err := g.chooseHomeworld(sub)
+	world, err := g.chooseHomeworld(sub, cause)
 	if err != nil {
 		return err
 	}
