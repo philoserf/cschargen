@@ -2,6 +2,45 @@
 
 ## Unreleased
 
+### A batch is a population — `policy_version` 0.3.0
+
+Two policy changes, one version bump. `new --auto` is unchanged: it still takes
+the first option the book prints at every choice point.
+
+**`batch` draws the career and the assignment.** Measured on the same hundred
+characters the section below counted under 0.2.0:
+
+|                               | 0.2.0   | 0.3.0        |
+| ----------------------------- | ------- | ------------ |
+| careers represented           | 8 of 34 | **34 of 34** |
+| started as Adventurer         | 55      | 1            |
+| holding Gunner (in 300)       | 0       | **18**       |
+| distinct assignments (in 300) | 10      | **88**       |
+
+The assignment is in for the reason in that third row. With the career alone, a
+hundred characters covered every career and **nobody in three hundred held
+Gunner** — every National Navy character took the first assignment the career
+prints, which is not Gunnery. With the career drawn and the assignment not — the
+shape first planned — three hundred characters reached thirty-two assignments
+between them, about one per career, and still nobody held Gunner. A crew can be
+cast from the second column and could not be cast from the first.
+
+Everything else still takes the first option, deliberately: varying the rest
+would be a different policy rather than the same one applied to a crowd.
+
+**`--names file`** draws a character's name from a list the caller supplies, one
+name per line, by that character's own seed. The engine still invents nothing —
+FR12 leaves Step 20's fields empty in auto mode, and this fills one of them only
+when somebody hands it a list. `--name` beats `--names`, and `batch` refuses
+`--name`.
+
+**One property is deliberately gone.** A batch member used to be exactly what
+`new --seed base+i` generated, because both used the same decider. They now make
+different characters from one seed, on purpose. Reproducing a member is `replay`
+on its record, which is exact — or `batch -o dir`, which keeps each one as its own
+file. A record made under 0.2.0 still replays: `policy_version` is recorded and
+never verified.
+
 ### POLICY.md says what the rule does to a population
 
 `POLICY.md` was candid about two consequences of "take the first option the book

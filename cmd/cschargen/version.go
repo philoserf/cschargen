@@ -12,7 +12,7 @@ import (
 // policyVersion identifies POLICY.md, the auto-mode decision table. It is
 // stamped into every record and bumped when that document changes, because
 // a different policy is a different character from the same seed.
-const policyVersion = "0.2.0"
+const policyVersion = "0.3.0"
 
 // version reports what this binary is, read from the build info the
 // toolchain embeds rather than from a build flag -- so it names what was

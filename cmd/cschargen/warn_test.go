@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -88,5 +91,102 @@ func TestABatchCountsTheSubstitutionsRatherThanRepeatingThem(t *testing.T) {
 
 	if unasked.Len() != 0 {
 		t.Errorf("said %q when no career was asked for", unasked)
+	}
+}
+
+// TestNamesComeFromTheFileAndNowhereElse. FR12 leaves Step 20's fields
+// empty in auto mode rather than inventing them, which is right for a
+// player character and leaves a cast of NPCs a hundred sheets headed
+// "(unnamed)". The engine will use names it is handed; it still invents
+// none.
+func TestNamesComeFromTheFileAndNowhereElse(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "names.txt")
+
+	err := os.WriteFile(path, []byte("# a comment\nVela Ashgrove\n\n  Toma Iri  \n"), 0o600)
+	if err != nil {
+		t.Fatalf("writing the fixture: %v", err)
+	}
+
+	names, err := readNames(path)
+	if err != nil {
+		t.Fatalf("readNames: %v", err)
+	}
+
+	if len(names) != 2 {
+		t.Fatalf("read %v, want two names with the comment and blank skipped", names)
+	}
+
+	if names[1] != "Toma Iri" {
+		t.Errorf("read %q, want the surrounding space trimmed", names[1])
+	}
+
+	// No file, no name — not a made-up one.
+	if got := nameFor(nil, 7); got != "" {
+		t.Errorf("with no list the engine named a character %q", got)
+	}
+}
+
+// TestANameIsAFunctionOfTheSeed, so that a member of a batch and the same
+// seed alone draw the same name, and two runs agree.
+func TestANameIsAFunctionOfTheSeed(t *testing.T) {
+	t.Parallel()
+
+	names := []string{"Vela", "Toma", "Kess", "Nine"}
+
+	for seed := range uint64(20) {
+		first := nameFor(names, seed)
+		if first != nameFor(names, seed) {
+			t.Fatalf("seed %d drew two different names", seed)
+		}
+
+		if !slices.Contains(names, first) {
+			t.Fatalf("seed %d drew %q, which is not on the list", seed, first)
+		}
+	}
+}
+
+// TestAnEmptyNameFileIsAUsageError, because a referee who passes one meant
+// to name their cast and would otherwise get a silent hundred unnamed.
+func TestAnEmptyNameFileIsAUsageError(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "empty.txt")
+
+	err := os.WriteFile(path, []byte("# nothing but a comment\n"), 0o600)
+	if err != nil {
+		t.Fatalf("writing the fixture: %v", err)
+	}
+
+	_, err = readNames(path)
+	if err == nil {
+		t.Fatal("an empty name file was accepted")
+	}
+
+	if !strings.HasPrefix(err.Error(), "usage:") {
+		t.Errorf("error %q does not begin with usage:", err)
+	}
+
+	// And a file that is not there at all.
+	_, err = readNames(filepath.Join(t.TempDir(), "absent.txt"))
+	if err == nil {
+		t.Error("a missing name file was accepted")
+	}
+}
+
+// TestADirectoryIsNotANameFile. `os.Open` opens a directory happily and
+// fails on the first read, which is a realistic slip — a referee with a
+// names file and a records directory beside each other.
+func TestADirectoryIsNotANameFile(t *testing.T) {
+	t.Parallel()
+
+	_, err := readNames(t.TempDir())
+	if err == nil {
+		t.Fatal("a directory was accepted as a list of names")
+	}
+
+	if !strings.Contains(err.Error(), "reading") {
+		t.Errorf("error %q does not say what failed", err)
 	}
 }
