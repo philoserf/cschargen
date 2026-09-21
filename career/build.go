@@ -178,15 +178,36 @@ func chrRolled(which, rolled string, up bool) Effect {
 // rank tables and skill tables use where a cell reads "Chef or Mechanic".
 func pickSkill(names ...string) Effect {
 	if len(names) == 1 {
-		return skill(names[0], "Any")
+		return skill(names[0], anyFor(names[0])...)
 	}
 
 	options := make([]Option, len(names))
 	for i, name := range names {
-		options[i] = opt(name, skill(name, "Any"))
+		options[i] = opt(name, skill(name, anyFor(name)...))
 	}
 
 	return pick("choose "+joinOr(names), options...)
+}
+
+// anyFor is the "(Any)" a skill may carry, which is none for a skill the
+// book prints no specialties under.
+//
+// p. 116 is what "(Any)" means: it "allows the character to select a
+// specialty within that skill". Seventeen of the skills these tables name
+// -- Admin, Broker, Mechanic, Recon and the rest -- have no specialty to
+// select, so recording one leaves the player an unanswerable question and
+// the sheet a second entry for a skill the book counts once.
+//
+// The engine already asks this question correctly one layer up, where a
+// result names a whole list of skills to choose between: anySkill takes the
+// picked definition's own specialties and passes nil where there are none.
+func anyFor(name string) []string {
+	definition, found := SkillByName(name)
+	if !found || (len(definition.Specialties) == 0 && !definition.Open) {
+		return nil
+	}
+
+	return []string{"Any"}
 }
 
 // joinOr renders a list the way the page does.

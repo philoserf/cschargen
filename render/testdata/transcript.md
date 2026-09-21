@@ -72,7 +72,7 @@ Seed 7, 182 events.
 -   56  choice choose what the work built: STR (policy)
 -   57  -> +1 STR [characteristic, from 56]
 -   58  choice choose Admin, Broker, Chef, Electronics, Mechanic or Trade: Admin (policy)
--   59  -> Admin (Any) 1 [skill, from 58]
+-   59  -> Admin 1 [skill, from 58]
 -   60  -> -1 EDU [characteristic, from 54]
 -   61  choice Choose a youth events path for ages 9-12: Path 1 (policy)
 -   62  throw  2d10 [2 10] = 12  (pp. 68-69)
