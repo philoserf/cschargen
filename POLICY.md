@@ -92,6 +92,39 @@ them. A row here and no code is as wrong as code and no row — which this table
 went twelve PRs without honouring, and `policy_version` 0.2.0 is where it caught
 up.
 
+## What the rule does to a population
+
+The `career` row has a consequence the other twenty-seven do not, because it is
+the only one a batch repeats a hundred times. Measured on `batch --auto --count
+100 --seed 31337` under this policy version:
+
+|                       |             |
+| --------------------- | ----------- |
+| careers represented   | **8 of 34** |
+| started as Adventurer | **55**      |
+| started as Arts       | 25          |
+| started as Belter     | 13          |
+| started as Vagabond   | 5           |
+| started as Colonist   | 2           |
+
+Nobody in the hundred had **Engineer** or **Gunner** at any level, and the best
+Pilot was Pilot-1. A starship crew cannot be cast from that pool.
+
+The reason is the rule working exactly as written. The eligible careers are built
+in the book's own order, "first listed" takes the earliest, and the earliest are
+alphabetical. Every later choice point then inherits the same narrowness: a
+hundred Adventurers take the same skill tables and meet the same events.
+
+This is the policy being unrefined rather than the rules being wrong — the same
+thing the youth-path and education paragraphs above say — but it is worth its own
+section because `batch` is the command the auto policy exists to serve, and a
+population that is three careers over and over is not a population.
+
+**A record made under 0.2.0 is not wrong.** Every throw was made and every one
+could have gone another way. It is one character generated honestly, and a
+hundred of them are a hundred honest characters who happen to resemble each
+other.
+
 ## Choices the book conditions on state the engine cannot read
 
 A handful of results branch on something about the character that no effect can

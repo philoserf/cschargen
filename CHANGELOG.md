@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### POLICY.md says what the rule does to a population
+
+`POLICY.md` was candid about two consequences of "take the first option the book
+prints" — every character takes Youth Path 1, and an eligible character attends
+every school. It said nothing about the third, which is the one that matters for
+the command the auto policy exists to serve.
+
+Measured and written down: 100 auto characters draw from **8 of 34 careers**, 55
+of them Adventurer, and nobody in the hundred has Engineer or Gunner at any
+level. The `career` row is the only one of the twenty-eight a batch repeats a
+hundred times, and every later choice point inherits its narrowness.
+
+The behaviour is unchanged. This documents `policy_version` 0.2.0, which is the
+version every record generated so far points at, and it goes in before the
+behaviour changes rather than after — a version string that identifies a document
+is only worth having if the document was true when the records were made.
+
 ### The sheet a referee reads
 
 The relationships section is split. Across a sample pool **90% of every
