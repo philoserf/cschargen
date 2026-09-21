@@ -433,3 +433,91 @@ func checkSubTables(t *testing.T, effect Effect, seen *int) {
 		}
 	}
 }
+
+// TestPickSkillCarriesAnyOnlyWhereThereIsOneToPick. p. 116 gives "(Any)"
+// its meaning: it "allows the character to select a specialty within that
+// skill". A skill the book prints no specialties under offers nothing to
+// select, and a table cell naming one must not record a choice the player
+// cannot make.
+func TestPickSkillCarriesAnyOnlyWhereThereIsOneToPick(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		skill string
+		want  []string
+	}{
+		{"a skill with a printed list", "Melee", []string{"Any"}},
+		{"another", "Survival", []string{"Any"}},
+		{"an open skill, whose list is examples", "Science", []string{"Any"}},
+		{"Language, likewise open", "Language", []string{"Any"}},
+		{"a skill the book prints alone", "Admin", nil},
+		{"another", "Broker", nil},
+		{"a third", "Recon", nil},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name+": "+test.skill, func(t *testing.T) {
+			t.Parallel()
+
+			single := pickSkill(test.skill)
+			if !slices.Equal(single.Specialties, test.want) {
+				t.Errorf("pickSkill(%q) specialties = %v, want %v",
+					test.skill, single.Specialties, test.want)
+			}
+
+			// The same answer has to come out of the multi-name form,
+			// which is the one the rank and skill tables actually use.
+			both := pickSkill(test.skill, "Gambler")
+			for _, option := range both.Options {
+				if option.Label != test.skill {
+					continue
+				}
+
+				got := option.Effects[0].Specialties
+				if !slices.Equal(got, test.want) {
+					t.Errorf("pickSkill(%q, \"Gambler\") gave %q specialties %v, want %v",
+						test.skill, test.skill, got, test.want)
+				}
+			}
+		})
+	}
+}
+
+// TestEveryPickSkillNameIsASkillTheBookPrints. anyFor asks SkillByName what
+// specialties a name has and treats an unknown name as having none, so a
+// typo would quietly become a bare skill rather than an error. Nothing else
+// would catch it: the name is only ever compared against itself.
+func TestEveryPickSkillNameIsASkillTheBookPrints(t *testing.T) {
+	t.Parallel()
+
+	for _, def := range All() {
+		for _, table := range def.Tables {
+			for _, effect := range table.Rows {
+				checkSkillNames(t, effect)
+			}
+		}
+	}
+}
+
+func checkSkillNames(t *testing.T, effect Effect) {
+	t.Helper()
+
+	if effect.Kind == EffectSkill && effect.Skill != "" {
+		if _, found := SkillByName(effect.Skill); !found {
+			t.Errorf("%q is not a skill the book prints (pp. 304-314)", effect.Skill)
+		}
+	}
+
+	for _, nested := range [][]Effect{effect.Success, effect.Failure, effect.Group, effect.Fallback} {
+		for _, inner := range nested {
+			checkSkillNames(t, inner)
+		}
+	}
+
+	for _, option := range effect.Options {
+		for _, inner := range option.Effects {
+			checkSkillNames(t, inner)
+		}
+	}
+}
