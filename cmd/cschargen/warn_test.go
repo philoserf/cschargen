@@ -218,3 +218,78 @@ func TestJoinNames(t *testing.T) {
 		})
 	}
 }
+
+// TestDealNamesUsesEachBeforeRepeatingAny. `--names` exists because a name
+// is the one thing a referee cannot script for a cast of NPCs, and a cast
+// with three of the same person in it is as unusable as one with none.
+//
+// Drawing each name independently gave exactly that: twelve names over
+// twelve characters produced nine people, three of them twice over.
+func TestDealNamesUsesEachBeforeRepeatingAny(t *testing.T) {
+	t.Parallel()
+
+	names := []string{"Ada", "Bruno", "Corinne", "Dieter", "Elsa", "Farid"}
+
+	dealt := dealNames(names, len(names), 777)
+
+	seen := map[string]int{}
+	for _, name := range dealt {
+		seen[name]++
+	}
+
+	if len(seen) != len(names) {
+		t.Errorf("dealt %d names to %d characters and used %d of them: %v",
+			len(names), len(names), len(seen), dealt)
+	}
+
+	for _, name := range names {
+		if seen[name] != 1 {
+			t.Errorf("%s was dealt %d times", name, seen[name])
+		}
+	}
+}
+
+// TestDealNamesFillsABatchLongerThanTheList. A list shorter than the batch
+// has to repeat, and should spread the repeats rather than exhaust one name
+// first.
+func TestDealNamesFillsABatchLongerThanTheList(t *testing.T) {
+	t.Parallel()
+
+	names := []string{"Ada", "Bruno", "Corinne"}
+
+	const count = 9
+
+	dealt := dealNames(names, count, 5)
+
+	if len(dealt) != count {
+		t.Fatalf("dealt %d names for %d characters", len(dealt), count)
+	}
+
+	seen := map[string]int{}
+	for _, name := range dealt {
+		seen[name]++
+	}
+
+	for _, name := range names {
+		if want := count / len(names); seen[name] != want {
+			t.Errorf("%s was dealt %d times, want %d", name, seen[name], want)
+		}
+	}
+}
+
+// TestDealNamesWithNoNames is `batch` without `--names`, which is the usual
+// case: every character gets the empty name Step 20 leaves them.
+func TestDealNamesWithNoNames(t *testing.T) {
+	t.Parallel()
+
+	dealt := dealNames(nil, 3, 1)
+	if len(dealt) != 3 {
+		t.Fatalf("dealt %d for 3 characters", len(dealt))
+	}
+
+	for i, name := range dealt {
+		if name != "" {
+			t.Errorf("character %d was named %q from an empty list", i, name)
+		}
+	}
+}

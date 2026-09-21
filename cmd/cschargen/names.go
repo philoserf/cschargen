@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"os"
+	"slices"
 	"strings"
 )
 
@@ -61,17 +62,45 @@ func readNames(path string) ([]string, error) {
 }
 
 // nameFor draws one name from the list, by the seed the character is
-// generated with.
+// generated with. It is `new`'s draw: one character, one name, and the seed
+// reproduces it.
 //
-// By the seed rather than by position in the batch, so that the PRD's
-// promise holds: batch member i and `new --seed base+i` are the same
-// character, name included. Two characters in a batch may draw the same
-// name, which is what a list shorter than the batch has to mean and is true
-// of people anyway.
+// A batch does not use it. It used to, on the reasoning that batch member i
+// and `new --seed base+i` had to be the same character, name included --
+// but v0.1.0-alpha.3 gave that up on purpose ("a batch member is no longer
+// `new --seed base+i`"), and drawing each name independently of the others
+// was the only thing still holding the duplicates in place.
 func nameFor(names []string, seed uint64) string {
 	if len(names) == 0 {
 		return ""
 	}
 
 	return names[rand.New(rand.NewPCG(seed, nameDrawStream)).IntN(len(names))]
+}
+
+// dealNames puts the list in an order and deals from it, so that a cast of
+// twelve drawn from twelve names is twelve people rather than nine.
+//
+// A list shorter than the batch is dealt again from the top, reshuffled, so
+// a hundred NPCs from twenty names still reads as a crowd rather than as
+// five copies of the same twenty in the same order.
+//
+// The shuffle runs on nameDrawStream, which is the point of that stream: a
+// name must not move a single throw.
+func dealNames(names []string, count int, base uint64) []string {
+	if len(names) == 0 {
+		return make([]string, count)
+	}
+
+	stream := rand.New(rand.NewPCG(base, nameDrawStream))
+	dealt := make([]string, 0, count)
+
+	for len(dealt) < count {
+		hand := slices.Clone(names)
+		stream.Shuffle(len(hand), func(i, j int) { hand[i], hand[j] = hand[j], hand[i] })
+
+		dealt = append(dealt, hand...)
+	}
+
+	return dealt[:count]
 }
