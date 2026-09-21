@@ -5,6 +5,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/philoserf/cschargen/career"
 	"github.com/philoserf/cschargen/chargen"
 	"github.com/philoserf/cschargen/setting"
 )
@@ -137,4 +138,78 @@ func joinNames(names []string) string {
 	}
 
 	return strings.Join(names[:len(names)-1], ", ") + " and " + names[len(names)-1]
+}
+
+// checkCareer holds `--career` against the careers the book prints, before
+// a character is generated.
+//
+// #63 gave the flag a note for the case where the career asked for is not
+// the career entered, because a failed enlistment closes a career for two
+// terms (p. 110) and the character drifts into Vagabond. That note is right
+// for a career that exists. For one that does not, it said the character
+// "failed to enlist" and to "try another seed" -- when no enlistment was
+// attempted and no seed would help.
+//
+// A name the book does not print is a flag error, so it fails here rather
+// than becoming a generation outcome. Matching is case-insensitive: every
+// career name the program prints is capitalised, and a referee types what
+// they read.
+func checkCareer(asked string) (string, error) {
+	if asked == "" {
+		return "", nil
+	}
+
+	for _, def := range career.All() {
+		if strings.EqualFold(def.Name, asked) {
+			return def.Name, nil
+		}
+	}
+
+	if nearest := nearestCareer(asked); nearest != "" {
+		return "", usagef("no career named %q; did you mean %s?", asked, nearest)
+	}
+
+	return "", usagef("no career named %q", asked)
+}
+
+// nearestCareer is the one career whose name contains what was asked for,
+// or is contained by it, and only where exactly one does: "navy" reaches
+// nothing useful, because three careers have it in their name.
+func nearestCareer(asked string) string {
+	folded := strings.ToLower(asked)
+
+	var found string
+
+	for _, def := range career.All() {
+		name := strings.ToLower(def.Name)
+		if !strings.Contains(name, folded) && !strings.Contains(folded, name) {
+			continue
+		}
+
+		if found != "" {
+			return ""
+		}
+
+		found = def.Name
+	}
+
+	return found
+}
+
+// checkNames holds every flag naming something the setting data or the book
+// has to have, before a character is generated. A name that is not there is
+// a flag error, and a flag error belongs to the command rather than to a
+// lifepath that is already halfway through Step 3.
+//
+// The career is rewritten to the book's own spelling, so that a note about
+// it later names it the way every other line does.
+func checkNames(world *setting.Data, flags newFlags) error {
+	err := checkOrigin(world, *flags.subsector, *flags.homeworld)
+	if err != nil {
+		return err
+	}
+
+	*flags.forceCar, err = checkCareer(*flags.forceCar)
+
+	return err
 }

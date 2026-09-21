@@ -293,3 +293,69 @@ func TestDealNamesWithNoNames(t *testing.T) {
 		}
 	}
 }
+
+// TestAnUnknownCareerIsAFlagError. #63 gave `--career` a note for a career
+// that exists and was not entered, because a failed enlistment closes it for
+// two terms (p. 110). For a name the book does not print, that note said the
+// character "failed to enlist" and to "try another seed" -- when nothing
+// enlisted and no seed would help.
+func TestAnUnknownCareerIsAFlagError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		asked   string
+		want    string
+		mention string
+	}{
+		{"the book's own spelling", "Belter", "Belter", ""},
+		{"what a referee types", "belter", "Belter", ""},
+		{"and with a space in it", "corporate shipper", "Corporate Shipper", ""},
+		{"a name the book does not print", "Nonesuch", "", `no career named "Nonesuch"`},
+		{"a typo near one career", "Vagabon", "", "did you mean Vagabond?"},
+		{"a word inside one career", "shipper", "", "did you mean Corporate Shipper?"},
+		// Three careers have Navy in the name, so there is nothing to
+		// suggest and suggesting one of them would be a guess.
+		{"a word inside several", "navy", "", `no career named "navy"`},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := checkCareer(test.asked)
+
+			if test.mention == "" {
+				if err != nil {
+					t.Fatalf("checkCareer(%q): %v", test.asked, err)
+				}
+
+				if got != test.want {
+					t.Errorf("checkCareer(%q) = %q, want %q", test.asked, got, test.want)
+				}
+
+				return
+			}
+
+			if err == nil {
+				t.Fatalf("checkCareer(%q) was accepted", test.asked)
+			}
+
+			if !strings.Contains(err.Error(), test.mention) {
+				t.Errorf("checkCareer(%q) said %q, want it to mention %q",
+					test.asked, err, test.mention)
+			}
+		})
+	}
+}
+
+// TestNoCareerAskedForIsNotAnError: the flag is optional, and every
+// character generated without it goes through this check.
+func TestNoCareerAskedForIsNotAnError(t *testing.T) {
+	t.Parallel()
+
+	got, err := checkCareer("")
+	if err != nil || got != "" {
+		t.Errorf(`checkCareer("") = %q, %v`, got, err)
+	}
+}
