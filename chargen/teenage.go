@@ -19,6 +19,9 @@ var teenagePeriods = [...]string{"ages 13-15", "ages 16-18"}
 func (g *Generator) teenageEvents() error {
 	step := g.log.Step("Step 7: Teenage Events", "p. 75")
 
+	g.stage = TeenageOrigin
+	defer func() { g.stage = "" }()
+
 	// The book offers this one as a choice too: "Some Referees may prefer
 	// to allow players to select events rather than rolling randomly"
 	// (p. 76).

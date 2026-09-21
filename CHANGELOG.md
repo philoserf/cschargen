@@ -1,5 +1,38 @@
 # Changelog
 
+## Unreleased
+
+### The record says what happened
+
+Two places where the record knew something and did not say it, both found by
+using the tool as a referee ([#57](https://github.com/philoserf/cschargen/issues/57)).
+
+- **Step 9 always names the career entered.** Three ways lead out of it — the
+  career the decider chose, the one a table result ordered, and the Vagabond a
+  character drifts into when nothing will have them — and two of the three
+  recorded nothing, leaving a step header with no events beneath it. A reader
+  could not tell why the character changed course, and the empty step read like a
+  rendering fault. p. 111 is clear that the Vagabond is the rules working: "it
+  ensures that characters always have a path forward, even when opportunity is
+  scarce." The silence was the bug, not the destination.
+- **Every relationship names its origin**, which FR15 asks for and 138 of 2,477
+  ties in a sample pool did not do. A tie made before Step 9 has no career to
+  name, so it names the stage of life instead — `youth`, `teenage`, or the school
+  attended. A parent and a childhood mentor are both Allies at 125, and the
+  origin is the only thing that tells them apart.
+
+Two gates hold both: every tie in a generated record carries an origin, and Step
+9 never passes without naming a career. The second is deliberately narrow rather
+than "no step is ever empty" — Step 18 is legitimately empty in most records,
+because deciding to carry on is not an event.
+
+Writing the first gate turned up a third silent path nobody had noticed: a career
+a mishap ordered arrived with no line at Step 9 either, because the result that
+sent the character there had spoken one step earlier. Writing the second showed
+that two of the four reasons a career list can empty cannot actually happen — an
+aging crisis and a mental characteristic at 0 both answer with Vagabond, which is
+a list of one rather than a list of none.
+
 ## v0.1.0-alpha.2 — 2026-09-20
 
 One pass, in twelve parts: [#42](https://github.com/philoserf/cschargen/issues/42),

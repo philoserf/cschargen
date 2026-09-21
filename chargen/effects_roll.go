@@ -306,10 +306,7 @@ func (g *Generator) gainTies(effect career.Effect, cause int) error {
 		count = rolled
 	}
 
-	name := ""
-	if g.career != nil {
-		name = g.career.Name
-	}
+	name := g.tieOrigin()
 
 	start := effect.Rating
 	if start == ratingUnspecified {

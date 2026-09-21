@@ -46,6 +46,11 @@ type Generator struct {
 	termsInCareer int
 	cite          string
 
+	// stage is where in the twenty steps the character is, for the ties
+	// granted before they have a career to name: "youth", "teenage", or
+	// the institution being attended. It is what tieOrigin falls back to.
+	stage string
+
 	// forfeitedTerms is how many of this career's terms have had their
 	// two-per-term mustering-out grant written off by a result that took
 	// every benefit roll back. See forfeitBenefits.

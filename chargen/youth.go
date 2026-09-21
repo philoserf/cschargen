@@ -36,6 +36,9 @@ func (g *Generator) lifePeriods(rolls int, ages, human []string) []string {
 func (g *Generator) youthEvents() error {
 	step := g.log.Step("Step 6: Youth Events", "p. 67")
 
+	g.stage = YouthOrigin
+	defer func() { g.stage = "" }()
+
 	// Like Step 5, the book offers this one as a choice: "Players may
 	// create this background entirely on their own, developing a childhood
 	// history that fits the character concept they have in mind"
