@@ -19,7 +19,11 @@ permissions:
 
 jobs:
   gate:
-    runs-on: ubuntu-latest
+    # Pinned, where the toolchain above is deliberately not. The label
+    # ubuntu-latest migrates to Ubuntu 26 from 19 October 2026 and warns
+    # about it on every run; an image is not a tool this gate is testing,
+    # so it is named rather than drifted into. Bump it deliberately.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
 
@@ -35,8 +39,10 @@ jobs:
       # disagreeing about what the rules are.
       #
       # install-only, because CI runs exactly `task`, and `task lint` is
-      # what invokes golangci-lint.
-      - uses: golangci/golangci-lint-action@v8
+      # what invokes golangci-lint. v8 dropped that input and ignored it
+      # with a warning, so the action was linting the tree itself and `task
+      # lint` was doing it again; v9 restored it.
+      - uses: golangci/golangci-lint-action@v9
         with:
           version: latest
           install-only: true
@@ -47,7 +53,7 @@ jobs:
       - name: Install prettier
         run: npm install --global prettier
 
-      - uses: arduino/setup-task@v2
+      - uses: arduino/setup-task@v3
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
