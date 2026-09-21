@@ -2,21 +2,77 @@ package chargen_test
 
 import (
 	"slices"
+	"sync"
 	"testing"
 
 	"github.com/philoserf/cschargen/chargen"
 )
 
 // lifepath generates a whole character: characteristics, then terms.
+// lifepath is a generated character, kept so that the sweeps below share
+// one rather than each walking their own.
+//
+// A character is a pure function of its seed, term limit, setting and
+// decider, and lifepath fixes all four -- so two sweeps asking for the same
+// pair are asking for the same character. Thirty-two call sites ask for
+// seven distinct term counts, so the suite used to walk 1,860 lifepaths to
+// see 420 characters.
+//
+// Nothing writes to one: every use of a generated character in these tests
+// reads it. A test that needs to modify one should build it with options()
+// and generate() directly, which is what the tests taking a different
+// decider or different inputs already do.
 func lifepath(t *testing.T, seed uint64, terms int) *chargen.Character {
 	t.Helper()
+
+	key := lifepathKey{seed: seed, terms: terms}
+
+	lifepaths.mu.RLock()
+
+	held, found := lifepaths.byKey[key]
+
+	lifepaths.mu.RUnlock()
+
+	if found {
+		return held
+	}
 
 	opts := options(t, seed)
 
 	opts.Inputs.TermLimit = terms
 
-	return generate(t, opts)
+	// Generated outside the lock. Two sweeps racing for the same key cost
+	// one duplicate walk, which is cheaper than serialising every sweep
+	// behind one mutex -- and the duplicate is the same character, because
+	// the character is determined by the key.
+	made := generate(t, opts)
+
+	lifepaths.mu.Lock()
+	defer lifepaths.mu.Unlock()
+
+	if held, found := lifepaths.byKey[key]; found {
+		return held
+	}
+
+	lifepaths.byKey[key] = made
+
+	return made
 }
+
+// lifepathKey is everything lifepath varies: the rest of the inputs are
+// fixed by options().
+type lifepathKey struct {
+	seed  uint64
+	terms int
+}
+
+// lifepathStore holds the generated characters the sweeps share.
+type lifepathStore struct {
+	mu    sync.RWMutex
+	byKey map[lifepathKey]*chargen.Character
+}
+
+var lifepaths = lifepathStore{byKey: map[lifepathKey]*chargen.Character{}}
 
 // careerColonist is the career the tests force where they need a specific
 // one: it is the book's worked example, and six of its eleven mishaps
