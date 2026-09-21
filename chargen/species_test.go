@@ -272,6 +272,10 @@ func TestAnEnslavedCharacterTakesTheSlaveCareerFirst(t *testing.T) {
 				continue
 			}
 
+			if wasFreed(character) {
+				continue
+			}
+
 			enslaved++
 
 			if len(character.State.Services) == 0 {
@@ -454,6 +458,10 @@ func TestAnEnslavedCharactersEarlyLife(t *testing.T) {
 				continue
 			}
 
+			if wasFreed(character) {
+				continue
+			}
+
 			owned++
 
 			checkNoPathOffered(t, seed, character)
@@ -479,6 +487,27 @@ func checkNoPathOffered(t *testing.T, seed uint64, character *chargen.Character)
 			t.Errorf("seed %d: an owned character was offered a path to choose", seed)
 		}
 	}
+}
+
+// wasFreed reports whether an enslavement ended during early life. Three
+// results in the book end one -- "Continue your character as a free altrant
+// or uplift" -- and a character they reach is owned at birth and free by
+// the time the first career is chosen, so p. 42 no longer binds them.
+//
+// The tests below are about what being owned does, so a character it stopped
+// doing anything to is not one of their cases.
+func wasFreed(character *chargen.Character) bool {
+	for _, event := range character.Events {
+		if event.Kind != chargen.EventConsequence || event.Consequence == nil {
+			continue
+		}
+
+		if strings.HasPrefix(event.Consequence.Detail, "freed") {
+			return true
+		}
+	}
+
+	return false
 }
 
 // TestAnEngineeredCharacterHasGenetics is pp. 62-65: they are a purebred of
@@ -555,10 +584,15 @@ func TestAHybridMayBeRolledAsAHuman(t *testing.T) {
 			// A human's six scores come from 3d6-drop-lowest, which runs 2
 			// to 12 -- so none of them can exceed what that can produce,
 			// whatever the species' own method would have given.
-			for _, which := range chargen.CharacteristicOrder {
-				if got := character.State.Characteristics.Get(which); got > 12 {
-					t.Errorf("seed %d: a hybrid rolled as a human has %s %d",
-						seed, which, got)
+			//
+			// Step 2's own record, not the finished sheet: Steps 6 to 8
+			// raise characteristics legitimately, and a degree can put EDU
+			// above 12 (pp. 87, 92) on a character whose EDU was rolled
+			// the human way and rolled low.
+			for _, rolled := range rolledCharacteristics(character) {
+				if rolled.Delta > maxHumanScore {
+					t.Errorf("seed %d: a hybrid rolled as a human rolled %s %d",
+						seed, rolled.Characteristic, rolled.Delta)
 				}
 			}
 		}
@@ -581,4 +615,27 @@ func checkGenetics(t *testing.T, seed uint64, name string, genetics *chargen.Gen
 	if genetics.Kind == "purebred" && genetics.Generation == 0 {
 		t.Errorf("seed %d: a purebred of no generation", seed)
 	}
+}
+
+// maxHumanScore is what 3d6-drop-lowest can produce (p. 13).
+const maxHumanScore = 12
+
+// rolledCharacteristics is what Step 2 put on the sheet, before anything
+// later raised it. Each assignment is recorded as it is made, cited to the
+// page the method is on.
+func rolledCharacteristics(character *chargen.Character) []chargen.ConsequenceEvent {
+	var rolled []chargen.ConsequenceEvent
+
+	for _, event := range character.Events {
+		if event.Kind != chargen.EventConsequence || event.Consequence == nil {
+			continue
+		}
+
+		if event.Consequence.Kind == chargen.ConsequenceCharacteristic &&
+			event.Consequence.Cite == "p. 13" {
+			rolled = append(rolled, *event.Consequence)
+		}
+	}
+
+	return rolled
 }
