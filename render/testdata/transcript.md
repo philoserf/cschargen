@@ -69,16 +69,16 @@ Seed 7, 182 events.
 -   53  choice Choose a youth events path for ages 4-8: Path 1 (No Requirements) (policy)
 -   54  throw  2d10 [6 5] = 11  (pp. 68-69)
 -   55  -> ages 4-8, on Path 1: forced into labor at a young age [family, from 54]
--   56  choice choose what the work built: STR (policy)
+-   56  choice Choose what the work built: STR (policy)
 -   57  -> +1 STR [characteristic, from 56]
--   58  choice choose Admin, Broker, Chef, Electronics, Mechanic or Trade: Admin (policy)
+-   58  choice Choose Admin, Broker, Chef, Electronics, Mechanic or Trade: Admin (policy)
 -   59  -> Admin 1 [skill, from 58]
 -   60  -> -1 EDU [characteristic, from 54]
 -   61  choice Choose a youth events path for ages 9-12: Path 1 (No Requirements) (policy)
 -   62  throw  2d10 [2 10] = 12  (pp. 68-69)
 -   63  -> ages 9-12, on Path 1: a close childhood friend [family, from 62]
 -   64  -> gain 1 ally at a Relationship Rating of 125 [relationship, from 62]
--   65  choice choose what the friendship taught you: Carouse (policy)
+-   65  choice Choose what the friendship taught you: Carouse (policy)
 -   66  -> Carouse 0 [skill, from 65]
 -   67  -> +1 CHA [characteristic, from 62]
 
@@ -88,7 +88,7 @@ Seed 7, 182 events.
 -   70  throw  2d10 [1 7] = 8  (pp. 76-78)
 -   71  -> ages 13-15, on Path 1: a rivalry with a peer that sharpens you [family, from 70]
 -   72  -> gain 1 rival at a Relationship Rating of -50 [relationship, from 70]
--   73  choice raise a characteristic: STR (policy)
+-   73  choice Raise a characteristic: STR (policy)
 -   74  -> +1 STR [characteristic, from 73]
 -   75  choice Choose a teenage events path for ages 16-18: Path 1 (Homeworld is a location which has been colonized or established for 100+ standard years) (policy)
 -   76  throw  2d10 [2 2] = 4  (pp. 76-78)

@@ -38,7 +38,7 @@ func (g *Generator) raiseHeldSkill(effect career.Effect, cause int) error {
 
 	chosen, err := g.choose(Choice{
 		Point:   "raise_held_skill",
-		Prompt:  effect.Detail,
+		Prompt:  asPrompt(effect.Detail),
 		Options: labels,
 		Cite:    skillListCite,
 	})
@@ -102,7 +102,7 @@ func (g *Generator) anySkill(effect career.Effect, cause int) error {
 
 	chosen, err := g.choose(Choice{
 		Point:   "any_skill",
-		Prompt:  effect.Detail,
+		Prompt:  asPrompt(effect.Detail),
 		Options: options,
 		Cite:    skillListCite,
 	})
