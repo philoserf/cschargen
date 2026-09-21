@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+### The sheet a referee reads
+
+The relationships section is split. Across a sample pool **90% of every
+character's relationships were family** — parents, siblings, grandparents,
+aunts, uncles and cousins, each an Ally at 100 to 150 from Step 5 — so a line
+reading `Allies: 76 (100 x62, 125 x13, 190)` buried the one colleague a plot
+could hang on among sixty-two cousins.
+
+```
+## Relationships
+
+**Made along the way**
+
+- Ally (125) — youth
+- Contact (50) — Adventurer
+- Enemy (-150) — Belter
+
+**Family**
+
+- Allies: 15 (100 x11, 125 x4)
+```
+
+The people a character met are a list, each naming where it came from. The
+family is a count, because a referee wants to know a character has a large
+family and what it thinks of them, not to read sixty-two lines each saying
+"cousin". Both headings are omitted when there is nothing under them.
+
+The record has always known which was which — every tie carries an origin
+(FR15). The sheet was throwing it away.
+
 ### A batch you can read
 
 `batch` wrote JSONL and `render` read one record, so the two commands the README

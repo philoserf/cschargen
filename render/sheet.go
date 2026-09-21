@@ -294,40 +294,109 @@ func writeTies(out *strings.Builder, character *chargen.Character) {
 		return
 	}
 
+	out.WriteString("## Relationships\n\n")
+
+	made, family := splitTies(character.State.Ties)
+
+	writeTiesMade(out, made)
+	writeFamilyTies(out, family)
+
+	out.WriteString("\n")
+}
+
+// splitTies separates the people a character met from the people they were
+// born to.
+//
+// Across a sample pool, 90% of every character's relationships were family:
+// parents, siblings, grandparents, aunts, uncles and cousins, each an Ally
+// at 100 to 150 from Step 5. One line reading "Allies: 76" buried the one
+// ally at 190 -- the colleague a plot can hang on -- among sixty-two
+// cousins, and gave a referee no way to find them.
+//
+// The record has always known which is which: every tie carries an origin
+// (FR15). The sheet was throwing it away.
+func splitTies(ties []chargen.Tie) ([]chargen.Tie, []chargen.Tie) {
+	made := make([]chargen.Tie, 0, len(ties))
+	family := make([]chargen.Tie, 0, len(ties))
+
+	for _, tie := range ties {
+		if tie.Origin == chargen.FamilyOrigin {
+			family = append(family, tie)
+
+			continue
+		}
+
+		made = append(made, tie)
+	}
+
+	return made, family
+}
+
+// writeTiesMade lists the relationships a character made, one per line and
+// each naming where it came from -- a career, a school, or the stage of life
+// it was made in. These are the ones a referee reads.
+func writeTiesMade(out *strings.Builder, made []chargen.Tie) {
+	if len(made) == 0 {
+		return
+	}
+
+	out.WriteString("**Made along the way**\n\n")
+
+	for _, kind := range tieKinds() {
+		for _, tie := range made {
+			if tie.Kind != kind.kind {
+				continue
+			}
+
+			// The Relationship Rating is what says whether a Contact is
+			// nearly an Ally or nearly lost (p. 320), so a name on its own
+			// leaves out the half of a relationship that moves.
+			fmt.Fprintf(out, "- %s (%d) — %s\n", kind.singular, tie.Rating, tie.Origin)
+		}
+	}
+
+	out.WriteString("\n")
+}
+
+// writeFamilyTies counts the family rather than listing them. A referee
+// wants to know a character has a large family and what it thinks of them,
+// not to read sixty-two lines each saying "cousin".
+func writeFamilyTies(out *strings.Builder, family []chargen.Tie) {
+	if len(family) == 0 {
+		return
+	}
+
 	counts := map[string]int{}
 	ratings := map[string][]int{}
 
-	for _, tie := range character.State.Ties {
+	for _, tie := range family {
 		counts[tie.Kind]++
 
 		ratings[tie.Kind] = append(ratings[tie.Kind], tie.Rating)
 	}
 
-	out.WriteString("## Relationships\n\n")
+	out.WriteString("**Family**\n\n")
 
-	// The four in the order p. 120 lists them, so the sheet reads the same
-	// way twice running whatever the map does. Plurals are spelt out rather
-	// than made by adding an s, which would give "Allys".
-	plurals := []struct{ kind, plural string }{
-		{"ally", "Allies"},
-		{"contact", "Contacts"},
-		{"rival", "Rivals"},
-		{"enemy", "Enemies"},
-	}
-
-	for _, entry := range plurals {
-		if counts[entry.kind] == 0 {
+	for _, kind := range tieKinds() {
+		if counts[kind.kind] == 0 {
 			continue
 		}
 
-		// The Relationship Rating is what says whether a Contact is
-		// nearly an Ally or nearly lost (p. 320), so a count on its own
-		// leaves out the half of a relationship that moves.
 		fmt.Fprintf(out, "- %s: %d (%s)\n",
-			entry.plural, counts[entry.kind], joinRatings(ratings[entry.kind]))
+			kind.plural, counts[kind.kind], joinRatings(ratings[kind.kind]))
 	}
+}
 
-	out.WriteString("\n")
+// tieKinds is the four in the order p. 120 lists them, so the sheet reads
+// the same way twice running whatever a map does. The plurals are spelt out
+// rather than made by adding an s, which would give "Allys".
+func tieKinds() []struct{ kind, singular, plural string } {
+	return []struct{ kind, singular, plural string }{
+		{"ally", "Ally", "Allies"},
+		{"contact", "Contact", "Contacts"},
+		{"rival", "Rival", "Rivals"},
+		{"enemy", "Enemy", "Enemies"},
+	}
 }
 
 // joinRatings renders a kind's Relationship Ratings, sorted so the sheet

@@ -36,9 +36,15 @@ Admin (Any)-1, Advocate (Any)-1, Carouse-0, Electronics-0, Gambler-1, Melee (Bla
 
 ## Relationships
 
-- Allies: 10 (100 x6, 125 x3, 150)
-- Contacts: 1 (75)
-- Rivals: 1 (-50)
+**Made along the way**
+
+- Ally (150) — Vagabond
+- Contact (75) — youth
+- Rival (-50) — teenage
+
+**Family**
+
+- Allies: 9 (100 x6, 125 x3)
 
 ## Belongings and injuries
 
