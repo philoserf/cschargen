@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"strings"
@@ -210,6 +211,49 @@ func checkNames(world *setting.Data, flags newFlags) error {
 	}
 
 	*flags.forceCar, err = checkCareer(*flags.forceCar)
+	if err != nil {
+		return err
+	}
 
-	return err
+	return checkWorldOverrides(flags)
+}
+
+// checkWorldOverrides holds the two flags that stand in for a world's own
+// numbers to the range a world's numbers are held to.
+//
+// They are bounds the data format already states, exported rather than
+// copied: a flag that overrides a world's value and a file that declares one
+// have to agree about what is sayable, and two copies of a number are how
+// they stopped agreeing.
+//
+// A tech level of 0 is a world the validator accepts, so `--tech-level 0`
+// has to mean it rather than "not given" -- the trap `--terms 0` was. A
+// maximum of 0 terms is not a world the validator accepts, so 0 there is
+// free to mean "not given".
+func checkWorldOverrides(flags newFlags) error {
+	if given(flags.set, "tech-level") {
+		if tl := *flags.techLevel; tl < 0 || tl > setting.MaxTechLevel {
+			return usagef("tech level %d; a world's is 0 to %d (p. 122)", tl, setting.MaxTechLevel)
+		}
+	}
+
+	if terms := *flags.maxTerms; terms < 0 || terms > setting.MaxTerms {
+		return usagef("maximum terms %d; a world's is 1 to %d (p. 42)", terms, setting.MaxTerms)
+	}
+
+	return nil
+}
+
+// given reports whether a flag was named on the command line, as against
+// left at its zero value. flag.FlagSet.Visit walks only the ones given.
+func given(set *flag.FlagSet, name string) bool {
+	found := false
+
+	set.Visit(func(f *flag.Flag) {
+		if f.Name == name {
+			found = true
+		}
+	})
+
+	return found
 }
