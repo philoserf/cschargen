@@ -1239,3 +1239,50 @@ func TestAHomeworldFlagPutsTheCharacterThere(t *testing.T) {
 		t.Error("the record does not say the homeworld was asked for")
 	}
 }
+
+// TestTermsZeroMeansZero. The engine reads TermLimit as zero for "not given"
+// and negative for "no terms at all", because a plain int cannot tell an
+// unset flag from one set to its zero value. That left `--terms 0` asking
+// for none and getting the policy's four, silently.
+func TestTermsZeroMeansZero(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		args []string
+		want int
+	}{
+		{"zero is none", []string{"--terms", "0"}, 0},
+		{"the old sentinel still is", []string{"--terms", "-1"}, 0},
+		{"a number is itself", []string{"--terms", "2"}, 2},
+		{"omitted is the policy default", nil, 4},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			args := append([]string{cmdNew, "--auto", "--seed", "21"}, test.args...)
+
+			out, err := capture(t, args...)
+			if err != nil {
+				t.Fatalf("new: %v", err)
+			}
+
+			var record struct {
+				State struct {
+					Terms []struct{} `json:"terms"`
+				} `json:"state"`
+			}
+
+			err = json.Unmarshal([]byte(out), &record)
+			if err != nil {
+				t.Fatalf("the record is not valid JSON: %v", err)
+			}
+
+			if got := len(record.State.Terms); got != test.want {
+				t.Errorf("served %d terms, want %d", got, test.want)
+			}
+		})
+	}
+}

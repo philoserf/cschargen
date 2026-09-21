@@ -62,7 +62,8 @@ func bindNewFlags(command string) newFlags {
 		species:   flags.String("species", "human", "human, or an engineered species from the setting data"),
 		techLevel: flags.Int("tech-level", 0, "the homeworld's tech level, which gates the aging tables (p. 122)"),
 		maxTerms:  flags.Int("max-terms", 0, "the homeworld's maximum terms (p. 42)"),
-		terms:     flags.Int("terms", 0, "how many terms to serve; the rules impose no limit, so this is policy (POLICY.md)"),
+		terms: flags.Int("terms", 0,
+			"how many terms to serve; 0 is none, omitted is the policy default (POLICY.md)"),
 		forceCar:  flags.String("career", "", "attempt only this career"),
 		subsector: flags.String("subsector", "", "be born in this subsector rather than rolling for one (p. 39)"),
 		homeworld: flags.String("homeworld", "", "be born on this world rather than rolling for one (p. 40)"),
@@ -104,6 +105,38 @@ func (f newFlags) parse(args []string) (uint64, error) {
 // worse than refusing. See the rejection in batchCommand.
 var finishingFlags = []string{"name", "gender", "appearance", "goals"}
 
+// termLimit is `--terms`, translated so that the flag means what it says.
+//
+// The engine reads TermLimit as zero for "not given, use the policy
+// default" and negative for "no career terms at all" -- which it has to,
+// because a plain int cannot distinguish an unset flag from one set to its
+// zero value. That left the obvious value owning the least expected
+// meaning: `--terms 0` asked for zero and got the policy's four.
+//
+// flag.FlagSet.Visit walks only the flags actually given, so the command
+// can tell the two apart and hand the engine the sentinel it already
+// understands. The engine's contract and the record's shape are unchanged.
+func (f newFlags) termLimit() int {
+	given := false
+
+	f.set.Visit(func(flag *flag.Flag) {
+		if flag.Name == "terms" {
+			given = true
+		}
+	})
+
+	if given && *f.terms == 0 {
+		return noTerms
+	}
+
+	return *f.terms
+}
+
+// noTerms is what the engine reads as "generate characteristics and stop".
+// Any negative number does; this one is the one `--terms -1` has always
+// meant, and it stays supported.
+const noTerms = -1
+
 // inputs is everything the command line says about the character, which is
 // the same set whether one is generated or twenty.
 func (f newFlags) inputs() chargen.Inputs {
@@ -112,7 +145,7 @@ func (f newFlags) inputs() chargen.Inputs {
 		Species:       *f.species,
 		TechLevel:     *f.techLevel,
 		MaxTerms:      *f.maxTerms,
-		TermLimit:     *f.terms,
+		TermLimit:     f.termLimit(),
 		Career:        *f.forceCar,
 		Subsector:     *f.subsector,
 		Homeworld:     *f.homeworld,
