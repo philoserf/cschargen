@@ -1,13 +1,33 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strconv"
 
 	"github.com/philoserf/cschargen/chargen"
 	"github.com/philoserf/cschargen/setting"
 )
+
+// splitJSONL is the lines of a JSONL document, without the empty tail the
+// trailing newline leaves.
+func splitJSONL(document []byte) [][]byte {
+	var records [][]byte
+
+	for line := range bytes.SplitSeq(document, []byte("\n")) {
+		if len(bytes.TrimSpace(line)) > 0 {
+			records = append(records, line)
+		}
+	}
+
+	return records
+}
+
+// itoa keeps the width arithmetic in writeRecordsInto readable.
+func itoa(n int) string { return strconv.Itoa(n) }
 
 // batchCommand is `cschargen batch`: generate several characters and write
 // them as JSONL, one record per line.
@@ -59,7 +79,47 @@ func batchCommand(args []string, out *os.File) error {
 		return nil
 	}
 
+	if isDirectory(*flags.output) {
+		return writeRecordsInto(*flags.output, encoded, *flags.force)
+	}
+
 	return writeFile(*flags.output, encoded, *flags.force)
+}
+
+// isDirectory reports whether the output path names a directory that
+// already exists. The PRD's CLI sketch has always read
+// `-o dir|file.jsonl`, and an existing directory is the least surprising
+// way to ask for the first: nothing is created behind the caller's back,
+// and a path ending in `.jsonl` can never be mistaken for one.
+func isDirectory(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+
+	return info.IsDir()
+}
+
+// writeRecordsInto splits a batch into one file per record, numbered in the
+// order they were generated, so that every other command works on them
+// unchanged: `render dir/npc-03.json` needs no new code at all.
+//
+// The width of the number is the width of the count, so a batch of a
+// hundred sorts correctly in a listing and in a glob.
+func writeRecordsInto(dir string, batch []byte, force bool) error {
+	records := splitJSONL(batch)
+	width := len(itoa(len(records)))
+
+	for i, record := range records {
+		name := fmt.Sprintf("npc-%0*d.json", width, i+1)
+
+		err := writeFile(filepath.Join(dir, name), append(record, '\n'), force)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // rejectFinishingFlags refuses the four that set one character's Step 20
