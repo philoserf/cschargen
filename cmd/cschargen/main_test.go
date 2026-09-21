@@ -16,10 +16,11 @@ import (
 // cmdNew is the subcommand the tests drive, named because several cases
 // spell it.
 const (
-	cmdNew  = "new"
-	cmdData = "data"
-	fileA   = "a.json"
-	fileB   = "b.json"
+	cmdNew   = "new"
+	cmdBatch = "batch"
+	cmdData  = "data"
+	fileA    = "a.json"
+	fileB    = "b.json"
 )
 
 func capture(t *testing.T, args ...string) (string, error) {
@@ -858,5 +859,57 @@ func TestBatchToAStreamThatIsClosed(t *testing.T) {
 	err = run([]string{"batch", "--auto", "--count", "1", "--terms", "1"}, file)
 	if err == nil {
 		t.Error("a batch written to a closed file succeeded")
+	}
+}
+
+// TestBatchRefusesTheStep20Flags. `--name`, `--gender`, `--appearance` and
+// `--goals` set one character's Step 20 fields. `batch` shares the flag set
+// because the two commands take the same inputs otherwise, and applying
+// them there would give twenty people the same name and the same face.
+//
+// Refusing costs the caller one line. Applying them quietly costs twenty
+// wrong sheets and the time to work out why.
+func TestBatchRefusesTheStep20Flags(t *testing.T) {
+	t.Parallel()
+
+	for _, flag := range []string{"name", "gender", "appearance", "goals"} {
+		t.Run(flag, func(t *testing.T) {
+			t.Parallel()
+
+			_, err := capture(t, cmdBatch, "--auto", "--count", "2", "--"+flag, "x")
+			if err == nil {
+				t.Fatal("batch accepted a Step 20 flag")
+			}
+
+			if !strings.HasPrefix(err.Error(), "usage:") {
+				t.Errorf("error %q does not begin with usage:", err)
+			}
+
+			if !strings.Contains(err.Error(), "--"+flag) {
+				t.Errorf("error %q does not name the flag", err)
+			}
+		})
+	}
+}
+
+// TestEachCommandsHelpNamesItself. A flag set carries the name it was built
+// with, and `new` and `batch` share theirs — so `batch --help` announced
+// `Usage of new:` for as long as nothing passed the command's own name in.
+func TestEachCommandsHelpNamesItself(t *testing.T) {
+	t.Parallel()
+
+	for _, command := range []string{cmdNew, cmdBatch} {
+		t.Run(command, func(t *testing.T) {
+			t.Parallel()
+
+			_, err := capture(t, command, "--nope")
+			if err == nil {
+				t.Fatal("an unknown flag was accepted")
+			}
+
+			if !strings.Contains(err.Error(), command+":") {
+				t.Errorf("%s reported the error as %q, which does not name it", command, err)
+			}
+		})
 	}
 }

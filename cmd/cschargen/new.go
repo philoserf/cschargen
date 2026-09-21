@@ -42,8 +42,12 @@ type newFlags struct {
 	set *flag.FlagSet
 }
 
-func bindNewFlags() newFlags {
-	flags := flagSet("new")
+// bindNewFlags binds the flags `new` and `batch` share. The command's own
+// name is passed in so that its help announces itself: a flag set carries
+// the name it was built with, and `batch --help` announced `new` for as
+// long as the two shared one.
+func bindNewFlags(command string) newFlags {
+	flags := flagSet(command)
 
 	return newFlags{
 		seed:      flags.Uint64("seed", 0, "seed for the dice; omitted means a random one, recorded in the output"),
@@ -74,11 +78,11 @@ func bindNewFlags() newFlags {
 func (f newFlags) parse(args []string) (uint64, error) {
 	err := f.set.Parse(args)
 	if err != nil {
-		return 0, usagef("new: %v", err)
+		return 0, usagef("%s: %v", f.set.Name(), err)
 	}
 
 	if f.set.NArg() > 0 {
-		return 0, usagef("new takes no positional arguments, got %q", f.set.Arg(0))
+		return 0, usagef("%s takes no positional arguments, got %q", f.set.Name(), f.set.Arg(0))
 	}
 
 	if isSet(f.set, "seed") {
@@ -87,6 +91,12 @@ func (f newFlags) parse(args []string) (uint64, error) {
 
 	return rand.Uint64(), nil
 }
+
+// finishingFlags are the four that set one character's Step 20 fields. They
+// are meaningless on a batch: the same name, gender, appearance and goal on
+// twenty people is not a thing anyone means, and applying them quietly is
+// worse than refusing. See the rejection in batchCommand.
+var finishingFlags = []string{"name", "gender", "appearance", "goals"}
 
 // inputs is everything the command line says about the character, which is
 // the same set whether one is generated or twenty.
@@ -127,7 +137,7 @@ func decider(auto bool) chargen.Decider {
 // newCommand is `cschargen new`: generate one character and write its
 // record.
 func newCommand(args []string, out *os.File) error {
-	flags := bindNewFlags()
+	flags := bindNewFlags("new")
 
 	seed, err := flags.parse(args)
 	if err != nil {
@@ -150,6 +160,8 @@ func newCommand(args []string, out *os.File) error {
 	if err != nil {
 		return fmt.Errorf("generating: %w", err)
 	}
+
+	warnIfTheCareerChanged(os.Stderr, character, *flags.forceCar)
 
 	encoded, err := json.MarshalIndent(character, "", "  ")
 	if err != nil {
