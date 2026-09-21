@@ -226,12 +226,12 @@ func termLimit(requested int) int {
 	}
 }
 
-// Run walks the steps this milestone implements and returns the record.
+// Run walks the twenty steps of character creation and returns the record.
 //
-// Milestone 1 implements Step 2 and Steps 9-18; Steps 1 and 3-8 are stubbed,
-// and Step 19 arrives with mustering out (docs/MILESTONE-1.md). The order
-// here is the book's, so that adding a step is adding a line rather than
-// rearranging one.
+// The order here is the book's, with the one departure the comment below
+// names: the genetics of Step 5 decide which characteristic method Step 2
+// uses, so they run first. Keeping the rest in the book's order is what
+// makes adding a step a line rather than a rearrangement.
 func (g *Generator) Run() (*Character, error) {
 	if g.setting == nil {
 		return nil, ErrNoSetting

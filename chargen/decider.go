@@ -10,9 +10,9 @@ import (
 // DeciderKind identifies who resolved a choice.
 type DeciderKind string
 
-// The deciders. Player and Policy are the two modes of docs/PRD.md goal 2;
-// Replay is the third, and it never decides anything -- it reapplies what a
-// record already holds.
+// The deciders. Player and Policy are the two modes a character is
+// generated in; Replay is the third, and it never decides anything -- it
+// reapplies what a record already holds.
 const (
 	DeciderPlayer DeciderKind = "player"
 	DeciderPolicy DeciderKind = "policy"

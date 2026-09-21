@@ -16,7 +16,6 @@ SRD (2008) → Cepheus Engine SRD (2016) → _Clement Sector: The Rules_ (2016) 
 book. Nothing here is shared with `ctchargen` or `t5chargen` beyond house
 conventions; do not reason from those rulesets.
 
-`docs/PRD.md` is the v1 contract.
 `ERRATA.md` carries every place the book is wrong or silent and what the engine
 does about it — **add to it in the same change that implements the reading**, never
 as a later pass.
@@ -98,8 +97,7 @@ that would otherwise compile.
   that reads close to the page in Go and like nothing in JSON. The transcription
   is the cost either way. The careers' shapes genuinely differ, too: National Navy
   has nine skill tables and a commission, Vagabond has four and no enlistment
-  throw, and Go structs make that variance a compile error. See
-  `docs/MILESTONE-3.md`.
+  throw, and Go structs make that variance a compile error.
 - **Every throw carries the page it came from.** A `ThrowEvent` without a cite is
   not auditable, which is the whole reason the log exists.
 - **The event log is written as rules run, never reconstructed afterward.**

@@ -117,9 +117,9 @@ func TestVagabondAndPrisonerNumbers(t *testing.T) {
 	}
 }
 
-// TestColonistReachesFourOtherCareers is the finding that set this
-// milestone's scope (docs/MILESTONE-1.md). If a later change makes one
-// career self-contained, this test should be the thing that notices.
+// TestColonistReachesFourOtherCareers holds the fact that makes careers a
+// graph rather than a list. If a later change makes one career
+// self-contained, this test should be the thing that notices.
 func TestColonistReachesFourOtherCareers(t *testing.T) {
 	t.Parallel()
 

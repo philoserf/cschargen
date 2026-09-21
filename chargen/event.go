@@ -1,12 +1,12 @@
 // Package chargen is the character-generation engine. This file defines the
 // generation record: the ordered event log of every step, throw, choice and
-// consequence in a lifepath (docs/PRD.md FR15).
+// consequence in a lifepath.
 //
 // Events carry monotonic sequence numbers starting at 1 and increasing by
 // 1. Consequence events reference the sequence number of the throw, choice
 // or step that caused them. The stored log is verification data for replay:
 // the engine re-runs from the seed and the choice events and recomputes
-// every throw (docs/PRD.md, Replay and provenance contract).
+// every throw.
 package chargen
 
 import "github.com/philoserf/cschargen/dice"
@@ -75,7 +75,7 @@ type ConsequenceKind string
 // The consequence kinds. ConsequenceUnimplemented is the honest one: a
 // table result the engine cannot carry out, recorded with what the book
 // asked for, so the record says what it could not do rather than quietly
-// doing something else (docs/MILESTONE-1.md).
+// doing something else.
 const (
 	ConsequenceCharacteristic ConsequenceKind = "characteristic"
 	ConsequenceSkill          ConsequenceKind = "skill"

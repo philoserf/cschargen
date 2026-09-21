@@ -91,8 +91,8 @@ Two consequences that look like ordinary design decisions and are not:
 data — thousands of lines of hand-typed table — and they are compiled in, because
 mechanics are open content and names are not. If you find yourself thinking "the
 careers should be a data file too, for symmetry", the symmetry is not there to be had.
-`docs/MILESTONE-3.md` records the separate argument against it, which is about shape
-rather than licensing.
+The separate argument against it is about shape rather than licensing, and it is in
+section 5 below.
 
 **The word is avoided everywhere, including in identifiers and JSON keys.** The
 repository says "engineered human" in prose, Go identifiers and data-format keys. The
@@ -388,8 +388,8 @@ Now the other direction — **what would require rethinking something fundamenta
 - **Derived state the log does not produce.** Any `State` field computed at render
   time, or set without a corresponding consequence event, breaks the claim that the
   record is the source of truth and quietly weakens `replay`.
-- **Careers as a data file.** Decided against, against all thirty-four, in
-  `docs/MILESTONE-3.md`. The argument is about shape: a table result is a tree — a
+- **Careers as a data file.** Decided against, against all thirty-four. The argument
+  is about shape: a table result is a tree — a
   choice between two checks whose success branches differ, a check whose success
   branch holds another check — and that reads close to the page in Go and like nothing
   in JSON.
@@ -456,8 +456,7 @@ costlier than usual — it is load-bearing in the reader's head.
 
 **`setting`'s package doc points at `data/setting.sample.json`.** The file is
 `setting/sample.json`, embedded; `/data/` is gitignored precisely because it is where a
-user's transcription goes. `docs/PRD.md` FR14 has a truncated sentence about the same
-file and names `origin` and `species` packages that do not exist.
+user's transcription goes.
 
 ### Things I am inferring rather than reading
 
@@ -476,10 +475,6 @@ file and names `origin` and `species` packages that do not exist.
   `crisisSurvived`, `mustContinue`…). I read this as the honest shape of a procedure
   whose steps genuinely affect each other, rather than as a package that failed to get
   split — but the eighteen `*_internal_test.go` files suggest the seams are felt.
-- **Whether `docs/MILESTONE-*.md` are history or live plans.** The working-tree
-  `CLAUDE.md` has just dropped "`docs/MILESTONE-1.md` is the current plan", which reads
-  as a deliberate demotion to history — but several code comments still cite them in
-  the present tense.
 
 ### Things I did not read closely
 
@@ -504,7 +499,7 @@ sections above to it.
 | 4   | medium   | #120 — Three effect kinds carry comments describing behaviour since implemented           | `career/effect.go:100`, `career/build.go:25`         |
 | 5   | medium   | #119 — The independent second transcription covers 3 careers of 34                        | `career/transcription_test.go:9`                     |
 | 6   | low      | #129 — ERRATA.md says it has two kinds of entry and carries three                         | `ERRATA.md:8`                                        |
-| 7   | low      | #127 — `setting`'s package doc names a sample path that is gitignored and does not exist  | `setting/setting.go:19`, `docs/PRD.md:279`           |
+| 7   | low      | #127 — `setting`'s package doc names a sample path that is gitignored and does not exist  | `setting/setting.go:19`                              |
 | 8   | low      | #128 — The comment justifying one ragged consequence struct counts 13 kinds; there are 17 | `chargen/event.go:105`                               |
 | 9   | medium   | #117 — `Term.Event` and `Term.Mishap` are declared in the schema and never written        | `chargen/state.go:57`, `chargen/serve.go:22`         |
 

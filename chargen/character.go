@@ -24,9 +24,10 @@ type RNG struct {
 }
 
 // SettingData identifies the external file the world and species tables
-// were read from (docs/PRD.md, Product Identity constraint). Milestone 2
-// fills Hash; until then Sample reports that the character was generated
-// against the invented sample data and is not set on real worlds.
+// were read from. Hash is that file's content, so a record refuses to
+// replay against a different transcription; Sample reports that the
+// character was generated against the invented sample data and is not set
+// on real worlds.
 type SettingData struct {
 	Name   string `json:"name"`
 	Hash   string `json:"hash,omitempty"`

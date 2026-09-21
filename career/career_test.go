@@ -53,8 +53,8 @@ func TestTheBookIsFullyTranscribed(t *testing.T) {
 	}
 }
 
-// TestEveryCareerHasItsPrintedShape is the completeness check of
-// docs/MILESTONE-1.md. What is invariant is narrower than "every career has
+// TestEveryCareerHasItsPrintedShape is the completeness check. What is
+// invariant is narrower than "every career has
 // every table": a d66 event table has 36 entries, a 2d6 mishap table has
 // 11, any skill table that exists has 6 rows, and a benefit table has 7.
 // Which tables exist varies by career, and the test must not assume
