@@ -112,9 +112,10 @@ listed" did to a population, and the career is the row a batch repeats a hundred
 times. The assignment is in for a reason with a number on it. With the career
 alone, a hundred characters covered every career the book prints but nobody in
 three hundred held **Gunner** — every National Navy character took the first
-assignment the career prints, which is not Gunnery, and three hundred characters
-between them reached ten distinct assignments. With both drawn, eighteen of three
-hundred hold Gunner and eighty-eight assignments appear. A crew can be cast from
+assignment the career prints, which is not Gunnery, and thirty-two distinct
+assignments appeared across three hundred characters, which is about one per
+career. With both drawn, eighteen of three hundred hold Gunner and eighty-eight
+assignments appear. A crew can be cast from
 that and could not be cast from the other.
 
 **`--names`** draws a character's name from a file the caller supplies, one name
