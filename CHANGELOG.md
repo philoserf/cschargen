@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### The command says what it did
+
+- **`--career` says when it did not get the career.** A failed enlistment closes
+  a career for two terms (p. 110) and the character drifts, which is the rules
+  working — but the command was silent about it, so a referee scripting a cast
+  got silent substitutions and found out twenty sheets later. Nine of twenty seeds
+  asking for Corporate Shipper produced one. Now a note on stderr, and exit 0
+  unchanged: the character generated successfully, and somebody running a hundred
+  should not have to check a hundred exit codes. `batch` counts the substitutions
+  rather than repeating the line.
+- **`batch` refuses the four Step 20 flags.** `--name`, `--gender`, `--appearance`
+  and `--goals` set one character's fields; applied to twenty they set the same
+  four values on everybody. Refusing costs one line, applying them quietly costs
+  twenty wrong sheets.
+- **Each command's help names itself.** A flag set carries the name it was built
+  with, and `new` and `batch` share theirs, so `batch --help` announced
+  `Usage of new:`.
+
 ### The record says what happened
 
 Two places where the record knew something and did not say it, both found by
