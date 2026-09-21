@@ -2,6 +2,7 @@ package chargen_test
 
 import (
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -679,5 +680,82 @@ func TestAThrowThatMissesIsThrownAgain(t *testing.T) {
 			t.Errorf("%s took %.0f%% of the sample, which is the old first-option skew",
 				name, share*100)
 		}
+	}
+}
+
+// TestTheTechLevelAskedForGatesTheAging is pp. 122-123: the aging bands are
+// keyed by the homeworld's tech level, and `--tech-level` is how a referee
+// generates a character as if from a world their setting file does not have.
+//
+// It was recorded in provenance and read by nothing, so a record named a
+// tech level that never gated a throw.
+func TestTheTechLevelAskedForGatesTheAging(t *testing.T) {
+	t.Parallel()
+
+	// A low tech level starts the throws at 18 rather than 33 or later, so
+	// a character of the same age shows it in the apparent-age lookup
+	// (p. 125) without needing the aging throws themselves read out.
+	low := options(t, 21)
+
+	low.Inputs.TermLimit = 4
+	low.Inputs.TechLevel = 9
+
+	high := options(t, 21)
+
+	high.Inputs.TermLimit = 4
+
+	aged := generate(t, low)
+	ordinary := generate(t, high)
+
+	if aged.State.ApparentAge == ordinary.State.ApparentAge {
+		t.Errorf("tech level 9 and the homeworld's own gave the same apparent age %v",
+			aged.State.ApparentAge)
+	}
+}
+
+// TestTheMaximumTermsAskedForBinds is p. 42's homeworld ceiling, which
+// CLAUDE.md describes as one of the term limit's two and the lower winning
+// (p. 125).
+func TestTheMaximumTermsAskedForBinds(t *testing.T) {
+	t.Parallel()
+
+	for _, want := range []int{1, 2, 3} {
+		t.Run(strconv.Itoa(want), func(t *testing.T) {
+			t.Parallel()
+
+			opts := options(t, 21)
+
+			// Higher than the cap, so the cap is what binds.
+			opts.Inputs.TermLimit = 8
+			opts.Inputs.MaxTerms = want
+
+			if got := len(generate(t, opts).State.Terms); got != want {
+				t.Errorf("a homeworld maximum of %d terms let the character serve %d", want, got)
+			}
+		})
+	}
+}
+
+// TestAReassignmentTakesTheNewWorldsTechLevel. `--tech-level` says where a
+// character was born, the way `--homeworld` does. A Colonist mishap moves
+// them to a world with its own tech level, and ERRATA E-9 is that the
+// reassignment changes exactly that -- so the flag must not follow them.
+func TestAReassignmentTakesTheNewWorldsTechLevel(t *testing.T) {
+	t.Parallel()
+
+	opts := options(t, 21)
+
+	opts.Inputs.TermLimit = 8
+	opts.Inputs.TechLevel = 9
+	opts.Inputs.Career = careerColonist
+
+	character := generate(t, opts)
+	if len(character.State.Homeworlds) < 2 {
+		t.Skip("this seed was never reassigned a homeworld")
+	}
+
+	moved := character.State.Homeworlds[1]
+	if moved.TechLevel == 9 && moved.World != character.State.Homeworlds[0].World {
+		t.Error("the tech level asked for followed the character to a world that has its own")
 	}
 }

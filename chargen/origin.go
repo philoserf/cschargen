@@ -494,7 +494,7 @@ func (g *Generator) settleOn(world setting.World, sub setting.Subsector, cause i
 		Reason:    reason,
 	})
 
-	g.techLevel = world.TechLevel
+	g.techLevel = g.techLevelFor(world, cause)
 	g.settledYear = world.SettledYear
 
 	if first {
@@ -509,7 +509,7 @@ func (g *Generator) settleOn(world setting.World, sub setting.Subsector, cause i
 		// restrictions will not apply to them" (p. 42), so only a human
 		// carries their homeworld's caps.
 		if g.ageLimitsApply() {
-			g.homeworldTerms = world.MaximumTerms
+			g.homeworldTerms = g.homeworldTermsFor(world, cause)
 			g.maximumAge = world.MaximumAge
 		} else {
 			g.consequence(ConsequenceHomeworld, cause,
@@ -545,4 +545,44 @@ func (g *Generator) reassignHomeworld(cause int, detail string) error {
 	}
 
 	return g.settleOn(world, sub, cause, detail)
+}
+
+// techLevelFor is the tech level the aging tables are read at (pp. 122-123),
+// which is the homeworld's unless the command line named one.
+//
+// `--tech-level` is how a referee generates a character as if from a world
+// their setting file does not have. A reassignment mid-career moves the
+// character to a world with its own tech level and the flag does not follow
+// them there: it describes where they were born, the way `--homeworld`
+// does.
+func (g *Generator) techLevelFor(world setting.World, cause int) int {
+	asked := g.char.Provenance.Inputs.TechLevel
+	if asked == 0 || len(g.char.State.Homeworlds) > 1 {
+		return world.TechLevel
+	}
+
+	g.consequence(ConsequenceHomeworld, cause,
+		"the aging tables are read at tech level "+itoa(asked)+
+			" rather than "+world.Name+"'s "+itoa(world.TechLevel)+" (p. 122)", "")
+
+	return asked
+}
+
+// homeworldTermsFor is the ceiling the homeworld puts on a career (p. 42),
+// which is the world's unless the command line named one.
+//
+// It is one of the term limit's two ceilings and the lower wins (p. 125), so
+// naming a smaller one here binds and naming a larger one leaves the
+// policy's `--terms` to decide.
+func (g *Generator) homeworldTermsFor(world setting.World, cause int) int {
+	asked := g.char.Provenance.Inputs.MaxTerms
+	if asked == 0 {
+		return world.MaximumTerms
+	}
+
+	g.consequence(ConsequenceHomeworld, cause,
+		"a homeworld maximum of "+itoa(asked)+" terms rather than "+
+			world.Name+"'s "+itoa(world.MaximumTerms)+" (p. 42)", "")
+
+	return asked
 }
