@@ -323,9 +323,19 @@ func (g *Generator) roleIndexes(role string) []int {
 	return found
 }
 
-// FamilyOrigin is the Origin a tie from Step 5 carries, which is how the
-// youth tables reach "all family members".
-const FamilyOrigin = "family"
+// The Origins a tie carries when it did not come from a career. FR15 asks
+// that every relationship in the record name where it came from, and a tie
+// granted before Step 9 has no career to name -- so it names the stage of
+// life it was made in, which is what a reader wants of a childhood mentor
+// or a school rival.
+//
+// FamilyOrigin is also how the youth tables reach "all family members".
+const (
+	FamilyOrigin    = "family"
+	YouthOrigin     = "youth"
+	TeenageOrigin   = "teenage"
+	ChildhoodOrigin = "childhood"
+)
 
 // everyTie is the Count a result carries when it means all of them.
 const everyTie = -1
@@ -620,3 +630,18 @@ func (g *Generator) improveTies(cause int) error {
 
 // ratingCite is the page Relationship Ratings are defined on.
 const ratingCite = "p. 320"
+
+// tieOrigin is where a relationship granted right now came from: the career
+// being served, or -- before Step 9, where there is no career -- the stage
+// of life the character is in.
+//
+// FR15 asks that every relationship the record carries name its origin, and
+// a blank one is the record failing to. A childhood mentor and a parent are
+// both Allies at 125, and only the origin tells them apart.
+func (g *Generator) tieOrigin() string {
+	if g.career != nil {
+		return g.career.Name
+	}
+
+	return g.stage
+}

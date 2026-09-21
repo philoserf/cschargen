@@ -1,6 +1,7 @@
 package chargen
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/philoserf/cschargen/career"
@@ -283,4 +284,50 @@ func TestASurvivalModifierReachesTheSurvivalRoll(t *testing.T) {
 	}
 
 	t.Error("the survival throw did not carry the modifier granted to it")
+}
+
+// TestNothingWillHaveThemSaysWhy is the record naming the reason a career
+// list came back empty, rather than leaving a step that happened and said
+// nothing.
+//
+// Two things empty it, and writing this test is what showed that an aging
+// crisis and a mental characteristic at 0 are not among them: eligibleCareers
+// answers both with Vagabond, a list of one, which the ordinary choice point
+// records.
+func TestNothingWillHaveThemSaysWhy(t *testing.T) {
+	t.Parallel()
+
+	for name, arrange := range map[string]func(*Generator){
+		"a career the flags asked for, closed": func(g *Generator) {
+			g.forced = "Colonist"
+			g.lockout = map[string]int{"Colonist": 9}
+		},
+		"every career has turned them down": func(g *Generator) {
+			g.lockout = map[string]int{}
+			for _, def := range career.All() {
+				g.lockout[def.Name] = 9
+			}
+		},
+	} {
+		gen := engine(t, 163)
+		arrange(gen)
+
+		chosen, forced, err := gen.chooseCareer(0)
+		if err != nil {
+			t.Fatalf("%s: chooseCareer: %v", name, err)
+		}
+
+		if chosen.Name != career.Vagabond().Name || !forced {
+			t.Errorf("%s: went to %q (forced %v), want Vagabond", name, chosen.Name, forced)
+		}
+
+		detail := lastDetail(t, gen)
+		if !strings.Contains(detail, "no career will have them") {
+			t.Errorf("%s: the record says %q", name, detail)
+		}
+
+		if !strings.Contains(detail, "(p. 111)") {
+			t.Errorf("%s: the record does not cite the page: %q", name, detail)
+		}
+	}
 }

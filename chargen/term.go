@@ -31,35 +31,7 @@ func (g *Generator) enterCareer() error {
 // cannot be chosen at all (p. 111).
 func (g *Generator) chooseCareer(step int) (career.Career, bool, error) {
 	if g.transfer != nil {
-		pending := g.transfer
-
-		g.transfer = nil
-
-		name := pending.Career
-		if name == career.PreviousCareer {
-			name = g.previousCareerName()
-		}
-
-		found, ok := career.ByName(name)
-		if !ok {
-			// All thirty-four careers the book names are transcribed, so
-			// this is now a misspelled destination rather than a missing
-			// career. Generation still ends here rather than continuing as
-			// though the transfer had not been ordered: the character
-			// really is in that career now, and nothing the engine did
-			// next would be the rules being followed.
-			g.unimplemented(step, pending.Detail+
-				" -- generation ends here; no career of that name is transcribed")
-
-			g.stopped = true
-
-			return career.Career{}, false, nil
-		}
-
-		g.forcedAssignment = pending.Assignment
-		g.forcedTerms = pending.Terms
-
-		return found, true, nil
+		return g.takePendingTransfer(step)
 	}
 
 	if g.enslaved {
@@ -77,6 +49,10 @@ func (g *Generator) chooseCareer(step int) (career.Career, bool, error) {
 
 	eligible := g.eligibleCareers()
 	if len(eligible) == 0 {
+		g.consequence(ConsequenceCareer, step,
+			"no career will have them"+g.whyNothingIsOpen()+
+				": enter the Vagabond career (p. 111)", career.Vagabond().Name)
+
 		return career.Vagabond(), true, nil
 	}
 
@@ -113,6 +89,67 @@ func (g *Generator) previousCareerName() string {
 	}
 
 	return services[len(services)-beforeTheLast].Career
+}
+
+// whyNothingIsOpen names the reason the career list came back empty, so the
+// record says why the character drifted rather than leaving a step with
+// nothing under it.
+//
+// p. 111 is clear that the Vagabond itself is the rules working -- "most
+// characters enter the Vagabond career when circumstances leave them with no
+// viable alternative ... it ensures that characters always have a path
+// forward" -- which is why the silence was the bug and not the destination.
+//
+// Only two things empty the list. An aging crisis and a mental
+// characteristic at 0 do not: eligibleCareers answers both with Vagabond,
+// which is a list of one rather than a list of none, and the ordinary choice
+// point records it.
+func (g *Generator) whyNothingIsOpen() string {
+	if g.forced != "" {
+		return " but " + g.forced + ", which the flags asked for and which is closed to them"
+	}
+
+	return ", every career they might attempt having turned them down"
+}
+
+// takePendingTransfer is the career a mishap or an event named, arrived at.
+// The result that ordered it said where they were going; this is the step
+// where they get there, and a step that records nothing reads as a
+// rendering fault rather than as a character's life.
+func (g *Generator) takePendingTransfer(step int) (career.Career, bool, error) {
+	pending := g.transfer
+
+	g.transfer = nil
+
+	name := pending.Career
+	if name == career.PreviousCareer {
+		name = g.previousCareerName()
+	}
+
+	found, ok := career.ByName(name)
+	if !ok {
+		// All thirty-four careers the book names are transcribed, so this
+		// is now a misspelled destination rather than a missing career.
+		// Generation still ends here rather than continuing as though the
+		// transfer had not been ordered: the character really is in that
+		// career now, and nothing the engine did next would be the rules
+		// being followed.
+		g.unimplemented(step, pending.Detail+
+			" -- generation ends here; no career of that name is transcribed")
+
+		g.stopped = true
+
+		return career.Career{}, false, nil
+	}
+
+	g.forcedAssignment = pending.Assignment
+	g.forcedTerms = pending.Terms
+
+	g.consequence(ConsequenceCareer, step,
+		"entered "+found.Name+" without an enlistment roll: "+pending.Detail,
+		found.Name)
+
+	return found, true, nil
 }
 
 // ownedFirstCareer is p. 42's: "If an altrant or uplift character is born on
