@@ -2,6 +2,7 @@
 
 **Species**: human  
 **Age**: 31  
+**Apparent age**: 20-25  
 **Homeworld**: Ironpsalm  
 **Primary language**: Litany Cant  
 **Terms**: 3
