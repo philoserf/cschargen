@@ -13,13 +13,19 @@ import (
 // the file is a transcription, and the validator's job is to catch a typo
 // or an omission rather than to second-guess the book.
 const (
-	maxTechLevel = 20
-	maxAge       = 400
-	maxTerms     = 100
-	d100Low      = 1
-	d100High     = 100
-	d6Low        = 1
-	d6High       = 6
+	// MaxTechLevel and MaxTerms are exported because the command bounds
+	// `--tech-level` and `--max-terms` against them. A flag that overrides
+	// a world's value has to be held to the range a world's value is held
+	// to, and one number does that where two copies of it drift apart --
+	// which is what #84 was: the flag took what the file refused.
+	MaxTechLevel = 20
+	MaxTerms     = 100
+
+	maxAge   = 400
+	d100Low  = 1
+	d100High = 100
+	d6Low    = 1
+	d6High   = 6
 )
 
 // Validate reports every problem in a setting file. Every problem, not the
@@ -30,7 +36,8 @@ func Validate(data *Data) []string {
 
 	if data.SchemaVersion != SchemaVersion {
 		problems = append(problems, fmt.Sprintf(
-			"schemaVersion is %d; this build reads %d", data.SchemaVersion, SchemaVersion))
+			"schemaVersion is %d; this build reads %d", data.SchemaVersion, SchemaVersion,
+		))
 	}
 
 	species := map[string]bool{}
@@ -95,12 +102,14 @@ func validateSubsector(sub Subsector, where string, seen map[string]bool, rolls 
 	if sub.OriginRoll != 0 {
 		if sub.OriginRoll < d6Low || sub.OriginRoll > d6High {
 			problems = append(problems, fmt.Sprintf(
-				"%s has originRoll %d; the chart on p. 39 is 1d6", where, sub.OriginRoll))
+				"%s has originRoll %d; the chart on p. 39 is 1d6", where, sub.OriginRoll,
+			))
 		}
 
 		if other, taken := rolls[sub.OriginRoll]; taken {
 			problems = append(problems, fmt.Sprintf(
-				"%s and %s both claim originRoll %d", where, other, sub.OriginRoll))
+				"%s and %s both claim originRoll %d", where, other, sub.OriginRoll,
+			))
 		}
 
 		rolls[sub.OriginRoll] = where
@@ -128,7 +137,8 @@ func validateWorlds(sub Subsector, where string, species map[string]bool, worlds
 
 		if other, taken := worlds[name]; taken {
 			problems = append(problems, fmt.Sprintf(
-				"world %s appears in both %s and %s; names identify a homeworld", name, other, where))
+				"world %s appears in both %s and %s; names identify a homeworld", name, other, where,
+			))
 		}
 
 		worlds[name] = where
@@ -155,7 +165,8 @@ func validateRange(world World, where string, covered map[int]string) []string {
 	for result := low; result <= high; result++ {
 		if other, taken := covered[result]; taken {
 			problems = append(problems, fmt.Sprintf(
-				"%s: a d100 of %d also lands on %s", where, result, other))
+				"%s: a d100 of %d also lands on %s", where, result, other,
+			))
 
 			break
 		}
@@ -189,32 +200,38 @@ func validateOneSpecies(species Species, where string) []string {
 
 	if species.Kind != KindEngineered && species.Kind != KindUplift {
 		problems = append(problems, fmt.Sprintf(
-			"%s: kind %q; it must be engineered or uplift (p. 21)", where, species.Kind))
+			"%s: kind %q; it must be engineered or uplift (p. 21)", where, species.Kind,
+		))
 	}
 
 	if species.Aging != "" && !AgingProfiles[species.Aging] {
 		problems = append(problems, fmt.Sprintf(
-			"%s: aging %q is not a profile the engine holds", where, species.Aging))
+			"%s: aging %q is not a profile the engine holds", where, species.Aging,
+		))
 	}
 
 	for name := range species.Characteristics {
 		if !characteristics[name] {
 			problems = append(problems, fmt.Sprintf(
-				"%s: %q is not one of the six characteristics (p. 13)", where, name))
+				"%s: %q is not one of the six characteristics (p. 13)", where, name,
+			))
 		}
 	}
 
 	if species.Maximum < 0 || species.Maximum > maxCharacteristic {
 		problems = append(problems, fmt.Sprintf(
-			"%s: maximum %d", where, species.Maximum))
+			"%s: maximum %d", where, species.Maximum,
+		))
 	}
 
 	problems = append(problems, validateGenetics(species, where)...)
 
 	problems = append(problems, validateRollPattern(
-		species.YouthRolls, species.YouthAges, where+", youth")...)
+		species.YouthRolls, species.YouthAges, where+", youth",
+	)...)
 	problems = append(problems, validateRollPattern(
-		species.TeenRolls, species.TeenAges, where+", teenage")...)
+		species.TeenRolls, species.TeenAges, where+", teenage",
+	)...)
 
 	return problems
 }
@@ -252,20 +269,23 @@ func validateOutcomes(table []GeneticOutcome, name, where string) []string {
 	if len(table) != 0 && len(table) != d6Rows {
 		problems = append(problems, fmt.Sprintf(
 			"%s: the %s table has %d rows; a 1d6 table has %d",
-			where, name, len(table), d6Rows))
+			where, name, len(table), d6Rows,
+		))
 	}
 
 	for i, outcome := range table {
 		if outcome.Detail == "" && !outcome.Choose {
 			problems = append(problems, fmt.Sprintf(
-				"%s: %s result %d says nothing", where, name, i+1))
+				"%s: %s result %d says nothing", where, name, i+1,
+			))
 		}
 
 		for characteristic := range outcome.Adjust {
 			if !characteristics[characteristic] {
 				problems = append(problems, fmt.Sprintf(
 					"%s: %s result %d adjusts %q, which is not a characteristic",
-					where, name, i+1, characteristic))
+					where, name, i+1, characteristic,
+				))
 			}
 		}
 	}
@@ -282,7 +302,8 @@ func validateGeneticStatus(species Species, where string) []string {
 	if len(status) != 0 && len(status) != d6Rows {
 		problems = append(problems, fmt.Sprintf(
 			"%s: the genetic status table has %d rows; a 1d6 table has %d",
-			where, len(status), d6Rows))
+			where, len(status), d6Rows,
+		))
 	}
 
 	for i, row := range status {
@@ -292,18 +313,21 @@ func validateGeneticStatus(species Species, where string) []string {
 			if len(species.Genetics.Hybrid) == 0 {
 				problems = append(problems, fmt.Sprintf(
 					"%s: status result %d sends the character to a hybrid table it has none of",
-					where, i+1))
+					where, i+1,
+				))
 			}
 		case Compound:
 			if len(species.Genetics.Compound) == 0 {
 				problems = append(problems, fmt.Sprintf(
 					"%s: status result %d sends the character to a compound table it has none of",
-					where, i+1))
+					where, i+1,
+				))
 			}
 		default:
 			problems = append(problems, fmt.Sprintf(
 				"%s: status result %d is %q; it must be purebred, hybrid or compound",
-				where, i+1, row.Kind))
+				where, i+1, row.Kind,
+			))
 		}
 	}
 
@@ -322,7 +346,8 @@ func validateRollPattern(rolls int, ages []string, where string) []string {
 
 	if rolls != len(ages) {
 		return []string{fmt.Sprintf(
-			"%s: %d rolls and %d age ranges; a roll represents a range", where, rolls, len(ages))}
+			"%s: %d rolls and %d age ranges; a roll represents a range", where, rolls, len(ages),
+		)}
 	}
 
 	return nil
@@ -341,7 +366,7 @@ const maxCharacteristic = 30
 func validateWorld(world World, where string, species map[string]bool) []string {
 	var problems []string
 
-	if world.TechLevel < 0 || world.TechLevel > maxTechLevel {
+	if world.TechLevel < 0 || world.TechLevel > MaxTechLevel {
 		problems = append(problems, fmt.Sprintf("%s: techLevel %d", where, world.TechLevel))
 	}
 
@@ -349,7 +374,7 @@ func validateWorld(world World, where string, species map[string]bool) []string 
 		problems = append(problems, fmt.Sprintf("%s: maximumAge %d", where, world.MaximumAge))
 	}
 
-	if world.MaximumTerms <= 0 || world.MaximumTerms > maxTerms {
+	if world.MaximumTerms <= 0 || world.MaximumTerms > MaxTerms {
 		problems = append(problems, fmt.Sprintf("%s: maximumTerms %d", where, world.MaximumTerms))
 	}
 
@@ -364,7 +389,8 @@ func validateWorld(world World, where string, species map[string]bool) []string 
 	if forced := world.BirthSituationOnly; forced != "" && !BirthSituations[forced] {
 		problems = append(problems, fmt.Sprintf(
 			"%s: birthSituationOnly %q; the chart of p. 58 prints only %s",
-			where, forced, joinSituations()))
+			where, forced, joinSituations(),
+		))
 	}
 
 	problems = append(problems, validateRequirements(world.BackgroundSkills, where)...)
@@ -402,7 +428,8 @@ func validateSkillName(alternative Alternative, where string) []string {
 
 		problems = append(problems, fmt.Sprintf(
 			"%s: %q is not a specialty the book prints for %s (pp. 304-314)",
-			where, specialty, alternative.Skill))
+			where, specialty, alternative.Skill,
+		))
 	}
 
 	return problems
@@ -435,7 +462,8 @@ func validateRequirements(requirements []Requirement, where string) []string {
 	for i, requirement := range requirements {
 		if len(requirement.OneOf) == 0 {
 			problems = append(problems, fmt.Sprintf(
-				"%s: background skill %d offers no alternatives", where, i))
+				"%s: background skill %d offers no alternatives", where, i,
+			))
 
 			continue
 		}
@@ -454,7 +482,8 @@ func validatePermission(permission Permission, where string, species map[string]
 
 	if permission.Allowed && permission.Status != Free && permission.Status != Enslaved {
 		problems = append(problems, fmt.Sprintf(
-			"%s: status %q; it must be free or enslaved (p. 42)", where, permission.Status))
+			"%s: status %q; it must be free or enslaved (p. 42)", where, permission.Status,
+		))
 	}
 
 	if !permission.Allowed && len(permission.Banned) > 0 {
@@ -464,7 +493,8 @@ func validatePermission(permission Permission, where string, species map[string]
 	for _, banned := range permission.Banned {
 		if !species[banned] {
 			problems = append(problems, fmt.Sprintf(
-				"%s: bans %q, which is not in the species list", where, banned))
+				"%s: bans %q, which is not in the species list", where, banned,
+			))
 		}
 	}
 
@@ -511,7 +541,8 @@ func validateCoverage(sub Subsector, where string) []string {
 	}
 
 	return []string{fmt.Sprintf(
-		"%s: %d d100 results land on no world, the first being %d", where, len(gaps), gaps[0])}
+		"%s: %d d100 results land on no world, the first being %d", where, len(gaps), gaps[0],
+	)}
 }
 
 // BirthSituations is the three results the Human Birth Situation chart

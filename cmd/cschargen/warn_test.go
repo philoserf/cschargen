@@ -359,3 +359,57 @@ func TestNoCareerAskedForIsNotAnError(t *testing.T) {
 		t.Errorf(`checkCareer("") = %q, %v`, got, err)
 	}
 }
+
+// TestTheWorldOverridesAreBounded. `--tech-level` and `--max-terms` stand in
+// for a world's own numbers, so they are held to the range a world's numbers
+// are held to -- and to the same constants, exported rather than copied,
+// because two copies of a bound are how the flag came to take what the file
+// refused.
+func TestTheWorldOverridesAreBounded(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		args     []string
+		rejected bool
+	}{
+		{"a tech level past the format's", []string{"--tech-level", "99"}, true},
+		{"a negative tech level", []string{"--tech-level", "-1"}, true},
+		{"the highest a world may be", []string{"--tech-level", "20"}, false},
+		// A world may be tech level 0, so the flag has to be able to say
+		// it -- which is why this one is read with Visit rather than by
+		// treating 0 as absent.
+		{"a world at tech level 0", []string{"--tech-level", "0"}, false},
+		{"more terms than the format's", []string{"--max-terms", "101"}, true},
+		{"a negative maximum", []string{"--max-terms", "-5"}, true},
+		{"one term", []string{"--max-terms", "1"}, false},
+		{"the most a world may allow", []string{"--max-terms", "100"}, false},
+		{"neither given", nil, false},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			args := append([]string{cmdNew, "--auto", "--seed", "21", "--terms", "1"}, test.args...)
+
+			_, err := capture(t, args...)
+
+			if test.rejected {
+				if err == nil {
+					t.Fatalf("%v was accepted", test.args)
+				}
+
+				if !strings.HasPrefix(err.Error(), "usage:") {
+					t.Errorf("error %q does not begin with usage:", err)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Errorf("%v was refused: %v", test.args, err)
+			}
+		})
+	}
+}

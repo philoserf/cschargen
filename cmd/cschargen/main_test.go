@@ -1163,6 +1163,10 @@ func TestAnOriginFlagIsCheckedBeforeGenerating(t *testing.T) {
 			[]string{"--homeworld", "Quillon", "--subsector", "Tallow Drift"},
 			"Quillon",
 		},
+		// Through the command rather than through checkCareer directly:
+		// the checks are sequenced in checkNames, and a later one must not
+		// run after an earlier one has failed.
+		{"an unknown career", []string{"--career", "Nonesuch"}, "Nonesuch"},
 	}
 
 	for _, test := range tests {
