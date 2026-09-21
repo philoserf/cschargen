@@ -58,5 +58,14 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Gate
-        run: task
+      # TEMPORARY, for one run: what the runner is, and where the Gate's
+      # time actually goes. Two invocations rather than seven, because
+      # `ratchet` declares deps: [test] and `test` is run: once per
+      # invocation -- timing each task alone would run the suite twice.
+      - name: Measure
+        run: |
+          echo "::notice::cores=$(nproc) mem=$(free -g | awk '/Mem:/{print $2}')Gi"
+          s=$(date +%s); task tidy vet lint nilaway docs; e=$(date +%s)
+          echo "::notice::everything-but-the-suite $((e-s))s"
+          s=$(date +%s); task test ratchet; e=$(date +%s)
+          echo "::notice::the-suite $((e-s))s"
