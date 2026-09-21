@@ -16,14 +16,29 @@ SRD (2008) → Cepheus Engine SRD (2016) → _Clement Sector: The Rules_ (2016) 
 book. Nothing here is shared with `ctchargen` or `t5chargen` beyond house
 conventions; do not reason from those rulesets.
 
-`docs/PRD.md` is the v1 contract. `docs/MILESTONE-1.md` is the current plan.
+`docs/PRD.md` is the v1 contract.
 `ERRATA.md` carries every place the book is wrong or silent and what the engine
 does about it — **add to it in the same change that implements the reading**, never
 as a later pass.
 
+`THEORY.md` and `WALKTHROUGH.md` are standing documents on **different cadences**,
+and treating them as one thing gets both wrong. `THEORY.md` is about intent — the
+record is the deliverable, `Inputs` is what was asked for and `State` is what
+happened — and those claims outlive the code expressing them, so change it when a
+decision invalidates one, never because a function moved. `WALKTHROUGH.md` quotes
+forty snippets by file and symbol and rots the moment one is renamed, so do not
+patch it per change: **regenerate it at release time**. Neither is checked by
+anything — `POLICY.md` has a test holding it to the engine in both directions and
+these have no equivalent — which is why the cadence is written down rather than
+left to judgement.
+
 ## Commands
 
 Run `task --list` for the current set.
+
+Iterate with `go test ./chargen/ -run TestName` — plain, no flags. A subset run
+writes no coverage profile, so it cannot move the ratchet; `task test` is the only
+thing that should write `coverage.out`.
 
 **CI runs exactly `task`.** Never add a check to CI that the local gate does not
 run, and never add a tool to the gate without also installing it in the workflow.
@@ -67,14 +82,7 @@ belongs in the external file.
 
 ## Architecture
 
-| Package         | Holds                                                                                   |
-| --------------- | --------------------------------------------------------------------------------------- |
-| `dice`          | Seeded stream and the shapes of throw: 1d6, 1d3, Nd6, 2d6, 3d6-drop-lowest, d66, target |
-| `chargen`       | The engine: character record, event log, `Decider`, and the rules, a file per step      |
-| `career`        | Career definitions and the shared Injury and Life Events tables                         |
-| `setting`       | The external world, subsector and species data: types, validator, content hash          |
-| `render`        | Record → Markdown sheet and lifepath transcript                                         |
-| `cmd/cschargen` | Flags, subcommands, exit statuses                                                       |
+Each package's doc comment says what it holds.
 
 `dice` knows the shapes of throw and nothing about what one means. `career` is data
 consulted by the engine; it does not roll. Most of that layering is enforced by the
@@ -95,9 +103,6 @@ that would otherwise compile.
 - **Every throw carries the page it came from.** A `ThrowEvent` without a cite is
   not auditable, which is the whole reason the log exists.
 - **The event log is written as rules run, never reconstructed afterward.**
-- **Errors are checked on their own line**, never inline: `err := f()` then
-  `if err != nil`.
-- **Every test calls `t.Parallel()`**, top level and subtest.
 - Table-driven tests throughout; expected values from the book, cited.
 
 ## Releases
@@ -105,7 +110,8 @@ that would otherwise compile.
 No release automation. `CHANGELOG.md` is written by hand and **the tag goes last**,
 after the gate is green and the README's Status section says what the release
 actually is — that section went stale for five milestones and was caught only at
-the first release.
+the first release. `WALKTHROUGH.md` is regenerated in that same pass, for the
+same reason.
 
 Versions are prereleases until something has been played: `v0.1.0-alpha.N`. Two
 other version strings ship in every record and move independently of the tag:
@@ -118,32 +124,10 @@ other version strings ship in every record and move independently of the tag:
 `cschargen version` prints all three plus the ruleset, so a bug report can be
 matched against any record the binary wrote.
 
-## Lint posture
+## Formatting
 
-`.golangci.yml` runs `default: all`. Three of its disables are linters deprecated
-upstream and replaced by one that is enabled, so they disable no check that is not
-still being made. Everything else carries a measured count:
-
-- **Disabled outright:** `exhaustruct_v5` (26 findings, all on types whose unset
-  fields are the design — `Event` is a discriminated union where three of four
-  payload pointers are nil by construction) and `gochecknoglobals` (2, immutable
-  tables Go has no const form for).
-- **Scoped to `career/`:** `mnd` (51) and `goconst` (27) and `funlen` (4). A
-  transcribed table is a literal of printed numbers and repeated cells, and
-  collapsing a repeated cell into a constant is exactly the coupling the
-  transcription exists to prevent — one constant means one typo reaches every cell
-  that shares it, and the second reading stops being independent of the first.
-- **Scoped to `career/*_test.go`:** `cyclop` and `gocognit` (4). A test that checks
-  a table cell by cell has the complexity of the table.
-- **Configured, not disabled:** `gosec` waives G404 and G304, `godot` accepts a
-  comment ending in a quotation mark.
-
-That is the bar for adding another: count the findings, read them, and write down
-why they are wrong here. Every other finding the gate has produced — a hundred and
-thirty so far — was answered in the code.
-
-`nolintlint` requires a specific linter and an explanation and fails on an unused
-`//nolint`, so a blanket directive will not pass.
+`.golangci.yml` runs `default: all`, and every disable and scoped exclusion in it
+carries its reason in a comment beside itself. That is the bar for adding another.
 
 gofumpt and goimports run **inside** golangci-lint, which is the single definition
 of formatted for Go here. prettier is the same for every file that is not Go —
