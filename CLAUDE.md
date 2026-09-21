@@ -158,8 +158,9 @@ repository's documents quote their own examples.
   so a command test that rolls a whole lifepath from `rand.Uint64()` reaches
   different engine branches on every run — and the ratchet then disagrees between
   a developer's machine and CI for no reason anyone can see. A test that needs an
-  unpredictable seed should ask for `--terms -1`, which generates characteristics
-  and stops.
+  unpredictable seed should ask for no terms at all, which generates
+  characteristics and stops. `--terms 0` says that since alpha.4; `--terms -1`
+  is the older spelling and still works, which is why the tests still use it.
 - **`d66` is one throw, not two d6 rolls.** The results are 11-16, 21-26 … 61-66,
   so no digit is 0 or above 6. Reading it as 2d6 would collapse thirty-six results
   onto eleven.
@@ -185,4 +186,42 @@ repository's documents quote their own examples.
   mishaps reassign it, so the record holds a homeworld history — and a
   reassignment changes the tech level and nothing else (ERRATA E-9).
 - **The term limit has two ceilings.** The policy's `--terms` and the homeworld's
-  own maximum are both caps, and the lower wins (p. 125).
+  own maximum are both caps, and the lower wins (p. 125). `--max-terms` sets the
+  second of them, standing in for a world the setting file does not have.
+- **`Inputs` is what was asked for; `State` is what happened.** `Inputs.Career`
+  keeps the career asked for beside the career served, and `Inputs.Homeworld`
+  keeps the world asked for beside `State.Homeworlds`. Writing a result back
+  into `Inputs` made a finished record indistinguishable from one that had
+  requested its own outcome, and replay — which is handed the record's own
+  inputs — then honoured the request instead of re-rolling. Every auto record
+  diverged.
+- **A `Choice` cannot be gated on `Asker`.** `Replay` implements `Choose` and
+  not `Ask`, so a choice point gated that way is offered while generating and
+  skipped while replaying, and the recorded answer is never consumed. Gate on
+  `Inputs.Interactive`, which travels in the record. `Asker` is for Step 20,
+  whose answers live in `Inputs` and which replay does not re-ask.
+- **A flag whose zero is a legal value needs `flag.FlagSet.Visit`.** A plain int
+  cannot tell an unset flag from one set to its zero value, which is how
+  `--terms 0` came to mean the policy's four. `Visit` walks only the flags
+  given. `--max-terms` does not need it: the validator refuses a world with a
+  maximum of zero terms, so zero there is free to mean absent.
+- **A bound a flag and the data format share is one exported constant.**
+  `setting.MaxTechLevel` and `setting.MaxTerms` are exported because
+  `--tech-level` and `--max-terms` override a world's own numbers and have to be
+  held to the range a world's numbers are held to. Two copies of a bound is how
+  the flag came to take what the file refused.
+- **Being owned is not permanent.** p. 42 makes the slave career an enslaved
+  character's first, and three results in the early life tables end an
+  enslavement outright — "Continue your character as a free altrant or uplift".
+  A character born owned may reach Step 9 free, and a test asserting otherwise
+  passes only until the dice move.
+- **A subsector throw that lands on no chart entry is thrown again.** p. 39's
+  chart is a 1d6 and a setting file may name fewer than six subsectors. Throwing
+  again keeps the chart's weighting; turning the miss into a choice hands it to
+  the policy, which answers with the first subsector the file lists.
+- **`lifepath` in the tests keeps what it makes.** Thirty-two call sites sweep
+  the same seeds at seven term counts, so the suite walked 1,860 lifepaths to
+  see 420 characters. A character is a pure function of its seed, term limit,
+  setting and decider, and nothing in the tests writes to one — so a test that
+  needs to modify a character builds its own with `options()` and `generate()`,
+  which is what the tests taking a different decider already do.
