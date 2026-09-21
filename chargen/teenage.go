@@ -86,7 +86,7 @@ func (g *Generator) chooseTeenagePath(step int, period string) (career.TeenagePa
 	}
 
 	open := []career.TeenagePath{homeworldPath}
-	names := []string{homeworldPath.Name}
+	names := []string{homeworldPath.Label()}
 
 	for _, path := range paths[2:] {
 		if !path.Open(score, settled) {
@@ -94,7 +94,7 @@ func (g *Generator) chooseTeenagePath(step int, period string) (career.TeenagePa
 		}
 
 		open = append(open, path)
-		names = append(names, path.Name)
+		names = append(names, path.Label())
 	}
 
 	if len(open) == 1 {

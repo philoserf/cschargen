@@ -21,6 +21,13 @@ package career
 type YouthPath struct {
 	Name string
 
+	// Qualifier is what the book prints beside the name, which is the only
+	// label it gives a path: "Path 2 (STR 8+ or END 8+)". The paths have
+	// no titles, so the requirement is the description, and it is also the
+	// answer to why a path a character does not qualify for is missing
+	// from the list they are offered.
+	Qualifier string
+
 	// Cite is the page the path is printed on.
 	Cite string
 
@@ -55,9 +62,9 @@ func (p YouthPath) Open(score func(string) int) bool {
 // narrows the choice.
 func YouthPaths() []YouthPath {
 	return []YouthPath{
-		{Name: "Path 1", Cite: "pp. 68-69", Rows: youthPathOne()},
+		{Name: "Path 1", Qualifier: "No Requirements", Cite: "pp. 68-69", Rows: youthPathOne()},
 		{
-			Name: "Path 2", Cite: "pp. 70-71",
+			Name: "Path 2", Qualifier: "STR 8+ or END 8+", Cite: "pp. 70-71",
 			Requires: []Check{
 				{Characteristic: "STR", Number: 8},
 				{Characteristic: "END", Number: 8},
@@ -65,17 +72,17 @@ func YouthPaths() []YouthPath {
 			Rows: youthPathTwo(),
 		},
 		{
-			Name: "Path 3", Cite: "pp. 71-72",
+			Name: "Path 3", Qualifier: "DEX 8+", Cite: "pp. 71-72",
 			Requires: []Check{{Characteristic: "DEX", Number: 8}},
 			Rows:     youthPathThree(),
 		},
 		{
-			Name: "Path 4", Cite: "pp. 72-73",
+			Name: "Path 4", Qualifier: "INT 8+", Cite: "pp. 72-73",
 			Requires: []Check{{Characteristic: "INT", Number: 8}},
 			Rows:     youthPathFour(),
 		},
 		{
-			Name: "Path 5", Cite: "pp. 73-74",
+			Name: "Path 5", Qualifier: "CHA 8+", Cite: "pp. 73-74",
 			Requires: []Check{{Characteristic: "CHA", Number: 8}},
 			Rows:     youthPathFive(),
 		},
@@ -137,4 +144,10 @@ func YouthLifeEvents() []EventRow {
 			},
 		},
 	}
+}
+
+// Label is the path as the book heads it, which is how it is offered to a
+// player: the name and the requirement that opens it.
+func (p YouthPath) Label() string {
+	return p.Name + " (" + p.Qualifier + ")"
 }

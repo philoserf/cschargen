@@ -1,6 +1,7 @@
 package career_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/philoserf/cschargen/career"
@@ -438,6 +439,60 @@ func TestTheEnslavedPathsAreElevenRowTables(t *testing.T) {
 		if youth.Rows[i].Summary != teenage.Rows[i].Summary {
 			t.Errorf("result %d differs between the two tables: %q and %q",
 				i+2, youth.Rows[i].Summary, teenage.Rows[i].Summary)
+		}
+	}
+}
+
+// TestEveryPathIsLabelledAsTheBookHeadsIt. The paths of Steps 6 and 7 have
+// no titles: the book heads each one with the requirement that opens it,
+// "Path 2 (STR 8+ or END 8+)", and that heading is the only description
+// there is. Offering a bare "Path 2" tells a player nothing, and says
+// nothing about why the paths they do not qualify for are absent.
+func TestEveryPathIsLabelledAsTheBookHeadsIt(t *testing.T) {
+	t.Parallel()
+
+	for _, path := range career.YouthPaths() {
+		if path.Qualifier == "" {
+			t.Errorf("youth %s carries no qualifier", path.Name)
+		}
+
+		if want := path.Name + " (" + path.Qualifier + ")"; path.Label() != want {
+			t.Errorf("youth %s labels itself %q", path.Name, path.Label())
+		}
+	}
+
+	for _, path := range career.TeenagePaths() {
+		if path.Qualifier == "" {
+			t.Errorf("teenage %s carries no qualifier", path.Name)
+		}
+
+		if want := path.Name + " (" + path.Qualifier + ")"; path.Label() != want {
+			t.Errorf("teenage %s labels itself %q", path.Name, path.Label())
+		}
+	}
+}
+
+// TestAPathQualifierNamesItsOwnRequirement holds the transcribed heading
+// against the check the engine actually makes, so the two cannot drift: a
+// path gated on DEX must say DEX.
+func TestAPathQualifierNamesItsOwnRequirement(t *testing.T) {
+	t.Parallel()
+
+	for _, path := range career.YouthPaths() {
+		for _, check := range path.Requires {
+			if !strings.Contains(path.Qualifier, check.Characteristic) {
+				t.Errorf("youth %s is gated on %s and says %q",
+					path.Name, check.Characteristic, path.Qualifier)
+			}
+		}
+	}
+
+	for _, path := range career.TeenagePaths() {
+		for _, check := range path.Requires {
+			if !strings.Contains(path.Qualifier, check.Characteristic) {
+				t.Errorf("teenage %s is gated on %s and says %q",
+					path.Name, check.Characteristic, path.Qualifier)
+			}
 		}
 	}
 }

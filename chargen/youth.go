@@ -109,7 +109,7 @@ func (g *Generator) chooseYouthPath(step int, period string) (career.YouthPath, 
 	// always the first the book prints. Starting the list with it says so
 	// rather than leaving it to the loop below to discover.
 	open := []career.YouthPath{paths[0]}
-	names := []string{paths[0].Name}
+	names := []string{paths[0].Label()}
 
 	for _, path := range paths[1:] {
 		if !path.Open(score) {
@@ -117,7 +117,7 @@ func (g *Generator) chooseYouthPath(step int, period string) (career.YouthPath, 
 		}
 
 		open = append(open, path)
-		names = append(names, path.Name)
+		names = append(names, path.Label())
 	}
 
 	if len(open) == 1 {
