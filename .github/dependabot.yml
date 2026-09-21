@@ -1,0 +1,21 @@
+# The gate's toolchain is deliberately unpinned -- Go is `stable`,
+# golangci-lint and nilaway are `latest` -- so a tool that moves reports
+# itself on the next run, which is the point: a red gate on untouched code
+# is the signal working.
+#
+# The actions cannot do that. They are pinned by major and drift silently
+# until something deprecates loudly enough to annotate a run, which is how
+# golangci-lint-action sat two majors back ignoring `install-only` and
+# linting the tree a second time without anybody noticing. Dependabot is
+# what gives that half of the build the same reporting the other half has.
+#
+# No gomod entry: this module has no dependencies.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"
