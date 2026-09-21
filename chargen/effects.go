@@ -309,7 +309,7 @@ func (g *Generator) applyChoice(effect career.Effect) error {
 
 	chosen, err := g.choose(Choice{
 		Point:   "table_result",
-		Prompt:  effect.Detail,
+		Prompt:  asPrompt(effect.Detail),
 		Options: labels,
 		Cite:    g.cite,
 	})

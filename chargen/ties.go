@@ -227,7 +227,7 @@ func (g *Generator) ratingTargets(effect career.Effect, cause int) ([]int, error
 
 	chosen, err := g.choose(Choice{
 		Point:   "relationship_target",
-		Prompt:  effect.Detail,
+		Prompt:  asPrompt(effect.Detail),
 		Options: labels,
 		Cite:    ratingCite,
 	})
