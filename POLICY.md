@@ -46,7 +46,7 @@ policy has no entry for is a build error, not a silent default.
 | `uplift_class`           | p. 66, the class an uplift character is                        | The highest the homeworld's tech level allows, which is the one offered first                    |
 | `subsector_source`       | p. 39, roll for the subsector or choose one                    | Rolling — it is what the page describes first, and the policy has no character concept to fit    |
 | `homeworld_source`       | p. 40, roll for the homeworld or choose one                    | Rolling, for the same reason                                                                     |
-| `subsector`              | p. 39, a chart entry the d100 roll did not reach               | The first subsector the data lists                                                               |
+| `subsector`              | p. 39, a file whose subsectors are all choose-only             | The first subsector the data lists — a throw that misses is thrown again, so this is not reached |
 | `homeworld`              | p. 39, a choose-only subsector                                 | The first world the chart prints                                                                 |
 | `primary_language`       | p. 41, a world with more than one                              | The first the chart prints                                                                       |
 | `background_skill`       | p. 40, "or" between two background skills                      | The first the chart prints                                                                       |

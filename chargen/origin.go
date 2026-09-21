@@ -213,21 +213,68 @@ const rollInstead = "roll for it"
 // originCite is the page Steps 3 and 4 both begin on.
 const originCite = "p. 39"
 
+// rollSubsector throws on the chart of p. 39.
+//
+// The chart the book prints has an entry for all six results. A file whose
+// chart has gaps is not wrong -- a setting may have fewer than six
+// subsectors -- and a throw that lands in one is thrown again, which is what
+// a table does with a result that is not on the chart. Throwing again keeps
+// the chart's own weighting: a subsector claiming two results stays twice as
+// likely as one claiming a single result.
+//
+// It used to become a choice instead, and under the auto policy that choice
+// took the first subsector the file lists. On the repository's own sample,
+// which claims three of the six results, that put 71 characters in 100 on
+// one subsector and none at all on the fourth.
 func (g *Generator) rollSubsector(step int) (setting.Subsector, error) {
-	roll := g.dice.D6()
-	cause := g.log.Roll(roll, originCite)
+	if !g.anySubsectorIsRollable() {
+		return g.chooseAmongSubsectors(step)
+	}
 
+	for range maxOriginThrows {
+		roll := g.dice.D6()
+		cause := g.log.Roll(roll, originCite)
+
+		for _, sub := range g.setting.Subsectors {
+			if sub.OriginRoll == roll.Total {
+				g.consequence(ConsequenceHomeworld, cause, "born in "+sub.Name, "")
+
+				return sub, nil
+			}
+		}
+
+		g.consequence(ConsequenceHomeworld, cause,
+			"no subsector claims that result; throw again ("+originCite+")", "")
+	}
+
+	// A file claiming one result in six lands in six throws on average, so
+	// reaching the cap is the dice rather than the data -- and saying so
+	// beats throwing forever.
+	return setting.Subsector{}, ErrOriginThrowsExhausted
+}
+
+// maxOriginThrows bounds the re-throw so that a pathological file cannot
+// spin here. The worst a validated file can be is one subsector claiming a
+// single result, where a throw misses five times in six: a hundred misses
+// in a row is (5/6)^100, about one in eighty million. Twenty would be one
+// in thirty-eight, which is not a bound at all -- a suite throwing this a
+// dozen times would trip it about once a run.
+const maxOriginThrows = 100
+
+func (g *Generator) anySubsectorIsRollable() bool {
 	for _, sub := range g.setting.Subsectors {
-		if sub.OriginRoll == roll.Total {
-			g.consequence(ConsequenceHomeworld, cause, "born in "+sub.Name, "")
-
-			return sub, nil
+		if sub.OriginRoll != 0 {
+			return true
 		}
 	}
 
-	// The chart the book prints has a subsector for every result. A file
-	// whose chart has a gap is not wrong -- a setting may have fewer than
-	// six subsectors -- so the throw becomes a choice rather than an error.
+	return false
+}
+
+// chooseAmongSubsectors is a file whose subsectors are all choose-only.
+// Nothing can be thrown for, so the chart is not a chart and the question
+// goes to whoever is deciding.
+func (g *Generator) chooseAmongSubsectors(step int) (setting.Subsector, error) {
 	names := make([]string, 0, len(g.setting.Subsectors))
 	for _, sub := range g.setting.Subsectors {
 		names = append(names, sub.Name)
@@ -239,7 +286,7 @@ func (g *Generator) rollSubsector(step int) (setting.Subsector, error) {
 
 	index, err := g.choose(Choice{
 		Point:   "subsector",
-		Prompt:  "The subsector roll landed on no chart entry; choose one",
+		Prompt:  "No subsector can be rolled for; choose one",
 		Options: names,
 		Cite:    originCite,
 	})

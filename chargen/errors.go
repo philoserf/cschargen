@@ -58,6 +58,12 @@ const (
 	// validator also refuses.
 	ErrNoLanguage stringError = "the homeworld lists no primary language"
 
+	// ErrOriginThrowsExhausted is the chart of p. 39 thrown the maximum
+	// number of times without landing on an entry, which is the dice
+	// rather than the data: any file with a rollable subsector lands
+	// eventually.
+	ErrOriginThrowsExhausted stringError = "the subsector chart was thrown its limit without landing"
+
 	// ErrNoSuchSubsector and ErrNoSuchHomeworld are an origin asked for by
 	// name that the setting data does not have. The command checks both
 	// before generating, so reaching one here means the engine was driven

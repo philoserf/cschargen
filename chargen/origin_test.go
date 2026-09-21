@@ -628,3 +628,56 @@ func TestAbandoningTheOriginEndsGeneration(t *testing.T) {
 		})
 	}
 }
+
+// TestAThrowThatMissesIsThrownAgain is the chart of p. 39 against a file
+// that does not fill it.
+//
+// The book's chart has an entry for all six results; a setting file may
+// have fewer subsectors than that. A throw landing in the gap used to
+// become a choice, and the auto policy answers a choice with its first
+// option -- which put most of a batch on whichever subsector the file
+// happened to list first, and the skew was invisible one record at a time.
+func TestAThrowThatMissesIsThrownAgain(t *testing.T) {
+	t.Parallel()
+
+	data := sampleSetting(t)
+
+	rollable := map[string]bool{}
+
+	for _, sub := range data.Subsectors {
+		if sub.OriginRoll != 0 {
+			rollable[sub.Name] = true
+		}
+	}
+
+	if len(rollable) < 2 || len(rollable) == len(data.Subsectors) {
+		t.Skip("the sample fills the chart, so there is no gap to land in")
+	}
+
+	seen := map[string]int{}
+
+	for seed := range uint64(sample) {
+		born := lifepath(t, seed, 1).State.Homeworlds[0].Subsector
+		seen[born]++
+
+		if !rollable[born] {
+			t.Errorf("seed %d: a throw put the character in %s, which claims no result",
+				seed, born)
+		}
+	}
+
+	// Every rollable subsector claims one result here, so none of them
+	// should be starved and none should take most of the sample. The
+	// bounds are wide: this is checking that the throw is a throw, not
+	// that sixty seeds are uniform.
+	for name := range rollable {
+		if seen[name] == 0 {
+			t.Errorf("%s claims a result and no character in %d was born there", name, sample)
+		}
+
+		if share := float64(seen[name]) / float64(sample); share > 0.6 {
+			t.Errorf("%s took %.0f%% of the sample, which is the old first-option skew",
+				name, share*100)
+		}
+	}
+}

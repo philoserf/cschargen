@@ -419,10 +419,14 @@ func TestAChooseOnlySubsectorIsChosenFrom(t *testing.T) {
 	}
 }
 
-// TestASubsectorRollThatLandsNowhereBecomesAChoice: the book's chart has a
+// TestASubsectorRollThatLandsNowhereIsThrownAgain: the book's chart has a
 // subsector for every 1d6 result, but a setting may have fewer than six, and
 // a throw into the gap must not leave the character nowhere.
-func TestASubsectorRollThatLandsNowhereBecomesAChoice(t *testing.T) {
+//
+// The file here is the narrowest one a validator will pass: a single
+// subsector, claiming a single result. Five throws in six miss it, so every
+// character generated below re-throws, most of them more than once.
+func TestASubsectorRollThatLandsNowhereIsThrownAgain(t *testing.T) {
 	t.Parallel()
 
 	rolls := [2]int{1, 100}
@@ -1358,4 +1362,70 @@ func TestTheProfileNamesAgreeWithTheValidator(t *testing.T) {
 			t.Errorf("the engine holds %q and a file naming it would be rejected", profile)
 		}
 	}
+}
+
+// TestASettingWithNothingToRollForAsksInstead. Every subsector in a file may
+// be choose-only: `originRoll` is optional, and the validator does not
+// require any subsector to claim a result.
+//
+// There is then no chart to throw on, so the throw is not thrown again --
+// it is never made. The question goes to whoever is deciding, which is the
+// one case where a subsector is a choice rather than a fallback from one.
+func TestASettingWithNothingToRollForAsksInstead(t *testing.T) {
+	t.Parallel()
+
+	rolls := [2]int{1, 100}
+	data := settingWith(setting.Subsector{
+		Name:   testSubsector, // no OriginRoll: nothing claims a d6 result
+		Worlds: []setting.World{testWorld("Somewhere", &rolls)},
+	})
+
+	character, err := New(Options{
+		Seed: 3, Decider: Policy{}, Setting: data,
+		Inputs: Inputs{Species: testHuman, TermLimit: 1},
+	}).Run()
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	if len(character.State.Homeworlds) == 0 {
+		t.Fatal("no homeworld")
+	}
+
+	if got := character.State.Homeworlds[0].Subsector; got != testSubsector {
+		t.Errorf("born in %q, want %q", got, testSubsector)
+	}
+
+	// And it was asked, not thrown for: a 1d6 on a chart nothing claims
+	// would be a throw whose result means nothing.
+	if !askedForASubsector(character) {
+		t.Error("no subsector choice was offered")
+	}
+
+	if threwForASubsector(character) {
+		t.Error("a subsector was thrown for although none claims a result")
+	}
+}
+
+func askedForASubsector(character *Character) bool {
+	for _, event := range character.Events {
+		if event.Kind == EventChoice && event.Choice.Point == "subsector" {
+			return true
+		}
+	}
+
+	return false
+}
+
+// threwForASubsector finds the throw that is both a 1d6 and cited to Step
+// 3's page: the homeworld's d100 shares the cite, and the careers and early
+// life share the die.
+func threwForASubsector(character *Character) bool {
+	for _, event := range character.Events {
+		if event.Kind == EventThrow && event.Throw.Expr == "1d6" && event.Throw.Cite == originCite {
+			return true
+		}
+	}
+
+	return false
 }
