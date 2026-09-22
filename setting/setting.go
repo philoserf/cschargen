@@ -16,9 +16,11 @@
 // is something a user types, and a key is a worse place to put a word we
 // are not entitled to use than a comment is.
 //
-// data/setting.sample.json is invented, so the tests and the demo run
-// without it. A character generated against the sample is stamped as such
-// and says so on its sheet.
+// setting/sample.json, embedded by load.go, is invented, so the tests and
+// the demo run without a real transcription. A character generated against
+// the sample is stamped as such and says so on its sheet. /data/ is
+// gitignored because that is where a user's own transcription goes; nothing
+// there is ever committed.
 package setting
 
 import "slices"

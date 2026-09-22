@@ -428,8 +428,10 @@ does.
 names repetition as the mechanism that makes hand-typed tables trustworthy, and applies
 it to Colonist, Vagabond and Prisoner. The structural tests do cover all thirty-four,
 but they cannot catch the error transcription actually makes: a right-shaped table with
-a wrong number in it. I cannot tell from the code whether this is a deliberate sample or
-an unfinished job, and the file does not say.
+a wrong number in it. The file now declares this: it is a sample testing the method, and
+the other thirty-one careers have been read once. That closes the question I could not
+answer from the code -- deliberate sample, not unfinished job -- and leaves the coverage
+itself exactly where it was. Thirty-one careers rest on one reading.
 
 **`replay` verifies the log completely and the character partially.** `compare` walks
 both event logs and then checks exactly one of twenty `State` fields. The single
@@ -438,10 +440,6 @@ character; having conceded it, the check stops there — most likely because
 `Characteristics` is the only comparable struct and `==` reached no further.
 `State.Age` is set outside any consequence event, so a divergence confined to it
 would pass.
-
-**`setting`'s package doc points at `data/setting.sample.json`.** The file is
-`setting/sample.json`, embedded; `/data/` is gitignored precisely because it is where a
-user's transcription goes.
 
 ### Things I am inferring rather than reading
 
@@ -476,19 +474,20 @@ Loose ends this pass turned up, each filed as a GitHub issue and carried on the
 Workbench board. The issue is the durable reference; this table is a map from the
 sections above to it.
 
-| #   | Severity | Issue                                                                                     | Primary location                                     |
-| --- | -------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| 1   | medium   | #118 — ERRATA.md promises every applied reading is stamped; 7 identifiers of 43 ever are  | `ERRATA.md:14`, the 11 `Deviate` sites in `chargen/` |
-| 2   | medium   | #111 — `replay` verifies the whole log and one of twenty `State` fields                   | `cmd/cschargen/replay.go:104`                        |
-| 3   | —        | #121 — fixed: `Generator.Run`'s doc comment now describes the twenty steps                | `chargen/generator.go`                               |
-| 4   | —        | #120 — fixed: the three effect kinds describe the engine, not the plan                    | `career/effect.go`, `career/build.go`                |
-| 5   | medium   | #119 — The independent second transcription covers 3 careers of 34                        | `career/transcription_test.go:9`                     |
-| 6   | low      | #129 — ERRATA.md says it has two kinds of entry and carries three                         | `ERRATA.md:8`                                        |
-| 7   | low      | #127 — `setting`'s package doc names a sample path that is gitignored and does not exist  | `setting/setting.go:19`                              |
-| 8   | low      | #128 — The comment justifying one ragged consequence struct counts 13 kinds; there are 17 | `chargen/event.go:105`                               |
-| 9   | —        | #117 — fixed: the two never-written `Term` fields are gone from the schema                | `chargen/state.go:57`                                |
+| #   | Severity | Issue                                                                                    | Primary location                                     |
+| --- | -------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 1   | medium   | #118 — ERRATA.md promises every applied reading is stamped; 7 identifiers of 43 ever are | `ERRATA.md:14`, the 11 `Deviate` sites in `chargen/` |
+| 2   | medium   | #111 — `replay` verifies the whole log and one of twenty `State` fields                  | `cmd/cschargen/replay.go:104`                        |
+| 3   | —        | #121 — fixed: `Generator.Run`'s doc comment now describes the twenty steps               | `chargen/generator.go`                               |
+| 4   | —        | #120 — fixed: the three effect kinds describe the engine, not the plan                   | `career/effect.go`, `career/build.go`                |
+| 5   | —        | #119 — fixed: the transcription file declares its sample and what structure covers       | `career/transcription_test.go:9`                     |
+| 6   | low      | #129 — ERRATA.md says it has two kinds of entry and carries three                        | `ERRATA.md:8`                                        |
+| 7   | —        | #127 — fixed: `setting`'s package doc names the embedded sample beside it                | `setting/setting.go:19`                              |
+| 8   | —        | #128 — fixed: the ragged-struct comment no longer carries a count that can drift         | `chargen/event.go:105`                               |
+| 9   | —        | #117 — fixed: the two never-written `Term` fields are gone from the schema               | `chargen/state.go:57`                                |
 
-**Total: 9 issues (0 critical, 0 high, 6 medium, 3 low); #117, #120 and #121 fixed since.**
+**Total: 9 issues (0 critical, 0 high, 6 medium, 3 low); #117, #119, #120, #121, #127 and
+#128 fixed since — #118 and #129, both in `ERRATA.md`, are what remain.**
 
 Already tracked on GitHub and deliberately not re-filed: **#106** (a `Choice` gated on
 `Asker` is skipped on replay — §3.2), **#108** (the reserved word appears in

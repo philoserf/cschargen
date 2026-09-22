@@ -102,8 +102,8 @@ const (
 //
 // The payload fields are deliberately ragged: a kind uses the ones it
 // needs. Which fields each kind uses is documented on the kinds above
-// rather than in the type, because a struct per kind would be thirteen
-// types that differ by two fields each.
+// rather than in the type, because a struct per kind would be one type per
+// kind, differing by two fields each.
 type ConsequenceEvent struct {
 	Kind   ConsequenceKind `json:"kind"`
 	Cause  int             `json:"cause"`
