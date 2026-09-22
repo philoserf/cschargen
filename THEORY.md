@@ -39,7 +39,10 @@ Everything downstream follows. `render` is explicitly forbidden from computing
 anything: "if a number is not in the record, it does not appear on the sheet"
 (`render/sheet.go`). `replay` re-runs the engine from the seed and compares logs.
 `ThrowEvent` carries a `Cite` because a throw without a page number cannot be
-audited, and being auditable is the reason the log exists.
+audited, and being auditable is the reason the log exists. So does
+`ConsequenceEvent`, and for the stronger reason: the throw says what was rolled,
+the consequence says what it did to the character, and the second is the half a
+reader checks against the page.
 
 **If you remember one thing:** a change that makes a character better and the record
 less checkable is a regression here, even when it makes the character more correct.

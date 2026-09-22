@@ -135,8 +135,12 @@ func (g *Generator) chooseInstitution(step int) (career.Institution, bool, error
 	}
 
 	if len(open) == 0 {
+		restore := g.citing("pp. 86, 92")
+
 		g.consequence(ConsequenceEducation, step,
 			"no higher education the character is eligible for (pp. 86, 92)", "")
+
+		restore()
 
 		return career.Institution{}, false, nil
 	}

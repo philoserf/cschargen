@@ -82,11 +82,17 @@ const familyCite = "p. 58"
 func (g *Generator) determineFamily(world setting.World) error {
 	step := g.log.Step("Step 5: Determine Family", "p. 57")
 
+	defer g.citing(familyCite)()
+
 	family := &Family{}
 
 	g.char.State.Family = family
 
 	parents := g.birthSituation(world, family, step)
+
+	// parentalAges reads p. 59 and restores this page on return, so the
+	// parents themselves are recorded against the chart that produced
+	// them rather than against the table that aged them.
 	g.parentalAges(family, parents, step)
 	g.addFamily(RoleParent, parents, closeFamilyRating, step, "a parent")
 
@@ -246,6 +252,8 @@ const halfADie = 3
 // ... A roll of 10 indicates that your character was the final child", and
 // both matter when the sibling ages are rolled.
 func (g *Generator) parentalAges(family *Family, parents, step int) {
+	defer g.citing("p. 59")()
+
 	multiplier, offset := parentalAgeTable(g.techLevel)
 
 	for range parents {
@@ -322,6 +330,8 @@ func (g *Generator) addFamily(role string, count, rating, cause int, detail stri
 // siblings is p. 60: 1d6-2 for a character born to a couple, 2d6 for one
 // born into a communal situation, and then a 2d6 age table for each.
 func (g *Generator) siblings(family *Family, step int) {
+	defer g.citing("p. 60")()
+
 	count := g.siblingCount(family)
 	if count == 0 {
 		g.consequence(ConsequenceFamily, step, "an only child", "")
@@ -482,6 +492,8 @@ func multipleBirth(n int) string {
 // The engine repeats the counts rather than the narrative, which is ERRATA
 // E-44, and which makes families smaller than a faithful reading would.
 func (g *Generator) extendedFamily(step int) {
+	defer g.citing("p. 61")()
+
 	g.char.Provenance.Deviate("E-44")
 
 	// Two grandparents per parent, and their siblings are the character's

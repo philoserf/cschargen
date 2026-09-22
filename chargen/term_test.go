@@ -1,6 +1,7 @@
 package chargen_test
 
 import (
+	"maps"
 	"slices"
 	"sync"
 	"testing"
@@ -384,6 +385,46 @@ func TestEveryThrowInALifepathCarriesACite(t *testing.T) {
 			case chargen.EventChoice, chargen.EventConsequence:
 			}
 		}
+	}
+}
+
+// TestEveryConsequenceInALifepathCarriesACite is the other half of the
+// invariant above, and the half a reader actually checks. The throw says
+// what was rolled; the consequence says what it did to the character, which
+// is what gets compared against the page.
+//
+// It reports by step rather than by seed because a gap is a property of the
+// step that wrote it, not of the dice that reached it -- one run names every
+// step that needs fixing instead of the first one a sweep happens to hit.
+func TestEveryConsequenceInALifepathCarriesACite(t *testing.T) {
+	t.Parallel()
+
+	gaps := map[string]int{}
+
+	for seed := range uint64(sample) {
+		character := lifepath(t, seed, 6)
+
+		step := "(before any step)"
+
+		for _, event := range character.Events {
+			switch event.Kind {
+			case chargen.EventStep:
+				step = event.Step.Name
+			case chargen.EventConsequence:
+				if event.Consequence.Cite == "" {
+					gaps[step]++
+				}
+			case chargen.EventThrow, chargen.EventChoice:
+			}
+		}
+	}
+
+	if len(gaps) == 0 {
+		return
+	}
+
+	for _, step := range slices.Sorted(maps.Keys(gaps)) {
+		t.Errorf("%s: %d consequences carry no cite", step, gaps[step])
 	}
 }
 

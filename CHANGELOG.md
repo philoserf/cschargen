@@ -23,6 +23,25 @@ release turns out to be.
 
 ### Fixed
 
+- **Every consequence in a record now names the page it came from.** A throw
+  says what was rolled; a consequence says what it did to the character, and
+  that is the half a reader checks against the book. A sixth of them carried no
+  page at all — 666 of 3,953 across forty characters — because Steps 1, 3, 4 and
+  5 never set one, so a character's species, homeworld, family and early life
+  were recorded without a cite. Consequences between careers had the opposite
+  fault and carried the _previous_ career's pages: a character was "accepted
+  into Scavenger" on a graduate school's pp. 86-91
+  ([#144](https://github.com/philoserf/cschargen/issues/144),
+  [#148](https://github.com/philoserf/cschargen/issues/148)).
+
+  A step is not one page — Step 5 spans pp. 57-61 and Step 4 writes results from
+  pp. 39, 40, 42, 43 and 122 — so the page is scoped to the function whose work
+  it is, and restored on return. That caught two cites that were wrong rather
+  than missing: a Colonist mishap reassigning a homeworld stamped the subsector
+  throw with the career's pages, and an ineligible character's education note
+  carried the teenage years'. A test now fails on any consequence without a
+  cite, reporting by step.
+
 - **Three of Step 20's four answers did not survive a replay.** Only the name
   was written back to the record's inputs, and `Replay` cannot be asked, so an
   interactive character replayed with no gender, appearance or goals — and
