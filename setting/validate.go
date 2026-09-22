@@ -151,7 +151,7 @@ func validateWorlds(sub Subsector, where string, species map[string]bool, worlds
 }
 
 func validateRange(world World, where string, covered map[int]string) []string {
-	if world.Roll == nil {
+	if !world.Selectable() {
 		return nil
 	}
 
@@ -513,7 +513,7 @@ func validateCoverage(sub Subsector, where string) []string {
 	selectable := false
 
 	for _, world := range sub.Worlds {
-		if world.Roll == nil {
+		if !world.Selectable() {
 			continue
 		}
 

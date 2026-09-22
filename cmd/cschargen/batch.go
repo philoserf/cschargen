@@ -166,7 +166,7 @@ func generateFrom(
 // twenty wrong sheets and the time to work out why.
 func rejectFinishingFlags(flags newFlags) error {
 	for _, name := range finishingFlags {
-		if !isSet(flags.set, name) {
+		if !given(flags.set, name) {
 			continue
 		}
 

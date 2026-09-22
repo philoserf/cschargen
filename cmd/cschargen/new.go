@@ -92,7 +92,7 @@ func (f newFlags) parse(args []string) (uint64, error) {
 		return 0, usagef("%s takes no positional arguments, got %q", f.set.Name(), f.set.Arg(0))
 	}
 
-	if isSet(f.set, "seed") {
+	if given(f.set, "seed") {
 		return *f.seed, nil
 	}
 
@@ -117,15 +117,7 @@ var finishingFlags = []string{"name", "gender", "appearance", "goals"}
 // can tell the two apart and hand the engine the sentinel it already
 // understands. The engine's contract and the record's shape are unchanged.
 func (f newFlags) termLimit() int {
-	given := false
-
-	f.set.Visit(func(flag *flag.Flag) {
-		if flag.Name == "terms" {
-			given = true
-		}
-	})
-
-	if given && *f.terms == 0 {
+	if given(f.set, "terms") && *f.terms == 0 {
 		return noTerms
 	}
 

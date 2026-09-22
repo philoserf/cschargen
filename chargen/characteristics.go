@@ -163,7 +163,10 @@ func (c *Characteristics) AllPhysicalZero() bool {
 }
 
 // CharacteristicByName maps the abbreviation the tables and a setting data
-// file write a characteristic in.
+// file write a characteristic in. It is exported for the species tests,
+// which resolve the names a data file uses and then read the score: an
+// external caller needs the mapping, not just the answer to whether a name
+// resolves.
 func CharacteristicByName(name string) (Characteristic, bool) {
 	return characteristicByName(name)
 }

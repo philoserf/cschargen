@@ -2,6 +2,7 @@ package chargen
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/philoserf/cschargen/career"
@@ -379,28 +380,6 @@ func characteristicByName(name string) (Characteristic, bool) {
 	return 0, false
 }
 
-// itoa avoids strconv in the hot path of building detail strings.
-func itoa(n int) string {
-	if n == 0 {
-		return "0"
-	}
-
-	negative := n < 0
-	if negative {
-		n = -n
-	}
-
-	var digits []byte
-
-	for n > 0 {
-		digits = append([]byte{byte('0' + n%10)}, digits...)
-
-		n /= 10
-	}
-
-	if negative {
-		return "-" + string(digits)
-	}
-
-	return string(digits)
-}
+// itoa is strconv.Itoa under a shorter name; see career/build.go for why
+// the name survives and the hand-rolled implementation did not (#116).
+func itoa(n int) string { return strconv.Itoa(n) }

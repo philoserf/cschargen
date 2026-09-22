@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"runtime/debug"
@@ -32,19 +31,4 @@ func versionCommand(out *os.File) error {
 	}
 
 	return nil
-}
-
-// isSet reports whether a flag was given on the command line, as against
-// left at its default. A seed of zero is a legitimate seed, so the default
-// cannot stand in for "not given".
-func isSet(flags *flag.FlagSet, name string) bool {
-	found := false
-
-	flags.Visit(func(given *flag.Flag) {
-		if given.Name == name {
-			found = true
-		}
-	})
-
-	return found
 }
