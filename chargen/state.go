@@ -102,9 +102,9 @@ type BenefitBatch struct {
 // Value is credits, and it is present only where the book prints a number
 // or a die roll for it -- a company share is "2D6 x Cr100000", a pension
 // "2D6 x Cr10000". A weapon, a suit of armour and the contents of a stash
-// are referee-valued or player-chosen, and the record names those and
-// stores no invented value: their Value stays zero, which
-// means "the book gave none", not "worthless".
+// are referee-valued or player-chosen, and the record names those and stores
+// no invented value: their Value stays zero, which means "the book gave
+// none", not "worthless".
 //
 // Career says where it came from, which is what lets a result that takes
 // something back find it.

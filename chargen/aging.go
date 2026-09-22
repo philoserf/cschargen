@@ -196,16 +196,10 @@ func agingChecksAt(profile AgingProfile, techLevel, term int) ([]AgingCheck, boo
 	return nil, false
 }
 
-// The Aging Crisis (p. 123) and the four states beneath it (pp. 123-124).
-//
-// A characteristic reduced to 0 by aging puts the character "on the verge of
-// death or permanent incapacity": 1d6 x 1000 credits of emergency treatment
-// restores it to 1, and without the payment they die.
-//
-// The crisis rules say "physical" and "mental" and enumerate neither, but
-// p. 14 does name one of them -- "all three physical characteristics
-// (Strength, Dexterity, and Endurance)" -- and there are six, so the other
-// three follow. ERRATA E-17 records the cross-reference.
+// The crisis rules of pp. 123-124 say "physical" and "mental" and enumerate
+// neither, but p. 14 does name one of them -- "all three physical
+// characteristics (Strength, Dexterity, and Endurance)" -- and there are six,
+// so the other three follow. ERRATA E-17 records the cross-reference.
 var (
 	physicalCharacteristics = []Characteristic{STR, DEX, END}
 	mentalCharacteristics   = []Characteristic{INT, EDU, CHA}
