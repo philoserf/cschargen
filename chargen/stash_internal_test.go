@@ -15,7 +15,7 @@ func stashEngine(t *testing.T, seed uint64) *Generator {
 	gen := engine(t, seed)
 	colonist := career.Colonist()
 
-	gen.career = &colonist
+	gen.service.career = &colonist
 
 	return gen
 }

@@ -8,19 +8,19 @@ import (
 // serveTerm is Steps 12 to 16 (pp. 112-121): survival, mishap, advancement,
 // skills, events -- one four-year term.
 func (g *Generator) serveTerm() error {
-	if g.career == nil {
+	if g.service.career == nil {
 		return ErrNoCareer
 	}
 
-	assignment, ok := g.career.Assignment(g.assignment.Name)
+	assignment, ok := g.service.career.Assignment(g.service.assignment.Name)
 	if !ok {
 		return ErrNoCareer
 	}
 
-	g.termsInCareer++
+	g.service.termsInCareer++
 
 	term := Term{
-		Career:     g.career.Name,
+		Career:     g.service.career.Name,
 		Assignment: assignment.Name,
 		Number:     len(g.char.State.Terms) + 1,
 	}
@@ -37,12 +37,12 @@ func (g *Generator) serveTerm() error {
 		return err
 	}
 
-	term.Rank = g.rank
+	term.Rank = g.service.rank
 	g.char.State.Terms = append(g.char.State.Terms, term)
 
-	if service, found := g.char.State.Service(g.career.Name); found {
-		service.Terms = g.termsInCareer
-		service.Rank = g.rank
+	if service, found := g.char.State.Service(g.service.career.Name); found {
+		service.Terms = g.service.termsInCareer
+		service.Rank = g.service.rank
 	}
 
 	return g.age()
@@ -75,9 +75,9 @@ func (g *Generator) resolveTerm(assignment career.Assignment, survived bool) err
 func (g *Generator) rollSurvival(assignment career.Assignment) (bool, error) {
 	step := g.log.Step("Step 12: Roll for Survival", "p. 112")
 
-	if g.takeAutomaticFor(survivalThrow, *g.career) {
+	if g.takeAutomaticFor(survivalThrow, *g.service.career) {
 		g.consequence(ConsequenceCareer, step,
-			"an automatic success on the survival roll, granted earlier", g.career.Name)
+			"an automatic success on the survival roll, granted earlier", g.service.career.Name)
 
 		return true, nil
 	}
@@ -93,13 +93,13 @@ func (g *Generator) rollSurvival(assignment career.Assignment) (bool, error) {
 	cause := g.log.Throw(throw, "p. 112")
 
 	if throw.Natural() == naturalTwelve {
-		g.mustContinue = true
+		g.service.mustContinue = true
 		g.consequence(ConsequenceCareer, cause,
-			"a natural twelve on the survival roll: another term in this career", g.career.Name)
+			"a natural twelve on the survival roll: another term in this career", g.service.career.Name)
 	}
 
 	if !throw.Success {
-		g.consequence(ConsequenceCareer, cause, "the survival roll failed", g.career.Name)
+		g.consequence(ConsequenceCareer, cause, "the survival roll failed", g.service.career.Name)
 
 		return false, nil
 	}
@@ -134,7 +134,7 @@ func (g *Generator) advance(assignment career.Assignment) error {
 	// still fires.
 	if g.takeAutoFailure(advancementThrow) {
 		g.consequence(ConsequenceRank, step,
-			"the advancement roll fails automatically, decided earlier", g.career.Name)
+			"the advancement roll fails automatically, decided earlier", g.service.career.Name)
 
 		return g.applyAll(failureEffects(g.takeOnFailure(advancementThrow)), step)
 	}
@@ -184,13 +184,13 @@ func failureEffects(hooks []career.Effect) []career.Effect {
 // not wish to pursue officer rank, this step is skipped", and "If the
 // Commission roll fails, there is no penalty."
 func (g *Generator) offerCommission() error {
-	if g.career.Commission == nil || g.commissioned {
+	if g.service.career.Commission == nil || g.service.commissioned {
 		return nil
 	}
 
 	index, err := g.choose(Choice{
 		Point:   "commission",
-		Prompt:  "Attempt a commission in " + g.career.Name + "?",
+		Prompt:  "Attempt a commission in " + g.service.career.Name + "?",
 		Options: []string{"attempt it", "stay enlisted"},
 		Cite:    "p. 114",
 	})
@@ -208,17 +208,17 @@ func (g *Generator) offerCommission() error {
 // attemptCommission makes the throw, whether Step 14 offered it or an event
 // granted one with a modifier.
 func (g *Generator) attemptCommission(modifier, cause int) error {
-	if g.career == nil || g.career.Commission == nil {
+	if g.service.career == nil || g.service.career.Commission == nil {
 		g.unimplemented(cause, "a commission in a career that offers none")
 
 		return nil
 	}
 
-	if g.commissioned {
+	if g.service.commissioned {
 		return nil
 	}
 
-	if g.takeAutomaticFor(commissionThrow, *g.career) {
+	if g.takeAutomaticFor(commissionThrow, *g.service.career) {
 		return g.grantCommission(cause)
 	}
 
@@ -227,15 +227,15 @@ func (g *Generator) attemptCommission(modifier, cause int) error {
 		mods = append(mods, dice.Mod{Name: "event", Value: modifier})
 	}
 
-	which, ok := characteristicByName(g.career.Commission.Characteristic)
+	which, ok := characteristicByName(g.service.career.Commission.Characteristic)
 	if ok {
 		mods = append(mods, dice.Mod{
-			Name:  g.career.Commission.Characteristic,
+			Name:  g.service.career.Commission.Characteristic,
 			Value: g.char.State.Characteristics.Modifier(which),
 		})
 	}
 
-	throw := g.dice.Throw(g.career.Commission.Number, mods...)
+	throw := g.dice.Throw(g.service.career.Commission.Number, mods...)
 	thrown := g.log.Throw(throw, "p. 114")
 
 	if !throw.Success {
@@ -248,19 +248,19 @@ func (g *Generator) attemptCommission(modifier, cause int) error {
 // grantCommission moves the character onto the officer track, whether the
 // throw made it or a table result decided it.
 func (g *Generator) grantCommission(thrown int) error {
-	g.commissioned = true
+	g.service.commissioned = true
 
-	if service, found := g.char.State.Service(g.career.Name); found {
+	if service, found := g.char.State.Service(g.service.career.Name); found {
 		service.Commissioned = true
 	}
 
-	g.consequence(ConsequenceRank, thrown, "commissioned in "+g.career.Name, g.career.Name)
+	g.consequence(ConsequenceRank, thrown, "commissioned in "+g.service.career.Name, g.service.career.Name)
 
 	// A commission resets rank to the officer track's Rank 0, whose benefit
 	// is granted like any other (p. 116).
-	g.rank = 0
+	g.service.rank = 0
 
-	assignment, found := g.career.Assignment(g.assignment.Name)
+	assignment, found := g.service.career.Assignment(g.service.assignment.Name)
 	if !found {
 		return nil
 	}
@@ -298,11 +298,11 @@ func tableInAnotherCareer(effect career.Effect) (career.SkillTable, bool) {
 
 // rollNamedTable carries out "make a roll on the <named> table".
 func (g *Generator) rollNamedTable(effect career.Effect, cause int) error {
-	if g.career == nil {
+	if g.service.career == nil {
 		return ErrNoCareer
 	}
 
-	assignment, found := g.career.Assignment(g.assignment.Name)
+	assignment, found := g.service.career.Assignment(g.service.assignment.Name)
 	if !found {
 		return ErrNoCareer
 	}
@@ -338,14 +338,14 @@ func (g *Generator) namedTable(
 	}
 
 	if !effect.OtherAssignment {
-		table, found := g.career.Table(effect.Table)
+		table, found := g.service.career.Table(effect.Table)
 
 		return table, found, nil
 	}
 
 	var others []career.Assignment
 
-	for _, other := range g.career.Assignments {
+	for _, other := range g.service.career.Assignments {
 		if other.Name != own.Name {
 			others = append(others, other)
 		}
@@ -382,21 +382,21 @@ func (g *Generator) namedTable(
 // promote raises the rank by one and applies that rank's benefit, which is
 // granted "immediately upon achieving that Rank" (p. 116).
 func (g *Generator) promote(cause int, assignment career.Assignment) error {
-	ranks := ranksFor(assignment, g.commissioned)
+	ranks := ranksFor(assignment, g.service.commissioned)
 
-	if g.rank >= len(ranks)-1 {
+	if g.service.rank >= len(ranks)-1 {
 		g.consequence(ConsequenceRank, cause,
-			"already at the highest printed rank in this assignment", g.career.Name)
+			"already at the highest printed rank in this assignment", g.service.career.Name)
 
 		return nil
 	}
 
-	g.rank++
+	g.service.rank++
 
 	g.consequence(ConsequenceRank, cause,
-		"advanced to rank "+itoa(g.rank)+" in "+assignment.Name, g.career.Name)
+		"advanced to rank "+itoa(g.service.rank)+" in "+assignment.Name, g.service.career.Name)
 
-	return g.applyRankBenefits(ranks[g.rank], cause)
+	return g.applyRankBenefits(ranks[g.service.rank], cause)
 }
 
 // changeRank carries out an [career.EffectRank]: a promotion granted
@@ -411,7 +411,7 @@ func (g *Generator) promote(cause int, assignment career.Assignment) error {
 // reads them as the same thing, because the book has no rule anywhere for
 // un-granting a skill.
 func (g *Generator) changeRank(effect career.Effect, cause int) error {
-	if g.career == nil {
+	if g.service.career == nil {
 		g.unimplemented(cause, effect.Detail+" -- outside a career, where there is no rank")
 
 		return nil
@@ -424,7 +424,7 @@ func (g *Generator) changeRank(effect career.Effect, cause int) error {
 
 	if levels > 0 {
 		for range levels {
-			err := g.promote(cause, g.assignment)
+			err := g.promote(cause, g.service.assignment)
 			if err != nil {
 				return err
 			}
@@ -442,23 +442,23 @@ func (g *Generator) changeRank(effect career.Effect, cause int) error {
 // going below it. A character already at rank 0 loses nothing, and the
 // record says so: the result fired, and what it did is what happened.
 func (g *Generator) demote(levels, cause int) {
-	before := g.rank
+	before := g.service.rank
 
-	g.rank = max(g.rank-levels, 0)
+	g.service.rank = max(g.service.rank-levels, 0)
 
-	if service, found := g.char.State.Service(g.career.Name); found {
-		service.Rank = g.rank
+	if service, found := g.char.State.Service(g.service.career.Name); found {
+		service.Rank = g.service.rank
 	}
 
-	if g.rank == before {
+	if g.service.rank == before {
 		g.consequence(ConsequenceRank, cause,
-			"already at the lowest rank in "+g.assignment.Name, g.career.Name)
+			"already at the lowest rank in "+g.service.assignment.Name, g.service.career.Name)
 
 		return
 	}
 
 	g.consequence(ConsequenceRank, cause,
-		"reduced to rank "+itoa(g.rank)+" in "+g.assignment.Name, g.career.Name)
+		"reduced to rank "+itoa(g.service.rank)+" in "+g.service.assignment.Name, g.service.career.Name)
 }
 
 // applyRankBenefits is p. 116's rule, which an ordinary applyAll gets
@@ -515,8 +515,8 @@ func (g *Generator) grantRankSkill(effect career.Effect, cause int) error {
 	held, found := g.char.State.Skill(effect.Skill, specialty)
 	if found && held.Level >= level {
 		name := ""
-		if g.career != nil {
-			name = g.career.Name
+		if g.service.career != nil {
+			name = g.service.career.Name
 		}
 
 		g.consequence(ConsequenceSkill, cause,
@@ -619,7 +619,7 @@ func (g *Generator) rollSkill(assignment career.Assignment) error {
 func (g *Generator) availableSkillTables(assignment career.Assignment) []career.SkillTable {
 	var tables []career.SkillTable
 
-	for _, table := range g.career.Tables {
+	for _, table := range g.service.career.Tables {
 		if table.MinimumEDU > 0 && g.char.State.Characteristics.EDU < table.MinimumEDU {
 			continue
 		}
@@ -637,12 +637,12 @@ func (g *Generator) rollEvent() error {
 	roll := g.dice.D66()
 	cause := g.log.Roll(roll, "p. 118")
 
-	row, ok := g.career.Events[roll.Total]
+	row, ok := g.service.career.Events[roll.Total]
 	if !ok {
 		return ErrMissingEventRow
 	}
 
-	g.consequence(ConsequenceCareer, cause, "event: "+row.Summary, g.career.Name)
+	g.consequence(ConsequenceCareer, cause, "event: "+row.Summary, g.service.career.Name)
 
 	return g.applyAll(row.Effects, cause)
 }
@@ -656,7 +656,7 @@ func (g *Generator) age() error {
 
 	years := termYears
 
-	if g.ejected {
+	if g.service.ejected {
 		roll := g.dice.D3()
 
 		cause = g.log.Roll(roll, "p. 121")
@@ -677,7 +677,7 @@ func (g *Generator) age() error {
 // modifier -- and failing one costs a point of it.
 //
 // The index is the character's lifetime term count, which is why this reads
-// len(State.Terms) rather than g.termsInCareer.
+// len(State.Terms) rather than g.service.termsInCareer.
 func (g *Generator) agingThrows(step int) error {
 	term := len(g.char.State.Terms)
 
@@ -900,7 +900,7 @@ func (g *Generator) takeAutomaticFor(applies string, target career.Career) bool 
 // career it applies to: "-2 DM to the first two Advancement rolls in a
 // military career".
 func (g *Generator) takeCareerModifiers(applies string) []dice.Mod {
-	return g.takeModifiersFor(applies, *g.career)
+	return g.takeModifiersFor(applies, *g.service.career)
 }
 
 // takeModifiers consumes every pending modifier that applies to a named

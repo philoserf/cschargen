@@ -250,14 +250,14 @@ func (g *Generator) adjustSentence(effect career.Effect, cause int) {
 		return
 	}
 
-	g.forcedTerms = max(g.forcedTerms+effect.Terms, g.termsInCareer)
+	g.forcedTerms = max(g.forcedTerms+effect.Terms, g.service.termsInCareer)
 
-	if g.forcedTerms <= g.termsInCareer {
-		g.consequence(ConsequenceCareer, cause, effect.Detail+": released", g.career.Name)
+	if g.forcedTerms <= g.service.termsInCareer {
+		g.consequence(ConsequenceCareer, cause, effect.Detail+": released", g.service.career.Name)
 
 		return
 	}
 
 	g.consequence(ConsequenceCareer, cause,
-		effect.Detail+": "+itoa(g.forcedTerms-g.termsInCareer)+" terms left", g.career.Name)
+		effect.Detail+": "+itoa(g.forcedTerms-g.service.termsInCareer)+" terms left", g.service.career.Name)
 }

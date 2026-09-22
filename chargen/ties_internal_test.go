@@ -559,7 +559,7 @@ func inCareerEngine(t *testing.T, ties ...Tie) *Generator {
 	gen := tiedEngine(t, ties...)
 	colonist := career.Colonist()
 
-	gen.career = &colonist
+	gen.service.career = &colonist
 
 	return gen
 }

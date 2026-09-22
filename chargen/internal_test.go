@@ -169,7 +169,7 @@ func TestBenefitScopesAreNotTheSameThing(t *testing.T) {
 	gen := engine(t, 1)
 	colonist := career.Colonist()
 
-	gen.career = &colonist
+	gen.service.career = &colonist
 
 	mustGrant(t, gen, career.Effect{Count: 2, Detail: "two rolls"})
 	mustGrant(t, gen, career.Effect{Count: 3, Modifier: 1, Detail: "three at +1"})
@@ -264,22 +264,22 @@ func TestPromoteStopsAtTheHighestPrintedRank(t *testing.T) {
 	gen := engine(t, 3)
 	colonist := career.Colonist()
 
-	gen.career = &colonist
+	gen.service.career = &colonist
 
 	settler, ok := colonist.Assignment("Settler")
 	if !ok {
 		t.Fatal("no Settler assignment")
 	}
 
-	gen.rank = len(settler.Ranks) - 1
+	gen.service.rank = len(settler.Ranks) - 1
 
 	err := gen.promote(1, settler)
 	if err != nil {
 		t.Fatalf("promote: %v", err)
 	}
 
-	if gen.rank != len(settler.Ranks)-1 {
-		t.Errorf("rank rose to %d past the last printed row", gen.rank)
+	if gen.service.rank != len(settler.Ranks)-1 {
+		t.Errorf("rank rose to %d past the last printed row", gen.service.rank)
 	}
 }
 
@@ -532,8 +532,8 @@ func TestARollOnAnotherCareersTable(t *testing.T) {
 	gen := engine(t, 5)
 	colonist := career.Colonist()
 
-	gen.career = &colonist
-	gen.assignment = colonist.Assignments[0]
+	gen.service.career = &colonist
+	gen.service.assignment = colonist.Assignments[0]
 
 	err := gen.apply(career.Colonist().Events[54].Effects[0], 1)
 	if err != nil {
@@ -567,8 +567,8 @@ func TestARollOnACareerThatIsNotBuiltIsRecorded(t *testing.T) {
 	gen := engine(t, 5)
 	colonist := career.Colonist()
 
-	gen.career = &colonist
-	gen.assignment = colonist.Assignments[0]
+	gen.service.career = &colonist
+	gen.service.assignment = colonist.Assignments[0]
 
 	err := gen.apply(career.Effect{
 		Kind:       career.EffectRollTable,

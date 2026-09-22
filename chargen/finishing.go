@@ -46,8 +46,8 @@ func (f Finishing) Empty() bool {
 func (g *Generator) finishingTouches() error {
 	step := g.log.Step("Step 20: Finishing Touches", finishingCite)
 
-	// The cite is the step's own: whatever career the character left last
-	// set g.cite, and Step 20 is not in it.
+	// Step 20 names its own page, the way a step that logs consequences
+	// has to: whatever career the character left last is still in g.cite.
 	g.cite = finishingCite
 
 	inputs := g.char.Provenance.Inputs

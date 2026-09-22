@@ -130,12 +130,12 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 	case career.EffectRank:
 		return g.changeRank(effect, cause)
 	case career.EffectContinue:
-		g.mustContinue = true
+		g.service.mustContinue = true
 		g.consequence(ConsequenceCareer, cause, effect.Detail, "")
 
 		return nil
 	case career.EffectChangeAssignment:
-		g.mayChangeAssignment = true
+		g.service.mayChangeAssignment = true
 		g.consequence(ConsequenceCareer, cause, effect.Detail, "")
 
 		return nil
@@ -162,7 +162,7 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		// a career, not a transfer. Ejecting is the whole of it -- Step 18
 		// (p. 125) then offers the career list, and the character enlists
 		// in what they choose on the ordinary terms.
-		g.ejected = true
+		g.service.ejected = true
 
 		g.char.Provenance.Deviate("E-6")
 		g.consequence(ConsequenceCareer, cause, effect.Detail, "")
