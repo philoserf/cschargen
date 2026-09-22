@@ -23,6 +23,17 @@ release turns out to be.
 
 ### Fixed
 
+- **A torn coverage profile is named rather than counted.** `-coverpkg` makes
+  six test binaries append to one `coverage.out`, and an interleaved write
+  produced `gigithub.com/...` — a duplicated `gi` in one line of 22,140. The
+  ratchet derives a package by string surgery on that path and validated
+  nothing, so the torn line invented a package and the gate failed on "a
+  package appearing": a real check, on fabricated input, reported as something
+  it was not. `task ratchet` now refuses a profile whose lines are not paths in
+  this module, prints the offending lines, and says to re-run `task test`
+  rather than `task ratchet:update` — which would have recorded the damage.
+  `ratchet:update` refuses the same profile
+  ([#153](https://github.com/philoserf/cschargen/issues/153)).
 - **A record now stamps the ERRATA entries that changed that character, and a
   gate holds it there.** `ERRATA.md` promised records stamp "every deviation
   that applied to them" — the whole argument for `Provenance.Deviations`
