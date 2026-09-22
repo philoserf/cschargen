@@ -101,7 +101,13 @@ type World struct {
 	// world with no range is choose-only, which is what every world on the
 	// Recently Colonized Worlds table is: "you cannot randomly be assigned
 	// one of these worlds, you may choose them" (p. 40).
-	Roll *[2]int `json:"roll,omitempty"`
+	//
+	// A slice rather than a fixed-size array so that its length is a thing the
+	// validator can check. encoding/json fills a fixed-size array
+	// positionally and discards what will not fit, so "roll": [1, 4, 9]
+	// decoded silently as 1-4 -- a transcription typo read as a narrower
+	// range, in the one input this program treats as untrusted.
+	Roll []int `json:"roll,omitempty"`
 
 	TechLevel    int `json:"techLevel"`
 	MaximumAge   int `json:"maximumAge"`
@@ -136,12 +142,12 @@ type World struct {
 // Selectable reports whether this world can be reached by a d100 throw, as
 // against only by choosing it.
 func (w World) Selectable() bool {
-	return w.Roll != nil
+	return len(w.Roll) == rollBounds
 }
 
 // Covers reports whether a d100 result lands on this world.
 func (w World) Covers(roll int) bool {
-	if w.Roll == nil {
+	if !w.Selectable() {
 		return false
 	}
 

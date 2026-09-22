@@ -59,7 +59,7 @@ func (g *Generator) finishingTouches() error {
 		Goals:      inputs.Goals,
 	}
 
-	err := g.askFinishing(&finishing, step)
+	err := g.askFinishing(&finishing)
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ var finishingFields = [...]struct {
 // askFinishing asks for whatever the inputs did not supply, where there is
 // somebody to ask. An auto run leaves them empty: the engine records these
 // four and never invents them.
-func (g *Generator) askFinishing(finishing *Finishing, step int) error {
+func (g *Generator) askFinishing(finishing *Finishing) error {
 	asker, ok := g.decider.(Asker)
 	if !ok {
 		return nil
@@ -135,8 +135,6 @@ func (g *Generator) askFinishing(finishing *Finishing, step int) error {
 
 		*held = answer
 	}
-
-	_ = step
 
 	return nil
 }

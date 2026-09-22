@@ -140,7 +140,7 @@ func TestALifeEventWithNoInstitution(t *testing.T) {
 
 	gen := educationEngine(t, 24)
 
-	err := gen.rollInstitutionLifeEvent(0)
+	err := gen.rollInstitutionLifeEvent()
 	if err != nil {
 		t.Fatalf("rollInstitutionLifeEvent with no institution: %v", err)
 	}

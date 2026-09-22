@@ -150,9 +150,17 @@ func validateWorlds(sub Subsector, where string, species map[string]bool, worlds
 	return problems
 }
 
+// rollBounds is what a range is: a low and a high.
+const rollBounds = 2
+
 func validateRange(world World, where string, covered map[int]string) []string {
-	if !world.Selectable() {
+	if len(world.Roll) == 0 {
 		return nil
+	}
+
+	if len(world.Roll) != rollBounds {
+		return []string{fmt.Sprintf("%s: roll has %d numbers; a range is a low and a high",
+			where, len(world.Roll))}
 	}
 
 	low, high := world.Roll[0], world.Roll[1]

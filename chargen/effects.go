@@ -49,11 +49,11 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 	case career.EffectCheck:
 		return g.applyCheck(effect)
 	case career.EffectInjury:
-		return g.applyInjury(effect, cause)
+		return g.applyInjury(effect)
 	case career.EffectLifeEvent:
-		return g.rollLifeEvent(cause)
+		return g.rollLifeEvent()
 	case career.EffectMishapNoEject:
-		return g.rollMishap(cause, false)
+		return g.rollMishap(false)
 	case career.EffectBenefitRolls:
 		return g.grantBenefits(effect, cause)
 	case career.EffectEducationLockout:
@@ -108,7 +108,7 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 
 		return nil
 	case career.EffectSubTable:
-		return g.rollSubTable(effect, cause)
+		return g.rollSubTable(effect)
 	case career.EffectPool:
 		g.grantPool(effect, cause)
 
@@ -140,19 +140,19 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 
 		return nil
 	case career.EffectCollegiateLifeEvent, career.EffectAcademyLifeEvent:
-		return g.rollInstitutionLifeEvent(cause)
+		return g.rollInstitutionLifeEvent()
 	case career.EffectHonors:
 		g.honorsByEvent(cause)
 
 		return nil
 	case career.EffectTeenageLifeEvent:
-		return g.rollTeenageLifeEvent(cause)
+		return g.rollTeenageLifeEvent()
 	case career.EffectFreed:
 		g.freed(cause)
 
 		return nil
 	case career.EffectYouthLifeEvent:
-		return g.rollYouthLifeEvent(cause)
+		return g.rollYouthLifeEvent()
 	case career.EffectRating:
 		return g.moveRatings(effect, cause)
 	case career.EffectLoseTie:
@@ -188,7 +188,7 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 
 		return nil
 	case career.EffectMilitaryEvent:
-		return g.rollMilitaryEvent(cause)
+		return g.rollMilitaryEvent()
 	case career.EffectRollTable:
 		return g.rollNamedTable(effect, cause)
 	case career.EffectCommission:

@@ -76,7 +76,7 @@ func (g *Generator) takeSkillModifiers(skill string) []dice.Mod {
 // It is a roll rather than a choice, so the record carries the die as it
 // fell and the row it selected, and a replay of the same seed finds the
 // same row.
-func (g *Generator) rollSubTable(effect career.Effect, _ int) error {
+func (g *Generator) rollSubTable(effect career.Effect) error {
 	roll := g.dice.D6()
 	if effect.Dice == "2d6" {
 		roll = g.dice.TwoD6()
@@ -113,7 +113,7 @@ func (g *Generator) rollSubTable(effect career.Effect, _ int) error {
 
 // applyInjury rolls the Injury table (p. 119) as many times as the result
 // asked for.
-func (g *Generator) applyInjury(effect career.Effect, cause int) error {
+func (g *Generator) applyInjury(effect career.Effect) error {
 	times := max(effect.Times, 1)
 
 	table := career.Injury()
@@ -151,35 +151,29 @@ func (g *Generator) applyInjury(effect career.Effect, cause int) error {
 		}
 	}
 
-	_ = cause
-
 	return nil
 }
 
 // rollLifeEvent is the shared table of p. 120, which every career's d66
 // reaches at 31-36.
-func (g *Generator) rollLifeEvent(cause int) error {
+func (g *Generator) rollLifeEvent() error {
 	roll := g.dice.TwoD6()
 	throw := g.log.Roll(roll, "p. 120")
 	row := career.LifeEvents()[roll.Total-2]
 
 	g.consequence(ConsequenceCareer, throw, "life event: "+row.Summary, "")
 
-	_ = cause
-
 	return g.applyAll(row.Effects, throw)
 }
 
 // rollMilitaryEvent is the shared table of p. 121, which the military
 // careers' d66 tables reach at 41-46.
-func (g *Generator) rollMilitaryEvent(cause int) error {
+func (g *Generator) rollMilitaryEvent() error {
 	roll := g.dice.TwoD6()
 	throw := g.log.Roll(roll, "p. 121")
 	row := career.MilitaryEvents()[roll.Total-2]
 
 	g.consequence(ConsequenceCareer, throw, "military event: "+row.Summary, "")
-
-	_ = cause
 
 	return g.applyAll(row.Effects, throw)
 }
@@ -188,7 +182,7 @@ func (g *Generator) rollMilitaryEvent(cause int) error {
 // an event sent the character here rather than a failed survival throw, and
 // false again for the two careers that say in print that a mishap does not
 // force a character out (pp. 263, 298).
-func (g *Generator) rollMishap(cause int, eject bool) error {
+func (g *Generator) rollMishap(eject bool) error {
 	if g.career == nil {
 		return ErrNoCareer
 	}
@@ -202,8 +196,6 @@ func (g *Generator) rollMishap(cause int, eject bool) error {
 	if eject && g.career.MishapEjects {
 		g.ejected = true
 	}
-
-	_ = cause
 
 	return g.applyAll(row.Effects, throw)
 }

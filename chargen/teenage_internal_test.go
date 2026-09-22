@@ -21,12 +21,12 @@ func TestARefusedTeenagePathEndsGeneration(t *testing.T) {
 		gen.char.State.Characteristics.Set(which, 15)
 	}
 
-	_, err := gen.chooseTeenagePath(0, "ages 13-15")
+	_, err := gen.chooseTeenagePath("ages 13-17")
 	if err == nil {
 		t.Fatal("a refused choice did not come back as an error")
 	}
 
-	err = gen.oneTeenageEvent(0, "ages 13-15")
+	err = gen.oneTeenageEvent("ages 13-15")
 	if err == nil {
 		t.Fatal("a refused path did not stop the event")
 	}

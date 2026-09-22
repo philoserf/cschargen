@@ -321,7 +321,7 @@ func TestRollMishapNeedsACareer(t *testing.T) {
 
 	gen := engine(t, 5)
 
-	err := gen.rollMishap(1, true)
+	err := gen.rollMishap(true)
 	if !errors.Is(err, ErrNoCareer) {
 		t.Errorf("err = %v, want ErrNoCareer", err)
 	}
@@ -380,7 +380,7 @@ func settingWith(sub setting.Subsector) *setting.Data {
 	}
 }
 
-func testWorld(name string, roll *[2]int) setting.World {
+func testWorld(name string, roll []int) setting.World {
 	return setting.World{
 		Name: name, Roll: roll, TechLevel: 10, MaximumAge: 100, MaximumTerms: 20,
 		PrimaryLanguages: []string{testLanguage},
@@ -429,10 +429,10 @@ func TestAChooseOnlySubsectorIsChosenFrom(t *testing.T) {
 func TestASubsectorRollThatLandsNowhereIsThrownAgain(t *testing.T) {
 	t.Parallel()
 
-	rolls := [2]int{1, 100}
+	rolls := []int{1, 100}
 	data := settingWith(setting.Subsector{
 		Name: testSubsector, OriginRoll: 6, // a 1d6 rarely lands here
-		Worlds: []setting.World{testWorld("Somewhere", &rolls)},
+		Worlds: []setting.World{testWorld("Somewhere", rolls)},
 	})
 
 	for seed := range uint64(12) {
@@ -456,8 +456,8 @@ func TestASubsectorRollThatLandsNowhereIsThrownAgain(t *testing.T) {
 func TestALanguageWithNoAlternativeIsRecorded(t *testing.T) {
 	t.Parallel()
 
-	rolls := [2]int{1, 100}
-	world := testWorld("Monoglot", &rolls)
+	rolls := []int{1, 100}
+	world := testWorld("Monoglot", rolls)
 
 	world.PrimaryLanguages = []string{testLanguage}
 	world.BackgroundSkills = []setting.Requirement{{
@@ -496,8 +496,8 @@ func TestALanguageWithNoAlternativeIsRecorded(t *testing.T) {
 func TestAHomeworldItemGoesToTheStash(t *testing.T) {
 	t.Parallel()
 
-	rolls := [2]int{1, 100}
-	world := testWorld("Workshop", &rolls)
+	rolls := []int{1, 100}
+	world := testWorld("Workshop", rolls)
 
 	world.BackgroundSkills = []setting.Requirement{{
 		OneOf: []setting.Alternative{{Item: "a neural companion"}},
@@ -1374,10 +1374,10 @@ func TestTheProfileNamesAgreeWithTheValidator(t *testing.T) {
 func TestASettingWithNothingToRollForAsksInstead(t *testing.T) {
 	t.Parallel()
 
-	rolls := [2]int{1, 100}
+	rolls := []int{1, 100}
 	data := settingWith(setting.Subsector{
 		Name:   testSubsector, // no OriginRoll: nothing claims a d6 result
-		Worlds: []setting.World{testWorld("Somewhere", &rolls)},
+		Worlds: []setting.World{testWorld("Somewhere", rolls)},
 	})
 
 	character, err := New(Options{

@@ -126,7 +126,7 @@ func (g *Generator) moveRatings(effect career.Effect, cause int) error {
 		delta = rolled
 	}
 
-	indexes, err := g.ratingTargets(effect, cause)
+	indexes, err := g.ratingTargets(effect)
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func (g *Generator) moveRatings(effect career.Effect, cause int) error {
 		g.moveOneRating(index, delta, cause)
 	}
 
-	g.dropLostTies(cause)
+	g.dropLostTies()
 
 	return nil
 }
@@ -178,7 +178,7 @@ func (g *Generator) moveOneRating(index, delta, cause int) {
 const lostTie = ""
 
 // dropLostTies removes what moveOneRating marked.
-func (g *Generator) dropLostTies(_ int) {
+func (g *Generator) dropLostTies() {
 	kept := g.char.State.Ties[:0]
 
 	for _, tie := range g.char.State.Ties {
@@ -192,7 +192,7 @@ func (g *Generator) dropLostTies(_ int) {
 
 // ratingTargets is which ties an effect moves. TargetOne is a choice point,
 // narrowed to one kind where the page narrows it.
-func (g *Generator) ratingTargets(effect career.Effect, cause int) ([]int, error) {
+func (g *Generator) ratingTargets(effect career.Effect) ([]int, error) {
 	switch effect.Target {
 	case career.TargetAll:
 		return g.narrowedIndexes(effect)
@@ -234,8 +234,6 @@ func (g *Generator) ratingTargets(effect career.Effect, cause int) ([]int, error
 	if err != nil {
 		return nil, err
 	}
-
-	_ = cause
 
 	return []int{candidates[chosen]}, nil
 }

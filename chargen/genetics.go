@@ -43,7 +43,7 @@ const firstChosenGeneration = 3
 // determineGenetics is the first half of Step 5 for an engineered
 // character, and runs before the characteristics because one of its
 // outcomes decides how they are rolled.
-func (g *Generator) determineGenetics(step int) error {
+func (g *Generator) determineGenetics() error {
 	if g.species == nil || g.species.Kind != setting.KindEngineered {
 		return nil
 	}
@@ -78,9 +78,7 @@ func (g *Generator) determineGenetics(step int) error {
 
 	g.consequence(ConsequenceSpecies, cause, "genetics: "+record.Detail, "")
 
-	_ = step
-
-	return g.geneticOutcome(record, cause)
+	return g.geneticOutcome(record)
 }
 
 // geneticsCite is where the genetic status table is printed. The hybrid and
@@ -90,7 +88,7 @@ const geneticsCite = "pp. 62-65"
 
 // geneticOutcome rolls on the hybrid or compound table the status sent the
 // character to.
-func (g *Generator) geneticOutcome(record *Genetics, _ int) error {
+func (g *Generator) geneticOutcome(record *Genetics) error {
 	table := g.outcomeTable(record.Kind)
 	if len(table) == 0 {
 		return nil
@@ -104,7 +102,7 @@ func (g *Generator) geneticOutcome(record *Genetics, _ int) error {
 	// "The player chooses from the above results" is the last row of every
 	// compound table (pp. 64-65).
 	if outcome.Choose {
-		chosen, err := g.chooseOutcome(table, throw)
+		chosen, err := g.chooseOutcome(table)
 		if err != nil {
 			return err
 		}
@@ -151,7 +149,7 @@ func (g *Generator) outcomeTable(kind string) []setting.GeneticOutcome {
 
 // chooseOutcome is the last row of a compound table, which hands the
 // decision back rather than being one.
-func (g *Generator) chooseOutcome(table []setting.GeneticOutcome, cause int) (int, error) {
+func (g *Generator) chooseOutcome(table []setting.GeneticOutcome) (int, error) {
 	labels := make([]string, 0, len(table))
 	indexes := make([]int, 0, len(table))
 
@@ -177,8 +175,6 @@ func (g *Generator) chooseOutcome(table []setting.GeneticOutcome, cause int) (in
 	if err != nil {
 		return 0, err
 	}
-
-	_ = cause
 
 	return indexes[chosen], nil
 }

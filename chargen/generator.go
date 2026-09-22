@@ -246,7 +246,7 @@ func (g *Generator) Run() (*Character, error) {
 
 	// The genetics decide which characteristic method Step 2 uses, so they
 	// come before it although the book prints them at Step 5 (p. 62).
-	err = g.determineGenetics(g.log.Len())
+	err = g.determineGenetics()
 	if err != nil {
 		return nil, err
 	}
