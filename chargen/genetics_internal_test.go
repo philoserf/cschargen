@@ -30,9 +30,9 @@ func engineered(name string) setting.Species {
 	}
 }
 
-// TestARefusedGenerationEndsGeneration. "The character is a third, fourth
-// or later generation purebred altrant. The player chooses which
-// generation" (p. 63) is a choice like any other.
+// TestARefusedGenerationEndsGeneration. A third, fourth or later generation
+// purebred is a generation the player chooses (p. 63), which is a choice
+// like any other.
 func TestARefusedGenerationEndsGeneration(t *testing.T) {
 	t.Parallel()
 

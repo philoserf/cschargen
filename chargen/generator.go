@@ -146,8 +146,8 @@ type Generator struct {
 	rollAsHuman bool
 
 	// enslaved is set where the homeworld owns this character's people:
-	// "the character must take the Altrant/Uplift Slave career as their
-	// first career term" (p. 42). It is cleared once they have.
+	// they must take the slave career as their first career term (p. 42).
+	// It is cleared once they have.
 	enslaved bool
 
 	// institution is the one Step 8's events table is being rolled on, so

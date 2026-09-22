@@ -269,8 +269,8 @@ const (
 	EffectHonors
 
 	// EffectFreed ends a character's enslavement: "Your owner has decided
-	// to set you free. Continue your character as a free altrant or uplift"
-	// (pp. 75, 84, and the slave career's own event 66).
+	// to set you free", and they continue as a free engineered human or
+	// uplift (pp. 75, 84, and the slave career's own event 66).
 	EffectFreed
 
 	// EffectGroup applies several effects as one, which the benefit tables

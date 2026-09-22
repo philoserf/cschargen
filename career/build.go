@@ -769,7 +769,7 @@ func stashCountRolled(rolled, item, value string) Effect {
 
 // companyShare is p. 128's definition: "a 1% share of the corporation with
 // which the character has been associated. The value of this share is 2d6
-// x 100,000 Hub Federation credits."
+// x 100,000 credits."
 //
 // The value lives here rather than at each site because the definition is
 // the book's: a career row reading "Three Company Shares" means three of

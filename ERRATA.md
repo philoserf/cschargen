@@ -796,7 +796,7 @@ shares with no value at all.
 
 p. 128 settles it: "Company Share – This is a 1% share of the corporation with
 which the character has been associated. The value of this share is 2d6 x 100,000
-Hub Federation credits." The definition is of the benefit, not of one row, so a
+[...] credits." The definition is of the benefit, not of one row, so a
 row reading "Three Company Shares" grants three of those.
 
 **Engine:** every Company Share is worth 2d6 x 100,000, thrown separately, wherever
@@ -876,7 +876,7 @@ specialty check: the book says their lists are examples, "by no means a full lis
 ## E-36 (reading) — "lose one rank", with and without "retaining any benefit"
 
 **Where:** sixteen results across the corpus that demote a character. Two of them
-add a clause the other fourteen do not: Altrant/Uplift Slave event 35 reads "lose
+add a clause the other fourteen do not: the slave career's event 35 reads "lose
 one rank, retaining any benefit already gained", and one more like it.
 
 Two readings are available. Either the clause is redundant and every demotion

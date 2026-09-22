@@ -491,8 +491,8 @@ func TestALanguageWithNoAlternativeIsRecorded(t *testing.T) {
 	}
 }
 
-// TestAHomeworldItemGoesToTheStash: Kingston grants a mindcomp alongside
-// its skills (p. 41), and an item is not a skill.
+// TestAHomeworldItemGoesToTheStash: a world may grant an item alongside its
+// background skills (p. 41), and an item is not a skill.
 func TestAHomeworldItemGoesToTheStash(t *testing.T) {
 	t.Parallel()
 

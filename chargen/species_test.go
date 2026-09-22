@@ -162,9 +162,8 @@ func TestASpeciesAgesOnItsOwnProfile(t *testing.T) {
 	}
 }
 
-// TestAWorldThatWillNotHaveThem is p. 42: "If the entry indicates that
-// altrants or uplifts are not allowed, then the player should select a
-// different homeworld."
+// TestAWorldThatWillNotHaveThem is p. 42: a world whose entry bars this kind
+// of character sends the player to a different homeworld.
 func TestAWorldThatWillNotHaveThem(t *testing.T) {
 	t.Parallel()
 
@@ -202,8 +201,8 @@ func TestAWorldThatWillNotHaveThem(t *testing.T) {
 }
 
 // TestTheHomeworldCapsDoNotBindAnAlteredCharacter is the other half of
-// p. 42: "Altrant and Uplift characters age differently and these
-// restrictions will not apply to them."
+// p. 42: engineered and uplift characters age differently, and the
+// restrictions do not apply to them.
 func TestTheHomeworldCapsDoNotBindAnAlteredCharacter(t *testing.T) {
 	t.Parallel()
 
@@ -240,8 +239,8 @@ func TestTheHomeworldCapsDoNotBindAnAlteredCharacter(t *testing.T) {
 }
 
 // TestAnEnslavedCharacterTakesTheSlaveCareerFirst is the way into a career
-// the book gives no other entrance: "the character must take the
-// Altrant/Uplift Slave career as their first career term" (p. 42).
+// the book gives no other entrance: an enslaved character must take the
+// slave career as their first career term (p. 42).
 func TestAnEnslavedCharacterTakesTheSlaveCareerFirst(t *testing.T) {
 	t.Parallel()
 
@@ -489,9 +488,9 @@ func checkNoPathOffered(t *testing.T, seed uint64, character *chargen.Character)
 }
 
 // wasFreed reports whether an enslavement ended during early life. Three
-// results in the book end one -- "Continue your character as a free altrant
-// or uplift" -- and a character they reach is owned at birth and free by
-// the time the first career is chosen, so p. 42 no longer binds them.
+// results in the book end one -- the character continues free -- and one
+// they reach is owned at birth and free by the time the first career is
+// chosen, so p. 42 no longer binds them.
 //
 // The tests below are about what being owned does, so a character it stopped
 // doing anything to is not one of their cases.

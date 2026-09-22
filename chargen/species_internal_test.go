@@ -102,8 +102,8 @@ func TestASpeciesWithNothingToSay(t *testing.T) {
 
 // TestAWorldWithNoStatedStatus. A permission that admits a species and says
 // nothing about their standing is a world where they are free: most worlds
-// "do not enslave altrants or uplifts, and such characters live as free
-// citizens or residents" (p. 42).
+// do not enslave engineered people, and such characters live as free
+// citizens or residents (p. 42).
 func TestAWorldWithNoStatedStatus(t *testing.T) {
 	t.Parallel()
 
@@ -236,8 +236,8 @@ func TestNoWorldAnywhereWillHaveThem(t *testing.T) {
 }
 
 // TestBeingFreed is result 12 on both enslaved tables and result 66 of the
-// slave career: "Your owner has decided to set you free. Continue your
-// character as a free altrant or uplift."
+// slave career: "Your owner has decided to set you free", and the character
+// continues free.
 func TestBeingFreed(t *testing.T) {
 	t.Parallel()
 

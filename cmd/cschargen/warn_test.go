@@ -203,9 +203,13 @@ func TestJoinNames(t *testing.T) {
 		names []string
 		want  string
 	}{
-		{"one subsector, which a file may have", []string{"Earth"}, "Earth"},
-		{"two", []string{"Earth", "Hub"}, "Earth and Hub"},
-		{"more", []string{"Earth", "Hub", "Cascadia"}, "Earth, Hub and Cascadia"},
+		{"one subsector, which a file may have", []string{"Kestrel Reach"}, "Kestrel Reach"},
+		{"two", []string{"Kestrel Reach", "The Verge"}, "Kestrel Reach and The Verge"},
+		{
+			"more",
+			[]string{"Kestrel Reach", "The Verge", "Ninefold Gate"},
+			"Kestrel Reach, The Verge and Ninefold Gate",
+		},
 	}
 
 	for _, test := range tests {
