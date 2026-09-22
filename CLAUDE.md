@@ -20,6 +20,16 @@ conventions; do not reason from those rulesets.
 does about it — **add to it in the same change that implements the reading**, never
 as a later pass.
 
+**Fidelity is the tie-breaker.** Where the book is clear and its outcome is
+inconvenient, the book wins. A commune-raised character has about a hundred
+relatives because p. 58 hands p. 61 a dozen parents and p. 60 gives a communal
+household 2d6 siblings rather than 1d6-2 — the size is deliberate, not an
+oversight — and the engine does not cap, scale or round it away. `ERRATA.md` is for
+where the book is wrong, silent, or asking for something a generator cannot carry
+out; it is not for where the book is merely awkward. A referee who wants a
+different outcome has the setting file: `birthSituationOnly` bars a birth situation
+world by world, which is where a setting's own preferences belong.
+
 `THEORY.md` and `WALKTHROUGH.md` are standing documents on **different cadences**,
 and treating them as one thing gets both wrong. `THEORY.md` is about intent — the
 record is the deliverable, `Inputs` is what was asked for and `State` is what
