@@ -352,9 +352,6 @@ A record that fails halfway still knows what it was trying to be.
 Six calls. The one departure from the printed order is commented where it happens: the
 genetics of Step 5 decide which characteristic method Step 2 uses, so they run first.
 
-(The doc comment above this function describes a much earlier state of the project and
-is wrong — see the index at the end.)
-
 ### 5.3 Every roll goes through `dice`, and every roll is logged
 
 `dice/throw.go` — `Dice.Throw`
@@ -1100,9 +1097,8 @@ board. The issue is the durable reference; this table maps the sections above to
 **Total: 2 issues (0 critical, 1 high, 0 medium, 1 low)**
 
 **Related existing findings.** The `code-theory` pass that preceded this one filed nine,
-several of which a reader of this document will meet: `Generator.Run`'s doc comment
-describes a milestone in which most steps were stubbed (§5.2); `compare` checks the
-whole log and one of twenty `State` fields (§8); `ERRATA.md` promises every applied
+several of which a reader of this document will meet: `compare` checks the whole log
+and one of twenty `State` fields (§8); `ERRATA.md` promises every applied
 reading is stamped and seven identifiers of forty-three ever are (§6) — #121, #111
 and #118 respectively. See [`THEORY.md`](THEORY.md)'s own index for all nine.
 

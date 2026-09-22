@@ -159,9 +159,9 @@ func TestColonistReachesFourOtherCareers(t *testing.T) {
 }
 
 // TestTheImplementedCareersCoverTheForcedTransfers: whatever the three
-// careers force a character into, this milestone has to be able to carry
-// out -- or the record ends on an unimplemented consequence, which is
-// honest but is not the same as playing the rules.
+// careers force a character into has to be a career that exists -- or the
+// record ends on an unimplemented consequence, which is honest but is not
+// the same as playing the rules.
 func TestTheImplementedCareersCoverTheForcedTransfers(t *testing.T) {
 	t.Parallel()
 

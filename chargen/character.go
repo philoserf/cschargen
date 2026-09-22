@@ -24,7 +24,7 @@ type RNG struct {
 }
 
 // SettingData identifies the external file the world and species tables
-// were read from. Hash is that file's content, so a record refuses to
+// were read from. Hash is that file's content hash, so a record refuses to
 // replay against a different transcription; Sample reports that the
 // character was generated against the invented sample data and is not set
 // on real worlds.

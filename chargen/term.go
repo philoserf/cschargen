@@ -247,7 +247,7 @@ func (g *Generator) enlist(target career.Career) bool {
 
 	mods := g.takeModifiersFor(enlistmentThrow, target)
 
-	mods = append(mods, g.enlistmentMods(target, step)...)
+	mods = append(mods, g.enlistmentMods(target)...)
 
 	which, ok := characteristicByName(target.Enlistment.Characteristic)
 	if ok {
@@ -282,10 +282,10 @@ func (g *Generator) enlist(target career.Career) bool {
 }
 
 // enlistmentMods applies the situational modifiers a career prints on its
-// enlistment throw (p. 111). A modifier the engine cannot yet evaluate is
-// recorded rather than dropped, so a record says which rule was not applied
-// rather than looking as though the career had none.
-func (g *Generator) enlistmentMods(target career.Career, _ int) []dice.Mod {
+// enlistment throw (p. 111). The switch is exhaustive over EnlistmentModKind,
+// so a kind added there and not handled here is a build failure rather than a
+// modifier silently dropped.
+func (g *Generator) enlistmentMods(target career.Career) []dice.Mod {
 	var mods []dice.Mod
 
 	for _, mod := range target.EnlistmentMods {

@@ -445,15 +445,6 @@ read as the convenience index onto what happened in a term; the information is r
 several consequence events away in `Character.Events`. I read this as a leftover from
 before the log became the single place a result is recorded, but that is inference.
 
-**Several comments describe a milestone that has passed.** `Generator.Run`'s doc
-comment says Steps 1 and 3–8 are stubbed; its own body runs them. `EffectTransfer` says
-Vagabond and Prisoner are "the two this milestone implements"; all thirty-four are.
-`EffectNewHomeworld` says there is nothing to reassign a homeworld to; `E-9` is
-implemented and tested. `career/build.go`'s `skillAt` says the engine adds where it
-should floor, and points at GitHub issue #20, which is closed and the behaviour fixed.
-In a codebase where the comments carry this much of the reasoning, a stale one is
-costlier than usual — it is load-bearing in the reader's head.
-
 **`setting`'s package doc points at `data/setting.sample.json`.** The file is
 `setting/sample.json`, embedded; `/data/` is gitignored precisely because it is where a
 user's transcription goes.
@@ -495,15 +486,15 @@ sections above to it.
 | --- | -------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------- |
 | 1   | medium   | #118 — ERRATA.md promises every applied reading is stamped; 7 identifiers of 43 ever are  | `ERRATA.md:14`, the 11 `Deviate` sites in `chargen/` |
 | 2   | medium   | #111 — `replay` verifies the whole log and one of twenty `State` fields                   | `cmd/cschargen/replay.go:104`                        |
-| 3   | medium   | #121 — `Generator.Run`'s doc comment says Steps 1 and 3–8 are stubbed; the body runs them | `chargen/generator.go:229`                           |
-| 4   | medium   | #120 — Three effect kinds carry comments describing behaviour since implemented           | `career/effect.go:100`, `career/build.go:25`         |
+| 3   | —        | #121 — fixed: `Generator.Run`'s doc comment now describes the twenty steps                | `chargen/generator.go`                               |
+| 4   | —        | #120 — fixed: the three effect kinds describe the engine, not the plan                    | `career/effect.go`, `career/build.go`                |
 | 5   | medium   | #119 — The independent second transcription covers 3 careers of 34                        | `career/transcription_test.go:9`                     |
 | 6   | low      | #129 — ERRATA.md says it has two kinds of entry and carries three                         | `ERRATA.md:8`                                        |
 | 7   | low      | #127 — `setting`'s package doc names a sample path that is gitignored and does not exist  | `setting/setting.go:19`                              |
 | 8   | low      | #128 — The comment justifying one ragged consequence struct counts 13 kinds; there are 17 | `chargen/event.go:105`                               |
 | 9   | medium   | #117 — `Term.Event` and `Term.Mishap` are declared in the schema and never written        | `chargen/state.go:57`, `chargen/serve.go:22`         |
 
-**Total: 9 issues (0 critical, 0 high, 6 medium, 3 low)**
+**Total: 9 issues (0 critical, 0 high, 6 medium, 3 low); #120 and #121 fixed since.**
 
 Already tracked on GitHub and deliberately not re-filed: **#106** (a `Choice` gated on
 `Asker` is skipped on replay — §3.2), **#108** (the reserved word appears in
