@@ -732,7 +732,7 @@ func stashItem(item string) Effect {
 
 // stashValued adds something the book prints a credit value for: "a Company
 // Share worth 2D6 x Cr100000". The value is rolled and recorded, which is
-// not the invented value FR11 forbids -- the book gave the dice.
+// not an invented value -- the book gave the dice.
 func stashValued(item, rolled string) Effect {
 	return Effect{
 		Kind:   EffectStash,

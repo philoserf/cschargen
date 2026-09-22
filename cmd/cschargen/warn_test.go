@@ -94,8 +94,8 @@ func TestABatchCountsTheSubstitutionsRatherThanRepeatingThem(t *testing.T) {
 	}
 }
 
-// TestNamesComeFromTheFileAndNowhereElse. FR12 leaves Step 20's fields
-// empty in auto mode rather than inventing them, which is right for a
+// TestNamesComeFromTheFileAndNowhereElse. Auto mode leaves Step 20's
+// fields empty rather than inventing them, which is right for a
 // player character and leaves a cast of NPCs a hundred sheets headed
 // "(unnamed)". The engine will use names it is handed; it still invents
 // none.

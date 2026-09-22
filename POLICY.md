@@ -121,8 +121,8 @@ assignments appear. A crew can be cast from
 that and could not be cast from the other.
 
 **`--names`** draws a character's name from a file the caller supplies, one name
-per line, by the character's own seed. The engine still invents nothing: FR12
-leaves Step 20's fields empty in auto mode and this fills one of them only when
+per line, by the character's own seed. The engine still invents nothing: auto
+mode leaves Step 20's fields empty, and this fills one of them only when
 somebody hands it a list. Two characters in a batch may draw the same name, which
 is what a list shorter than the batch has to mean and is true of people anyway.
 `--name` beats `--names` where both are given, and `batch` refuses `--name`.
@@ -213,10 +213,10 @@ Neither is put to the auto policy at all.
 the first option — which would send every character back to school after every
 term, forever. So it is offered to a player and to nobody else.
 
-**Step 20's four fields** have no options to take the first of. FR12 says the
-engine "records them and leaves them empty rather than inventing them in auto
-mode", so an auto character's four fields are empty and the record says they
-were left that way rather than saying nothing.
+**Step 20's four fields** have no options to take the first of. The engine
+records them and leaves them empty rather than inventing them, so an auto
+character's four fields are empty and the record says they were left that way
+rather than saying nothing.
 
 Both are the policy being unrefined rather than the rules being odd, and both
 are the kind of choice this document exists to be honest about.

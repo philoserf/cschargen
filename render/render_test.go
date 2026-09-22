@@ -117,7 +117,7 @@ func TestSheetOfACharacterWithNothing(t *testing.T) {
 	}
 }
 
-// TestTheSheetPricesOnlyWhatTheBookPriced is FR11 on the page: a company
+// TestTheSheetPricesOnlyWhatTheBookPriced is that rule on the page: a company
 // share or a piece of art carries the value the book rolled for it, and a
 // weapon of the character's choice carries none, because the book gave
 // none. A zero there means the referee sets it, not that it is worthless --
@@ -558,8 +558,8 @@ func TestTheSheetCarriesTheFinishingTouches(t *testing.T) {
 // to 150 from Step 5. A single line reading "Allies: 76" buried the one
 // colleague a plot could hang on among sixty-two cousins.
 //
-// The record has always known which was which — every tie carries an origin
-// (FR15) — and the sheet was throwing it away.
+// The record has always known which was which — every tie carries an
+// origin — and the sheet was throwing it away.
 func TestTheSheetSeparatesTheFamilyFromEverybodyElse(t *testing.T) {
 	t.Parallel()
 

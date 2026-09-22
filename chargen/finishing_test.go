@@ -8,9 +8,9 @@ import (
 	"github.com/philoserf/cschargen/chargen"
 )
 
-// TestAutoModeInventsNoFinishingTouches is FR12: "All player input or policy
-// default; none is rolled. The engine records them and leaves them empty
-// rather than inventing them in auto mode."
+// TestAutoModeInventsNoFinishingTouches. Step 20's four fields are player
+// input or policy default and none is rolled, so an auto run records them
+// empty rather than inventing them.
 func TestAutoModeInventsNoFinishingTouches(t *testing.T) {
 	t.Parallel()
 

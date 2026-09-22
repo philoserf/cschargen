@@ -49,8 +49,7 @@ type Decider interface {
 }
 
 // Question is a free-text prompt, which Step 20 is four of. It is not a
-// Choice: "All player input or policy default; none is rolled" (FR12), and
-// there is no list to choose from.
+// Choice: nothing about it is rolled, and there is no list to choose from.
 type Question struct {
 	Point   string
 	Prompt  string
