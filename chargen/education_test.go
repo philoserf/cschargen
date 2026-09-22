@@ -513,6 +513,11 @@ func TestAPlayerMayReturnToHigherEducation(t *testing.T) {
 	opts.Inputs.TermLimit = 4
 	opts.Inputs.SkipEducation = true
 
+	// Interactive because the offer is gated on it. A decider that can be
+	// asked is not the same as a run that asks -- that conflation is what
+	// made the choice vanish on replay.
+	opts.Inputs.Interactive = true
+
 	character := generate(t, opts)
 
 	if len(character.State.Education) == 0 {
@@ -544,20 +549,24 @@ func TestThePolicyIsNotAskedToReturn(t *testing.T) {
 }
 
 // returnToSchool answers every choice with the first option and says yes to
-// the one question this test is about.
-type returnToSchool struct{}
+// p. 125's offer of higher education, counting how often it was made -- a
+// test that replays such a character has to know the offer really happened,
+// or it proves nothing.
+type returnToSchool struct{ offered int }
 
-func (returnToSchool) Choose(ask chargen.Choice) (int, error) {
+func (r *returnToSchool) Choose(ask chargen.Choice) (int, error) {
 	if ask.Point == "return_to_education" {
+		r.offered++
+
 		return 1, nil
 	}
 
 	return 0, nil
 }
 
-func (returnToSchool) Kind() chargen.DeciderKind { return chargen.DeciderPlayer }
+func (*returnToSchool) Kind() chargen.DeciderKind { return chargen.DeciderPlayer }
 
-func (returnToSchool) Ask(chargen.Question) (string, error) { return "", nil }
+func (*returnToSchool) Ask(chargen.Question) (string, error) { return "", nil }
 
 // TestARefusedReturnEndsGeneration. The Step 18 question goes through the
 // Decider like every choice, and a refusal ends the run rather than
@@ -569,6 +578,7 @@ func TestARefusedReturnEndsGeneration(t *testing.T) {
 
 	opts.Decider = refuseReturn{}
 	opts.Inputs.TermLimit = 4
+	opts.Inputs.Interactive = true
 
 	// Skipping Step 8 leaves the institutions open, so Step 18 has
 	// something to offer.
@@ -595,3 +605,59 @@ func (refuseReturn) Choose(ask chargen.Choice) (int, error) {
 func (refuseReturn) Kind() chargen.DeciderKind { return chargen.DeciderPlayer }
 
 func (refuseReturn) Ask(chargen.Question) (string, error) { return "", nil }
+
+// TestAReturnToEducationReplays is #106. mayReturnToEducation gated its
+// choice point on the decider implementing Asker, and Replay implements
+// Choose and not Ask -- deliberately, because it has no answers to reapply.
+// So the choice was offered while generating and skipped while replaying:
+// the recorded answer was never consumed and every choice after it read the
+// wrong index.
+//
+// Nothing generated that record before this test. It needs an interactive
+// character who reaches p. 125's offer and takes it, which is why the
+// decider above exists.
+func TestAReturnToEducationReplays(t *testing.T) {
+	t.Parallel()
+
+	opts := options(t, 0)
+
+	opts.Inputs.TermLimit = 4
+	opts.Inputs.Interactive = true
+
+	player := &returnToSchool{}
+
+	opts.Decider = player
+
+	original := generate(t, opts)
+
+	if player.offered == 0 {
+		t.Fatal("seed 0 no longer reaches the offer to return to education; the test proves nothing")
+	}
+
+	again := options(t, original.Provenance.RNG.Seed)
+
+	again.Decider = chargen.NewReplay(original.Events)
+	again.Inputs = original.Provenance.Inputs
+
+	replayed := generate(t, again)
+
+	if len(replayed.Events) != len(original.Events) {
+		t.Fatalf("replay ran to %d events, the record holds %d",
+			len(replayed.Events), len(original.Events))
+	}
+
+	for i, want := range original.Events {
+		got := replayed.Events[i]
+
+		if want.Kind != got.Kind {
+			t.Fatalf("event %d: record has a %s, the replay a %s", want.Seq, want.Kind, got.Kind)
+		}
+
+		if want.Choice != nil && got.Choice != nil &&
+			(want.Choice.Point != got.Choice.Point || want.Choice.Chosen != got.Choice.Chosen) {
+			t.Fatalf("event %d: record chose %s#%d, the replay %s#%d",
+				want.Seq, want.Choice.Point, want.Choice.Chosen,
+				got.Choice.Point, got.Choice.Chosen)
+		}
+	}
+}

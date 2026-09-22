@@ -366,8 +366,14 @@ func (g *Generator) nextTerm() error {
 func (g *Generator) mayReturnToEducation(step int) error {
 	// Only a player is asked. The policy takes the first option every
 	// time, and this is a choice the policy cannot make well.
-	_, interactive := g.decider.(Asker)
-	if !interactive {
+	//
+	// The gate is Inputs.Interactive and not a type assertion on Asker,
+	// because Asker is an interface Replay deliberately does not implement:
+	// gating on it offers the choice while generating and skips it while
+	// replaying, so the recorded answer is never consumed and every choice
+	// after it reads the wrong index (#106). Inputs.Interactive travels in
+	// the record, so a replay reaches the same choice points the run did.
+	if !g.char.Provenance.Inputs.Interactive {
 		return nil
 	}
 

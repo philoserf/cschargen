@@ -170,10 +170,13 @@ repository's documents quote their own examples.
   diverged.
 - **Nothing can be gated on `Asker`.** `Replay` implements `Choose` and not
   `Ask`, so anything gated that way happens while generating and is skipped while
-  replaying. A `Choice` gated that way loses its recorded answer (#106); Step 20's
-  `Ask` answers survive only for the one of four written back to `Inputs` (#109).
-  Gate on `Inputs.Interactive`, which travels in the record, and put an answer in
-  `Inputs` if replay has to reproduce it.
+  replaying. It went wrong twice: a `Choice` gated that way lost its recorded
+  answer and every choice after it read the wrong index, and Step 20's `Ask`
+  answers survived only for the one of four written back to `Inputs`. Gate on
+  `Inputs.Interactive`, which travels in the record, and put an answer in
+  `Inputs` if replay has to reproduce it. `askFinishing` holds the one
+  legitimate assertion, because it needs the `Ask` method itself rather than a
+  mode.
 - **A flag whose zero is a legal value needs `flag.FlagSet.Visit`.** A plain int
   cannot tell an unset flag from one set to its zero value, which is how
   `--terms 0` came to mean the policy's four. `Visit` walks only the flags
