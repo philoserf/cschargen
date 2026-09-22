@@ -54,7 +54,7 @@ func (g *Generator) youthEvents() error {
 		speciesYouthRolls(g.species), speciesYouthAges(g.species), youthPeriods[:])
 
 	for _, period := range periods {
-		err := g.oneYouthEvent(step, period)
+		err := g.oneYouthEvent(period)
 		if err != nil {
 			return err
 		}
@@ -68,12 +68,12 @@ func (g *Generator) youthEvents() error {
 // A character their homeworld owns takes a different table: an eleven-row
 // 2d6 rather than a nineteen-row 2d10, and the only one of the six that is
 // not a choice (p. 74).
-func (g *Generator) oneYouthEvent(step int, period string) error {
+func (g *Generator) oneYouthEvent(period string) error {
 	if g.enslaved {
-		return g.enslavedEvent(career.EnslavedYouth(), step, period)
+		return g.enslavedEvent(career.EnslavedYouth(), period)
 	}
 
-	path, err := g.chooseYouthPath(step, period)
+	path, err := g.chooseYouthPath(period)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ const (
 
 // chooseYouthPath offers the paths this character qualifies for. Path 1 has
 // no requirements, so there is always at least one.
-func (g *Generator) chooseYouthPath(step int, period string) (career.YouthPath, error) {
+func (g *Generator) chooseYouthPath(period string) (career.YouthPath, error) {
 	score := g.characteristicScore()
 
 	paths := career.YouthPaths()
@@ -134,8 +134,6 @@ func (g *Generator) chooseYouthPath(step int, period string) (career.YouthPath, 
 		return career.YouthPath{}, err
 	}
 
-	_ = step
-
 	return open[chosen], nil
 }
 
@@ -155,14 +153,12 @@ func (g *Generator) characteristicScore() func(string) int {
 
 // rollYouthLifeEvent is the d6 table of p. 75, which result 10 of every
 // path reaches.
-func (g *Generator) rollYouthLifeEvent(cause int) error {
+func (g *Generator) rollYouthLifeEvent() error {
 	roll := g.dice.D6()
 	throw := g.log.Roll(roll, "p. 75")
 	row := career.YouthLifeEvents()[roll.Total-1]
 
 	g.consequence(ConsequenceFamily, throw, "youth life event: "+row.Summary, "")
-
-	_ = cause
 
 	return g.applyAll(row.Effects, throw)
 }
@@ -203,9 +199,7 @@ func speciesTeenAges(species *setting.Species) []string {
 }
 
 // enslavedEvent rolls on one of the two tables of pp. 74 and 84.
-func (g *Generator) enslavedEvent(
-	path career.EnslavedPath, step int, period string,
-) error {
+func (g *Generator) enslavedEvent(path career.EnslavedPath, period string) error {
 	g.cite = path.Cite
 
 	roll := g.dice.TwoD6()
@@ -215,8 +209,6 @@ func (g *Generator) enslavedEvent(
 
 	g.consequence(ConsequenceFamily, cause,
 		period+", on the "+path.Name+" table: "+row.Summary, "")
-
-	_ = step
 
 	return g.applyAll(row.Effects, cause)
 }

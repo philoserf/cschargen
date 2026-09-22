@@ -91,7 +91,7 @@ func (g *Generator) determineFamily(world setting.World) error {
 	g.addFamily(RoleParent, parents, closeFamilyRating, step, "a parent")
 
 	g.siblings(family, step)
-	g.extendedFamily(world, step)
+	g.extendedFamily(step)
 
 	return nil
 }
@@ -127,8 +127,6 @@ func (g *Generator) birthSituation(world setting.World, family *Family, step int
 
 	g.consequence(ConsequenceFamily, cause,
 		"born to "+family.Situation, "")
-
-	_ = cause
 
 	return g.householdSize(family)
 }
@@ -324,7 +322,7 @@ func (g *Generator) addFamily(role string, count, rating, cause int, detail stri
 // siblings is p. 60: 1d6-2 for a character born to a couple, 2d6 for one
 // born into a communal situation, and then a 2d6 age table for each.
 func (g *Generator) siblings(family *Family, step int) {
-	count := g.siblingCount(family, step)
+	count := g.siblingCount(family)
 	if count == 0 {
 		g.consequence(ConsequenceFamily, step, "an only child", "")
 
@@ -334,7 +332,7 @@ func (g *Generator) siblings(family *Family, step int) {
 	twins := 0
 
 	for range count {
-		detail, isTwin := g.siblingAge(family, step)
+		detail, isTwin := g.siblingAge(family)
 		if isTwin {
 			twins++
 
@@ -358,7 +356,7 @@ func (g *Generator) siblings(family *Family, step int) {
 // siblingCount is the first sentence of p. 60. Note the asymmetry: a couple
 // gives 1d6-2, which is nothing more than half the time, and a communal
 // upbringing gives 2d6, which is never nothing.
-func (g *Generator) siblingCount(family *Family, step int) int {
+func (g *Generator) siblingCount(family *Family) int {
 	if family.Situation == SituationCommunal {
 		roll := g.dice.TwoD6()
 		g.log.Roll(roll, "p. 60")
@@ -368,8 +366,6 @@ func (g *Generator) siblingCount(family *Family, step int) int {
 
 	roll := g.dice.D6()
 	g.log.Roll(roll, "p. 60")
-
-	_ = step
 
 	return max(roll.Total-2, 0)
 }
@@ -384,9 +380,9 @@ func (g *Generator) siblingCount(family *Family, step int) int {
 // age when the child will have been born, then reduce the age difference" --
 // and it needs a parent's age at the sibling's birth rather than at the
 // character's, which the step does not record. ERRATA E-25.
-func (g *Generator) siblingAge(family *Family, step int) (string, bool) {
+func (g *Generator) siblingAge(family *Family) (string, bool) {
 	roll := g.dice.TwoD6()
-	cause := g.log.Roll(roll, "p. 60")
+	g.log.Roll(roll, "p. 60")
 
 	result := redirectSiblingResult(roll.Total, family)
 
@@ -404,9 +400,6 @@ func (g *Generator) siblingAge(family *Family, step int) (string, bool) {
 	case 12:
 		return "", true
 	}
-
-	_ = cause
-	_ = step
 
 	return g.nearSibling(family), false
 }
@@ -487,7 +480,7 @@ func multipleBirth(n int) string {
 // book builds them by repeating the birth situation for each parent; the
 // engine repeats the counts rather than the narrative, because the second
 // generation's household is not something the character's sheet records.
-func (g *Generator) extendedFamily(world setting.World, step int) {
+func (g *Generator) extendedFamily(step int) {
 	// Two grandparents per parent, and their siblings are the character's
 	// aunts and uncles.
 	parents := len(g.char.State.Family.ParentAges)
@@ -517,6 +510,4 @@ func (g *Generator) extendedFamily(world setting.World, step int) {
 	}
 
 	g.addFamily(RoleCousin, cousins, extendedFamilyRating, step, "a cousin")
-
-	_ = world
 }

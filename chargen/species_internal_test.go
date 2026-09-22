@@ -170,12 +170,12 @@ func TestAWorldBelowTenThatAdmitsUplifts(t *testing.T) {
 func TestASubsectorThatWillNotHaveThem(t *testing.T) {
 	t.Parallel()
 
-	closed := testWorld("Closed", &[2]int{1, 100})
+	closed := testWorld("Closed", []int{1, 100})
 
 	closed.Uplifts = setting.Permission{Allowed: false}
 	closed.Engineered = setting.Permission{Allowed: false}
 
-	open := testWorld("Open", &[2]int{1, 100})
+	open := testWorld("Open", []int{1, 100})
 
 	data := settingWith(setting.Subsector{
 		Name: "Shut", OriginRoll: 1, Worlds: []setting.World{closed},
@@ -210,7 +210,7 @@ func TestASubsectorThatWillNotHaveThem(t *testing.T) {
 func TestNoWorldAnywhereWillHaveThem(t *testing.T) {
 	t.Parallel()
 
-	closed := testWorld("Closed", &[2]int{1, 100})
+	closed := testWorld("Closed", []int{1, 100})
 
 	closed.Uplifts = setting.Permission{Allowed: false}
 

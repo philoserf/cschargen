@@ -100,7 +100,7 @@ func TestACompoundTableThatOnlyDefers(t *testing.T) {
 
 	gen.species = &species
 
-	_, err := gen.chooseOutcome(species.Genetics.Compound, 0)
+	_, err := gen.chooseOutcome(species.Genetics.Compound)
 	if !errors.Is(err, ErrNoOptions) {
 		t.Errorf("err = %v, want ErrNoOptions", err)
 	}

@@ -112,7 +112,7 @@ func (g *Generator) oneEducation(step int) (bool, error) {
 		return false, g.washOut(institution, step)
 	}
 
-	return true, g.graduateEvents(institution, step)
+	return true, g.graduateEvents(institution)
 }
 
 // chooseInstitution asks whether to attend, and where. A character who
@@ -268,8 +268,6 @@ func (g *Generator) admitted(institution career.Institution, step int) bool {
 		g.consequence(ConsequenceEducation, step,
 			"not admitted to the "+institution.Name, "")
 	}
-
-	_ = step
 
 	return made
 }
@@ -687,7 +685,7 @@ func (g *Generator) washoutSkill(institution career.Institution, step int) (stri
 }
 
 // graduateEvents is the 2d10 table a successful graduate rolls on.
-func (g *Generator) graduateEvents(institution career.Institution, step int) error {
+func (g *Generator) graduateEvents(institution career.Institution) error {
 	roll := g.dice.ND10(youthDice)
 	cause := g.log.Roll(roll, institution.Cite)
 	row := institution.Events[roll.Total-youthLow]
@@ -697,14 +695,12 @@ func (g *Generator) graduateEvents(institution career.Institution, step int) err
 
 	g.institution = &institution
 
-	_ = step
-
 	return g.applyAll(row.Effects, cause)
 }
 
 // rollInstitutionLifeEvent is the d6 table an institution's events table
 // reaches at result 10.
-func (g *Generator) rollInstitutionLifeEvent(cause int) error {
+func (g *Generator) rollInstitutionLifeEvent() error {
 	if g.institution == nil || len(g.institution.LifeEvents) == 0 {
 		return nil
 	}
@@ -715,8 +711,6 @@ func (g *Generator) rollInstitutionLifeEvent(cause int) error {
 
 	g.consequence(ConsequenceEducation, throw,
 		"life at the "+g.institution.Name+": "+row.Summary, "")
-
-	_ = cause
 
 	return g.applyAll(row.Effects, throw)
 }

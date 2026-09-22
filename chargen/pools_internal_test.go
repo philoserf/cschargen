@@ -293,7 +293,7 @@ func TestASubTableWithAGapSaysSo(t *testing.T) {
 	err := gen.rollSubTable(career.Effect{
 		Kind:   career.EffectSubTable,
 		Detail: "a table with no rows at all",
-	}, 0)
+	})
 	if err != nil {
 		t.Fatalf("rollSubTable: %v", err)
 	}
@@ -324,7 +324,7 @@ func TestASubTableRollsRatherThanChooses(t *testing.T) {
 				{Kind: career.EffectCredits, Dice: "500", Detail: "500 credits"},
 			}},
 		},
-	}, 0)
+	})
 	if err != nil {
 		t.Fatalf("rollSubTable: %v", err)
 	}

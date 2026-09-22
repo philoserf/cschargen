@@ -52,9 +52,9 @@ func (g *Generator) serveTerm() error {
 // mishap, or advancement, a skill and an event.
 func (g *Generator) resolveTerm(assignment career.Assignment, survived bool) error {
 	if !survived {
-		step := g.log.Step("Step 13: Roll A Mishap", "p. 113")
+		g.log.Step("Step 13: Roll A Mishap", "p. 113")
 
-		return g.rollMishap(step, true)
+		return g.rollMishap(true)
 	}
 
 	err := g.advance(assignment)
@@ -116,7 +116,7 @@ const naturalTwelve = 12
 func (g *Generator) advance(assignment career.Assignment) error {
 	step := g.log.Step("Step 14: Roll for Advancement", "p. 114")
 
-	err := g.offerCommission(step)
+	err := g.offerCommission()
 	if err != nil {
 		return err
 	}
@@ -183,7 +183,7 @@ func failureEffects(hooks []career.Effect) []career.Effect {
 // optional. If the character has already received a Commission ... or does
 // not wish to pursue officer rank, this step is skipped", and "If the
 // Commission roll fails, there is no penalty."
-func (g *Generator) offerCommission(step int) error {
+func (g *Generator) offerCommission() error {
 	if g.career.Commission == nil || g.commissioned {
 		return nil
 	}
@@ -201,8 +201,6 @@ func (g *Generator) offerCommission(step int) error {
 	if index != 0 {
 		return nil
 	}
-
-	_ = step
 
 	return g.attemptCommission(0, g.log.Len())
 }

@@ -948,3 +948,49 @@ func TestAStatusTableOfTheWrongLength(t *testing.T) {
 		})
 	}
 }
+
+// TestARollWithThreeNumbersIsRefused is the arity a fixed-size array could
+// not check. encoding/json fills [2]int positionally and discards what will
+// not fit, so "roll": [1, 4, 9] decoded silently as 1-4 -- a transcription
+// typo read as a narrower range, in the one input this program treats as
+// untrusted. Roll is a slice now, and its length is a thing the validator
+// can say something about.
+func TestARollWithThreeNumbersIsRefused(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name string
+		roll []int
+		want string
+	}{
+		{"three numbers", []int{1, 4, 9}, "roll has 3 numbers"},
+		{"one number", []int{7}, "roll has 1 numbers"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			broken := minimal()
+
+			subsectors, ok := broken[keySubsector].([]any)
+			if !ok {
+				t.Fatal("fixture")
+			}
+
+			first, ok := subsectors[0].(map[string]any)
+			if !ok {
+				t.Fatal("fixture")
+			}
+
+			first[keyWorlds] = []any{fixtureWorld("Somewhere", tc.roll)}
+
+			_, err := setting.Load(write(t, broken))
+			if err == nil {
+				t.Fatalf("a roll of %v was accepted", tc.roll)
+			}
+
+			if !strings.Contains(err.Error(), tc.want) {
+				t.Errorf("error was %q, want it to mention %q", err, tc.want)
+			}
+		})
+	}
+}

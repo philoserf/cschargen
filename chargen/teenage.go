@@ -36,7 +36,7 @@ func (g *Generator) teenageEvents() error {
 		speciesTeenRolls(g.species), speciesTeenAges(g.species), teenagePeriods[:])
 
 	for _, period := range periods {
-		err := g.oneTeenageEvent(step, period)
+		err := g.oneTeenageEvent(period)
 		if err != nil {
 			return err
 		}
@@ -46,12 +46,12 @@ func (g *Generator) teenageEvents() error {
 }
 
 // oneTeenageEvent chooses a path, rolls 2d10 on it, and applies the result.
-func (g *Generator) oneTeenageEvent(step int, period string) error {
+func (g *Generator) oneTeenageEvent(period string) error {
 	if g.enslaved {
-		return g.enslavedEvent(career.EnslavedTeenage(), step, period)
+		return g.enslavedEvent(career.EnslavedTeenage(), period)
 	}
 
-	path, err := g.chooseTeenagePath(step, period)
+	path, err := g.chooseTeenagePath(period)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func (g *Generator) oneTeenageEvent(step int, period string) error {
 
 // chooseTeenagePath offers the paths this character qualifies for. One of
 // Paths 1 and 2 is always open, so there is always at least one.
-func (g *Generator) chooseTeenagePath(step int, period string) (career.TeenagePath, error) {
+func (g *Generator) chooseTeenagePath(period string) (career.TeenagePath, error) {
 	score := g.characteristicScore()
 	settled := g.settledYears()
 
@@ -111,8 +111,6 @@ func (g *Generator) chooseTeenagePath(step int, period string) (career.TeenagePa
 		return career.TeenagePath{}, err
 	}
 
-	_ = step
-
 	return open[chosen], nil
 }
 
@@ -129,14 +127,12 @@ func (g *Generator) settledYears() int {
 }
 
 // rollTeenageLifeEvent is the d6 table of p. 85.
-func (g *Generator) rollTeenageLifeEvent(cause int) error {
+func (g *Generator) rollTeenageLifeEvent() error {
 	roll := g.dice.D6()
 	throw := g.log.Roll(roll, "p. 85")
 	row := career.TeenageLifeEvents()[roll.Total-1]
 
 	g.consequence(ConsequenceFamily, throw, "teenage life event: "+row.Summary, "")
-
-	_ = cause
 
 	return g.applyAll(row.Effects, throw)
 }
