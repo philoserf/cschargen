@@ -111,15 +111,15 @@ func TestVagabondAndPrisonerNumbers(t *testing.T) {
 	}
 
 	// p. 261 gives Prisoner a single assignment, which is what makes it the
-	// smallest career in the book and part of why it is in this milestone.
+	// smallest career in the book.
 	if len(prisoner.Assignments) != 1 {
 		t.Errorf("Prisoner has %d assignments, want 1", len(prisoner.Assignments))
 	}
 }
 
-// TestColonistReachesFourOtherCareers is the finding that set this
-// milestone's scope (docs/MILESTONE-1.md). If a later change makes one
-// career self-contained, this test should be the thing that notices.
+// TestColonistReachesFourOtherCareers holds the fact that makes careers a
+// graph rather than a list. If a later change makes one career
+// self-contained, this test should be the thing that notices.
 func TestColonistReachesFourOtherCareers(t *testing.T) {
 	t.Parallel()
 
@@ -159,9 +159,9 @@ func TestColonistReachesFourOtherCareers(t *testing.T) {
 }
 
 // TestTheImplementedCareersCoverTheForcedTransfers: whatever the three
-// careers force a character into, this milestone has to be able to carry
-// out -- or the record ends on an unimplemented consequence, which is
-// honest but is not the same as playing the rules.
+// careers force a character into has to be a career that exists -- or the
+// record ends on an unimplemented consequence, which is honest but is not
+// the same as playing the rules.
 func TestTheImplementedCareersCoverTheForcedTransfers(t *testing.T) {
 	t.Parallel()
 
@@ -205,10 +205,9 @@ func TestTheImplementedCareersCoverTheForcedTransfers(t *testing.T) {
 
 	walk(career.LifeEvents()[1].Effects)
 
-	// The careers the implemented ones send characters to and that are not
-	// built yet. The list shrinks as milestone 3 proceeds and should reach
-	// zero; a destination appearing that is not here fails the test rather
-	// than passing unnoticed.
+	// Destinations the implemented careers reach that are not themselves
+	// built. All thirty-four are, so the list is empty; a destination
+	// appearing here fails the test rather than passing unnoticed.
 	// Independent Merchant's mishap 12 does name Pirate inside a 1d6 branch
 	// the engine records rather than resolves, so it is not a transfer.
 	// When that branch becomes one, this test is what will say so.

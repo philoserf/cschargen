@@ -9,8 +9,8 @@ import "fmt"
 // a compelling character."
 //
 // None of the four is rolled and none is mechanical. The engine records
-// them and leaves them empty rather than inventing them, which is FR12's
-// rule and the reason this step reads nothing from the dice.
+// them and leaves them empty rather than inventing them, which is why this
+// step reads nothing from the dice.
 
 // finishingCite is where Step 20 begins.
 const finishingCite = "pp. 129-130"
@@ -67,7 +67,7 @@ func (g *Generator) finishingTouches() error {
 	g.char.State.Finishing = finishing
 
 	// The name is the one field the record already carried, because it was
-	// an input from milestone 1. Keeping the two in step is what stops a
+	// an input from the start. Keeping the two in step is what stops a
 	// sheet headed by one name and a record stamped with another.
 	g.char.Provenance.Inputs.Name = finishing.Name
 
@@ -97,9 +97,8 @@ var finishingFields = [...]struct {
 }
 
 // askFinishing asks for whatever the inputs did not supply, where there is
-// somebody to ask. An auto run leaves them empty, which is what FR12 says:
-// "The engine records them and leaves them empty rather than inventing them
-// in auto mode."
+// somebody to ask. An auto run leaves them empty: the engine records these
+// four and never invents them.
 func (g *Generator) askFinishing(finishing *Finishing, step int) error {
 	asker, ok := g.decider.(Asker)
 	if !ok {

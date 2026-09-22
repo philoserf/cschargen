@@ -409,8 +409,8 @@ func TestAnOutOfRangeChoiceIsDistinctFromARefusal(t *testing.T) {
 	}
 }
 
-// TestReplayReproducesTheCharacter closes the loop this milestone exists to
-// establish: the record replays to itself.
+// TestReplayReproducesTheCharacter closes the loop the record exists to
+// establish: it replays to itself.
 func TestReplayReproducesTheCharacter(t *testing.T) {
 	t.Parallel()
 

@@ -11,7 +11,7 @@ import (
 // term its OGL notice reserves. That word is not in this repository.
 const slaveCareer = "Engineered/Uplift Slave"
 
-// TestTheBookIsFullyTranscribed is what milestone 3 was filed to reach.
+// TestTheBookIsFullyTranscribed is the completeness claim, held as a test.
 //
 // The Careers list on pp. 8-9 names thirty-four, and each is here by the
 // name this repository gives it -- which is the book's own except for the
@@ -53,8 +53,8 @@ func TestTheBookIsFullyTranscribed(t *testing.T) {
 	}
 }
 
-// TestEveryCareerHasItsPrintedShape is the completeness check of
-// docs/MILESTONE-1.md. What is invariant is narrower than "every career has
+// TestEveryCareerHasItsPrintedShape is the completeness check. What is
+// invariant is narrower than "every career has
 // every table": a d66 event table has 36 entries, a 2d6 mishap table has
 // 11, any skill table that exists has 6 rows, and a benefit table has 7.
 // Which tables exist varies by career, and the test must not assume

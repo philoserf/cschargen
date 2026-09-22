@@ -49,7 +49,7 @@ func TestARosterNumbersEveryCharacter(t *testing.T) {
 }
 
 // TestARosterNamesTheUnnamed. An auto-generated character has no name --
-// FR12 leaves Step 20 empty rather than inventing one -- and a blank where
+// Step 20 is left empty rather than invented -- and a blank where
 // the name goes reads as a broken line rather than as a fact.
 func TestARosterNamesTheUnnamed(t *testing.T) {
 	t.Parallel()

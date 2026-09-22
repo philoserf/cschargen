@@ -10,9 +10,9 @@ import (
 // DeciderKind identifies who resolved a choice.
 type DeciderKind string
 
-// The deciders. Player and Policy are the two modes of docs/PRD.md goal 2;
-// Replay is the third, and it never decides anything -- it reapplies what a
-// record already holds.
+// The deciders. Player and Policy are the two modes a character is
+// generated in; Replay is the third, and it never decides anything -- it
+// reapplies what a record already holds.
 const (
 	DeciderPlayer DeciderKind = "player"
 	DeciderPolicy DeciderKind = "policy"
@@ -49,8 +49,7 @@ type Decider interface {
 }
 
 // Question is a free-text prompt, which Step 20 is four of. It is not a
-// Choice: "All player input or policy default; none is rolled" (FR12), and
-// there is no list to choose from.
+// Choice: nothing about it is rolled, and there is no list to choose from.
 type Question struct {
 	Point   string
 	Prompt  string
@@ -76,8 +75,7 @@ func (Policy) Kind() DeciderKind { return DeciderPolicy }
 
 // Choose takes the first option. Every table in the book prints its options
 // in a fixed order, so "first listed" is a rule a reader can check rather
-// than a preference -- and a policy that chose otherwise would need a
-// reason per choice point, which is what later milestones add.
+// than a preference.
 func (Policy) Choose(c Choice) (int, error) {
 	if len(c.Options) == 0 {
 		return 0, fmt.Errorf("%w: %s", ErrNoOptions, c.Point)
@@ -152,23 +150,11 @@ func (r *Replay) Remaining() int {
 
 // asPrompt makes a table result read as a question to the player.
 //
-// Four choice points take their prompt from the result that raised them,
-// and a result is written as the page writes it -- "choose Broker, Carouse
-// or Streetwise", "what surviving taught you". Beside the prompts the
-// engine writes itself, which are sentences, the lowercase ones read as a
-// fragment of the book rather than as something being asked:
-//
-//	Choose a specialty for Survival  [p. 40]
-//	choose how you answered it       [pp. 68-69]
-//
-// Only the prompt moves. A choice is recorded with the prompt it was asked
-// with, so the transcript's choice lines carry the lifted letter too, and
-// that is right -- they are a record of a question. The consequences keep
-// the book's own phrasing, because they record what happened rather than
-// what was asked:
-//
-//   - 56  choice Choose what the work built: STR (policy)
-//   - 57  -> +1 STR [characteristic, from 56]
+// A result is written as the page writes it -- "choose Broker, Carouse or
+// Streetwise" -- and beside the engine's own prompts, which are sentences,
+// the lowercase ones read as a fragment of the book rather than a question.
+// Only the prompt moves: the consequence keeps the book's phrasing, because
+// it records what happened rather than what was asked.
 func asPrompt(detail string) string {
 	if detail == "" {
 		return detail

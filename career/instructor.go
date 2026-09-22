@@ -5,8 +5,8 @@ package career
 //
 // It has the hardest enlistment throw in the book — EDU 12+ — and the only
 // one the education tracks modify: +2 for an undergraduate degree, +4 for a
-// graduate one (p. 212). Both arrive with milestone 5, and until then the
-// engine records that it could not apply them.
+// graduate one (p. 212). The engine applies both, from the degrees Step 8
+// recorded.
 func Instructor() Career {
 	ranks := func(third, fifth, sixth []Effect) [][]Effect {
 		return [][]Effect{

@@ -317,7 +317,7 @@ func writeTies(out *strings.Builder, character *chargen.Character) {
 // cousins, and gave a referee no way to find them.
 //
 // The record has always known which is which: every tie carries an origin
-// (FR15). The sheet was throwing it away.
+// on it. The sheet was throwing it away.
 func splitTies(ties []chargen.Tie) ([]chargen.Tie, []chargen.Tie) {
 	made := make([]chargen.Tie, 0, len(ties))
 	family := make([]chargen.Tie, 0, len(ties))

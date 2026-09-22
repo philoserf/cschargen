@@ -7,8 +7,8 @@ import (
 	"github.com/philoserf/cschargen/chargen"
 )
 
-// TestACharacterActuallyAges is the reach check the milestone 4 plan makes
-// against the sample data: aging begins at term 6 on a tech level 9 world,
+// TestACharacterActuallyAges is the reach check against the sample data:
+// aging begins at term 6 on a tech level 9 world,
 // and two of the sample's thirteen worlds are tech level 9 with term caps
 // of 17 and 19.
 //

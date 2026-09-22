@@ -93,7 +93,7 @@ func (g *Generator) oneEducation(step int) (bool, error) {
 	g.cite = institution.Cite
 
 	// A tie made at school names the school, the way one made in a career
-	// names the career (FR15).
+	// names the career.
 	g.stage = institution.Name
 	defer func() { g.stage = "" }()
 

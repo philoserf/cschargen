@@ -41,7 +41,7 @@ linters:
     depguard:
       # depguard's own default is a deny-all list that flags this module's
       # own imports, so the choice was never on or off but configured or
-      # meaningless. Most of the PRD's layering is enforced by the compiler,
+      # meaningless. Most of the layering is enforced by the compiler,
       # because the reverse edge is an import cycle. These are the edges
       # that would otherwise compile.
       rules:

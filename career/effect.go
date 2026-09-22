@@ -2,7 +2,7 @@
 // career shares: Injury (p. 119) and Life Events (p. 120).
 //
 // The definitions are hand-typed Go rather than a data file. The format is
-// what milestone 3 proves against thirty-four careers whose shapes genuinely
+// proven against all thirty-four careers, whose shapes genuinely
 // differ -- National Navy has nine skill tables and a commission, Vagabond
 // has four and no enlistment throw -- and designing a schema against three
 // and then meeting the variance would mean migrating data twice. Go structs
@@ -99,14 +99,14 @@ const (
 	// being placed there.
 	EffectChooseCareer
 
-	// EffectTransfer sends the character to another career by name --
-	// Vagabond and Prisoner are the two the rules force, and the two this
-	// milestone implements.
+	// EffectTransfer sends the character to another career by name. The
+	// destination is resolved when the transfer is taken; a name no career
+	// answers to ends generation rather than being skipped.
 	EffectTransfer
 
 	// EffectNewHomeworld reassigns the homeworld, which six of Colonist's
-	// eleven mishaps do. Until the setting data lands there is nothing to
-	// reassign it to, so the engine records the demand and moves on.
+	// eleven mishaps do. The new world is thrown for as a birth world is,
+	// and changes the tech level and nothing else (ERRATA E-9).
 	EffectNewHomeworld
 
 	// EffectRollTable rolls on one of the career's skill tables by name,
@@ -285,7 +285,7 @@ const (
 	// side of the enlistment lockout a refused career leaves behind.
 	EffectEducationLockout
 
-	// EffectUnimplemented is a result this milestone cannot carry out. It
+	// EffectUnimplemented is a result the engine cannot carry out. It
 	// carries the book's demand in Detail.
 	EffectUnimplemented
 )

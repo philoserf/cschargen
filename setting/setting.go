@@ -166,8 +166,8 @@ type Subsector struct {
 }
 
 // Species is one engineered kind, named so that a world's Banned list can
-// refer to it. The rules for playing one are milestone 6; this is the
-// vocabulary the permission columns are written against.
+// refer to it. This is the vocabulary the permission columns are written
+// against; the rules for playing one are in chargen.
 type Species struct {
 	Name string `json:"name"`
 

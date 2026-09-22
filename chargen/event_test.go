@@ -115,7 +115,7 @@ func TestExactlyOnePayload(t *testing.T) {
 	}
 }
 
-// TestRollRecordsNoTarget is the distinction of docs/PRD.md FR15: a throw
+// TestRollRecordsNoTarget is the distinction the record rests on: a throw
 // against no target leaves Target nil rather than zero, because zero is a
 // target no throw of dice satisfies and would read as a check that always
 // failed.

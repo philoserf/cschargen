@@ -3,9 +3,9 @@ package career
 // EnlistmentModKind names a situational modifier on an enlistment throw.
 type EnlistmentModKind int
 
-// The kinds. Which the engine can evaluate depends on what it knows: the
-// number of careers entered it knows, apparent age it will know at
-// milestone 4, and a degree at milestone 5.
+// The kinds. Each is evaluated against something the engine tracks: the
+// number of careers entered, the character's apparent age, and the degrees
+// Step 8 recorded.
 const (
 	// PerPreviousCareer is "-1 for each career you have entered before this
 	// one", multiplied by the count.

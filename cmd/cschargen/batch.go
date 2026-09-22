@@ -108,8 +108,8 @@ func batchCommand(args []string, out *os.File) error {
 }
 
 // isDirectory reports whether the output path names a directory that
-// already exists. The PRD's CLI sketch has always read
-// `-o dir|file.jsonl`, and an existing directory is the least surprising
+// already exists. `-o` takes `dir|file.jsonl`, and an existing directory
+// is the least surprising
 // way to ask for the first: nothing is created behind the caller's back,
 // and a path ending in `.jsonl` can never be mistaken for one.
 func isDirectory(path string) bool {

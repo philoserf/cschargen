@@ -1281,7 +1281,7 @@ func TestTheFiveAgingProfiles(t *testing.T) {
 		{ProfileSudden, 7, "STR 9+, DEX 9+, END 9+, INT 9+, CHA 9+"},
 		{ProfileSudden, 8, "STR 10+, DEX 10+, END 10+, INT 10+, EDU 10+, CHA 9+"},
 		{ProfileSudden, 9, "STR 11+, DEX 11+, END 11+, INT 11+, EDU 11+, CHA 9+"},
-		// And the default reads the tech level, which is milestone 4's.
+		// And the default reads the homeworld's tech level.
 		{ProfileTechLevel, 6, "STR 8+, DEX 8+, END 8+"},
 	}
 

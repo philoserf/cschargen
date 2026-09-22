@@ -76,15 +76,14 @@ func everything(number int) []AgingCheck {
 // and how fast it escalates.
 //
 // A species in the setting data names one of these. Four of the book's five
-// engineered species share the tech-level profile with humans -- their
-// headings read "Humans, Gaishan, Oskars, Aquans and Sniffers from a World
-// that is Tech Level 10" -- so the tables milestone 4 built cover most of
-// the book already.
+// engineered species share the tech-level profile with humans, their table
+// headings naming them beside humans at a given tech level, so these four
+// tables cover most of the book already.
 type AgingProfile string
 
 const (
-	// ProfileTechLevel is the four tables of milestone 4, keyed by the
-	// homeworld's tech level. It is the default, and what a data file
+	// ProfileTechLevel is the four tech-level tables of pp. 122-123, keyed by
+	// the homeworld's tech level. It is the default, and what a data file
 	// that says nothing gets.
 	ProfileTechLevel AgingProfile = "techLevel"
 
@@ -196,16 +195,10 @@ func agingChecksAt(profile AgingProfile, techLevel, term int) ([]AgingCheck, boo
 	return nil, false
 }
 
-// The Aging Crisis (p. 123) and the four states beneath it (pp. 123-124).
-//
-// A characteristic reduced to 0 by aging puts the character "on the verge of
-// death or permanent incapacity": 1d6 x 1000 credits of emergency treatment
-// restores it to 1, and without the payment they die.
-//
-// The crisis rules say "physical" and "mental" and enumerate neither, but
-// p. 14 does name one of them -- "all three physical characteristics
-// (Strength, Dexterity, and Endurance)" -- and there are six, so the other
-// three follow. ERRATA E-17 records the cross-reference.
+// The crisis rules of pp. 123-124 say "physical" and "mental" and enumerate
+// neither, but p. 14 does name one of them -- "all three physical
+// characteristics (Strength, Dexterity, and Endurance)" -- and there are six,
+// so the other three follow. ERRATA E-17 records the cross-reference.
 var (
 	physicalCharacteristics = []Characteristic{STR, DEX, END}
 	mentalCharacteristics   = []Characteristic{INT, EDU, CHA}

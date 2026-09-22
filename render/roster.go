@@ -9,8 +9,8 @@ import (
 )
 
 // unnamed is what to call a character until they have a name. An
-// auto-generated one has none: FR12 leaves Step 20's four fields empty
-// rather than inventing them.
+// auto-generated one has none: Step 20's four fields are left empty rather
+// than invented.
 const unnamed = "(unnamed)"
 
 // topSkills is how many of a character's best skills the roster prints.

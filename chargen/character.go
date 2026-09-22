@@ -24,9 +24,10 @@ type RNG struct {
 }
 
 // SettingData identifies the external file the world and species tables
-// were read from (docs/PRD.md, Product Identity constraint). Milestone 2
-// fills Hash; until then Sample reports that the character was generated
-// against the invented sample data and is not set on real worlds.
+// were read from. Hash is that file's content hash, so a record refuses to
+// replay against a different transcription; Sample reports that the
+// character was generated against the invented sample data and is not set
+// on real worlds.
 type SettingData struct {
 	Name   string `json:"name"`
 	Hash   string `json:"hash,omitempty"`
@@ -64,7 +65,7 @@ type Inputs struct {
 	SkipEducation bool   `json:"skipEducation,omitempty"`
 
 	// The other three of Step 20's four fields (pp. 129-130). Name is
-	// above, because it has been an input since milestone 1.
+	// above, because it has been an input from the start.
 	Gender      string `json:"gender,omitempty"`
 	Appearance  string `json:"appearance,omitempty"`
 	Goals       string `json:"goals,omitempty"`

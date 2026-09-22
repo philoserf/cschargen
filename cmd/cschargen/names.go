@@ -18,11 +18,10 @@ const nameDrawStream = 0x6e_61_6d_65_73_00_00_01
 // and a line beginning with # is a comment, so a referee can keep their
 // sector's names in one file with notes in it.
 //
-// FR12 leaves Step 20's four fields empty in auto mode rather than
-// inventing them, and that is right for a player character: the name is
-// theirs to choose. For a cast of NPCs it is the one thing a referee cannot
-// script, so the engine will use names it is given -- never names it made
-// up.
+// Auto mode leaves Step 20's four fields empty rather than inventing them,
+// and that is right for a player character: the name is theirs to choose.
+// For a cast of NPCs it is the one thing a referee cannot script, so the
+// engine will use names it is given -- never names it made up.
 func readNames(path string) ([]string, error) {
 	if path == "" {
 		return nil, nil

@@ -8,9 +8,8 @@ import (
 	"github.com/philoserf/cschargen/setting"
 )
 
-// TestEverySpeciesInTheSampleGenerates is the reach check the milestone 6
-// plan makes: four species are declared and, before this, no character had
-// ever been generated as one.
+// TestEverySpeciesInTheSampleGenerates is the reach check: four species are
+// declared and, before this, no character had ever been generated as one.
 func TestEverySpeciesInTheSampleGenerates(t *testing.T) {
 	t.Parallel()
 

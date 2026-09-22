@@ -5,7 +5,7 @@
 // characteristic.
 //
 // Every method returns a [Roll] carrying the individual dice, because the
-// generation record logs them (docs/PRD.md FR15) and an audit against the
+// generation record logs them and an audit against the
 // book needs to see what was thrown, not only what it totalled.
 package dice
 
@@ -48,7 +48,7 @@ type Dice struct {
 
 // New returns a stream seeded with seed. Two streams built from the same
 // seed produce the same rolls in the same order, which is what makes a
-// record replayable (docs/PRD.md, Replay and provenance contract).
+// record replayable.
 func New(seed uint64) *Dice {
 	return &Dice{
 		rng:  rand.New(rand.NewPCG(seed, seed^scramble)),

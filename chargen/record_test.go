@@ -7,8 +7,8 @@ import (
 	"github.com/philoserf/cschargen/chargen"
 )
 
-// TestEveryTieNamesItsOrigin is FR15: the record carries "relationships
-// (allies, contacts, rivals, enemies) with their origin".
+// TestEveryTieNamesItsOrigin: the record carries every relationship --
+// ally, contact, rival, enemy -- with the origin it came from.
 //
 // A tie granted before Step 9 has no career to name, and for a long while
 // said nothing instead — 138 of 2,477 ties across a sample pool, every one

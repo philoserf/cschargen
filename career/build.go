@@ -28,9 +28,8 @@ func skill(name string, specialties ...string) Effect {
 //
 // p. 116 makes a rank benefit a floor rather than an increment -- "If a
 // Benefit grants a skill the character already possesses at the listed level
-// or higher, no additional benefit is gained" -- and the engine currently
-// adds instead. The data here is the page; the engine's reading of it is
-// issue #20.
+// or higher, no additional benefit is gained". The data here is the page;
+// grantRankSkill applies the floor.
 func skillAt(name string, level int, specialties ...string) Effect {
 	granted := skill(name, specialties...)
 
@@ -732,7 +731,7 @@ func stashItem(item string) Effect {
 
 // stashValued adds something the book prints a credit value for: "a Company
 // Share worth 2D6 x Cr100000". The value is rolled and recorded, which is
-// not the invented value FR11 forbids -- the book gave the dice.
+// not an invented value -- the book gave the dice.
 func stashValued(item, rolled string) Effect {
 	return Effect{
 		Kind:   EffectStash,
@@ -1174,7 +1173,7 @@ func personalDevelopment() SkillTable {
 	}
 }
 
-// unimplemented is a result this milestone cannot carry out, carrying the
+// unimplemented is a result the engine cannot carry out, carrying the
 // book's demand so the record says what it could not do.
 func unimplemented(detail string) Effect {
 	return Effect{Kind: EffectUnimplemented, Detail: detail}

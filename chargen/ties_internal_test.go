@@ -126,7 +126,7 @@ func TestABigFallIsALossNotADemotion(t *testing.T) {
 	}
 }
 
-// TestNoTieIsBornLost is the bug this milestone opened with: every tie was
+// TestNoTieIsBornLost is the bug the ties work opened with: every tie was
 // created at a rating of 0, which p. 320 calls lost.
 func TestNoTieIsBornLost(t *testing.T) {
 	t.Parallel()
@@ -176,8 +176,7 @@ func TestATieNeverCrossesZero(t *testing.T) {
 }
 
 // TestTheLifeEventsThatMoveRatingsDoSo. Four results on p. 120 write to a
-// Relationship Rating, and until this milestone every one of them recorded
-// itself as unimplemented.
+// Relationship Rating, and each once recorded itself as unimplemented.
 func TestTheLifeEventsThatMoveRatingsDoSo(t *testing.T) {
 	t.Parallel()
 
