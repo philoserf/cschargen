@@ -7,9 +7,27 @@ import (
 )
 
 // The tables below are a second reading of the page, typed independently of
-// career/colonist.go. Repetition is the mechanism: two transcriptions that
+// the career files. Repetition is the mechanism: two transcriptions that
 // agree are evidence, and one constant shared between them would be a
 // single reading wearing two hats.
+//
+// This is a sample, and naming it one is the point. Three careers of the
+// thirty-four are read twice here -- Colonist, Vagabond and Prisoner, the
+// three the rules force a character into -- so what the repetition tests is
+// the transcription *method*, not the corpus. The other thirty-one have
+// been read once.
+//
+// What does cover all thirty-four is structural: career_test.go checks that
+// every career has 36 event rows, a full 2d6 mishap table and a full
+// benefit table, that every transcribed skill is on the book's list and
+// every specialty on its skill, that every sub-table covers its die, and
+// that every modifier names a throw the engine takes. Those catch a
+// wrong-shaped table. They cannot catch the error transcription actually
+// makes -- a right-shaped table with a wrong number in it -- which is what
+// reading a page twice is for.
+//
+// Extending the sample is real work and is not scheduled; see #119 for the
+// three options and why this one was taken.
 
 // TestColonistNumbersMatchPage173 reads the Career Progress and Mustering
 // Out blocks of p. 173 a second time.

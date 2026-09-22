@@ -29,19 +29,6 @@ func splitJSONL(document []byte) [][]byte {
 // itoa keeps the width arithmetic in writeRecordsInto readable.
 func itoa(n int) string { return strconv.Itoa(n) }
 
-// batchCommand is `cschargen batch`: generate several characters and write
-// them as JSONL, one record per line.
-//
-// It requires --auto, because a batch of twenty characters is twenty
-// lifepaths of questions and nobody wants to answer four hundred of them.
-// The seed of member i is the base seed plus i and is recorded in that
-// member's own provenance, which is what `replay` reproduces it from.
-//
-// It is not what `new --seed` reproduces it from. Since policy_version
-// 0.3.0 a batch draws its career and assignment where `new --auto` takes
-// the first of each, so one seed makes two different characters under the
-// two commands, deliberately. `-o dir` keeps each member as its own file
-// for exactly this reason.
 // checkBatchFlags holds the flags a batch needs that a single character
 // does not, so that batchCommand reads as the sequence it is.
 func checkBatchFlags(flags newFlags, count int) error {
@@ -61,6 +48,19 @@ func checkBatchFlags(flags newFlags, count int) error {
 	return nil
 }
 
+// batchCommand is `cschargen batch`: generate several characters and write
+// them as JSONL, one record per line.
+//
+// It requires --auto, because a batch of twenty characters is twenty
+// lifepaths of questions and nobody wants to answer four hundred of them.
+// The seed of member i is the base seed plus i and is recorded in that
+// member's own provenance, which is what `replay` reproduces it from.
+//
+// It is not what `new --seed` reproduces it from. Since policy_version
+// 0.3.0 a batch draws its career and assignment where `new --auto` takes
+// the first of each, so one seed makes two different characters under the
+// two commands, deliberately. `-o dir` keeps each member as its own file
+// for exactly this reason.
 func batchCommand(args []string, out *os.File) error {
 	flags := bindNewFlags("batch")
 

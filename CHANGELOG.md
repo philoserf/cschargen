@@ -42,6 +42,22 @@ release turns out to be.
 
 ### Changed
 
+- **Four comments that had drifted from the code they describe.**
+  `batchCommand`'s doc comment had been absorbed into `checkBatchFlags`'s by a
+  missing blank line, leaving the command itself undocumented
+  ([#122](https://github.com/philoserf/cschargen/issues/122)). `setting`'s
+  package doc sent a reader to `data/setting.sample.json` — a gitignored
+  directory, and not where the embedded sample lives
+  ([#127](https://github.com/philoserf/cschargen/issues/127)). The comment
+  defending the ragged consequence struct counted thirteen kinds where there
+  are seventeen, and no longer carries a count that can drift
+  ([#128](https://github.com/philoserf/cschargen/issues/128)). And
+  `career/transcription_test.go` named independent re-reading as the mechanism
+  that makes its hand-typed tables trustworthy without saying it applies to
+  three careers of thirty-four; it now declares the sample, names what the
+  structural tests cover for the rest, and says what neither catches
+  ([#119](https://github.com/philoserf/cschargen/issues/119)). No behaviour
+  changes.
 - **`Term.Event` and `Term.Mishap` are gone from the record schema.** Both were
   declared with `omitempty` and neither was ever assigned, so no record in
   existence carried either and nothing read them. They looked like a
