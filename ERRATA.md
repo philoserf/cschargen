@@ -1124,3 +1124,37 @@ room for: a modifier that lasts while a possession is held, or while an NPC live
 **Engine:** all eight are recorded, named, and left for the table to settle. A
 record that says what the referee has to decide is more use than one that has
 quietly decided it.
+
+## E-44 (limit) — p. 61's recursion is truncated at one generation
+
+**Where:** the extended family of p. 61, against the birth situation chart of p. 58.
+
+p. 61 builds the extended family by repeating the birth situation for each parent,
+and the birth situation is p. 58's chart. Read literally it recurses: a parent may
+themselves have been born into a commune, which gives that parent a dozen parents of
+their own, each of whom may have been, and so on. The book gives no terminating
+condition, and none of the three results on p. 58 is a base case.
+
+**Engine:** the counts are repeated and the narrative is not. Two grandparents per
+parent, whatever household that parent was raised in.
+
+**Why it is a limit rather than a reading:** an unbounded recursion is not something
+a generator can carry out, and the page offers nothing to stop it at. Truncating at
+one generation is the only choice that terminates without inventing a depth, and a
+depth is exactly what the book declines to give.
+
+**The direction is worth stating, because it is the opposite of what a reader
+expects.** A faithful recursion would make families **larger**, not smaller. A
+character raised by a commune of eleven already reaches about seventy relatives
+without it; with it, each of those eleven parents could bring a commune of their own.
+Anyone reading this entry after seeing the size of a communal family should not
+read it as the engine trimming the book.
+
+**If this is wrong:** grandparents, aunts, uncles and cousins are all counted against
+the character's own household rather than against their parents'. Nothing downstream
+reads a relative's own family, so the consequence is confined to the count.
+
+This was the engine's behaviour from the release Step 5 shipped in, recorded in a
+comment on `extendedFamily` and nowhere a reader of the records would find it.
+
+---
