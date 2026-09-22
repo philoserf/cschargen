@@ -27,6 +27,18 @@ than guessing: `--ignore-provenance` replays it anyway and names the first value
 that moved, which is the useful answer when a fix has changed what a seed
 produces.
 
+**What is promised, and what is not.** The command line and the record format are
+the product, and the record's JSON shape is governed: `chargen.SchemaVersion`
+changes when a change would invalidate a record this engine writes, and a replay
+refuses to cross it.
+
+**The Go API is not a compatibility surface while the version is a prerelease.**
+The module is importable and there are semver tags, but they are all
+`v0.1.0-alpha.N`; exported symbols may be moved, renamed or removed in any
+release, without a deprecation period, and the CHANGELOG notes such a change only
+where it affects the CLI or the record. Import it and pin a commit. If that ever
+stops being true it will say so here first, and `v1.0.0` is the earliest it could.
+
 ```sh
 cschargen data validate setting.json        # check your own setting data
 cschargen new --auto --seed 7 --terms 3 --data setting.json -o character.json

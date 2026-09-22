@@ -23,6 +23,13 @@ release turns out to be.
 
 ### Fixed
 
+- **The Go API is stated not to be a compatibility surface.** The module is
+  importable and tagged, but every tag is a prerelease and nothing said whether
+  exported symbols could move — so three changes shipped under an assumption
+  nobody had written down: #125's three symbols, #124's constant move and #117's
+  two `Term` fields. README's Status section now says it, beside the promise
+  that _is_ made about the record's JSON shape
+  ([#157](https://github.com/philoserf/cschargen/issues/157)).
 - **A career table can name the reading it rests on.** `career/` builds table
   data and never sees a character, so it could not call `Deviate` and three
   outcome-changing readings left no mark on any record: the mishap table System

@@ -116,6 +116,13 @@ same reason, and `task issue-refs` runs in it — a comment citing a closed issu
 is usually history and occasionally a claim that the code below it is broken,
 and only a person can tell which.
 
+**The Go API is not a compatibility surface while the version is a prerelease**,
+which README's Status section states for a reader who arrives from `go get`. An
+exported symbol may be moved, renamed or removed without a deprecation period, so
+a deletion needs no version bump and no CHANGELOG entry unless it reaches the CLI
+or the record. The record's JSON shape is the opposite case and is governed by
+`chargen.SchemaVersion`; do not reason from one to the other.
+
 Versions are prereleases until something has been played: `v0.1.0-alpha.N`. Two
 other version strings ship in every record and move independently of the tag:
 
