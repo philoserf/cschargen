@@ -359,6 +359,26 @@ func (g *Generator) unimplemented(cause int, detail string) {
 	})
 }
 
+// citing sets the page the ambient consequence cite reads and returns a
+// function restoring the previous one, so a caller writes
+// `defer g.citing("p. 59")()` and cannot leak the value to whatever runs
+// next.
+//
+// A step is not one page. Step 5 spans pp. 57-61 -- the birth situation
+// chart, the parental age table, the siblings and the extended family are
+// four pages and four tables -- and Step 4 writes results from pp. 39, 40,
+// 42, 43 and 122. Setting one value for the whole of a step would stamp the
+// wrong page on most of what it writes, which is the failure #144 fixed at
+// the career boundary. Scoping it to the function whose work is the page is
+// what the throws already do.
+func (g *Generator) citing(cite string) func() {
+	previous := g.cite
+
+	g.cite = cite
+
+	return func() { g.cite = previous }
+}
+
 func (g *Generator) consequence(kind ConsequenceKind, cause int, detail, career string) {
 	g.log.Consequence(ConsequenceEvent{
 		Kind:   kind,

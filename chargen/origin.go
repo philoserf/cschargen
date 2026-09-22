@@ -20,6 +20,8 @@ type Homeworld struct {
 // determineOrigin is Steps 3 and 4 (pp. 39-56): the subsector a character
 // was born in, and the world within it.
 func (g *Generator) determineOrigin() error {
+	defer g.citing(originCite)()
+
 	sub, err := g.chooseSubsector()
 	if err != nil {
 		return err
@@ -48,9 +50,13 @@ func (g *Generator) determineOrigin() error {
 	// minimum number of terms (p. 43). The engine does not yet record where
 	// a term was served, so it says so rather than pretending.
 	if sub.Offworld {
+		restore := g.citing("p. 43")
+
 		g.unimplemented(step,
 			"a character born outside the sector must spend a minimum of four terms inside it (p. 43), "+
 				"which the engine cannot check until it records where a term was served")
+
+		restore()
 	}
 
 	// The class needs the homeworld's tech level, so it is settled here
@@ -77,8 +83,12 @@ func (g *Generator) earlyLife(world setting.World, step int) error {
 	// potential Allies and Contacts" (p. 57) -- so the engine runs it and a
 	// flag turns it off.
 	if g.char.Provenance.Inputs.SkipFamily {
+		restore := g.citing("p. 57")
+
 		g.consequence(ConsequenceFamily, step,
 			"Step 5 skipped at the player's request (p. 57)", "")
+
+		restore()
 	} else {
 		err := g.determineFamily(world)
 		if err != nil {
@@ -105,6 +115,12 @@ func (g *Generator) earlyLife(world setting.World, step int) error {
 // allow the player to choose."
 func (g *Generator) chooseSubsector() (setting.Subsector, error) {
 	step := g.log.Step("Step 3: Determine Subsector of Origin", "p. 39")
+
+	// Set here rather than in determineOrigin because reassignHomeworld
+	// reaches this from inside a career mishap (p. 174), where the ambient
+	// page is the career's. "no subsector claims that result; throw again"
+	// was being stamped pp. 173-176.
+	defer g.citing(originCite)()
 
 	// Asked for, by name or by the subsector the asked-for homeworld is
 	// in. p. 39 offers this before it offers the throw, and a subsector
@@ -317,6 +333,8 @@ func (g *Generator) chooseAmongSubsectors(step int) (setting.Subsector, error) {
 func (g *Generator) worldThatAdmitsThem(
 	world setting.World, sub setting.Subsector, step int,
 ) (setting.World, error) {
+	defer g.citing("p. 42")()
+
 	status, admitted := g.permits(world)
 	if admitted {
 		g.recordStatus(status, world, step)
@@ -363,6 +381,8 @@ func (g *Generator) recordStatus(status setting.Status, world setting.World, ste
 		return
 	}
 
+	defer g.citing("p. 42")()
+
 	g.enslaved = true
 
 	g.consequence(ConsequenceSpecies, step,
@@ -374,6 +394,8 @@ func (g *Generator) recordStatus(status setting.Status, world setting.World, ste
 // (d100) to determine your homeworld randomly or simply choose a world that
 // fits the character concept you have in mind."
 func (g *Generator) chooseHomeworld(sub setting.Subsector, step int) (setting.World, error) {
+	defer g.citing("p. 40")()
+
 	// Asked for by name. Checked against this subsector rather than the
 	// whole setting, because Step 3 has already put the character in it --
 	// if a homeworld was named, that is the subsector it named.
@@ -406,6 +428,8 @@ func (g *Generator) chooseHomeworld(sub setting.Subsector, step int) (setting.Wo
 // page says "you cannot randomly be assigned one of these worlds, you may
 // choose them" (p. 40). Before this they could not be reached at all.
 func (g *Generator) offerHomeworld(sub setting.Subsector, step int) (setting.World, error) {
+	defer g.citing("p. 40")()
+
 	options := make([]string, 0, len(sub.Worlds)+1)
 
 	options = append(options, rollInstead)
@@ -512,9 +536,13 @@ func (g *Generator) settleOn(world setting.World, sub setting.Subsector, cause i
 			g.homeworldTerms = g.homeworldTermsFor(world, cause)
 			g.maximumAge = world.MaximumAge
 		} else {
+			restore := g.citing("p. 42")
+
 			g.consequence(ConsequenceHomeworld, cause,
 				"the homeworld's maximum age and terms do not bind an "+
 					g.species.Kind+" character (p. 42)", "")
+
+			restore()
 		}
 	} else {
 		g.char.Provenance.Deviate("E-9")
@@ -556,6 +584,8 @@ func (g *Generator) reassignHomeworld(cause int, detail string) error {
 // them there: it describes where they were born, the way `--homeworld`
 // does.
 func (g *Generator) techLevelFor(world setting.World, cause int) int {
+	defer g.citing("pp. 122-123")()
+
 	asked := g.char.Provenance.Inputs.TechLevel
 	if asked == 0 || len(g.char.State.Homeworlds) > 1 {
 		return world.TechLevel
@@ -575,6 +605,8 @@ func (g *Generator) techLevelFor(world setting.World, cause int) int {
 // naming a smaller one here binds and naming a larger one leaves the
 // policy's `--terms` to decide.
 func (g *Generator) homeworldTermsFor(world setting.World, cause int) int {
+	defer g.citing("p. 42")()
+
 	asked := g.char.Provenance.Inputs.MaxTerms
 	if asked == 0 {
 		return world.MaximumTerms

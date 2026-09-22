@@ -80,11 +80,11 @@ type Generator struct {
 	// higherEducation, so it is ambient across the run rather than scoped
 	// to a career.
 	//
-	// It is also not cleared when a career ends, and that is a defect
-	// rather than a decision -- Steps 9 and 10 log consequences without
-	// setting it, so "accepted into Arts" carries the previous career's
-	// pages. Clearing it here makes those consequences carry no page at
-	// all, which is worse, so the fix belongs with those steps.
+	// leaveCareer clears it, because a career's page ends with the career
+	// (#144). A step that forgets to set one therefore writes an empty
+	// cite rather than inheriting a wrong one, and
+	// TestEveryConsequenceInALifepathCarriesACite fails on the gap. Set it
+	// with citing, which restores the previous value on return.
 	cite string
 
 	// stage is where in the twenty steps the character is, for the ties

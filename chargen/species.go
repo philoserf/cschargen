@@ -25,6 +25,8 @@ const Human = "human"
 func (g *Generator) chooseSpecies() error {
 	step := g.log.Step("Step 1: Choose Human, Engineered Human, or Uplift", "p. 21")
 
+	defer g.citing("p. 21")()
+
 	g.agingProfile = ProfileTechLevel
 	g.maximum = HumanMaximum
 
@@ -178,6 +180,8 @@ func (g *Generator) upliftClass(step int) error {
 	if g.species == nil || g.species.Kind != setting.KindUplift {
 		return nil
 	}
+
+	defer g.citing("p. 66")()
 
 	available := 1
 
