@@ -4,16 +4,37 @@ Every place the _Clement Sector Core Character Creation Book_ (© 2026
 Independence Games) is silent, ambiguous, or wrong, and what this engine does
 about it. Page cites are to that book's printed page numbers.
 
-Two kinds of entry, and the difference matters:
+Three kinds of entry, and the differences matter:
 
 - **Typo** — the book plainly means something other than what it says, and the
   engine follows the meaning. No judgment is being exercised.
 - **Reading** — the book does not say, and the engine had to choose. The entry
   carries the argument, so that a reader who disagrees can see what changes.
+- **Limit** — the book does say, and the engine does not do it. Nothing is being
+  interpreted; a boundary is being declared, so that a reader looking for a rule
+  the engine appears to ignore finds out that it does, and why.
 
-Each entry has an identifier. Records stamp the identifiers of every deviation
-that applied to them, so a character generated under one reading stays auditable
-after the reading changes.
+Each entry has an identifier. **A record stamps the identifiers of the entries
+that changed that character**, so a character generated under one reading stays
+auditable after the reading changes.
+
+Three things follow from "that character", and they are worth stating because
+the promise was read more broadly than the engine ever kept it:
+
+- **A reading that applies to every character alike is not stamped.** That a tie
+  carries a numeric rating (E-5), or which characteristics are physical (E-17),
+  is true of every record ever written and distinguishes none of them. The list
+  of these, each with its reason, is in `chargen/errata_internal_test.go` — and
+  that file is a gate, so a reading that is neither stamped nor on the list
+  fails the build.
+- **A limit is stamped where it changed the character.** E-44 truncates p. 61's
+  recursion and makes a family smaller than a faithful reading would, which is a
+  difference worth recording. Most limits change nothing — they decline to model
+  something the character never reached — and those are not stamped.
+- **Three readings cannot be stamped yet.** E-10, E-33 and E-37 are implemented
+  in `career/`, which builds table data and never sees a character. They are on
+  the list with that as their reason, and
+  [#154](https://github.com/philoserf/cschargen/issues/154) carries the fix.
 
 ---
 

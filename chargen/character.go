@@ -102,6 +102,11 @@ type Provenance struct {
 	// Deviations are the ERRATA.md identifiers that applied to this
 	// character. A record made under one reading stays auditable after the
 	// reading changes, because it names the reading it was made under.
+	//
+	// "Deviation" rather than "reading" because a limit is stampable too:
+	// E-44 truncates p. 61's recursion and makes the family smaller than
+	// the page would, which is a difference in the character and belongs
+	// in the record whatever the entry is labelled.
 	Deviations []string `json:"deviations,omitempty"`
 }
 
@@ -113,8 +118,13 @@ type Character struct {
 	Events     []Event    `json:"events"`
 }
 
-// Deviate records that an ERRATA.md reading applied to this character,
-// once, however many times it fires.
+// Deviate records that an ERRATA.md entry applied to this character, once,
+// however many times it fires.
+//
+// What reaches a record is what changed *this* character. A reading applied
+// to every character alike distinguishes none of them, and
+// chargen/errata_internal_test.go holds the list of those with the reason
+// each is not stamped.
 func (p *Provenance) Deviate(id string) {
 	if slices.Contains(p.Deviations, id) {
 		return

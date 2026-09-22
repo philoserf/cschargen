@@ -23,6 +23,34 @@ release turns out to be.
 
 ### Fixed
 
+- **A record now stamps the ERRATA entries that changed that character, and a
+  gate holds it there.** `ERRATA.md` promised records stamp "every deviation
+  that applied to them" — the whole argument for `Provenance.Deviations`
+  existing — and 8 identifiers of 44 ever reached a record. Twelve more do now:
+  the aging tables' four edges (E-15, E-16, E-20, E-30), a second aging crisis
+  in one term and a treatment nobody can pay for (E-18, E-19), "over 40" read
+  against a chart of bands (E-21), a tie lost rather than inverted at zero
+  (E-24), the second bachelor's Step 8 does not offer (E-29), an improvement
+  read against the state as it was (E-34), a demotion that moves the number and
+  nothing else (E-36), and "that Ally" meaning the one the result just granted
+  (E-39). `chargen/errata_internal_test.go` now fails the build on a reading
+  that is neither stamped nor on a list saying why, and in both other
+  directions ([#118](https://github.com/philoserf/cschargen/issues/118)).
+
+  The promise itself was too broad and now says what it does: a reading that
+  applies to every character alike distinguishes none of them and is not
+  stamped. `ERRATA.md` also gained the definition of its third kind of entry —
+  it said it had two and carried three, and ten entries were `(limit)` with the
+  label defined nowhere
+  ([#129](https://github.com/philoserf/cschargen/issues/129)). A limit is
+  stamped where it changed the character, which E-44 does.
+
+  Three readings still cannot be stamped: E-10, E-33 and E-37 are implemented in
+  `career/`, which builds table data and never sees a character. They are on the
+  list with that as their reason, and
+  [#154](https://github.com/philoserf/cschargen/issues/154) carries the channel
+  that would fix it.
+
 - **Every consequence in a record now names the page it came from.** A throw
   says what was rolled; a consequence says what it did to the character, and
   that is the half a reader checks against the book. A sixth of them carried no

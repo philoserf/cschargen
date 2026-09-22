@@ -194,6 +194,16 @@ func (g *Generator) eligibleFor(institution career.Institution, score func(strin
 	case institution.RequiresDegree != g.holdsADegree():
 		// A graduate track needs a degree, and an undergraduate one is not
 		// gone back to once a degree is held.
+		//
+		// ERRATA E-29 is the second half of that: the book writes Step 8 as
+		// one decision made once, and the engine runs it as a loop so the
+		// graduate tracks are reachable at all. Closing the undergraduate
+		// institutions to a degree-holder is what keeps the loop from
+		// meaning something the step never offered.
+		if !institution.RequiresDegree {
+			g.char.Provenance.Deviate("E-29")
+		}
+
 		return false
 	case g.attendedAlready(institution):
 		return false
