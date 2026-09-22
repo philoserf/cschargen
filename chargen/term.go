@@ -308,8 +308,7 @@ func (g *Generator) enlistmentMods(target career.Career) []dice.Mod {
 		case career.UndergraduateDegree:
 			mods = append(mods, g.degreeModifier(mod, career.Bachelors, "a degree")...)
 		case career.GraduateDegree:
-			mods = append(mods, g.degreeModifier(mod, career.Masters, "a master's")...)
-			mods = append(mods, g.degreeModifier(mod, career.Doctorate, "a doctorate")...)
+			mods = append(mods, g.graduateModifier(mod)...)
 		case career.MedicalSchool:
 			mods = append(mods, g.degreeModifier(mod, career.MedicalDoctor, "medical school")...)
 		}
@@ -318,12 +317,25 @@ func (g *Generator) enlistmentMods(target career.Career) []dice.Mod {
 	return mods
 }
 
-// degreeModifier is one of the three education bonuses a career may carry,
-// applied where the character holds the degree it names.
+// graduateModifier is the graduate education bonus, taken once however far
+// the character took the degree.
 //
-// A character with both a master's and a doctorate takes the graduate bonus
-// once, not twice: the doctorate is the same degree gone further, and the
-// page prints one modifier.
+// A doctorate is a master's gone further rather than a second degree:
+// degreeFor awards it on a second success at graduate school and leaves the
+// master's on the record, so a character can hold both. p. 212 prints one
+// modifier, so the highest held is the one that applies -- reading the
+// record for each in turn and adding both gave a doctorate-holder +8 where
+// the page prints +4 (#132).
+func (g *Generator) graduateModifier(mod career.EnlistmentMod) []dice.Mod {
+	if held := g.degreeModifier(mod, career.Doctorate, "a doctorate"); held != nil {
+		return held
+	}
+
+	return g.degreeModifier(mod, career.Masters, "a master's")
+}
+
+// degreeModifier is one education bonus, applied where the character holds
+// the degree it names.
 func (g *Generator) degreeModifier(
 	mod career.EnlistmentMod, degree career.Degree, name string,
 ) []dice.Mod {
