@@ -246,3 +246,62 @@ func TestARefusedFinishingQuestionEndsGeneration(t *testing.T) {
 		t.Errorf("err = %v, which does not say which question", err)
 	}
 }
+
+// TestAnInteractiveCharacterSurvivesReplay is #109. Step 20's four answers
+// arrive through Ask, and Replay implements Choose and not Ask -- so a
+// replay cannot re-ask them and has to read them out of Inputs. Only the
+// name was written back, and the other three came back empty.
+//
+// It failed two ways, and both are held here. With a name given, the log
+// agreed and `replay` reported "identical" while the character had lost
+// three fields. With the name left empty, Finishing.Empty() flipped between
+// the run and the replay and the log itself diverged.
+func TestAnInteractiveCharacterSurvivesReplay(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name    string
+		answers []string
+	}{
+		{
+			"all four answered",
+			[]string{"Vela Ashgrove", "she/her", "tall, grey-eyed", "to find her brother"},
+		},
+		{
+			"no name, the other three answered",
+			[]string{"", "she/her", "tall, grey-eyed", "to find her brother"},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			opts := options(t, 7)
+
+			opts.Decider = &scripted{answers: tc.answers}
+			opts.Inputs.Interactive = true
+
+			original := generate(t, opts)
+
+			// Replay is handed the record's own inputs, exactly as
+			// cmd/cschargen does, and a decider that cannot be asked.
+			again := options(t, original.Provenance.RNG.Seed)
+
+			again.Decider = chargen.NewReplay(original.Events)
+			again.Inputs = original.Provenance.Inputs
+
+			replayed := generate(t, again)
+
+			if replayed.State.Finishing != original.State.Finishing {
+				t.Errorf("finishing touches did not survive replay:\n  was  %+v\n  now  %+v",
+					original.State.Finishing, replayed.State.Finishing)
+			}
+
+			if len(replayed.Events) != len(original.Events) {
+				t.Errorf("replay ran to %d events, the record holds %d",
+					len(replayed.Events), len(original.Events))
+			}
+		})
+	}
+}
