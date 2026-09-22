@@ -42,6 +42,15 @@ release turns out to be.
 
 ### Changed
 
+- **`Term.Event` and `Term.Mishap` are gone from the record schema.** Both were
+  declared with `omitempty` and neither was ever assigned, so no record in
+  existence carried either and nothing read them. They looked like a
+  convenience index onto what happened in a term; what happened in a term is in
+  the event log, which is the single place a result is recorded. Removing them
+  narrows the shape to what the engine already produced, which
+  `chargen.SchemaVersion`'s own definition calls a clarification, so the
+  version stays at 2 and no replay is refused
+  ([#117](https://github.com/philoserf/cschargen/issues/117)).
 - **A reading the engine had been making since Step 5 shipped is now recorded.**
   p. 61 builds the extended family by repeating the birth situation for each
   parent, which recurses without terminating -- a parent may have been
