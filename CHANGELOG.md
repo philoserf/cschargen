@@ -42,6 +42,15 @@ release turns out to be.
 
 ### Changed
 
+- **A reading the engine had been making since Step 5 shipped is now recorded.**
+  p. 61 builds the extended family by repeating the birth situation for each
+  parent, which recurses without terminating -- a parent may have been
+  commune-born too -- and the engine has always repeated the counts rather than
+  the narrative. It is `ERRATA.md` E-44, records stamp it, and the sheet names
+  it. Nothing about a character changes; what changes is that a reader can look
+  the reading up. Worth knowing in the other direction from the obvious: a
+  faithful recursion would make families larger, not smaller
+  ([#104](https://github.com/philoserf/cschargen/issues/104)).
 - **The Product Identity boundary is a gate rather than a rule people
   remember.** It reads every tracked file instead of only `setting/sample.json`,
   which is how thirty-eight occurrences across eighteen files went unnoticed —

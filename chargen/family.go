@@ -476,11 +476,14 @@ func multipleBirth(n int) string {
 	return "one of " + itoa(n+1) + ", with the character"
 }
 
-// extendedFamily is pp. 61's grandparents, aunts, uncles and cousins. The
-// book builds them by repeating the birth situation for each parent; the
-// engine repeats the counts rather than the narrative, because the second
-// generation's household is not something the character's sheet records.
+// extendedFamily is p. 61's grandparents, aunts, uncles and cousins. The
+// book builds them by repeating the birth situation for each parent, which
+// recurses without terminating -- a parent may have been commune-born too.
+// The engine repeats the counts rather than the narrative, which is ERRATA
+// E-44, and which makes families smaller than a faithful reading would.
 func (g *Generator) extendedFamily(step int) {
+	g.char.Provenance.Deviate("E-44")
+
 	// Two grandparents per parent, and their siblings are the character's
 	// aunts and uncles.
 	parents := len(g.char.State.Family.ParentAges)
