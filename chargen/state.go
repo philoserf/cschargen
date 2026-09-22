@@ -61,8 +61,6 @@ type Term struct {
 	Number     int    `json:"number"` // the character's term count, not the career's
 	Survived   bool   `json:"survived"`
 	Rank       int    `json:"rank"`
-	Event      string `json:"event,omitempty"`
-	Mishap     string `json:"mishap,omitempty"`
 }
 
 // Service is one spell in one career.

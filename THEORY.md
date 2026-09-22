@@ -437,13 +437,7 @@ both event logs and then checks exactly one of twenty `State` fields. The single
 character; having conceded it, the check stops there — most likely because
 `Characteristics` is the only comparable struct and `==` reached no further.
 `State.Age` is set outside any consequence event, so a divergence confined to it
-would pass. `Term.Event` and `Term.Mishap` are worse: nothing ever writes them (below).
-
-**Two record fields are declared and never written.** `Term.Event` and `Term.Mishap`
-are in the schema, carry `omitempty`, and nothing in the engine assigns either. They
-read as the convenience index onto what happened in a term; the information is really
-several consequence events away in `Character.Events`. I read this as a leftover from
-before the log became the single place a result is recorded, but that is inference.
+would pass.
 
 **`setting`'s package doc points at `data/setting.sample.json`.** The file is
 `setting/sample.json`, embedded; `/data/` is gitignored precisely because it is where a
@@ -492,9 +486,9 @@ sections above to it.
 | 6   | low      | #129 — ERRATA.md says it has two kinds of entry and carries three                         | `ERRATA.md:8`                                        |
 | 7   | low      | #127 — `setting`'s package doc names a sample path that is gitignored and does not exist  | `setting/setting.go:19`                              |
 | 8   | low      | #128 — The comment justifying one ragged consequence struct counts 13 kinds; there are 17 | `chargen/event.go:105`                               |
-| 9   | medium   | #117 — `Term.Event` and `Term.Mishap` are declared in the schema and never written        | `chargen/state.go:57`, `chargen/serve.go:22`         |
+| 9   | —        | #117 — fixed: the two never-written `Term` fields are gone from the schema                | `chargen/state.go:57`                                |
 
-**Total: 9 issues (0 critical, 0 high, 6 medium, 3 low); #120 and #121 fixed since.**
+**Total: 9 issues (0 critical, 0 high, 6 medium, 3 low); #117, #120 and #121 fixed since.**
 
 Already tracked on GitHub and deliberately not re-filed: **#106** (a `Choice` gated on
 `Asker` is skipped on replay — §3.2), **#108** (the reserved word appears in
