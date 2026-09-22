@@ -183,6 +183,48 @@ func humanAging(techLevel int) []AgingBand {
 	}
 }
 
+// The printed tables' two edges, named so the readings below can be tested
+// rather than described.
+const (
+	// lastPrintedTerm is where the TL 11 and TL 12-13 tables stop.
+	lastPrintedTerm = 58
+
+	// lastPrintedTechLevel is the highest the tables are headed for, against
+	// a setting file that accepts up to setting.MaxTechLevel.
+	lastPrintedTechLevel = 13
+
+	// sturdyGapTerm is the term the sturdy profile's printed bands skip.
+	sturdyGapTerm = 12
+)
+
+// Each of the three below is a reading the aging tables rest on, written as
+// the condition under which it fires. agingFor is a pure function of a
+// profile and a tech level and has no character to mark, so the stamping
+// happens at the caller -- these say what the caller should stamp.
+
+// agingTableStopsShort is ERRATA E-15. TL 9 and TL 10 each end on an open
+// band; TL 11 and TL 12-13 do not, so nothing is printed for a character on
+// one of those past term 58 and the engine makes no check there.
+func agingTableStopsShort(profile AgingProfile, techLevel, term int) bool {
+	return profile == ProfileTechLevel &&
+		techLevel >= 11 &&
+		term > lastPrintedTerm
+}
+
+// agingReadsPastThirteen is ERRATA E-16: nothing is printed above TL 13 and
+// a setting file may declare a world well above it, so a higher homeworld
+// reads the TL 12-13 table.
+func agingReadsPastThirteen(profile AgingProfile, techLevel int) bool {
+	return profile == ProfileTechLevel && techLevel > lastPrintedTechLevel
+}
+
+// agingHoldsTheGapBand is ERRATA E-30: the sturdy table prints 6-8, 9-11 and
+// 13+, so term 12 is in no band and the engine holds the middle one through
+// the gap.
+func agingHoldsTheGapBand(profile AgingProfile, term int) bool {
+	return profile == ProfileSturdy && term == sturdyGapTerm
+}
+
 // agingChecksAt returns the checks due at a term count, and whether any
 // band covers it at all.
 func agingChecksAt(profile AgingProfile, techLevel, term int) ([]AgingCheck, bool) {
@@ -334,6 +376,20 @@ func apparentAge(techLevel, age int) (AgeBand, bool) {
 	row := min((age-chartFirstAge)/chartRowYears, len(apparentAgeChart)-1)
 
 	return apparentAgeChart[row][column], true
+}
+
+// apparentAgeIsOffChart is ERRATA E-20: p. 125's chart runs from 30 to 290
+// and the engine reads the nearest printed band at either end.
+//
+// Below tech level 10 the book itself says apparent age is real age
+// (p. 124). That is the page speaking, not a reading, so it is not this.
+func apparentAgeIsOffChart(techLevel, age int) bool {
+	if techLevel < 10 {
+		return false
+	}
+
+	return age < chartFirstAge ||
+		(age-chartFirstAge)/chartRowYears >= len(apparentAgeChart)
 }
 
 // apparentAgeOverForty is the bar twelve careers' enlistment throws are

@@ -411,6 +411,10 @@ func (g *Generator) promote(cause int, assignment career.Assignment) error {
 // reads them as the same thing, because the book has no rule anywhere for
 // un-granting a skill.
 func (g *Generator) changeRank(effect career.Effect, cause int) error {
+	if effect.Levels < 0 {
+		g.char.Provenance.Deviate("E-36")
+	}
+
 	if g.service.career == nil {
 		g.unimplemented(cause, effect.Detail+" -- outside a career, where there is no rank")
 
@@ -681,6 +685,8 @@ func (g *Generator) age() error {
 func (g *Generator) agingThrows(step int) error {
 	term := len(g.char.State.Terms)
 
+	g.stampAgingReadings(term)
+
 	checks, due := agingChecksAt(g.agingProfile, g.techLevel, term)
 	if !due {
 		return nil
@@ -689,6 +695,8 @@ func (g *Generator) agingThrows(step int) error {
 	g.consequence(ConsequenceAge, step,
 		"term "+itoa(term)+", on the "+string(g.agingProfile)+
 			" aging profile: checks come due", "")
+
+	crises := 0
 
 	for _, check := range checks {
 		target := career.Check{Characteristic: check.Characteristic, Number: check.Number}
@@ -702,6 +710,17 @@ func (g *Generator) agingThrows(step int) error {
 
 		g.adjust(check.Characteristic, -1,
 			"aged: "+check.Characteristic+" "+itoa(check.Number)+"+ failed", rolled)
+
+		// ERRATA E-18: the page writes the crisis for one characteristic.
+		// The last band of the TL 9 and TL 10 tables makes six checks, so a
+		// term can reach zero twice, and the engine charges for each.
+		if g.inCrisis(check.Characteristic) {
+			crises++
+
+			if crises > 1 {
+				g.char.Provenance.Deviate("E-18")
+			}
+		}
 
 		err := g.agingCrisis(check.Characteristic, rolled)
 		if err != nil {
@@ -718,6 +737,37 @@ func (g *Generator) agingThrows(step int) error {
 	return nil
 }
 
+// stampAgingReadings records the readings the printed tables rest on, for a
+// character the term has reached them for.
+//
+// They are stamped here rather than where they are written because agingFor
+// is a pure function of a profile and a tech level and has no character to
+// mark.
+func (g *Generator) stampAgingReadings(term int) {
+	if agingReadsPastThirteen(g.agingProfile, g.techLevel) {
+		g.char.Provenance.Deviate("E-16")
+	}
+
+	if agingTableStopsShort(g.agingProfile, g.techLevel, term) {
+		g.char.Provenance.Deviate("E-15")
+	}
+
+	if agingHoldsTheGapBand(g.agingProfile, term) {
+		g.char.Provenance.Deviate("E-30")
+	}
+}
+
+// inCrisis is the condition a crisis turns on: aging has taken a
+// characteristic to zero (p. 123). It is a function rather than a line
+// inside agingCrisis because agingThrows counts crises with it, and two
+// copies of the condition is how the count and the crisis would come to
+// disagree.
+func (g *Generator) inCrisis(which string) bool {
+	target, ok := characteristicByName(which)
+
+	return ok && g.char.State.Characteristics.Get(target) <= 0
+}
+
 // agingCrisis is p. 123: a characteristic aging has reduced to 0 leaves the
 // character "on the verge of death or permanent incapacity", and 1d6 x 1000
 // credits of emergency treatment restores it to 1.
@@ -725,10 +775,13 @@ func (g *Generator) agingThrows(step int) error {
 // Two characteristics reaching 0 in the same term is two payments, which the
 // page does not say and ERRATA E-18 records.
 func (g *Generator) agingCrisis(which string, cause int) error {
-	target, ok := characteristicByName(which)
-	if !ok || g.char.State.Characteristics.Get(target) > 0 {
+	if !g.inCrisis(which) {
 		return nil
 	}
+
+	// Checked by inCrisis a line ago; the name is needed again to restore
+	// the score if treatment is paid for.
+	target, _ := characteristicByName(which)
 
 	g.consequence(ConsequenceAge, cause,
 		"aging crisis: "+which+" is at 0, and without treatment the character dies",
@@ -759,6 +812,8 @@ func (g *Generator) agingCrisis(which string, cause int) error {
 	// character who cannot meet it. Treatment not paid for is treatment not
 	// given, so this is the same outcome as declining it.
 	if g.char.State.Credits < price {
+		g.char.Provenance.Deviate("E-19")
+
 		g.die(cause, "emergency treatment costs "+itoa(price)+
 			" credits and the character has "+itoa(g.char.State.Credits))
 
@@ -829,6 +884,10 @@ const crisisCite = "p. 123"
 // homeworld's tech level, which the record does not otherwise carry into
 // the renderer.
 func (g *Generator) stampApparentAge(cause int) {
+	if apparentAgeIsOffChart(g.techLevel, g.char.State.Age) {
+		g.char.Provenance.Deviate("E-20")
+	}
+
 	band, fromChart := apparentAge(g.techLevel, g.char.State.Age)
 	changed := band != g.char.State.ApparentAge
 

@@ -313,6 +313,11 @@ func (g *Generator) enlistmentMods(target career.Career) []dice.Mod {
 				})
 			}
 		case career.ApparentAgeOver40:
+			// ERRATA E-21: "over 40" is read against a chart that gives
+			// five-year bands, so the modifier turns on the band's lower
+			// bound. The other reading would flip 35-40.
+			g.char.Provenance.Deviate("E-21")
+
 			if apparentAgeOverForty(g.char.State.ApparentAge) {
 				mods = append(mods, dice.Mod{
 					Name:  "apparent age " + g.char.State.ApparentAge.String(),

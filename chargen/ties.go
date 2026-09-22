@@ -159,6 +159,11 @@ func (g *Generator) moveOneRating(index, delta, cause int) {
 
 	switch {
 	case !held:
+		// ERRATA E-24: p. 320 read from both sides says a tie never
+		// crosses zero, so this one is gone rather than re-banded on the
+		// far side.
+		g.char.Provenance.Deviate("E-24")
+
 		g.char.State.Ties[index].Kind = lostTie
 		g.consequence(ConsequenceRelationship, cause,
 			"the "+before.Kind+" at "+itoa(before.Rating)+" is lost", before.Origin)
@@ -370,6 +375,8 @@ func (g *Generator) loseTie(effect career.Effect, cause int) error {
 		return err
 	}
 
+	g.stampThatTieReading(effect)
+
 	taken := 0
 
 	for count == everyTie || taken < count {
@@ -419,6 +426,17 @@ func (g *Generator) tieCount(effect career.Effect) (int, error) {
 
 	// A result that names no number names one: "Lose one Contact or Ally".
 	return max(effect.Count, 1), nil
+}
+
+// stampThatTieReading records ERRATA E-39 where it applies: "you lose the
+// Ally" means the one the event granted a line earlier, which the engine
+// reaches as the most recently gained tie that is not family. A character
+// four terms in may hold a dozen Allies, and the record does not mark which
+// of them is a superior officer.
+func (g *Generator) stampThatTieReading(effect career.Effect) {
+	if effect.Newest {
+		g.char.Provenance.Deviate("E-39")
+	}
 }
 
 // firstOfAnyKind is the index of a tie matching the kinds given, working
@@ -585,6 +603,8 @@ func (g *Generator) turnTie(index int, to career.Relationship, cause int) {
 // sequential reading would let a single Enemy climb to Ally on a result the
 // book calls "an improvement to a relationship". ERRATA E-34.
 func (g *Generator) improveTies(cause int) error {
+	g.char.Provenance.Deviate("E-34")
+
 	steps := []struct {
 		from career.Relationship
 		to   career.Relationship

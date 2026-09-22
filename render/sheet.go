@@ -509,6 +509,6 @@ func writeProvenance(out *strings.Builder, character *chargen.Character) {
 	}
 
 	if len(prov.Deviations) > 0 {
-		fmt.Fprintf(out, "Readings applied (see ERRATA.md): %s\n", strings.Join(prov.Deviations, ", "))
+		fmt.Fprintf(out, "Deviations applied (see ERRATA.md): %s\n", strings.Join(prov.Deviations, ", "))
 	}
 }
