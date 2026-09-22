@@ -221,8 +221,8 @@ func (g *Generator) enslavedEvent(
 	return g.applyAll(row.Effects, cause)
 }
 
-// freed ends an enslavement, which three results in the book do: "Continue
-// your character as a free altrant or uplift."
+// freed ends an enslavement, which three results in the book do: the
+// character continues as a free engineered human or uplift.
 //
 // It clears the obligation to take the slave career first, where the
 // character has not taken it yet.

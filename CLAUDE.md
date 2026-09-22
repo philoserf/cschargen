@@ -189,7 +189,8 @@ repository's documents quote their own examples.
   the flag came to take what the file refused.
 - **Being owned is not permanent.** p. 42 makes the slave career an enslaved
   character's first, and three results in the early life tables end an
-  enslavement outright — "Continue your character as a free altrant or uplift".
+  enslavement outright, continuing the character as a free engineered human or
+  uplift.
   A character born owned may reach Step 9 free, and a test asserting otherwise
   passes only until the dice move.
 - **A subsector throw that lands on no chart entry is thrown again.** p. 39's

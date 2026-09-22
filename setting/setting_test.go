@@ -3,6 +3,7 @@ package setting_test
 import (
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -31,40 +32,98 @@ func TestSampleLoadsAndValidates(t *testing.T) {
 	}
 }
 
-// TestTheSampleIsInvented is the Product Identity boundary, held as a test.
-// No world, subsector or species name from the book may be in this
-// repository (CLAUDE.md; OGL section 16, p. 335).
+// fromTheBook is every proper name the origin charts and species sections
+// use that a careless copy would most likely bring with it, including the
+// one term the OGL notice singles out by name.
 //
-// The list is every proper name the origin charts and species sections of
-// the book use that a careless copy would most likely bring with it,
-// including the one term the OGL notice singles out by name. It is not
-// exhaustive and cannot be -- the real guard is the rule -- but a
-// transcription pasted in by accident would almost certainly trip it.
+// It is not exhaustive and cannot be -- the real guard is the rule -- but a
+// transcription pasted in by accident would almost certainly trip it. The
+// names appear here, in the test that exists to keep them out, which is the
+// one place naming them does the opposite of reproducing them.
+var fromTheBook = []string{
+	"Hub", "Cascadia", "Franklin", "Sequoyah", "Earth Subsector",
+	"Toku", "Kingston", "Reuschle", "Viteges", "Sheba", "Totaro",
+	"Nyahururu", "Bingxue Shijie", "Ti Nsan Oke", "Sone Ke Amsu",
+	"Aishan Ko Arama", "Gaishan", "Oskar", "Aquan", "Sniffer",
+	"Achilles", "Altrant", "altrant",
+}
+
+// TestNoProductIdentityIsCommitted is the Product Identity boundary, held as
+// a test. CLAUDE.md calls it a hard rule and the OGL notice (section 16,
+// p. 335) is what makes it one: no world, subsector, organization or
+// engineered-species name from the book belongs in this repository.
 //
-// The term appears here, in a test that exists to keep it out. That is the
-// one place naming it does the opposite of reproducing it.
-func TestTheSampleIsInvented(t *testing.T) {
+// It reads every tracked file, not just the sample. Checking sample.json
+// alone was what let seven of these names sit in six files -- two of them in
+// test fixtures, where a real subsector name is the repository storing
+// setting data, which is the thing the sample was invented to avoid.
+//
+// Tracked files only, and deliberately: data/ is gitignored because it is
+// where a reader keeps their own transcription of the book, and their copy
+// is theirs to have.
+func TestNoProductIdentityIsCommitted(t *testing.T) {
 	t.Parallel()
 
-	fromTheBook := []string{
-		"Hub", "Cascadia", "Franklin", "Sequoyah", "Earth Subsector",
-		"Toku", "Kingston", "Reuschle", "Viteges", "Sheba", "Totaro",
-		"Nyahururu", "Bingxue Shijie", "Ti Nsan Oke", "Sone Ke Amsu",
-		"Aishan Ko Arama", "Gaishan", "Oskar", "Aquan", "Sniffer",
-		"Achilles", "Altrant", "altrant",
-	}
+	for _, file := range trackedFiles(t) {
+		if file == thisTest {
+			continue
+		}
 
-	content, err := os.ReadFile("sample.json")
-	if err != nil {
-		t.Fatalf("reading the sample: %v", err)
-	}
+		content, err := os.ReadFile(filepath.Join("..", file))
+		if err != nil {
+			continue // a file staged for deletion is not a file to read
+		}
 
-	text := string(content)
-	for _, name := range fromTheBook {
-		if strings.Contains(text, name) {
-			t.Errorf("the sample contains %q, which is Product Identity", name)
+		for number, line := range strings.Split(string(content), "\n") {
+			for _, name := range fromTheBook {
+				if !mentions(line, name) {
+					continue
+				}
+
+				t.Errorf("%s:%d names %q, which is Product Identity:\n  %s",
+					file, number+1, name, strings.TrimSpace(line))
+			}
 		}
 	}
+}
+
+// thisTest is the one file the rule does not apply to, because it is the
+// file that states the rule.
+const thisTest = "setting/setting_test.go"
+
+// mentions reports whether a line names one of the book's own. "Hub" is the
+// awkward one: it is a subsector in the book and four letters of "GitHub"
+// everywhere else, so the substring alone would fail on every issue link.
+func mentions(line, name string) bool {
+	if name != "Hub" {
+		return strings.Contains(line, name)
+	}
+
+	for rest := line; ; {
+		at := strings.Index(rest, name)
+		if at < 0 {
+			return false
+		}
+
+		if !strings.HasSuffix(rest[:at], "Git") {
+			return true
+		}
+
+		rest = rest[at+len(name):]
+	}
+}
+
+// trackedFiles asks git what the repository holds. Walking the filesystem
+// would reach data/ and a reader's own transcription with it.
+func trackedFiles(t *testing.T) []string {
+	t.Helper()
+
+	out, err := exec.CommandContext(t.Context(), "git", "-C", "..", "ls-files").Output()
+	if err != nil {
+		t.Skipf("git is not available to list tracked files: %v", err)
+	}
+
+	return strings.Fields(string(out))
 }
 
 // TestSampleCoversEveryD100Result: a chart is a thing where every result

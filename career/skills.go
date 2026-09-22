@@ -93,7 +93,7 @@ func Skills() []SkillDefinition {
 		{Name: "Leadership"},
 		{Name: "Mechanic"},
 		{Name: "Medic", Specialties: []string{
-			"Alteration", "Altrants", "Cryogenics", "Cybernetics", "Diagnosis",
+			"Alteration", "Engineered Humans", "Cryogenics", "Cybernetics", "Diagnosis",
 			"First Aid", "Surgery", "Uplifts",
 		}},
 		{Name: "Melee", Specialties: []string{
@@ -105,7 +105,7 @@ func Skills() []SkillDefinition {
 		{Name: "Pilot", Specialties: []string{"Small Craft", "Spacecraft"}},
 		{Name: "Recon"},
 		{Name: "Science", Open: true, Specialties: []string{
-			"Altrant Psychology", "Uplift Psychology", "Physics", "Chemistry",
+			"Engineered Human Psychology", "Uplift Psychology", "Physics", "Chemistry",
 			"Cybernetics", "Biology", "Archeology", "Economics", "History",
 			"Philosophy", "Psychology",
 		}},

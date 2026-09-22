@@ -3,7 +3,7 @@
 Seed 7, 185 events.
 
 
-## Step 1: Choose Human, Altrant, or Uplift (p. 21)
+## Step 1: Choose Human, Engineered Human, or Uplift (p. 21)
 
 -    2  -> a baseline human [species, from 1]
 

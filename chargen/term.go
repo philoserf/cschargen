@@ -152,9 +152,9 @@ func (g *Generator) takePendingTransfer(step int) (career.Career, bool, error) {
 	return found, true, nil
 }
 
-// ownedFirstCareer is p. 42's: "If an altrant or uplift character is born on
-// a world where they are enslaved, then the character must take the
-// Altrant/Uplift Slave career as their first career term."
+// ownedFirstCareer is p. 42's rule: an engineered or uplift character born
+// on a world where they are enslaved must take the slave career as their
+// first career term.
 //
 // It is the only way into that career. The career prints no enlistment
 // throw, cannot be chosen, and says its entry is "a result of the early

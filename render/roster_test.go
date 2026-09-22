@@ -156,8 +156,8 @@ func TestARosterLineSaysWhereTheyAreFrom(t *testing.T) {
 		State: chargen.State{
 			Age: 34,
 			Homeworlds: []chargen.Homeworld{
-				{World: "Avicenna", Subsector: "Franklin"},
-				{World: "Elsewhere", Subsector: "Hub", FromTerm: 2},
+				{World: "Avicenna", Subsector: "Kestrel Reach"},
+				{World: "Elsewhere", Subsector: "The Verge", FromTerm: 2},
 			},
 		},
 	}

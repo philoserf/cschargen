@@ -71,7 +71,7 @@ func (p Permission) Admits(species string) bool {
 // skill with the specialties it offers, or a named item that is not a skill
 // at all.
 //
-// Kingston grants "Survival (High Pressure, Mountains, Plains, or Ocean)
+// One world grants "Survival (High Pressure, Mountains, Plains, or Ocean)
 // and Electronics (Computers) and a mindcomp" (p. 41), and the mindcomp is
 // the reason Item exists.
 type Alternative struct {
@@ -186,8 +186,8 @@ type Species struct {
 	Characteristics map[string]string `json:"characteristics,omitempty"`
 
 	// Skills is what the species starts with at level 1, before any
-	// background or career: "All Gaishan should be given Survival
-	// (Freefall) and Survival (Low Gravity) at level 1" (p. 23).
+	// background or career: one species is owed "Survival (Freefall) and
+	// Survival (Low Gravity) at level 1" (p. 23), and others their own.
 	Skills []Alternative `json:"skills,omitempty"`
 
 	// Aging names one of the engine's aging profiles. Empty is the

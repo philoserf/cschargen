@@ -2,12 +2,11 @@ package chargen
 
 import "github.com/philoserf/cschargen/setting"
 
-// Step 1: Choose Human, Altrant, or Uplift (p. 21).
+// Step 1: Choose Human, Engineered Human, or Uplift (p. 21).
 //
-// "If the character is a human, simply move on to Step 2. If the character
-// is to be an altrant or an uplift, the Player should choose the type ...
-// and note the method used for that altrant or uplift for characteristic
-// generation to be used in Step 2."
+// The page offers three: a human moves straight on to Step 2, and an
+// engineered human or an uplift picks a type, whose characteristic method
+// Step 2 then uses.
 //
 // The engine holds no species. The data file declares them, and each one
 // says which characteristic method it uses, which aging profile it ages on,
@@ -24,7 +23,7 @@ const Human = "human"
 // chooseSpecies is Step 1. It resolves the requested species against the
 // data file and settles what the rest of generation reads from it.
 func (g *Generator) chooseSpecies() error {
-	step := g.log.Step("Step 1: Choose Human, Altrant, or Uplift", "p. 21")
+	step := g.log.Step("Step 1: Choose Human, Engineered Human, or Uplift", "p. 21")
 
 	g.agingProfile = ProfileTechLevel
 	g.maximum = HumanMaximum
@@ -76,8 +75,9 @@ func (g *Generator) speciesMethod(which Characteristic) (string, bool) {
 	return expr, ok
 }
 
-// grantSpeciesSkills is the last part of Step 1: "All Gaishan should be
-// given Survival (Freefall) and Survival (Low Gravity) at level 1" (p. 23).
+// grantSpeciesSkills is the last part of Step 1 (p. 23): a species may be
+// owed skills at level 1 by what it is, named in the data file rather than
+// here, because the page names them by species.
 //
 // They are granted after the characteristics rather than before, because a
 // species' skills are a fact about the species and the characteristics are
@@ -122,9 +122,9 @@ func (g *Generator) ceiling() int {
 // permits reports whether this world admits the character's species, and
 // what their status there would be (p. 42).
 //
-// "If the entry indicates that altrants or uplifts are not allowed, then the
-// player should select a different homeworld, either by re-rolling on the
-// appropriate table or choosing another world that permits such characters."
+// A world whose entry bars this kind of character sends the player to a
+// different homeworld, by re-rolling on the chart or choosing another world
+// that permits them.
 func (g *Generator) permits(world setting.World) (setting.Status, bool) {
 	if g.species == nil {
 		return setting.Free, true
@@ -147,9 +147,8 @@ func (g *Generator) permits(world setting.World) (setting.Status, bool) {
 }
 
 // ageLimitsApply reports whether a world's maximum age and terms bind this
-// character. They do not bind an engineered person or an uplift: "Altrant
-// and Uplift characters age differently and these restrictions will not
-// apply to them" (p. 42).
+// character. They do not bind an engineered person or an uplift, who age
+// differently and to whom the restrictions do not apply (p. 42).
 func (g *Generator) ageLimitsApply() bool {
 	return g.species == nil
 }

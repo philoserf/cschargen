@@ -303,9 +303,9 @@ func (g *Generator) chooseAmongSubsectors(step int) (setting.Subsector, error) {
 // worldThatAdmitsThem holds a homeworld against the character's species and
 // finds another where it does not admit them (p. 42):
 //
-//	"If the entry indicates that altrants or uplifts are not allowed, then
-//	the player should select a different homeworld, either by re-rolling on
-//	the appropriate table or choosing another world that permits such
+//	"If the entry indicates that [engineered humans] or uplifts are not
+//	allowed, then the player should select a different homeworld, either by
+//	re-rolling on the appropriate table or choosing another world that permits such
 //	characters."
 //
 // The engine chooses rather than re-rolling, because a re-roll can land on
@@ -355,9 +355,9 @@ func (g *Generator) worldThatAdmitsThem(
 }
 
 // recordStatus notes what the character's standing is where they were born,
-// and remembers an enslavement: "If an altrant or uplift character is born
-// on a world where they are enslaved, then the character must take the
-// Altrant/Uplift Slave career as their first career term" (p. 42).
+// and remembers an enslavement: an engineered or uplift character born on a
+// world where they are enslaved must take the slave career as their first
+// career term (p. 42).
 func (g *Generator) recordStatus(status setting.Status, world setting.World, step int) {
 	if g.species == nil || status != setting.Enslaved {
 		return
@@ -505,8 +505,8 @@ func (g *Generator) settleOn(world setting.World, sub setting.Subsector, cause i
 		// from one that had named its own homeworld, which replay then
 		// honoured instead of re-rolling.
 
-		// "Altrant and Uplift characters age differently and these
-		// restrictions will not apply to them" (p. 42), so only a human
+		// Engineered and uplift characters age differently and the
+		// restrictions do not apply to them (p. 42), so only a human
 		// carries their homeworld's caps.
 		if g.ageLimitsApply() {
 			g.homeworldTerms = g.homeworldTermsFor(world, cause)
