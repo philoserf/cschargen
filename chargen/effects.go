@@ -39,6 +39,13 @@ func (g *Generator) applyAll(effects []career.Effect, cause int) error {
 //
 //nolint:cyclop,funlen,gocyclo,maintidx // see the paragraph above
 func (g *Generator) apply(effect career.Effect, cause int) error {
+	// career/ builds table data and never sees a character, so a reading
+	// implemented there declares itself on the effect and is recorded
+	// here (#154).
+	if effect.Deviation != "" {
+		g.char.Provenance.Deviate(effect.Deviation)
+	}
+
 	switch effect.Kind {
 	case career.EffectSkill:
 		return g.applySkill(effect, cause)

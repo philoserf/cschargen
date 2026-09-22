@@ -23,6 +23,23 @@ release turns out to be.
 
 ### Fixed
 
+- **A career table can name the reading it rests on.** `career/` builds table
+  data and never sees a character, so it could not call `Deviate` and three
+  outcome-changing readings left no mark on any record: the mishap table System
+  Defense Forces (Navy) borrows because it prints none (E-10), the value every
+  Company Share carries because the rows granting several print none (E-33), and
+  the classes of career twelve results modify enlistment by, which the book never
+  defines (E-37). `career.Effect` and `career.Career` now carry the identifier
+  and the engine stamps it when it applies the value. Across 800 characters they
+  reach 100, 24 and 75 records
+  ([#154](https://github.com/philoserf/cschargen/issues/154)).
+
+  The allowlist in `chargen/errata_internal_test.go` is down to the five
+  readings that apply to every character alike, which is the only reason left on
+  it. The gate learned the second channel with them: an identifier reaches a
+  record either by a `Deviate` call in `chargen` or by a declaration in
+  `career`, and it now checks both.
+
 - **`THEORY.md` carries the eight architectural commitments.** The refactoring
   pass's "what not to change" list — the flat `Generator`, the single `apply`
   switch, hand-typed careers, repeated literal cells, `Policy.Choose` taking the

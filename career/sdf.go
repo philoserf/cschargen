@@ -28,8 +28,11 @@ func SystemDefenceNavy() Career {
 		EnlistmentMods: []EnlistmentMod{apparentAgeOver40(), perPreviousCareer()},
 		Commission:     &Check{Characteristic: "EDU", Number: 7},
 		MishapEjects:   true,
-		Assignments:    navyAssignments(),
-		Tables:         navyTables(),
+		// ERRATA E-10: this table is National Navy's, because this career
+		// prints none of its own.
+		MishapDeviation: "E-10",
+		Assignments:     navyAssignments(),
+		Tables:          navyTables(),
 		Benefits: [7]BenefitRow{
 			{Cash: 125, Other: chr("END", 1)},
 			{Cash: 250, Other: chr("DEX", 1)},

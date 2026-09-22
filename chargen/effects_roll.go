@@ -189,6 +189,13 @@ func (g *Generator) rollMishap(eject bool) error {
 
 	roll := g.dice.TwoD6()
 	throw := g.log.Roll(roll, "p. 113")
+
+	// One career prints no mishap table and reads another's, which the
+	// character it ejects should say (ERRATA E-10).
+	if g.service.career.MishapDeviation != "" {
+		g.char.Provenance.Deviate(g.service.career.MishapDeviation)
+	}
+
 	row := g.service.career.Mishaps[roll.Total-2]
 
 	g.consequence(ConsequenceCareer, throw, "mishap: "+row.Summary, g.service.career.Name)

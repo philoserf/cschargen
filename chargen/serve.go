@@ -932,12 +932,23 @@ const (
 	skillCheckThrow  = "a skill check"
 )
 
+// stampClassReading records ERRATA E-37 where a pending result is measured
+// against a career by class. The taxonomy is consulted whether or not the
+// career matches, and either answer rests on it.
+func (g *Generator) stampClassReading(pending PendingModifier) {
+	if pending.NamesAClass() {
+		g.char.Provenance.Deviate("E-37")
+	}
+}
+
 // takeAutomaticFor is takeAutomatic for an enlistment, where the result
 // that granted it may have named the class of career it reaches: "you may
 // enlist automatically in a business, military, corporate or colonist
 // career" (Undergraduate University, p. 88).
 func (g *Generator) takeAutomaticFor(applies string, target career.Career) bool {
 	for i, pending := range g.automatic {
+		g.stampClassReading(pending)
+
 		if pending.Applies != applies || !pending.AppliesTo(target) {
 			continue
 		}
@@ -984,6 +995,8 @@ func (g *Generator) takeModifiersFor(applies string, target career.Career) []dic
 	)
 
 	for _, pending := range g.pending {
+		g.stampClassReading(pending)
+
 		switch {
 		case pending.Applies != applies:
 			kept = append(kept, pending)
