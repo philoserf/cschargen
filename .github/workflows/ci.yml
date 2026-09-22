@@ -17,13 +17,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   gate:
-    # Pinned, where the toolchain above is deliberately not. The label
-    # ubuntu-latest migrates to Ubuntu 26 from 19 October 2026 and warns
-    # about it on every run; an image is not a tool this gate is testing,
-    # so it is named rather than drifted into. Bump it deliberately.
-    runs-on: ubuntu-24.04
+    # Floats with the toolchain: the workspace pins nothing it does not have
+    # to, and a runner image that moves is reported the same way a tool is.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
@@ -31,6 +33,9 @@ jobs:
         with:
           # Deliberately unpinned, as above.
           go-version: stable
+          # No go.sum -- the module has no dependencies -- so there is nothing
+          # to key a module cache on.
+          cache: false
 
       # The official action installs the released binary. `go install` is
       # not a supported install path for golangci-lint and can produce a
@@ -53,10 +58,8 @@ jobs:
       - name: Install prettier
         run: npm install --global prettier
 
-      - uses: arduino/setup-task@v3
-        with:
-          version: 3.x
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install task
+        run: go install github.com/go-task/task/v3/cmd/task@latest
 
       - name: Gate
         run: task

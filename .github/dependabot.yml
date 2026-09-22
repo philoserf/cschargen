@@ -17,5 +17,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 3
+    groups:
+      actions:
+        patterns: ["*"]
+    assignees: [philoserf]
     commit-message:
-      prefix: "ci"
+      prefix: chore
