@@ -1,5 +1,60 @@
 # Changelog
 
+## Unreleased
+
+Bullets as the work lands. The release pass rewrites this into whatever the
+release turns out to be.
+
+### Breaking
+
+- **Step 1's label changed, so every record written before it is refused on
+  replay.** It read the book's word for a genetically engineered human, which
+  the OGL notice reserves; it now reads "Step 1: Choose Human, Engineered
+  Human, or Uplift". The refusal is the engine-version check doing its job and
+  comes before any divergence — `--ignore-provenance` replays anyway and names
+  the step whose label moved ([#108](https://github.com/philoserf/cschargen/issues/108), [#134](https://github.com/philoserf/cschargen/issues/134)).
+- **A character holding both a master's and a doctorate no longer takes the
+  graduate enlistment bonus twice.** p. 212 prints one modifier and the engine
+  added one per degree, so a doctorate-holder enlisted at +8 where the page
+  gives +4 — on Instructor, the difference between EDU 12+ and EDU 4+. Ten in
+  three hundred auto characters hold both, and every one of them that tried
+  Instructor, Journalist, Medic or Scientist got the wrong throw
+  ([#132](https://github.com/philoserf/cschargen/issues/132)).
+
+### Fixed
+
+- **Three of Step 20's four answers did not survive a replay.** Only the name
+  was written back to the record's inputs, and `Replay` cannot be asked, so an
+  interactive character replayed with no gender, appearance or goals — and
+  `replay` said "identical" while it happened ([#109](https://github.com/philoserf/cschargen/issues/109)).
+- **`replay` compared the whole event log and one of the character's twenty
+  fields.** It now compares the whole character ([#111](https://github.com/philoserf/cschargen/issues/111)).
+- **A character who returned to higher education could not be replayed.** The
+  choice was gated on the decider being askable rather than on the run being
+  interactive, so it was offered while generating and skipped while replaying,
+  and every choice after it read the wrong index ([#106](https://github.com/philoserf/cschargen/issues/106)).
+- **Every record stamped `policy 0.3.1` and `POLICY.md` declared itself
+  0.3.0.** The document is now 0.3.2 — the subsector rule changed behaviour
+  between those two versions — and a test holds the two together
+  ([#110](https://github.com/philoserf/cschargen/issues/110), [#124](https://github.com/philoserf/cschargen/issues/124)).
+- **The two lists of Medic specialties disagreed**, so medical school granted a
+  specialty the setting-data validator rejected ([#131](https://github.com/philoserf/cschargen/issues/131)).
+
+### Changed
+
+- **The Product Identity boundary is a gate rather than a rule people
+  remember.** It reads every tracked file instead of only `setting/sample.json`,
+  which is how thirty-eight occurrences across eighteen files went unnoticed —
+  two of them test fixtures using real subsector names ([#134](https://github.com/philoserf/cschargen/issues/134)).
+- **Record verification moved into the package that owns the record.**
+  `chargen.Reproducible` and `chargen.Verify`; `cmd/cschargen/replay.go` went
+  from 215 lines to 73, and eight statements no test could reach are now
+  covered ([#113](https://github.com/philoserf/cschargen/issues/113)).
+- **`docs/` is retired.** Eight files and 1,614 lines of process history that
+  git and this changelog already held. `THEORY.md` and `WALKTHROUGH.md` take
+  its place, on cadences `CLAUDE.md` records ([#120](https://github.com/philoserf/cschargen/issues/120),
+  [#121](https://github.com/philoserf/cschargen/issues/121)).
+
 ## v0.1.0-alpha.4 — 2026-09-21
 
 Thirteen issues out of one afternoon of playtesting the tool the way a referee
