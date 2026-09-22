@@ -244,6 +244,12 @@ type Career struct {
 	// two careers a character is most often forced into, so the exception
 	// is not a corner.
 	MishapEjects bool
+
+	// MishapDeviation is the ERRATA.md identifier a borrowed mishap table
+	// rests on. One career prints none and reads another's, which is a
+	// reading rather than a transcription, and the character it ejects
+	// should say so.
+	MishapDeviation string
 }
 
 // Assignment finds an assignment by name.

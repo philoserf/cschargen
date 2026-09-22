@@ -31,10 +31,12 @@ the promise was read more broadly than the engine ever kept it:
   recursion and makes a family smaller than a faithful reading would, which is a
   difference worth recording. Most limits change nothing — they decline to model
   something the character never reached — and those are not stamped.
-- **Three readings cannot be stamped yet.** E-10, E-33 and E-37 are implemented
-  in `career/`, which builds table data and never sees a character. They are on
-  the list with that as their reason, and
-  [#154](https://github.com/philoserf/cschargen/issues/154) carries the fix.
+- **A reading implemented in `career/` declares itself.** That package builds
+  table data and never sees a character, so it cannot stamp anything. An effect
+  or a career instead names the reading it rests on, and the engine records it
+  when it applies the value — which is how E-10's borrowed mishap table, E-33's
+  company share and E-37's classes of career reach a record
+  ([#154](https://github.com/philoserf/cschargen/issues/154)).
 
 ---
 

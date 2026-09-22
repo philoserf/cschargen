@@ -20,18 +20,32 @@ const errataDoc = "../ERRATA.md"
 // engine knowingly does not implement.
 var errataEntryPattern = regexp.MustCompile(`(?m)^## (E-\d+) \((typo|reading|limit)\)`)
 
-// deviatePattern finds an identifier stamped into a record. Every argument to
-// Deviate in this package is a string literal, so this sees all of them.
+// deviatePattern finds an identifier this package stamps directly. Every
+// argument to Deviate here is a string literal, so this sees all of them.
 var deviatePattern = regexp.MustCompile(`Deviate\("(E-\d+)"\)`)
 
-// unstampedReadings are the readings a record does not carry, and why. A
-// reading reaches a record to say that it changed *this* character; one that
-// changed every character alike distinguishes nothing, and one the engine
-// cannot reach from a character cannot say anything at all.
+// careerPackage is the table data, which reaches a record through the other
+// channel: it cannot call Deviate, so it names the reading on an effect or a
+// career and the engine stamps the value when it applies it (#154).
+const careerPackage = "../career"
+
+// declaredPattern finds an identifier the table data declares. Any quoted
+// identifier in career/ is one: that package cites ERRATA in prose as
+// "ERRATA E-1", unquoted, so a quoted one is always a declaration for the
+// engine to record.
+var declaredPattern = regexp.MustCompile(`"(E-\d+)"`)
+
+// unstampedReadings are the readings a record does not carry, and why.
 //
-// Each entry is a claim that has to stay true, which is what the third check
-// below is for: an allowlist that outlives its reason is how a gate quietly
-// stops checking.
+// A reading reaches a record to say that it changed *this* character. One
+// that changed every character alike distinguishes nothing, and that is the
+// only reason left on this list -- three entries were here because they were
+// implemented in career/, which sees no character, until career.Effect and
+// career.Career gained a field naming the reading they rest on (#154).
+//
+// Each entry is a claim that has to stay true, which is what
+// TestUnstampedReadingsIsStillTrue is for: an allowlist that outlives its
+// reason is how a gate quietly stops checking.
 var unstampedReadings = map[string]string{
 	// Applies to every character alike. Stamping it on every record would
 	// add a line to each and distinguish none of them.
@@ -40,15 +54,6 @@ var unstampedReadings = map[string]string{
 	"E-22": "the result that grants a tie decides its kind, at every grant, for every character",
 	"E-23": "a tie with no printed rating starts mid-band, and most ties have no printed rating",
 	"E-27": "the campaign's present year is one number, the same for every character generated",
-
-	// Outcome-changing, and unreachable: these are implemented in career/,
-	// which builds declarative Effect values and never sees a *Character.
-	// The package has no Deviate call and cannot have one. See #154, which
-	// carries the channel that would fix it -- when it lands, these three
-	// come off this list and the test below proves it.
-	"E-10": "implemented in career/sdf.go, which cannot reach a character (#154)",
-	"E-33": "implemented in career/build.go, which cannot reach a character (#154)",
-	"E-37": "implemented in career/tags.go, which cannot reach a character (#154)",
 }
 
 // TestEveryReadingIsStampedOrSaysWhyNot is ERRATA.md's own promise, made a
@@ -137,15 +142,31 @@ func errataEntries(t *testing.T) map[string]string {
 	return found
 }
 
-// stampedIdentifiers is every identifier this package writes into a record.
+// stampedIdentifiers is every identifier that can reach a record, by either
+// channel: stamped here, or declared by the table data for the engine to
+// stamp when it applies it.
 func stampedIdentifiers(t *testing.T) map[string]bool {
 	t.Helper()
 
 	found := map[string]bool{}
 
-	sources, err := filepath.Glob("*.go")
+	scan(t, ".", deviatePattern, found)
+	scan(t, careerPackage, declaredPattern, found)
+
+	return found
+}
+
+// scan collects every identifier a pattern finds in a package's own source.
+func scan(t *testing.T, dir string, pattern *regexp.Regexp, found map[string]bool) {
+	t.Helper()
+
+	sources, err := filepath.Glob(filepath.Join(dir, "*.go"))
 	if err != nil {
-		t.Fatalf("listing the package: %v", err)
+		t.Fatalf("listing %s: %v", dir, err)
+	}
+
+	if len(sources) == 0 {
+		t.Fatalf("no source in %s; the package has moved", dir)
 	}
 
 	for _, source := range sources {
@@ -161,10 +182,8 @@ func stampedIdentifiers(t *testing.T) map[string]bool {
 			t.Fatalf("reading %s: %v", source, err)
 		}
 
-		for _, match := range deviatePattern.FindAllStringSubmatch(string(body), -1) {
+		for _, match := range pattern.FindAllStringSubmatch(string(body), -1) {
 			found[match[1]] = true
 		}
 	}
-
-	return found
 }

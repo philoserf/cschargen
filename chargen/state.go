@@ -175,6 +175,14 @@ func (p PendingModifier) AppliesTo(target career.Career) bool {
 	return slices.Contains(p.OnCharacteristics, target.Enlistment.Characteristic)
 }
 
+// NamesAClass reports whether this pending result reaches careers by class
+// rather than by name, which is the whole of what ERRATA E-37 reads: the
+// book modifies enlistment by "any government related career" and defines
+// none of the words it uses.
+func (p PendingModifier) NamesAClass() bool {
+	return len(p.OnTags) > 0 || len(p.NotTags) > 0
+}
+
 // anyTag reports whether a career carries any of the classes given.
 func anyTag(target career.Career, tags []career.Tag) bool {
 	return slices.ContainsFunc(tags, target.HasTag)

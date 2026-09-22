@@ -737,12 +737,28 @@ func stashItem(item string) Effect {
 // not an invented value -- the book gave the dice.
 func stashValued(item, rolled string) Effect {
 	return Effect{
-		Kind:   EffectStash,
-		Detail: "add " + item + ", worth " + rolled + " credits, to the stash",
-		Item:   item,
-		Dice:   rolled,
-		Count:  1,
+		Kind:      EffectStash,
+		Detail:    "add " + item + ", worth " + rolled + " credits, to the stash",
+		Item:      item,
+		Dice:      rolled,
+		Count:     1,
+		Deviation: stashDeviation(item),
 	}
+}
+
+// stashDeviation is the ERRATA identifier a stashed item's valuation rests
+// on, where it rests on one.
+//
+// Only the company share does. The rows granting several print no value at
+// all -- "Two Company Shares", "Ten Shares in the Company" -- so every one
+// is worth what p. 128 defines rather than what its row omits, and a
+// character's wealth rests on that reading.
+func stashDeviation(item string) string {
+	if item == companyShare {
+		return "E-33"
+	}
+
+	return ""
 }
 
 // stashCountValued is stashValued for the results that grant several at
@@ -767,6 +783,7 @@ func stashCountRolled(rolled, item, value string) Effect {
 		Item:      item,
 		Dice:      value,
 		CountDice: rolled,
+		Deviation: stashDeviation(item),
 	}
 }
 

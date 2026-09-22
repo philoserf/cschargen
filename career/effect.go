@@ -386,6 +386,16 @@ type Effect struct {
 	// is rarely recoverable from its mechanical parts alone.
 	Detail string
 
+	// Deviation is the ERRATA.md identifier this effect's reading rests
+	// on, where it rests on one. The engine stamps it into the record when
+	// the effect is applied.
+	//
+	// It exists because this package cannot stamp anything itself: it
+	// builds table data and never sees a character, so a reading
+	// implemented here left no mark on any record (#154). The effect
+	// declares which reading it embodies; chargen records it.
+	Deviation string
+
 	Skill       string
 	Specialties []string
 	Level       int
