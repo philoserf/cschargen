@@ -29,8 +29,8 @@ const (
 // different policy rather than the same one applied to a crowd.
 //
 // The draw is seeded from the record's own seed, so `batch --seed N` member
-// i and `new --seed N+i --policy-batch` are the same character: the PRD's
-// promise that any member can be regenerated alone survives.
+// i and `new --seed N+i --policy-batch` are the same character, so any
+// member can be regenerated alone.
 type BatchPolicy struct {
 	draw *rand.Rand
 }

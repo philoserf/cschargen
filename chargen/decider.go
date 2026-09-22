@@ -75,8 +75,7 @@ func (Policy) Kind() DeciderKind { return DeciderPolicy }
 
 // Choose takes the first option. Every table in the book prints its options
 // in a fixed order, so "first listed" is a rule a reader can check rather
-// than a preference -- and a policy that chose otherwise would need a
-// reason per choice point, which is what later milestones add.
+// than a preference.
 func (Policy) Choose(c Choice) (int, error) {
 	if len(c.Options) == 0 {
 		return 0, fmt.Errorf("%w: %s", ErrNoOptions, c.Point)

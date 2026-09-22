@@ -5,7 +5,7 @@ package career
 //
 // Its enlistment is EDU 11+, "dropping to EDU 5+ if the character has
 // attended Medical School" (p. 229) -- the largest single modifier in the
-// book, and one that arrives with higher education at milestone 5.
+// book, and the one that higher education pays for.
 //
 // Its mishap table is the one that does not begin with an injury: result 2
 // is being caught using patients' drugs, and the injury is at 6 where every

@@ -658,7 +658,7 @@ func TestNewWithoutAutoAsksTheirPlayer(t *testing.T) {
 
 // TestBatchWritesOneRecordPerLine. "batch emits JSONL, requires --auto, and
 // derives each member's seed from the base seed plus index, recorded per
-// record" (the PRD's CLI sketch).
+// record.
 func TestBatchWritesOneRecordPerLine(t *testing.T) {
 	t.Parallel()
 
@@ -970,8 +970,8 @@ func TestRenderReadsWhatBatchWrote(t *testing.T) {
 	}
 }
 
-// TestBatchWritesADirectoryWhenGivenOne is the PRD's own CLI sketch --
-// `-o dir|file.jsonl` -- which had never been built. A directory of records
+// TestBatchWritesADirectoryWhenGivenOne covers `-o dir|file.jsonl`, which
+// had never been built. A directory of records
 // makes every other command work on them unchanged.
 func TestBatchWritesADirectoryWhenGivenOne(t *testing.T) {
 	t.Parallel()

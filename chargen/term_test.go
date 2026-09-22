@@ -119,8 +119,8 @@ func TestEveryConsequenceNamesAStepThrowOrChoice(t *testing.T) {
 // (POLICY.md), but the engine has to honour it exactly -- a character who
 // served five terms when four were asked for has aged four years too many.
 //
-// A run may stop short, and only for one reason: a table result sent the
-// character to a career this milestone does not implement. That case has
+// A run may stop short, and only for one reason: a table result named a
+// career no career answers to. That case has
 // to be visible in the record, so the test insists on the consequence
 // rather than allowing any short run.
 func TestTermsAreServedUpToTheLimit(t *testing.T) {

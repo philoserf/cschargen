@@ -1093,7 +1093,7 @@ education is the one exception the book prints as a rule of the step itself
 career table.
 
 **Engine:** they are recorded. A step loop that any result could re-enter is a
-different generator from the one the PRD describes, and the five would not
+different generator from this one, and the five would not
 justify it — but the reason they are unresolved is architecture rather than
 ambiguity, and this entry exists so a reader is not left looking for the rule.
 

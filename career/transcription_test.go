@@ -205,10 +205,9 @@ func TestTheImplementedCareersCoverTheForcedTransfers(t *testing.T) {
 
 	walk(career.LifeEvents()[1].Effects)
 
-	// The careers the implemented ones send characters to and that are not
-	// built yet. The list shrinks as milestone 3 proceeds and should reach
-	// zero; a destination appearing that is not here fails the test rather
-	// than passing unnoticed.
+	// Destinations the implemented careers reach that are not themselves
+	// built. All thirty-four are, so the list is empty; a destination
+	// appearing here fails the test rather than passing unnoticed.
 	// Independent Merchant's mishap 12 does name Pirate inside a 1d6 branch
 	// the engine records rather than resolves, so it is not a transfer.
 	// When that branch becomes one, this test is what will say so.
