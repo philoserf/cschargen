@@ -460,7 +460,7 @@ func (g *Generator) firstOfAnyKind(order []career.Relationship, effect career.Ef
 
 // fromThisCareer reports whether a tie came from the career being served.
 func (g *Generator) fromThisCareer(tie Tie) bool {
-	return g.career != nil && tie.Origin == g.career.Name
+	return g.service.career != nil && tie.Origin == g.service.career.Name
 }
 
 // dropTie removes one tie by index and records what went.
@@ -637,8 +637,8 @@ const ratingCite = "p. 320"
 // is the record failing to. A childhood mentor and a parent are
 // both Allies at 125, and only the origin tells them apart.
 func (g *Generator) tieOrigin() string {
-	if g.career != nil {
-		return g.career.Name
+	if g.service.career != nil {
+		return g.service.career.Name
 	}
 
 	return g.stage

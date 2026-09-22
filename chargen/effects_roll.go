@@ -183,18 +183,18 @@ func (g *Generator) rollMilitaryEvent() error {
 // false again for the two careers that say in print that a mishap does not
 // force a character out (pp. 263, 298).
 func (g *Generator) rollMishap(eject bool) error {
-	if g.career == nil {
+	if g.service.career == nil {
 		return ErrNoCareer
 	}
 
 	roll := g.dice.TwoD6()
 	throw := g.log.Roll(roll, "p. 113")
-	row := g.career.Mishaps[roll.Total-2]
+	row := g.service.career.Mishaps[roll.Total-2]
 
-	g.consequence(ConsequenceCareer, throw, "mishap: "+row.Summary, g.career.Name)
+	g.consequence(ConsequenceCareer, throw, "mishap: "+row.Summary, g.service.career.Name)
 
-	if eject && g.career.MishapEjects {
-		g.ejected = true
+	if eject && g.service.career.MishapEjects {
+		g.service.ejected = true
 	}
 
 	return g.applyAll(row.Effects, throw)
@@ -205,8 +205,8 @@ func (g *Generator) rollMishap(eject bool) error {
 // (ERRATA E-3).
 func (g *Generator) grantBenefits(effect career.Effect, cause int) error {
 	name := ""
-	if g.career != nil {
-		name = g.career.Name
+	if g.service.career != nil {
+		name = g.service.career.Name
 	}
 
 	switch {
@@ -261,7 +261,7 @@ func (g *Generator) widenBenefitModifier(effect career.Effect, name string, caus
 		}
 	}
 
-	g.careerBenefitMod += effect.Modifier
+	g.service.careerBenefitMod += effect.Modifier
 	g.char.Provenance.Deviate("E-3")
 	g.consequence(ConsequenceBenefitRolls, cause, effect.Detail, name)
 }
@@ -277,8 +277,8 @@ func (g *Generator) widenBenefitModifier(effect career.Effect, name string, caus
 func (g *Generator) forfeitBenefits(effect career.Effect, name string, cause int) {
 	g.clearBenefits(name)
 
-	if g.termsInCareer > g.forfeitedTerms {
-		g.forfeitedTerms = g.termsInCareer
+	if g.service.termsInCareer > g.service.forfeitedTerms {
+		g.service.forfeitedTerms = g.service.termsInCareer
 	}
 
 	g.consequence(ConsequenceBenefitRolls, cause, effect.Detail, name)
@@ -339,8 +339,8 @@ func (g *Generator) payCredits(effect career.Effect, cause int) error {
 // for it.
 func (g *Generator) changeStash(effect career.Effect, cause int) error {
 	name := ""
-	if g.career != nil {
-		name = g.career.Name
+	if g.service.career != nil {
+		name = g.service.career.Name
 	}
 
 	switch {

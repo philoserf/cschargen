@@ -15,9 +15,9 @@ func rankedEngine(t *testing.T, rank int) *Generator {
 	gen := engine(t, 101)
 	colonist := career.Colonist()
 
-	gen.career = &colonist
-	gen.assignment = colonist.Assignments[0]
-	gen.rank = rank
+	gen.service.career = &colonist
+	gen.service.assignment = colonist.Assignments[0]
+	gen.service.rank = rank
 
 	return gen
 }
@@ -37,8 +37,8 @@ func TestADemotionMovesTheNumberAndNothingElse(t *testing.T) {
 		t.Fatalf("apply: %v", err)
 	}
 
-	if gen.rank != 2 {
-		t.Errorf("rank is %d, want 2", gen.rank)
+	if gen.service.rank != 2 {
+		t.Errorf("rank is %d, want 2", gen.service.rank)
 	}
 
 	if gen.char.State.SkillLevel("Drive") != 1 {
@@ -59,8 +59,8 @@ func TestADemotionStopsAtTheBottom(t *testing.T) {
 		t.Fatalf("apply: %v", err)
 	}
 
-	if gen.rank != 0 {
-		t.Errorf("rank is %d, want 0", gen.rank)
+	if gen.service.rank != 0 {
+		t.Errorf("rank is %d, want 0", gen.service.rank)
 	}
 
 	if !strings.Contains(lastDetail(t, gen), "already at the lowest rank") {
@@ -81,8 +81,8 @@ func TestAnEventPromotionGrantsTheRanksBenefits(t *testing.T) {
 		t.Fatalf("apply: %v", err)
 	}
 
-	if gen.rank != 1 {
-		t.Fatalf("rank is %d, want 1", gen.rank)
+	if gen.service.rank != 1 {
+		t.Fatalf("rank is %d, want 1", gen.service.rank)
 	}
 
 	// Colonist's rank 1 prints a benefit, so something was granted beside

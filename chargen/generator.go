@@ -30,6 +30,39 @@ type Options struct {
 	Inputs        Inputs
 }
 
+// serviceState is what one spell in one career established, and it lives
+// exactly as long as that career does. Making it one value is what lets
+// leaveCareer end a career by assigning the zero value rather than by
+// remembering a list -- the bug being that beginService set seven fields and
+// leaveCareer cleared seven, and only two were on both lists.
+//
+// forcedTerms is deliberately not here. takePendingTransfer sets it before
+// the career begins, so a fresh serviceState on entry would zero a
+// Prisoner's sentence; it is pending-transfer state that happens to describe
+// the career, and leaveCareer clears it beside this.
+type serviceState struct {
+	career     *career.Career
+	assignment career.Assignment
+
+	rank          int
+	commissioned  bool
+	termsInCareer int
+
+	// forfeitedTerms is how many of this career's terms have had their
+	// two-per-term mustering-out grant written off by a result that took
+	// every benefit roll back. See forfeitBenefits.
+	forfeitedTerms int
+
+	careerBenefitMod int
+
+	// Flags a table result sets for the loop to read. Each is consumed
+	// where it is acted on, so a result that fires twice is two effects
+	// rather than a latch nobody cleared.
+	mustContinue        bool
+	mayChangeAssignment bool
+	ejected             bool
+}
+
 // Generator walks the twenty steps of character creation. One run produces
 // one character; a Generator is not reusable.
 type Generator struct {
@@ -38,31 +71,31 @@ type Generator struct {
 	decider Decider
 	char    *Character
 
-	// The current career, and where the character stands in it.
-	career        *career.Career
-	assignment    career.Assignment
-	rank          int
-	commissioned  bool
-	termsInCareer int
-	cite          string
+	// service is everything that lives exactly as long as one career.
+	service serviceState
+
+	// cite is the page the current table came from. It is not in
+	// serviceState: youth, the teenage years and higher education set it
+	// too, and mayReturnToEducation calls leaveCareer before
+	// higherEducation, so it is ambient across the run rather than scoped
+	// to a career.
+	//
+	// It is also not cleared when a career ends, and that is a defect
+	// rather than a decision -- Steps 9 and 10 log consequences without
+	// setting it, so "accepted into Arts" carries the previous career's
+	// pages. Clearing it here makes those consequences carry no page at
+	// all, which is worse, so the fix belongs with those steps.
+	cite string
 
 	// stage is where in the twenty steps the character is, for the ties
 	// granted before they have a career to name: "youth", "teenage", or
 	// the institution being attended. It is what tieOrigin falls back to.
 	stage string
 
-	// forfeitedTerms is how many of this career's terms have had their
-	// two-per-term mustering-out grant written off by a result that took
-	// every benefit roll back. See forfeitBenefits.
-	forfeitedTerms int
-
 	// Flags a table result sets for the loop to read. Each is consumed
 	// where it is acted on, so a result that fires twice is two effects
 	// rather than a latch nobody cleared.
-	autoAdvance         bool
-	mustContinue        bool
-	mayChangeAssignment bool
-	ejected             bool
+	autoAdvance bool
 
 	// A transfer the rules named -- Colonist's mishap 10 sends a character
 	// to Vagabond with the Transient assignment -- waiting for the next
@@ -108,11 +141,10 @@ type Generator struct {
 	// autoFailure is the mirror: throws a result has already decided
 	// against the character. pools are the modifiers the character spends
 	// themselves, and onFailure the effects waiting on a throw that fails.
-	autoFailure      []string
-	pools            []Pool
-	onFailure        []career.Effect
-	careerBenefitMod int
-	termLimit        int
+	autoFailure []string
+	pools       []Pool
+	onFailure   []career.Effect
+	termLimit   int
 
 	// Where the character is from, and what that world imposes. techLevel
 	// follows the current homeworld; homeworldTerms and maximumAge stay
@@ -284,7 +316,7 @@ func (g *Generator) runCareers() error {
 			return nil
 		}
 
-		if g.career == nil {
+		if g.service.career == nil {
 			err := g.enterCareer()
 			if err != nil {
 				return err
@@ -294,7 +326,7 @@ func (g *Generator) runCareers() error {
 				return nil
 			}
 
-			if g.career == nil {
+			if g.service.career == nil {
 				// The enlistment failed. That consumed no term, so the
 				// loop tries again -- three failures in a row is what
 				// sends a character to Vagabond, not one.
@@ -339,14 +371,14 @@ func (g *Generator) nextTerm() error {
 	step := g.log.Step("Step 18: Determining the Next Term", "p. 125")
 
 	switch {
-	case g.ejected:
+	case g.service.ejected:
 		return g.leaveCareer(step, "ejected by a mishap")
 	case g.transfer != nil:
 		return g.leaveCareer(step, "sent to another career by a table result")
-	case g.forcedTerms > 0 && g.termsInCareer >= g.forcedTerms:
+	case g.forcedTerms > 0 && g.service.termsInCareer >= g.forcedTerms:
 		return g.leaveCareer(step, "the sentence is served")
-	case g.mustContinue:
-		g.mustContinue = false
+	case g.service.mustContinue:
+		g.service.mustContinue = false
 
 		return nil
 	}
@@ -425,28 +457,27 @@ func (g *Generator) mayReturnToEducation(step int) error {
 // who changes career twice musters out twice, and each career's cash cap
 // is its own.
 func (g *Generator) leaveCareer(cause int, why string) error {
-	if g.career == nil {
+	if g.service.career == nil {
 		return nil
 	}
 
-	if service, found := g.char.State.Service(g.career.Name); found {
+	if service, found := g.char.State.Service(g.service.career.Name); found {
 		service.LeftBecause = why
 	}
 
-	g.consequence(ConsequenceCareer, cause, "left the "+g.career.Name+" career: "+why, g.career.Name)
+	g.consequence(ConsequenceCareer, cause, "left the "+g.service.career.Name+" career: "+why, g.service.career.Name)
 
-	err := g.musterOut(*g.career, g.termsInCareer)
+	err := g.musterOut(*g.service.career, g.service.termsInCareer)
 	if err != nil {
 		return err
 	}
 
-	g.career = nil
-	g.ejected = false
-	g.mustContinue = false
-	g.mayChangeAssignment = false
+	g.service = serviceState{}
+
+	// Not in serviceState, for the reason its doc comment gives: a pending
+	// transfer sets this before the career begins.
 	g.forcedTerms = 0
-	g.termsInCareer = 0
-	g.forfeitedTerms = 0
+
 	g.dropCareerModifiers()
 	g.dropCareerPools()
 

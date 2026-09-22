@@ -129,7 +129,7 @@ func TestAFailedAdvancementFiresWhatWaitedOnIt(t *testing.T) {
 	// same door the hook comes through.
 	gen.autoFailure = []string{advancementThrow}
 
-	err := gen.advance(gen.assignment)
+	err := gen.advance(gen.service.assignment)
 	if err != nil {
 		t.Fatalf("advance: %v", err)
 	}
@@ -152,13 +152,13 @@ func TestAnAutomaticFailureIsRecorded(t *testing.T) {
 
 	gen.autoFailure = []string{advancementThrow}
 
-	err := gen.advance(gen.assignment)
+	err := gen.advance(gen.service.assignment)
 	if err != nil {
 		t.Fatalf("advance: %v", err)
 	}
 
-	if gen.rank != 0 {
-		t.Errorf("rank is %d after an automatic failure, want 0", gen.rank)
+	if gen.service.rank != 0 {
+		t.Errorf("rank is %d after an automatic failure, want 0", gen.service.rank)
 	}
 
 	if !strings.Contains(lastDetail(t, gen), "fails automatically") {
@@ -249,7 +249,7 @@ func TestARefusalDuringAThrowComesBack(t *testing.T) {
 	gen.decider = refusingDecider{}
 	gen.pools = open
 
-	_, err := gen.rollSurvival(gen.assignment)
+	_, err := gen.rollSurvival(gen.service.assignment)
 	if err == nil {
 		t.Error("a refusal during the survival roll did not come back")
 	}
@@ -258,9 +258,9 @@ func TestARefusalDuringAThrowComesBack(t *testing.T) {
 
 	gen.decider = refusingDecider{}
 	gen.pools = open
-	gen.commissioned = true
+	gen.service.commissioned = true
 
-	err = gen.advance(gen.assignment)
+	err = gen.advance(gen.service.assignment)
 	if err == nil {
 		t.Error("a refusal during the advancement roll did not come back")
 	}
@@ -271,11 +271,11 @@ func TestARefusalDuringAThrowComesBack(t *testing.T) {
 
 	navy := career.NationalNavy()
 
-	gen.career = &navy
-	gen.assignment = navy.Assignments[0]
+	gen.service.career = &navy
+	gen.service.assignment = navy.Assignments[0]
 	gen.decider = refusingDecider{}
 
-	err = gen.advance(gen.assignment)
+	err = gen.advance(gen.service.assignment)
 	if err == nil {
 		t.Error("a refusal at the commission offer did not come back")
 	}
@@ -381,7 +381,7 @@ func TestASentenceCutToNothingIsServed(t *testing.T) {
 	gen := rankedEngine(t, 0)
 
 	gen.forcedTerms = 2
-	gen.termsInCareer = 1
+	gen.service.termsInCareer = 1
 
 	gen.adjustSentence(career.Effect{
 		Kind: career.EffectSentence, Terms: -1, Detail: "a term off the sentence",

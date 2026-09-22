@@ -359,12 +359,7 @@ func (g *Generator) beginService(entered career.Career) error {
 		return err
 	}
 
-	g.career = &entered
-	g.assignment = assignment
-	g.rank = 0
-	g.commissioned = false
-	g.termsInCareer = 0
-	g.careerBenefitMod = 0
+	g.service = serviceState{career: &entered, assignment: assignment}
 	g.cite = entered.Cite
 
 	g.char.State.Services = append(g.char.State.Services, Service{

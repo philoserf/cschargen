@@ -25,7 +25,7 @@ func TestARolledBenefitCountIsThrown(t *testing.T) {
 	gen := engine(t, 3)
 	colonist := career.Colonist()
 
-	gen.career = &colonist
+	gen.service.career = &colonist
 
 	mustGrant(t, gen, career.Effect{Count: 1, Dice: "1d3", Detail: "gain 1d3 benefit rolls"})
 
@@ -96,7 +96,7 @@ func TestARerolledNothingIsStillNothing(t *testing.T) {
 	gen := engine(t, 11)
 	penniless := pennilessCareer()
 
-	gen.career = &penniless
+	gen.service.career = &penniless
 
 	err := gen.immediateCashRolls(
 		career.Effect{Count: 1, RerollNothing: true, Detail: "one cash roll"}, 0)
@@ -137,7 +137,7 @@ func TestABadBenefitCountIsAnError(t *testing.T) {
 	gen := engine(t, 17)
 	colonist := career.Colonist()
 
-	gen.career = &colonist
+	gen.service.career = &colonist
 
 	err := gen.grantBenefits(career.Effect{Count: 1, Dice: "several", Detail: "several"}, 0)
 	if err == nil {
@@ -179,8 +179,8 @@ func TestAnImmediateCashRollCarriesTheCareerModifier(t *testing.T) {
 	gen := engine(t, 23)
 	colonist := career.Colonist()
 
-	gen.career = &colonist
-	gen.careerBenefitMod = 1
+	gen.service.career = &colonist
+	gen.service.careerBenefitMod = 1
 
 	err := gen.immediateCashRolls(career.Effect{Count: 1, Detail: "one cash roll"}, 0)
 	if err != nil {

@@ -266,7 +266,7 @@ func TestASurvivalModifierReachesTheSurvivalRoll(t *testing.T) {
 		{Applies: survivalThrow, Value: -2, Detail: "a hard term"},
 	}
 
-	_, err := gen.rollSurvival(gen.assignment)
+	_, err := gen.rollSurvival(gen.service.assignment)
 	if err != nil {
 		t.Fatalf("rollSurvival: %v", err)
 	}

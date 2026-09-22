@@ -69,12 +69,12 @@ func (g *Generator) musterOut(left career.Career, terms int) error {
 // modifier events attached to it, and the event batches keep their own --
 // which is the distinction ERRATA E-3 rests on.
 func (g *Generator) benefitsFor(name string, terms int) []BenefitBatch {
-	earned := max(terms-g.forfeitedTerms, 0)
+	earned := max(terms-g.service.forfeitedTerms, 0)
 
 	batches := []BenefitBatch{{
 		Career:   name,
 		Rolls:    earned * rollsPerTerm,
-		Modifier: g.careerBenefitMod,
+		Modifier: g.service.careerBenefitMod,
 	}}
 
 	compelled := make([]BenefitBatch, 0, len(g.char.State.Benefits))
@@ -218,7 +218,7 @@ func (g *Generator) chooseBenefitTable(
 // and pay at once, so they are outside the Step 19 queue and outside the
 // three-per-career cap that governs it.
 func (g *Generator) immediateCashRolls(effect career.Effect, cause int) error {
-	if g.career == nil {
+	if g.service.career == nil {
 		g.unimplemented(cause, effect.Detail+" -- outside a career, with no cash table to read")
 
 		return nil
@@ -229,8 +229,8 @@ func (g *Generator) immediateCashRolls(effect career.Effect, cause int) error {
 
 		g.char.State.Credits += amount
 		g.consequence(ConsequenceCredits, rollCause,
-			"an immediate cash benefit roll in "+g.career.Name+": "+itoa(amount)+" credits",
-			g.career.Name)
+			"an immediate cash benefit roll in "+g.service.career.Name+": "+itoa(amount)+" credits",
+			g.service.career.Name)
 	}
 
 	return nil
@@ -251,17 +251,17 @@ func (g *Generator) oneImmediateCashRoll(effect career.Effect) (int, int) {
 
 	for range benefitRowsPerCareer {
 		roll := g.dice.D6()
-		row := min(max(roll.Total+g.careerBenefitMod, 1), benefitRowsPerCareer)
+		row := min(max(roll.Total+g.service.careerBenefitMod, 1), benefitRowsPerCareer)
 
 		cause = g.log.Roll(roll, "p. 127")
-		amount = g.career.Benefits[row-1].Cash
+		amount = g.service.career.Benefits[row-1].Cash
 
 		if amount != 0 || !effect.RerollNothing {
 			break
 		}
 	}
 
-	if g.careerBenefitMod != 0 {
+	if g.service.careerBenefitMod != 0 {
 		g.char.Provenance.Deviate("E-3")
 	}
 
