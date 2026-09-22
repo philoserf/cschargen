@@ -76,15 +76,14 @@ func everything(number int) []AgingCheck {
 // and how fast it escalates.
 //
 // A species in the setting data names one of these. Four of the book's five
-// engineered species share the tech-level profile with humans -- their
-// headings read "Humans, Gaishan, Oskars, Aquans and Sniffers from a World
-// that is Tech Level 10" -- so the tables milestone 4 built cover most of
-// the book already.
+// engineered species share the tech-level profile with humans, their table
+// headings naming them beside humans at a given tech level, so these four
+// tables cover most of the book already.
 type AgingProfile string
 
 const (
-	// ProfileTechLevel is the four tables of milestone 4, keyed by the
-	// homeworld's tech level. It is the default, and what a data file
+	// ProfileTechLevel is the four tech-level tables of pp. 122-123, keyed by
+	// the homeworld's tech level. It is the default, and what a data file
 	// that says nothing gets.
 	ProfileTechLevel AgingProfile = "techLevel"
 

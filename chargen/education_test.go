@@ -497,8 +497,8 @@ func holdsA(character *chargen.Character, degree career.Degree) bool {
 // to a different career, change to a different assignment within the same
 // career, return to higher education, or exit character generation."
 //
-// It was deferred from milestone 5 with the reason that it is a choice only
-// a player can make well, and that is why it is offered to a player and not
+// It was deferred once, on the reasoning that it is a choice only a player
+// can make well, and that is why it is offered to a player and not
 // to the policy.
 func TestAPlayerMayReturnToHigherEducation(t *testing.T) {
 	t.Parallel()

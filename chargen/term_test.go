@@ -404,8 +404,8 @@ func TestCharacteristicsStayInRange(t *testing.T) {
 	}
 }
 
-// TestAWholeLifepathReplays is the contract the milestone rests on, now
-// over the term loop rather than over six rolls.
+// TestAWholeLifepathReplays is the reproducibility contract, now over the
+// term loop rather than over six rolls.
 func TestAWholeLifepathReplays(t *testing.T) {
 	t.Parallel()
 

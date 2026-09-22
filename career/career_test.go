@@ -11,7 +11,7 @@ import (
 // term its OGL notice reserves. That word is not in this repository.
 const slaveCareer = "Engineered/Uplift Slave"
 
-// TestTheBookIsFullyTranscribed is what milestone 3 was filed to reach.
+// TestTheBookIsFullyTranscribed is the completeness claim, held as a test.
 //
 // The Careers list on pp. 8-9 names thirty-four, and each is here by the
 // name this repository gives it -- which is the book's own except for the

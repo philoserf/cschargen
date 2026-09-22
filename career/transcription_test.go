@@ -111,7 +111,7 @@ func TestVagabondAndPrisonerNumbers(t *testing.T) {
 	}
 
 	// p. 261 gives Prisoner a single assignment, which is what makes it the
-	// smallest career in the book and part of why it is in this milestone.
+	// smallest career in the book.
 	if len(prisoner.Assignments) != 1 {
 		t.Errorf("Prisoner has %d assignments, want 1", len(prisoner.Assignments))
 	}

@@ -65,7 +65,7 @@ type Inputs struct {
 	SkipEducation bool   `json:"skipEducation,omitempty"`
 
 	// The other three of Step 20's four fields (pp. 129-130). Name is
-	// above, because it has been an input since milestone 1.
+	// above, because it has been an input from the start.
 	Gender      string `json:"gender,omitempty"`
 	Appearance  string `json:"appearance,omitempty"`
 	Goals       string `json:"goals,omitempty"`

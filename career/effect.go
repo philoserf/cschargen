@@ -2,7 +2,7 @@
 // career shares: Injury (p. 119) and Life Events (p. 120).
 //
 // The definitions are hand-typed Go rather than a data file. The format is
-// what milestone 3 proves against thirty-four careers whose shapes genuinely
+// proven against all thirty-four careers, whose shapes genuinely
 // differ -- National Navy has nine skill tables and a commission, Vagabond
 // has four and no enlistment throw -- and designing a schema against three
 // and then meeting the variance would mean migrating data twice. Go structs

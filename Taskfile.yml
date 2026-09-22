@@ -138,6 +138,13 @@ tasks:
     cmds:
       - prettier --write .
 
+  issue-refs:
+    desc: Issue numbers cited in comments still resolve, and closed ones still read as history
+    # Not in `default`: it needs the network and a token, and the gate runs
+    # offline and identically in CI. Run it in the release pass.
+    cmds:
+      - ./scripts/issue-refs.sh
+
   build:
     cmds:
       - go build ./...

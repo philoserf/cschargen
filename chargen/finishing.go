@@ -67,7 +67,7 @@ func (g *Generator) finishingTouches() error {
 	g.char.State.Finishing = finishing
 
 	// The name is the one field the record already carried, because it was
-	// an input from milestone 1. Keeping the two in step is what stops a
+	// an input from the start. Keeping the two in step is what stops a
 	// sheet headed by one name and a record stamped with another.
 	g.char.Provenance.Inputs.Name = finishing.Name
 

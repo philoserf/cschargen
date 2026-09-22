@@ -15,8 +15,7 @@ import (
 //	listed level or higher, no additional benefit is gained. Rank Benefits
 //	represent required competence, not bonus stacking.
 //
-// The engine added instead, in every career, from milestone 1 until this
-// test existed.
+// The engine added instead, in every career, until this test existed.
 
 func TestARankBenefitIsAFloor(t *testing.T) {
 	t.Parallel()
