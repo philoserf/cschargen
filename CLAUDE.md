@@ -95,10 +95,13 @@ that would otherwise compile.
 
 ## Releases
 
-No release automation. `CHANGELOG.md` is written by hand and **the tag goes last**,
-after the gate is green and the README's Status section says what the release
-actually is — that section went stale for five milestones and was caught only at
-the first release. `WALKTHROUGH.md` is regenerated in that same pass, for the
+No release automation. `CHANGELOG.md` accumulates bullets under `## Unreleased` as
+the work lands, and **the release pass rewrites them** into whatever the release
+turns out to be — a bullet written while the reasoning is fresh costs nothing, and a
+narrative reconstructed three weeks later costs a reading of the diff. **The tag
+goes last**, after the gate is green and the README's Status section says what the
+release actually is — that section went stale for five milestones and was caught
+only at the first release. `WALKTHROUGH.md` is regenerated in that same pass, for the
 same reason, and `task issue-refs` runs in it — a comment citing a closed issue
 is usually history and occasionally a claim that the code below it is broken,
 and only a person can tell which.
