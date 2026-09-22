@@ -66,10 +66,21 @@ func (g *Generator) finishingTouches() error {
 
 	g.char.State.Finishing = finishing
 
-	// The name is the one field the record already carried, because it was
-	// an input from the start. Keeping the two in step is what stops a
-	// sheet headed by one name and a record stamped with another.
+	// All four travel in the inputs, because replay is handed the inputs and
+	// cannot ask: Replay implements Choose and not Ask, so askFinishing is a
+	// no-op there. Only the name used to be written back, and the other three
+	// came back empty on every replay of an interactive character (#109).
+	//
+	// This is the one place a result is written into Inputs, and the rule it
+	// bends -- Inputs is what was asked for, State is what happened -- is
+	// bent rather than broken. p. 129's four fields are player input with
+	// nothing rolled, so the answer IS the input; there is no re-derivation
+	// for a replay to honour wrongly, which is what went wrong when a career
+	// and a homeworld were written back.
 	g.char.Provenance.Inputs.Name = finishing.Name
+	g.char.Provenance.Inputs.Gender = finishing.Gender
+	g.char.Provenance.Inputs.Appearance = finishing.Appearance
+	g.char.Provenance.Inputs.Goals = finishing.Goals
 
 	if finishing.Empty() {
 		g.consequence(ConsequenceFinishing, step,

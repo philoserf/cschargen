@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -127,8 +129,34 @@ func compare(original, replayed *chargen.Character) error {
 			errDiverged, len(replayed.Events), len(original.Events))
 	}
 
-	if original.State.Characteristics != replayed.State.Characteristics {
-		return fmt.Errorf("%w: the logs agree but the characteristics do not", errDiverged)
+	return compareState(original, replayed)
+}
+
+// compareState holds the whole character, after the log. It ran on
+// Characteristics alone for a long while -- the only comparable struct in
+// State, so `==` reached exactly as far as Go let it and the line was never
+// revisited. A replay that lost three of Step 20's four fields reported
+// "identical" (#109).
+//
+// The comparison goes through JSON rather than reflect.DeepEqual because the
+// two sides are not built the same way: original was decoded from a file and
+// replayed came fresh from the engine, so an empty Skills is a non-nil empty
+// slice on one side and nil on the other. Marshalling both is also comparing
+// them in the representation the record is stored in, which is the one that
+// has to match.
+func compareState(original, replayed *chargen.Character) error {
+	before, err := json.Marshal(original.State)
+	if err != nil {
+		return fmt.Errorf("encoding the record's character: %w", err)
+	}
+
+	after, err := json.Marshal(replayed.State)
+	if err != nil {
+		return fmt.Errorf("encoding the replayed character: %w", err)
+	}
+
+	if !bytes.Equal(before, after) {
+		return fmt.Errorf("%w: the logs agree but the characters do not", errDiverged)
 	}
 
 	return nil
