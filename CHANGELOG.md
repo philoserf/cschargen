@@ -5,179 +5,178 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+## v0.1.0-alpha.5 — 2026-09-22
+
+Twenty-one issues out of five review passes over the whole codebase — theory,
+walkthrough, audit, reduction, refactor — where alpha.4's thirteen came out of
+an afternoon of playing the tool.
+
+That difference shows in what they are. Playing finds characters the book would
+not recognise. Reading finds a record that does not say what it did, and this
+release is almost entirely that: the cites, the readings, the verification and
+the schema, each claiming something the engine was not doing.
+
+Two of them put a wrong character on the sheet.
+
 ### Breaking
 
-- **Step 1's label changed, so every record written before it is refused on
-  replay.** It read the book's word for a genetically engineered human, which
-  the OGL notice reserves; it now reads "Step 1: Choose Human, Engineered
-  Human, or Uplift". The refusal is the engine-version check doing its job and
-  comes before any divergence — `--ignore-provenance` replays anyway and names
-  the step whose label moved ([#108](https://github.com/philoserf/cschargen/issues/108), [#134](https://github.com/philoserf/cschargen/issues/134)).
-- **A character holding both a master's and a doctorate no longer takes the
-  graduate enlistment bonus twice.** p. 212 prints one modifier and the engine
-  added one per degree, so a doctorate-holder enlisted at +8 where the page
-  gives +4 — on Instructor, the difference between EDU 12+ and EDU 4+. Ten in
-  three hundred auto characters hold both, and every one of them that tried
-  Instructor, Journalist, Medic or Scientist got the wrong throw
-  ([#132](https://github.com/philoserf/cschargen/issues/132)).
+**Every record written before this release is refused on replay.** Step 1's
+label read the book's word for a genetically engineered human, which the OGL
+notice reserves; it now reads "Step 1: Choose Human, Engineered Human, or
+Uplift". The refusal is the engine-version check doing its job and comes before
+any divergence — `--ignore-provenance` replays anyway and names the step whose
+label moved ([#108](https://github.com/philoserf/cschargen/issues/108),
+[#134](https://github.com/philoserf/cschargen/issues/134)).
 
-### Fixed
+**A character holding both a master's and a doctorate no longer takes the
+graduate enlistment bonus twice.** p. 212 prints one modifier and the engine
+added one per degree, so a doctorate-holder enlisted at +8 where the page gives
++4 — on Instructor, the difference between EDU 12+ and EDU 4+. Ten in three
+hundred auto characters hold both, and every one of them that tried Instructor,
+Journalist, Medic or Scientist got the wrong throw
+([#132](https://github.com/philoserf/cschargen/issues/132)). Same seed,
+different character.
 
-- **The Go API is stated not to be a compatibility surface.** The module is
-  importable and tagged, but every tag is a prerelease and nothing said whether
-  exported symbols could move — so three changes shipped under an assumption
-  nobody had written down: #125's three symbols, #124's constant move and #117's
-  two `Term` fields. README's Status section now says it, beside the promise
-  that _is_ made about the record's JSON shape
-  ([#157](https://github.com/philoserf/cschargen/issues/157)).
-- **A career table can name the reading it rests on.** `career/` builds table
-  data and never sees a character, so it could not call `Deviate` and three
-  outcome-changing readings left no mark on any record: the mishap table System
-  Defense Forces (Navy) borrows because it prints none (E-10), the value every
-  Company Share carries because the rows granting several print none (E-33), and
-  the classes of career twelve results modify enlistment by, which the book never
-  defines (E-37). `career.Effect` and `career.Career` now carry the identifier
-  and the engine stamps it when it applies the value. Across 800 characters they
-  reach 100, 24 and 75 records
-  ([#154](https://github.com/philoserf/cschargen/issues/154)).
+**The two lists of Medic specialties disagreed**, so medical school granted a
+specialty the setting-data validator then rejected
+([#131](https://github.com/philoserf/cschargen/issues/131)).
 
-  The allowlist in `chargen/errata_internal_test.go` is down to the five
-  readings that apply to every character alike, which is the only reason left on
-  it. The gate learned the second channel with them: an identifier reaches a
-  record either by a `Deviate` call in `chargen` or by a declaration in
-  `career`, and it now checks both.
+### A record that says what it did
 
-- **`THEORY.md` carries the eight architectural commitments.** The refactoring
-  pass's "what not to change" list — the flat `Generator`, the single `apply`
-  switch, hand-typed careers, repeated literal cells, `Policy.Choose` taking the
-  first option, the three deciders not being peers, `render` computing nothing,
-  the unpinned toolchain — lived only in
-  [#130](https://github.com/philoserf/cschargen/issues/130), whose sequence has
-  now been followed. Section 5 already listed the actions that cause damage;
-  this is the commitments behind them, with their reasons.
-- **A torn coverage profile is named rather than counted.** `-coverpkg` makes
-  six test binaries append to one `coverage.out`, and an interleaved write
-  produced `gigithub.com/...` — a duplicated `gi` in one line of 22,140. The
-  ratchet derives a package by string surgery on that path and validated
-  nothing, so the torn line invented a package and the gate failed on "a
-  package appearing": a real check, on fabricated input, reported as something
-  it was not. `task ratchet` now refuses a profile whose lines are not paths in
-  this module, prints the offending lines, and says to re-run `task test`
-  rather than `task ratchet:update` — which would have recorded the damage.
-  `ratchet:update` refuses the same profile
-  ([#153](https://github.com/philoserf/cschargen/issues/153)).
-- **A record now stamps the ERRATA entries that changed that character, and a
-  gate holds it there.** `ERRATA.md` promised records stamp "every deviation
-  that applied to them" — the whole argument for `Provenance.Deviations`
-  existing — and 8 identifiers of 44 ever reached a record. Twelve more do now:
-  the aging tables' four edges (E-15, E-16, E-20, E-30), a second aging crisis
-  in one term and a treatment nobody can pay for (E-18, E-19), "over 40" read
-  against a chart of bands (E-21), a tie lost rather than inverted at zero
-  (E-24), the second bachelor's Step 8 does not offer (E-29), an improvement
-  read against the state as it was (E-34), a demotion that moves the number and
-  nothing else (E-36), and "that Ally" meaning the one the result just granted
-  (E-39). `chargen/errata_internal_test.go` now fails the build on a reading
-  that is neither stamped nor on a list saying why, and in both other
-  directions ([#118](https://github.com/philoserf/cschargen/issues/118)).
+This is the release's subject, and it was wrong in four independent ways.
 
-  The promise itself was too broad and now says what it does: a reading that
-  applies to every character alike distinguishes none of them and is not
-  stamped. `ERRATA.md` also gained the definition of its third kind of entry —
-  it said it had two and carried three, and ten entries were `(limit)` with the
-  label defined nowhere
-  ([#129](https://github.com/philoserf/cschargen/issues/129)). A limit is
-  stamped where it changed the character, which E-44 does.
+**Every consequence now names the page it came from.** A throw says what was
+rolled; a consequence says what it did to the character, and that is the half a
+reader checks against the book. **A sixth carried no page at all** — 666 of
+3,953 across forty characters — because Steps 1, 3, 4 and 5 never set one, so a
+character's species, homeworld, family and early life were recorded without a
+cite. Consequences between careers had the opposite fault and carried the
+_previous_ career's pages: a character was "accepted into Scavenger" on a
+graduate school's pp. 86-91
+([#144](https://github.com/philoserf/cschargen/issues/144),
+[#148](https://github.com/philoserf/cschargen/issues/148)).
 
-  Three readings still cannot be stamped: E-10, E-33 and E-37 are implemented in
-  `career/`, which builds table data and never sees a character. They are on the
-  list with that as their reason, and
-  [#154](https://github.com/philoserf/cschargen/issues/154) carries the channel
-  that would fix it.
+A step is not one page — Step 5 spans pp. 57-61 and Step 4 writes results from
+pp. 39, 40, 42, 43 and 122 — so the page is scoped to the function whose work it
+is and restored on return. That caught two cites that were wrong rather than
+missing: a Colonist mishap reassigning a homeworld stamped the subsector throw
+with the career's pages, and an ineligible character's education note carried
+the teenage years'.
 
-- **Every consequence in a record now names the page it came from.** A throw
-  says what was rolled; a consequence says what it did to the character, and
-  that is the half a reader checks against the book. A sixth of them carried no
-  page at all — 666 of 3,953 across forty characters — because Steps 1, 3, 4 and
-  5 never set one, so a character's species, homeworld, family and early life
-  were recorded without a cite. Consequences between careers had the opposite
-  fault and carried the _previous_ career's pages: a character was "accepted
-  into Scavenger" on a graduate school's pp. 86-91
-  ([#144](https://github.com/philoserf/cschargen/issues/144),
-  [#148](https://github.com/philoserf/cschargen/issues/148)).
+**A record stamps the `ERRATA.md` entries that changed that character.** The
+file promised records stamp "every deviation that applied to them" — the whole
+argument for `Provenance.Deviations` existing — and **8 identifiers of 44 ever
+reached a record**. Nineteen do now, including the aging tables' four edges, a
+treatment nobody can pay for, a tie lost rather than inverted at zero, and "that
+Ally" meaning the one the result just granted
+([#118](https://github.com/philoserf/cschargen/issues/118)).
 
-  A step is not one page — Step 5 spans pp. 57-61 and Step 4 writes results from
-  pp. 39, 40, 42, 43 and 122 — so the page is scoped to the function whose work
-  it is, and restored on return. That caught two cites that were wrong rather
-  than missing: a Colonist mishap reassigning a homeworld stamped the subsector
-  throw with the career's pages, and an ineligible character's education note
-  carried the teenage years'. A test now fails on any consequence without a
-  cite, reporting by step.
+The promise was broader than the engine ever kept it and now says what it does:
+a reading that applies to every character alike distinguishes none of them and
+is not stamped. `ERRATA.md` also gained the definition of its third kind of
+entry — it claimed two and carried ten `(limit)` entries with the label defined
+nowhere ([#129](https://github.com/philoserf/cschargen/issues/129)).
 
-- **Three of Step 20's four answers did not survive a replay.** Only the name
-  was written back to the record's inputs, and `Replay` cannot be asked, so an
-  interactive character replayed with no gender, appearance or goals — and
-  `replay` said "identical" while it happened ([#109](https://github.com/philoserf/cschargen/issues/109)).
-- **`replay` compared the whole event log and one of the character's twenty
-  fields.** It now compares the whole character ([#111](https://github.com/philoserf/cschargen/issues/111)).
-- **A character who returned to higher education could not be replayed.** The
-  choice was gated on the decider being askable rather than on the run being
-  interactive, so it was offered while generating and skipped while replaying,
-  and every choice after it read the wrong index ([#106](https://github.com/philoserf/cschargen/issues/106)).
-- **Every record stamped `policy 0.3.1` and `POLICY.md` declared itself
-  0.3.0.** The document is now 0.3.2 — the subsector rule changed behaviour
-  between those two versions — and a test holds the two together
-  ([#110](https://github.com/philoserf/cschargen/issues/110), [#124](https://github.com/philoserf/cschargen/issues/124)).
-- **The two lists of Medic specialties disagreed**, so medical school granted a
-  specialty the setting-data validator rejected ([#131](https://github.com/philoserf/cschargen/issues/131)).
+Three readings could not stamp themselves at all: they live in `career/`, which
+builds table data and never sees a character. An effect or a career now names
+the reading it rests on and the engine records it when it applies the value,
+which is how the mishap table System Defense Forces (Navy) borrows, the value
+every Company Share carries, and the classes of career twelve results modify
+enlistment by all reach a record
+([#154](https://github.com/philoserf/cschargen/issues/154)).
 
-### Changed
+**`replay` compared the whole event log and one of the character's twenty
+fields.** It now compares the whole character
+([#111](https://github.com/philoserf/cschargen/issues/111)). Two things it had
+been quietly failing on: three of Step 20's four answers did not survive a
+replay, so an interactive character came back with no gender, appearance or
+goals while `replay` said "identical"
+([#109](https://github.com/philoserf/cschargen/issues/109)); and a character who
+returned to higher education could not be replayed at all, because the choice
+was gated on the decider being askable rather than on the run being interactive,
+so every choice after it read the wrong index
+([#106](https://github.com/philoserf/cschargen/issues/106)).
 
-- **Four comments that had drifted from the code they describe.**
-  `batchCommand`'s doc comment had been absorbed into `checkBatchFlags`'s by a
-  missing blank line, leaving the command itself undocumented
-  ([#122](https://github.com/philoserf/cschargen/issues/122)). `setting`'s
-  package doc sent a reader to `data/setting.sample.json` — a gitignored
-  directory, and not where the embedded sample lives
-  ([#127](https://github.com/philoserf/cschargen/issues/127)). The comment
-  defending the ragged consequence struct counted thirteen kinds where there
-  are seventeen, and no longer carries a count that can drift
-  ([#128](https://github.com/philoserf/cschargen/issues/128)). And
-  `career/transcription_test.go` named independent re-reading as the mechanism
-  that makes its hand-typed tables trustworthy without saying it applies to
-  three careers of thirty-four; it now declares the sample, names what the
-  structural tests cover for the rest, and says what neither catches
-  ([#119](https://github.com/philoserf/cschargen/issues/119)). No behaviour
-  changes.
-- **`Term.Event` and `Term.Mishap` are gone from the record schema.** Both were
-  declared with `omitempty` and neither was ever assigned, so no record in
-  existence carried either and nothing read them. They looked like a
-  convenience index onto what happened in a term; what happened in a term is in
-  the event log, which is the single place a result is recorded. Removing them
-  narrows the shape to what the engine already produced, which
-  `chargen.SchemaVersion`'s own definition calls a clarification, so the
-  version stays at 2 and no replay is refused
-  ([#117](https://github.com/philoserf/cschargen/issues/117)).
-- **A reading the engine had been making since Step 5 shipped is now recorded.**
-  p. 61 builds the extended family by repeating the birth situation for each
-  parent, which recurses without terminating -- a parent may have been
-  commune-born too -- and the engine has always repeated the counts rather than
-  the narrative. It is `ERRATA.md` E-44, records stamp it, and the sheet names
-  it. Nothing about a character changes; what changes is that a reader can look
-  the reading up. Worth knowing in the other direction from the obvious: a
-  faithful recursion would make families larger, not smaller
-  ([#104](https://github.com/philoserf/cschargen/issues/104)).
-- **The Product Identity boundary is a gate rather than a rule people
-  remember.** It reads every tracked file instead of only `setting/sample.json`,
-  which is how thirty-eight occurrences across eighteen files went unnoticed —
-  two of them test fixtures using real subsector names ([#134](https://github.com/philoserf/cschargen/issues/134)).
-- **Record verification moved into the package that owns the record.**
-  `chargen.Reproducible` and `chargen.Verify`; `cmd/cschargen/replay.go` went
-  from 215 lines to 73, and eight statements no test could reach are now
-  covered ([#113](https://github.com/philoserf/cschargen/issues/113)).
-- **`docs/` is retired.** Eight files and 1,614 lines of process history that
-  git and this changelog already held. `THEORY.md` and `WALKTHROUGH.md` take
-  its place, on cadences `CLAUDE.md` records ([#120](https://github.com/philoserf/cschargen/issues/120),
-  [#121](https://github.com/philoserf/cschargen/issues/121)).
+**Every record stamped `policy 0.3.1` while `POLICY.md` declared itself 0.3.0.**
+The document is now 0.3.2 — the subsector rule changed behaviour between those
+two versions — and a test holds the two together
+([#110](https://github.com/philoserf/cschargen/issues/110),
+[#124](https://github.com/philoserf/cschargen/issues/124)).
+
+**`Term.Event` and `Term.Mishap` are gone from the schema.** Both carried
+`omitempty` and neither was ever assigned, so no record in existence held either
+and nothing read them. They looked like a convenience index onto what happened
+in a term; what happened in a term is in the event log, which is the single
+place a result is recorded. `chargen.SchemaVersion` stays at 2 — narrowing the
+shape to what the engine already produced is what its own definition calls a
+clarification ([#117](https://github.com/philoserf/cschargen/issues/117)).
+
+**A reading the engine had been making since Step 5 shipped is now recorded.**
+p. 61 builds the extended family by repeating the birth situation for each
+parent, which recurses without terminating — a parent may have been commune-born
+too — and the engine has always repeated the counts rather than the narrative.
+It is `ERRATA.md` E-44, records stamp it and the sheet names it. Nothing about a
+character changes; what changes is that a reader can look it up. Worth knowing
+in the other direction from the obvious: a faithful recursion would make
+families larger, not smaller
+([#104](https://github.com/philoserf/cschargen/issues/104)).
+
+### Held by a gate rather than by remembering
+
+**The Product Identity boundary reads every tracked file**, not only
+`setting/sample.json` — which is how thirty-eight occurrences across eighteen
+files went unnoticed, two of them test fixtures using real subsector names
+([#134](https://github.com/philoserf/cschargen/issues/134)).
+
+**A torn coverage profile is named rather than counted.** `-coverpkg` makes six
+test binaries append to one `coverage.out`, and an interleaved write produced
+`gigithub.com/...` — a duplicated `gi` in one line of 22,140. The ratchet
+derived a package by string surgery on that path and validated nothing, so the
+torn line invented a package and the gate failed on "a package appearing": a
+real check, on fabricated input, reported as something it was not. It now
+refuses the profile and says to re-run `task test` rather than
+`task ratchet:update`, which would have recorded the damage
+([#153](https://github.com/philoserf/cschargen/issues/153)).
+
+`ERRATA.md` and the consequence cites gained gates of their own with the fixes
+above, joining the one `POLICY.md` has had since alpha.4.
+
+### What the documents say
+
+**`docs/` is retired** — eight files and 1,614 lines of process history that git
+and this changelog already held. `THEORY.md` and `WALKTHROUGH.md` take its
+place, on cadences `CLAUDE.md` records
+([#120](https://github.com/philoserf/cschargen/issues/120),
+[#121](https://github.com/philoserf/cschargen/issues/121)).
+
+**`THEORY.md` carries the eight architectural commitments** — the flat
+`Generator`, the single `apply` switch, hand-typed careers, repeated literal
+cells, `Policy.Choose` taking the first option, the three deciders not being
+peers, `render` computing nothing, the unpinned toolchain — with the reason for
+each ([#130](https://github.com/philoserf/cschargen/issues/130)).
+
+**The Go API is not a compatibility surface while the version is a
+prerelease**, which nothing said before, though three changes had already
+shipped assuming it. The record's JSON shape is the opposite case and stays
+governed by `chargen.SchemaVersion`
+([#157](https://github.com/philoserf/cschargen/issues/157)).
+
+**Four comments had drifted from the code they describe** — `batchCommand`'s
+doc comment absorbed into `checkBatchFlags`'s by a missing blank line
+([#122](https://github.com/philoserf/cschargen/issues/122)), `setting`'s package
+doc pointing at a gitignored directory
+([#127](https://github.com/philoserf/cschargen/issues/127)), a count of thirteen
+where there are seventeen
+([#128](https://github.com/philoserf/cschargen/issues/128)), and
+`career/transcription_test.go` naming independent re-reading as its mechanism
+without saying it covers three careers of thirty-four
+([#119](https://github.com/philoserf/cschargen/issues/119)). No behaviour
+changes.
+
+**Record verification moved into the package that owns the record** —
+`chargen.Reproducible` and `chargen.Verify`. `cmd/cschargen/replay.go` went from
+215 lines to 73, and eight statements no test could reach are now covered
+([#113](https://github.com/philoserf/cschargen/issues/113)).
 
 ## v0.1.0-alpha.4 — 2026-09-21
 

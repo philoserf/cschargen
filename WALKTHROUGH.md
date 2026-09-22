@@ -141,7 +141,7 @@ they take no arguments.
 `cmd/cschargen/new.go` — `newFlags.parse`
 
 ```go
-	if isSet(f.set, "seed") {
+	if given(f.set, "seed") {
 		return *f.seed, nil
 	}
 
@@ -336,7 +336,7 @@ A record that fails halfway still knows what it was trying to be.
 	// ...
 	// The genetics decide which characteristic method Step 2 uses, so they
 	// come before it although the book prints them at Step 5 (p. 62).
-	err = g.determineGenetics(g.log.Len())
+	err = g.determineGenetics()
 	// ...
 	err = g.rollCharacteristics()
 	// ...
@@ -673,7 +673,7 @@ func (g *Generator) rollEvent() error {
 		return ErrMissingEventRow
 	}
 
-	g.consequence(ConsequenceCareer, cause, "event: "+row.Summary, g.career.Name)
+	g.consequence(ConsequenceCareer, cause, "event: "+row.Summary, g.service.career.Name)
 
 	return g.applyAll(row.Effects, cause)
 }
@@ -762,24 +762,40 @@ func skill(name string, specialties ...string) Effect {
 `chargen/generator.go` — `leaveCareer`
 
 ```go
-	g.consequence(ConsequenceCareer, cause, "left the "+g.career.Name+" career: "+why, g.career.Name)
+	g.consequence(ConsequenceCareer, cause, "left the "+g.service.career.Name+" career: "+why, g.service.career.Name)
 
-	err := g.musterOut(*g.career, g.termsInCareer)
+	err := g.musterOut(*g.service.career, g.service.termsInCareer)
 	// ...
-	g.career = nil
-	g.ejected = false
-	g.mustContinue = false
-	g.mayChangeAssignment = false
+	g.service = serviceState{}
+
+	// The career's page ends with the career. Steps 9 and 10 set their own
+	// now, so nothing downstream reads what this used to leave behind.
+	g.cite = ""
+
+	// Not in serviceState, for the reason its doc comment gives: a pending
+	// transfer sets this before the career begins.
 	g.forcedTerms = 0
-	g.termsInCareer = 0
-	g.forfeitedTerms = 0
+
 	g.dropCareerModifiers()
 	g.dropCareerPools()
 ```
 
-Leaving a career is where the per-career state is torn down. `dropCareerModifiers`
-exists because a modifier granted "for the rest of this career" carries no count —
-nothing else would ever end it, and it would follow the character for good.
+Leaving a career is where the per-career state is torn down. This used to be seven
+assignments to seven `Generator` fields, initialised by one function and cleared by
+a different one — so a field added to the first and forgotten in the second leaked
+into the next career, silently. They are one `serviceState` value now, and clearing
+it is one line that cannot be partially written. `forcedTerms` is deliberately not
+in it: a pending transfer sets it _before_ the career begins, so it does not live
+exactly as long as one.
+
+`g.cite = ""` is the same argument for the page a consequence carries. It used not
+to be cleared, and Steps 9 and 10 wrote their consequences under whatever table had
+been read last — a character "accepted into Scavenger" on a graduate school's
+pages. The right failure mode is an empty cite rather than a confident wrong one.
+
+`dropCareerModifiers` exists because a modifier granted "for the rest of this
+career" carries no count — nothing else would ever end it, and it would follow the
+character for good.
 
 `chargen/musterout.go` — `musterOut`
 
@@ -954,7 +970,7 @@ Golden files in `render/testdata/` are compared byte for byte, and are listed in
 		Seed:          original.Provenance.RNG.Seed,
 		Decider:       chargen.NewReplay(original.Events),
 		EngineVersion: version(),
-		PolicyVersion: policyVersion,
+		PolicyVersion: chargen.PolicyVersion,
 		Setting:       world,
 		Inputs:        original.Provenance.Inputs,
 	}).Run()
@@ -964,38 +980,50 @@ Note what is reused from the record: the seed, the recorded choices and the _inp
 The stored throws are **not** input — every throw is recomputed from the seed. The log
 is verification data.
 
-`cmd/cschargen/replay.go` — `checkProvenance`
+The command is now thirty lines of flag handling around two calls into `chargen`.
+Both used to live here; they moved to `chargen/verify.go` because verification is
+the record's own business, and eight statements no test in `cmd` could reach came
+with them.
+
+`chargen/verify.go` — `Reproducible`
 
 ```go
-// policy_version is deliberately not among the checks: replay reapplies
-// recorded choices and never consults the policy, so a record made under
-// one policy replays under any other.
+// policy_version is deliberately not among the checks. Replay reapplies
+// recorded choices and never consults the policy, so a record made under one
+// policy replays under any other -- which is why PolicyVersion is recorded
+// and not verified.
 ```
 
 The setting hash, the schema version and the engine version are all checked;
-`--ignore-provenance` skips the lot.
+`--ignore-provenance` skips the lot. It is the provenance half of a replay: a
+refusal to try, as against a result.
 
-`cmd/cschargen/replay.go` — `compare`
+`chargen/verify.go` — `Verify`
 
 ```go
 	for i, want := range original.Events {
 		if i >= len(replayed.Events) {
-			return fmt.Errorf("%w: the replay ended after %d events; the record holds %d", ...)
+			return fmt.Errorf("%w: the replay ended after %d events; the record holds %d",
+				ErrDiverged, len(replayed.Events), len(original.Events))
 		}
 
-		got := replayed.Events[i]
-
-		difference := eventDifference(want, got)
+		difference := eventDifference(want, replayed.Events[i])
 		if difference != "" {
-			return fmt.Errorf("%w at event %d: %s", errDiverged, want.Seq, difference)
+			return fmt.Errorf("%w at event %d: %s", ErrDiverged, want.Seq, difference)
 		}
 	}
 ```
 
 Comparing logs rather than characters is deliberate: a divergence shows up in the log
 several events before it reaches the character, and the sequence number is what a person
-needs in order to find it. (The character-level check that follows is thinner than it
-looks — see the index.)
+needs in order to find it.
+
+The character-level check that follows used to be thinner than it looked. It ran on
+`Characteristics` alone — the only comparable struct in `State`, so `==` reached
+exactly as far as Go let it and the line was never revisited. A replay that lost
+three of Step 20's four fields reported "identical". `verifyState` now compares the
+whole character, through JSON rather than `reflect.DeepEqual`, because the two sides
+are not built the same way: one was decoded from a file and the other constructed.
 
 ---
 
@@ -1089,18 +1117,25 @@ worth knowing before you go reading:
 Findings from this pass, each filed as a GitHub issue and carried on the Workbench
 board. The issue is the durable reference; this table maps the sections above to it.
 
-| #   | Severity | Issue                                                                 | Primary location                                    |
-| --- | -------- | --------------------------------------------------------------------- | --------------------------------------------------- |
-| 1   | high     | #110 — Every record stamps `policy 0.3.1`; POLICY.md says it is 0.3.0 | `cmd/cschargen/version.go`, `POLICY.md:7`           |
-| 2   | low      | #126 — `isSet` and `given` are the same eight-line function, twice    | `cmd/cschargen/version.go`, `cmd/cschargen/warn.go` |
+| #   | Severity | Issue                                                                        | Primary location                                    |
+| --- | -------- | ---------------------------------------------------------------------------- | --------------------------------------------------- |
+| 1   | —        | #110 — fixed: POLICY.md declares the version a record stamps, held by a test | `chargen/character.go`, `POLICY.md:7`               |
+| 2   | —        | #126 — fixed: `isSet` and `given` are one function                           | `cmd/cschargen/version.go`, `cmd/cschargen/warn.go` |
 
-**Total: 2 issues (0 critical, 1 high, 0 medium, 1 low)**
+**Total: 2 issues (0 critical, 1 high, 0 medium, 1 low); both fixed since.**
 
-**Related existing findings.** The `code-theory` pass that preceded this one filed nine,
-several of which a reader of this document will meet: `compare` checks the whole log
-and one of twenty `State` fields (§8); `ERRATA.md` promises every applied
-reading is stamped and seven identifiers of forty-three ever are (§6) — #121, #111
-and #118 respectively. See [`THEORY.md`](THEORY.md)'s own index for all nine.
+**Related existing findings, all since closed.** The `code-theory` pass that preceded
+this one filed nine, several of which a reader of this document will meet. Where this
+document described them as faults, §8 and §6 now describe the engine as it is:
+`Verify` compares the whole character rather than one of twenty `State` fields
+(#111), and a record stamps the `ERRATA.md` entries that changed it — nineteen
+identifiers of forty-four, with the rest carrying a written reason and a gate holding
+both directions (#118, #129, #154). See [`THEORY.md`](THEORY.md)'s own index for all
+nine.
 
-Already tracked on GitHub: **#108**, the reserved word reaching generated output (§6);
+Also closed since: **#108**, the reserved word reaching generated output (§6);
 **#106**, a `Choice` gated on `Asker` being skipped on replay; **#104**.
+
+This document was regenerated for `v0.1.0-alpha.5`. It quotes the code by file and
+symbol, so it rots the moment one is renamed — `CLAUDE.md` records the cadence, and
+five of its thirty-nine snippets had drifted by this release.
