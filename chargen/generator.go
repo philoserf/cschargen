@@ -474,6 +474,10 @@ func (g *Generator) leaveCareer(cause int, why string) error {
 
 	g.service = serviceState{}
 
+	// The career's page ends with the career. Steps 9 and 10 set their own
+	// now, so nothing downstream reads what this used to leave behind.
+	g.cite = ""
+
 	// Not in serviceState, for the reason its doc comment gives: a pending
 	// transfer sets this before the career begins.
 	g.forcedTerms = 0
