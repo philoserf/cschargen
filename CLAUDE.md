@@ -45,23 +45,17 @@ The Go toolchain, golangci-lint, nilaway and prettier are deliberately unpinned:
 red gate on untouched code is the signal working — answer the finding rather than
 pinning the tool.
 
-Coverage is held by a **ratchet**, not a percentage: `coverage.ratchet` records the
-count of uncovered statements per package, and `task ratchet` diffs current counts
-against it, so the gate fails in both directions and on a package appearing or
-vanishing. An integer rather than a percentage because a percentage holds still
-while a guarded branch adds one covered statement and one uncovered, and it grows
-more forgiving as the repository grows. Reflowing blank lines splits coverage
-blocks, so a refactor can move these counts without changing what the tests reach
-— read the diff before assuming a regression.
+Coverage is held by a **ratchet**, not a percentage: `coverage.ratchet` records
+uncovered statements per package and the gate fails in both directions, and on a
+package appearing or vanishing. Reflowing blank lines splits coverage blocks, so a
+refactor can move these counts without changing what the tests reach — read the
+diff before assuming a regression. `task ratchet:update` is the writer.
 
 ## The Product Identity boundary
 
-The book declares its mechanics Open Game Content and declares as Product Identity
-"all subsector names, world maps, world names, system names, system maps, vehicle
-names, starship names, starship classes, artistic depictions of ships and vehicles,
-and organizations" (OGL §16, p. 335). The same notice singles out one further term
-— the book's word for a genetically engineered human — and says it too is not open
-content.
+The book's OGL notice (§16, p. 335) reserves every world, subsector, system, ship
+and organization name, and one further term: its word for a genetically engineered
+human.
 
 **No Product Identity is committed to this repository.** World names, subsector
 names and engineered-species names live in an external data file the user supplies;
@@ -71,9 +65,9 @@ mechanics rather than names.
 **That includes the word.** This repository says "engineered human" throughout —
 in its prose, its Go identifiers and its JSON keys — rather than the book's term,
 which the notice names. A data file is something a user types, and a key is a
-worse place to put a word we are not entitled to use than a comment is. The one
-place the term appears is `setting/setting_test.go`, in the list of strings that
-must never reach `sample.json`.
+worse place to put a word we are not entitled to use than a comment is.
+`setting/setting_test.go` holds the list of names that must never reach
+`sample.json`. The word is still in the tree in places it should not be: #108.
 
 This is a hard rule, not a preference. Before committing a table, ask whether it
 names a place, a person, a ship or an organization from the setting. If it does, it
@@ -90,14 +84,10 @@ that would otherwise compile.
 
 ## Key conventions
 
-- **Career definitions are hand-typed Go, not JSON.** Milestone 3 was filed to
-  decide whether they belonged in a data file and decided they do not, against
-  all thirty-four: a table result is a tree — a choice between two checks whose
-  success branches differ, a check whose success branch holds another check — and
-  that reads close to the page in Go and like nothing in JSON. The transcription
-  is the cost either way. The careers' shapes genuinely differ, too: National Navy
-  has nine skill tables and a commission, Vagabond has four and no enlistment
-  throw, and Go structs make that variance a compile error.
+- **Career definitions are hand-typed Go, not JSON.** Decided against a data file
+  across all thirty-four: a table result is a tree, which reads close to the page
+  in Go and like nothing in JSON, and the careers' shapes differ enough that Go
+  structs make the variance a compile error. `THEORY.md` has the argument.
 - **Every throw carries the page it came from.** A `ThrowEvent` without a cite is
   not auditable, which is the whole reason the log exists.
 - **The event log is written as rules run, never reconstructed afterward.**
@@ -154,8 +144,7 @@ repository's documents quote their own examples.
   are the careers a character is most often forced into.
 - **The slave career's name is not the book's.** The book heads pp. 150-154 with
   a term its OGL notice reserves, so this repository calls it
-  `Engineered/Uplift Slave`. That word appears here only in the test that keeps it
-  out.
+  `Engineered/Uplift Slave`.
 - **Rank benefits are a floor, not an increment** (p. 116). A rank row's skills
   go through `applyRankBenefits`, which raises a skill to the level the row
   prints and does nothing where the character is already there; everything else
@@ -177,11 +166,12 @@ repository's documents quote their own examples.
   requested its own outcome, and replay — which is handed the record's own
   inputs — then honoured the request instead of re-rolling. Every auto record
   diverged.
-- **A `Choice` cannot be gated on `Asker`.** `Replay` implements `Choose` and
-  not `Ask`, so a choice point gated that way is offered while generating and
-  skipped while replaying, and the recorded answer is never consumed. Gate on
-  `Inputs.Interactive`, which travels in the record. `Asker` is for Step 20,
-  whose answers live in `Inputs` and which replay does not re-ask.
+- **Nothing can be gated on `Asker`.** `Replay` implements `Choose` and not
+  `Ask`, so anything gated that way happens while generating and is skipped while
+  replaying. A `Choice` gated that way loses its recorded answer (#106); Step 20's
+  `Ask` answers survive only for the one of four written back to `Inputs` (#109).
+  Gate on `Inputs.Interactive`, which travels in the record, and put an answer in
+  `Inputs` if replay has to reproduce it.
 - **A flag whose zero is a legal value needs `flag.FlagSet.Visit`.** A plain int
   cannot tell an unset flag from one set to its zero value, which is how
   `--terms 0` came to mean the policy's four. `Visit` walks only the flags
