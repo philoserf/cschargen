@@ -92,3 +92,13 @@ const ErrNoHomeworldAdmitsThem = stringError(
 // character did. It is the abandoned session the Decider interface names,
 // and it ends generation rather than falling back on a default.
 const ErrPlayerGone = stringError("the player stopped answering")
+
+// ErrProvenance is a record this build cannot claim to reproduce, and
+// ErrDiverged is one whose re-run disagrees with what it says happened.
+// They are separate because the first is a refusal to try and the second is
+// a result: a caller that wants to replay anyway can ignore the one and
+// never the other.
+const (
+	ErrProvenance stringError = "this build did not write that record"
+	ErrDiverged   stringError = "replay diverged"
+)

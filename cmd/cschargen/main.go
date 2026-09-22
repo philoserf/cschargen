@@ -26,15 +26,6 @@ func main() {
 // "usage:" prefix the exit contract is read by.
 var errUsage = errors.New("usage")
 
-// errProvenance is a record this build cannot claim to reproduce, and
-// errDiverged is one whose re-run disagrees with what it says happened.
-// They are separate because the first is a refusal to try and the second
-// is a result.
-var (
-	errProvenance = errors.New("this build did not write that record")
-	errDiverged   = errors.New("replay diverged")
-)
-
 func usagef(format string, args ...any) error {
 	return fmt.Errorf("%w: %s", errUsage, fmt.Sprintf(format, args...))
 }
