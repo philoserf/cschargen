@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/philoserf/cschargen/chargen"
 )
 
 // capture runs the command with its output redirected to a temporary file
@@ -101,7 +103,7 @@ func TestVersionReportsWhatARecordStamps(t *testing.T) {
 		t.Fatalf("version: %v", err)
 	}
 
-	for _, want := range []string{"cschargen", "schema", "policy " + policyVersion, "Clement Sector"} {
+	for _, want := range []string{"cschargen", "schema", "policy " + chargen.PolicyVersion, "Clement Sector"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("version output does not mention %q:\n%s", want, out)
 		}

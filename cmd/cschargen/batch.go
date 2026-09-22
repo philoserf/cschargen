@@ -202,7 +202,7 @@ func generateBatch(
 			Seed:          seed,
 			Decider:       chargen.NewBatchPolicy(seed),
 			EngineVersion: version(),
-			PolicyVersion: policyVersion,
+			PolicyVersion: chargen.PolicyVersion,
 			Setting:       world,
 			Inputs:        inputs,
 		}).Run()

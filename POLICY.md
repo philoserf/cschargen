@@ -4,7 +4,7 @@ The auto-mode decision table. Every choice point the engine offers is
 resolved here when `--auto` is set, and `policy_version` in each record
 identifies which version of this document made the choices.
 
-Version: **0.3.0**
+Version: **0.3.2**
 
 ## The rule
 
