@@ -5,10 +5,22 @@ import (
 	"github.com/philoserf/cschargen/dice"
 )
 
+// careerChoiceCite is Step 9 and enlistmentCite is Step 10. They exist
+// because the consequences those steps log read g.cite, and between one
+// career and the next there is no career to have set it: without these the
+// record said a character was "accepted into Arts" on the pages of the
+// career that had just turned them down (#144).
+const (
+	careerChoiceCite = "p. 104"
+	enlistmentCite   = "p. 110"
+)
+
 // enterCareer is Steps 9 to 11 (pp. 104-112): choose a career, enlist in
 // it, and choose an assignment.
 func (g *Generator) enterCareer() error {
-	step := g.log.Step("Step 9: Choose a Career", "p. 104")
+	step := g.log.Step("Step 9: Choose a Career", careerChoiceCite)
+
+	g.cite = careerChoiceCite
 
 	chosen, forced, err := g.chooseCareer(step)
 	if err != nil {
@@ -227,7 +239,9 @@ const enlistmentLockoutTerms = 2
 
 // enlist is Step 10 (p. 110).
 func (g *Generator) enlist(target career.Career) bool {
-	step := g.log.Step("Step 10: Enlist in a Career", "p. 110")
+	step := g.log.Step("Step 10: Enlist in a Career", enlistmentCite)
+
+	g.cite = enlistmentCite
 
 	if target.Enlistment == nil {
 		g.consequence(ConsequenceCareer, step, target.EnlistmentNote, target.Name)
@@ -258,7 +272,7 @@ func (g *Generator) enlist(target career.Career) bool {
 	}
 
 	throw := g.dice.Throw(target.Enlistment.Number, mods...)
-	cause := g.log.Throw(throw, "p. 110")
+	cause := g.log.Throw(throw, enlistmentCite)
 
 	if throw.Success {
 		g.failedEnlistments = 0

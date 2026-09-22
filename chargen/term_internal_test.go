@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/philoserf/cschargen/career"
+	"github.com/philoserf/cschargen/dice"
 )
 
 // TestTheUnchoosableCareersAreNeverOffered holds the claim
@@ -145,4 +146,69 @@ func graduateBonus(target career.Career, held []career.Degree) (int, string) {
 	}
 
 	return total, label
+}
+
+// TestAnEnlistmentIsNotCitedToThePreviousTable is #144. g.cite is the page
+// the current table came from, and g.consequence stamps it onto everything
+// it writes. Nothing cleared it when a career or a school ended, so Steps 9
+// and 10 -- which happen with no career in hand -- wrote their consequences
+// under whatever had been read last: a character was "accepted into Arts" on
+// the pages of the career that had just turned them down, or on a graduate
+// school's.
+//
+// The leak was correct about half the time, whenever the stale table was the
+// one being talked about, which is what made it invisible to reading.
+func TestAnEnlistmentIsNotCitedToThePreviousTable(t *testing.T) {
+	t.Parallel()
+
+	gen := &Generator{
+		dice: dice.New(1),
+		log:  &Log{},
+		char: &Character{},
+	}
+
+	// A page from somewhere else entirely, as a career or a school would
+	// have left behind.
+	gen.cite = "pp. 86-91"
+
+	gen.enlist(career.Vagabond())
+
+	for _, event := range gen.log.Events() {
+		if event.Consequence == nil {
+			continue
+		}
+
+		if event.Consequence.Cite != enlistmentCite {
+			t.Errorf("a Step 10 consequence cites %q, want %q: %s",
+				event.Consequence.Cite, enlistmentCite, event.Consequence.Detail)
+		}
+	}
+}
+
+// TestLeavingACareerEndsItsPage holds the other half: the cite is cleared
+// where the career ends, so a step that forgets to name its own page writes
+// an empty one rather than a wrong one. An empty cite is a gap; a wrong one
+// is a claim.
+func TestLeavingACareerEndsItsPage(t *testing.T) {
+	t.Parallel()
+
+	gen := &Generator{
+		dice: dice.New(1),
+		log:  &Log{},
+		char: &Character{},
+	}
+
+	entered := career.Vagabond()
+
+	gen.service = serviceState{career: &entered}
+	gen.cite = entered.Cite
+
+	err := gen.leaveCareer(0, "testing")
+	if err != nil {
+		t.Fatalf("leaveCareer: %v", err)
+	}
+
+	if gen.cite != "" {
+		t.Errorf("the career's page outlived the career: %q", gen.cite)
+	}
 }
