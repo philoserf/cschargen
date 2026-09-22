@@ -323,7 +323,7 @@ func TestSkillByNameFindsNothingForAName(t *testing.T) {
 func TestEveryModifierNamesAThrowTheEngineTakes(t *testing.T) {
 	t.Parallel()
 
-	known := Throws()
+	known := throws()
 	seen := 0
 
 	for _, effect := range everyEffect() {

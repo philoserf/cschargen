@@ -1,6 +1,9 @@
 package career
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 // The constructors below exist so that a transcribed table reads as close
 // to the page as Go allows. They are the only way effects are built in this
@@ -896,7 +899,7 @@ const (
 	skillCheckThrow  = "a skill check"
 )
 
-// Throws is every name a modifier or an automatic may be filed under. The
+// throws is every name a modifier or an automatic may be filed under. The
 // engine consumes each of them at the throw it names, and
 // TestEveryModifierNamesAThrowTheEngineTakes holds the corpus to the list:
 // a result filed under a name nothing reads is a modifier that is recorded,
@@ -905,7 +908,7 @@ const (
 // It is a small list because the book has few throws. A result that wants
 // to narrow one -- "every advancement roll in a military career" -- says so
 // in the narrowing fields rather than in the name.
-func Throws() []string {
+func throws() []string {
 	return []string{
 		enlistmentThrow,
 		survivalThrow,
@@ -1179,28 +1182,8 @@ func unimplemented(detail string) Effect {
 	return Effect{Kind: EffectUnimplemented, Detail: detail}
 }
 
-// itoa avoids importing strconv into a package that is otherwise pure data.
-func itoa(n int) string {
-	if n == 0 {
-		return "0"
-	}
-
-	negative := n < 0
-	if negative {
-		n = -n
-	}
-
-	var digits []byte
-
-	for n > 0 {
-		digits = append([]byte{byte('0' + n%10)}, digits...)
-
-		n /= 10
-	}
-
-	if negative {
-		return "-" + string(digits)
-	}
-
-	return string(digits)
-}
+// itoa is strconv.Itoa under a shorter name, because these detail strings
+// are mostly concatenation and `+ itoa(n) +` reads better than the whole
+// package path. It was a hand-rolled implementation until #116: four times
+// slower, five allocations against none, and "-" for math.MinInt.
+func itoa(n int) string { return strconv.Itoa(n) }

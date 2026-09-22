@@ -1,6 +1,7 @@
 package career_test
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 
@@ -53,6 +54,13 @@ func TestTheBookIsFullyTranscribed(t *testing.T) {
 	}
 }
 
+// mishapRows is a 2d6 table's span and benefitRows is what every career's
+// Mustering Out Benefits table prints (p. 127).
+const (
+	mishapRows  = 11
+	benefitRows = 7
+)
+
 // TestEveryCareerHasItsPrintedShape is the completeness check. What is
 // invariant is narrower than "every career has
 // every table": a d66 event table has 36 entries, a 2d6 mishap table has
@@ -68,6 +76,18 @@ func TestEveryCareerHasItsPrintedShape(t *testing.T) {
 
 			if len(def.Events) != 36 {
 				t.Errorf("%d event rows, want 36", len(def.Events))
+			}
+
+			// Both of these are indexed by a raw die roll with no bounds
+			// check -- rollMishap reads Mishaps[roll-2] and benefitRoll
+			// reads Benefits[row-1] -- so a short table is a panic on a
+			// throw nobody made while writing it.
+			if len(def.Mishaps) != mishapRows {
+				t.Errorf("%d mishap rows, want %d (2d6)", len(def.Mishaps), mishapRows)
+			}
+
+			if len(def.Benefits) != benefitRows {
+				t.Errorf("%d benefit rows, want %d (p. 127)", len(def.Benefits), benefitRows)
 			}
 
 			for _, result := range career.D66Results() {
@@ -384,21 +404,8 @@ func TestEveryEffectCarriesDetail(t *testing.T) {
 	}
 }
 
-func itoa(n int) string {
-	if n == 0 {
-		return "0"
-	}
-
-	var out []byte
-
-	for n > 0 {
-		out = append([]byte{byte('0' + n%10)}, out...)
-
-		n /= 10
-	}
-
-	return string(out)
-}
+// itoa is strconv.Itoa under a shorter name, matching the package it tests.
+func itoa(n int) string { return strconv.Itoa(n) }
 
 // TestTheEnslavedPathsAreElevenRowTables. pp. 74 and 84 are 2d6 tables
 // where every other life-period path is a 2d10, and they share nine of
