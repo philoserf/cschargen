@@ -23,6 +23,14 @@ release turns out to be.
 
 ### Fixed
 
+- **`THEORY.md` carries the eight architectural commitments.** The refactoring
+  pass's "what not to change" list — the flat `Generator`, the single `apply`
+  switch, hand-typed careers, repeated literal cells, `Policy.Choose` taking the
+  first option, the three deciders not being peers, `render` computing nothing,
+  the unpinned toolchain — lived only in
+  [#130](https://github.com/philoserf/cschargen/issues/130), whose sequence has
+  now been followed. Section 5 already listed the actions that cause damage;
+  this is the commitments behind them, with their reasons.
 - **A torn coverage profile is named rather than counted.** `-coverpkg` makes
   six test binaries append to one `coverage.out`, and an interleaved write
   produced `gigithub.com/...` — a duplicated `gi` in one line of 22,140. The

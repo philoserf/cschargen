@@ -412,6 +412,42 @@ Now the other direction — **what would require rethinking something fundamenta
    fixture or a JSON key.
 7. Computing a number in `render` because the record does not carry it.
 
+### What not to change
+
+The list above is a list of actions. This one is the commitments behind them,
+and protecting these matters more than any plan that would touch them. It comes
+from the refactoring pass (#130), which closed having been followed; the
+reasons are the part worth keeping.
+
+- **The flat `Generator` outside the career subset.** Forty-eight fields looks
+  like a god object and mostly is not: the lifepath genuinely is a procedure
+  whose steps affect each other, and splitting the standing restrictions or the
+  pending-effect queues into their own types would add indirection to state that
+  has exactly one reader each.
+- **The single `apply` switch.** It is long on purpose. `exhaustive` with no
+  `default` is the mechanism that makes a new effect kind a compile error, and
+  splitting it would require a `default` between the halves.
+- **Hand-typed careers.** Decided against a data file across all thirty-four. A
+  table result is a tree, which reads close to the page in Go and like nothing
+  in JSON, and the careers' shapes genuinely differ. Do not revisit.
+- **Repeated literal cells in career tables.** `goconst` is scoped off `career/`
+  because collapsing a repeated cell into a constant is the coupling the second
+  independent transcription exists to prevent. This looks like duplication and
+  is the safety mechanism.
+- **`Policy.Choose` returning the first option.** Not a placeholder. It is a
+  rule a reader can check against the page, and a policy that optimised would
+  need an argument per choice point. A strategy belongs beside the policy as a
+  second decider, never inside it.
+- **The three deciders not being peers.** `Replay` deliberately implements
+  `Choose` and not `Ask`; that asymmetry is load-bearing, and the fix for the
+  two bugs around it was to gate on `Inputs.Interactive` and to put Step 20's
+  answers in `Inputs`, not to make `Replay` implement `Ask`.
+- **`render` computing nothing.** If a number is not in the record it does not
+  go on the sheet. Any proposal to derive something at render time is a proposal
+  to weaken the record.
+- **The unpinned toolchain.** A red gate on untouched code is the signal
+  working.
+
 ---
 
 ## 6. Where the theory is thin, and where the code disagrees with it
