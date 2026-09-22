@@ -53,7 +53,7 @@ func replayCommand(args []string, out *os.File) error {
 		Seed:          original.Provenance.RNG.Seed,
 		Decider:       chargen.NewReplay(original.Events),
 		EngineVersion: version(),
-		PolicyVersion: policyVersion,
+		PolicyVersion: chargen.PolicyVersion,
 		Setting:       world,
 		Inputs:        original.Provenance.Inputs,
 	}).Run()

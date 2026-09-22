@@ -26,6 +26,38 @@ var askedPoints = map[string]bool{
 	"return_to_education": true,
 }
 
+// versionPattern finds POLICY.md's own declaration of which version it is.
+var versionPattern = regexp.MustCompile(`(?m)^Version: \*\*(.+)\*\*$`)
+
+// TestPolicyDocumentSaysWhichVersionItIs. A record stamps PolicyVersion so
+// that a reader can look up the decisions that made the character. That only
+// works if the document at the other end says it is that version.
+//
+// It did not, for two releases. The constant was bumped to 0.3.1 in the pull
+// request that added two rows and the document's own line was left at 0.3.0;
+// then a later change rewrote the subsector row -- from "the first subsector
+// the file lists" to "a throw that misses is thrown again" -- and moved
+// neither. Both are the kind of drift a person cannot see and a four-line
+// test can.
+func TestPolicyDocumentSaysWhichVersionItIs(t *testing.T) {
+	t.Parallel()
+
+	doc, err := os.ReadFile(policyDoc)
+	if err != nil {
+		t.Fatalf("reading %s: %v", policyDoc, err)
+	}
+
+	found := versionPattern.FindStringSubmatch(string(doc))
+	if found == nil {
+		t.Fatalf("%s does not declare a version; the line reads `Version: **N.N.N**`", policyDoc)
+	}
+
+	if found[1] != PolicyVersion {
+		t.Errorf("%s says it is version %s, and a record stamps %s",
+			policyDoc, found[1], PolicyVersion)
+	}
+}
+
 // TestPolicyDocumentsEveryChoicePoint is POLICY.md's own rule, made a gate:
 // "Rows are added as the engine reaches the choice points, in the PR that
 // reaches them. A row here and no code is as wrong as code and no row."

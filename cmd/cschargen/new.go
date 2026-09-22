@@ -216,7 +216,7 @@ func newCommand(args []string, out *os.File) error {
 		Seed:          seed,
 		Decider:       decider(*flags.auto),
 		EngineVersion: version(),
-		PolicyVersion: policyVersion,
+		PolicyVersion: chargen.PolicyVersion,
 		Setting:       world,
 		Inputs:        inputs,
 	}).Run()

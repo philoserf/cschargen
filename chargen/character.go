@@ -16,6 +16,22 @@ const SchemaVersion = 2
 // against the edition it was read from.
 const Ruleset = "Clement Sector Core Character Creation Book, (c) 2026 Independence Games"
 
+// PolicyVersion identifies POLICY.md, the auto-mode decision table, and is
+// the third of the three strings a record stamps. It is here with the other
+// two because it describes the record rather than the command: a different
+// policy is a different character from the same seed.
+//
+// Bump it when POLICY.md changes. 0.3.2 is the change that showed why the
+// rule needs a gate rather than a habit -- the subsector row moved from
+// "take the first subsector the file lists" to "a throw that misses is
+// thrown again", which is a different character from the same seed against
+// a file with choose-only subsectors, and neither this constant nor the
+// document's own version line moved with it.
+//
+// Options.PolicyVersion still carries it into a record, because the tests
+// stamp a version of their own rather than claiming a real build's.
+const PolicyVersion = "0.3.2"
+
 // RNG records how the dice were driven, so that a record made under one
 // generator is not silently replayed under another.
 type RNG struct {
