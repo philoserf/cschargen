@@ -1,5 +1,7 @@
 # cschargen
 
+![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange.svg)
+
 A Go CLI that generates rules-accurate Clement Sector characters.
 
 Ruleset baseline: **_Clement Sector Core Character Creation Book_**, © 2026
