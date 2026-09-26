@@ -9,15 +9,12 @@ import (
 	"github.com/philoserf/cschargen/chargen"
 )
 
-// lifepath generates a whole character: characteristics, then terms.
-// lifepath is a generated character, kept so that the sweeps below share
-// one rather than each walking their own.
+// lifepath generates a whole character, characteristics then terms, and
+// keeps it so the sweeps below share one rather than each walking their own.
 //
 // A character is a pure function of its seed, term limit, setting and
-// decider, and lifepath fixes all four -- so two sweeps asking for the same
-// pair are asking for the same character. Thirty-two call sites ask for
-// seven distinct term counts, so the suite used to walk 1,860 lifepaths to
-// see 420 characters.
+// decider, and lifepath fixes all four, so two sweeps asking for the same
+// seed and term limit are asking for the same character.
 //
 // Nothing writes to one: every use of a generated character in these tests
 // reads it. A test that needs to modify one should build it with options()
