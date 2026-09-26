@@ -30,13 +30,13 @@ out; it is not for where the book is merely awkward. A referee who wants a
 different outcome has the setting file: `birthSituationOnly` bars a birth situation
 world by world, which is where a setting's own preferences belong.
 
-`THEORY.md` and `WALKTHROUGH.md` are standing documents on **different cadences**,
-and treating them as one thing gets both wrong. `THEORY.md` is about intent — the
+`THEORY.md` and `WALKTHROUGH.md` are standing documents brought current **at
+release time, in one pass**, never per change. `THEORY.md` is about intent — the
 record is the deliverable, `Inputs` is what was asked for and `State` is what
-happened — and those claims outlive the code expressing them, so change it when a
-decision invalidates one, never because a function moved. `WALKTHROUGH.md` quotes
-forty snippets by file and symbol and rots the moment one is renamed, so do not
-patch it per change: **regenerate it at release time**. Neither is checked by
+happened — and those claims outlive the code expressing them, so the release pass
+revises it only where a decision has invalidated one, never because a function
+moved. `WALKTHROUGH.md` quotes forty snippets by file and symbol and rots the
+moment one is renamed, so the release pass **regenerates it**. Neither is checked by
 anything — `POLICY.md` has a test holding it to the engine in both directions and
 these have no equivalent — which is why the cadence is written down rather than
 left to judgement.
@@ -77,7 +77,7 @@ in its prose, its Go identifiers and its JSON keys — rather than the book's te
 which the notice names. A data file is something a user types, and a key is a
 worse place to put a word we are not entitled to use than a comment is.
 `setting/setting_test.go` holds the list of names that must never reach
-`sample.json`. The word is still in the tree in places it should not be: #108.
+`sample.json`.
 
 This is a hard rule, not a preference. Before committing a table, ask whether it
 names a place, a person, a ship or an organization from the setting. If it does, it
@@ -127,7 +127,7 @@ Versions are prereleases until something has been played: `v0.1.0-alpha.N`. Two
 other version strings ship in every record and move independently of the tag:
 
 - `chargen.SchemaVersion`, which a record stamps and a replay refuses to cross.
-- `policyVersion` in `cmd/cschargen/version.go`, which identifies `POLICY.md`.
+- `chargen.PolicyVersion` in `chargen/character.go`, which identifies `POLICY.md`.
   **Bump it when that document changes**, because a different policy is a
   different character from the same seed.
 
