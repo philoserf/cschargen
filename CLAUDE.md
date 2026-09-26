@@ -110,11 +110,10 @@ the work lands, and **the release pass rewrites them** into whatever the release
 turns out to be — a bullet written while the reasoning is fresh costs nothing, and a
 narrative reconstructed three weeks later costs a reading of the diff. **The tag
 goes last**, after the gate is green and the README's Status section says what the
-release actually is — that section went stale for five milestones and was caught
-only at the first release. `WALKTHROUGH.md` is regenerated in that same pass, for the
-same reason, and `task issue-refs` runs in it — a comment citing a closed issue
-is usually history and occasionally a claim that the code below it is broken,
-and only a person can tell which.
+release actually is — nothing else checks that section. `WALKTHROUGH.md` is
+regenerated in that same pass, for the same reason, and `task issue-refs` runs in
+it — a comment citing a closed issue is usually history and occasionally a claim
+that the code below it is broken, and only a person can tell which.
 
 **The Go API is not a compatibility surface while the version is a prerelease**,
 which README's Status section states for a reader who arrives from `go get`. An
@@ -153,8 +152,8 @@ repository's documents quote their own examples.
   different engine branches on every run — and the ratchet then disagrees between
   a developer's machine and CI for no reason anyone can see. A test that needs an
   unpredictable seed should ask for no terms at all, which generates
-  characteristics and stops. `--terms 0` says that since alpha.4; `--terms -1`
-  is the older spelling and still works, which is why the tests still use it.
+  characteristics and stops. `--terms 0` says that; `--terms -1` is accepted
+  too, and the tests use it.
 - **`d66` is one throw, not two d6 rolls.** The results are 11-16, 21-26 … 61-66,
   so no digit is 0 or above 6. Reading it as 2d6 would collapse thirty-six results
   onto eleven.
@@ -183,30 +182,27 @@ repository's documents quote their own examples.
   second of them, standing in for a world the setting file does not have.
 - **`Inputs` is what was asked for; `State` is what happened.** `Inputs.Career`
   keeps the career asked for beside the career served, and `Inputs.Homeworld`
-  keeps the world asked for beside `State.Homeworlds`. Writing a result back
-  into `Inputs` made a finished record indistinguishable from one that had
+  keeps the world asked for beside `State.Homeworlds`. A result written back
+  into `Inputs` makes a finished record indistinguishable from one that
   requested its own outcome, and replay — which is handed the record's own
-  inputs — then honoured the request instead of re-rolling. Every auto record
-  diverged.
+  inputs — then honours the request instead of re-rolling.
 - **Nothing can be gated on `Asker`.** `Replay` implements `Choose` and not
   `Ask`, so anything gated that way happens while generating and is skipped while
-  replaying. It went wrong twice: a `Choice` gated that way lost its recorded
-  answer and every choice after it read the wrong index, and Step 20's `Ask`
-  answers survived only for the one of four written back to `Inputs`. Gate on
-  `Inputs.Interactive`, which travels in the record, and put an answer in
+  replaying — its recorded answer is lost and replay drifts from the record. Gate
+  on `Inputs.Interactive`, which travels in the record, and put an answer in
   `Inputs` if replay has to reproduce it. `askFinishing` holds the one
   legitimate assertion, because it needs the `Ask` method itself rather than a
   mode.
 - **A flag whose zero is a legal value needs `flag.FlagSet.Visit`.** A plain int
-  cannot tell an unset flag from one set to its zero value, which is how
-  `--terms 0` came to mean the policy's four. `Visit` walks only the flags
-  given. `--max-terms` does not need it: the validator refuses a world with a
+  cannot tell an unset flag from one set to its zero value, so `--terms 0`
+  would read as the policy's four. `Visit` walks only the flags given.
+  `--max-terms` does not need it: the validator refuses a world with a
   maximum of zero terms, so zero there is free to mean absent.
 - **A bound a flag and the data format share is one exported constant.**
   `setting.MaxTechLevel` and `setting.MaxTerms` are exported because
   `--tech-level` and `--max-terms` override a world's own numbers and have to be
-  held to the range a world's numbers are held to. Two copies of a bound is how
-  the flag came to take what the file refused.
+  held to the range a world's numbers are held to. Two copies of a bound drift,
+  and the flag then takes what the file refuses.
 - **Being owned is not permanent.** p. 42 makes the slave career an enslaved
   character's first, and three results in the early life tables end an
   enslavement outright, continuing the character as a free engineered human or
@@ -217,9 +213,9 @@ repository's documents quote their own examples.
   chart is a 1d6 and a setting file may name fewer than six subsectors. Throwing
   again keeps the chart's weighting; turning the miss into a choice hands it to
   the policy, which answers with the first subsector the file lists.
-- **`lifepath` in the tests keeps what it makes.** Thirty-two call sites sweep
-  the same seeds at seven term counts, so the suite walked 1,860 lifepaths to
-  see 420 characters. A character is a pure function of its seed, term limit,
-  setting and decider, and nothing in the tests writes to one — so a test that
-  needs to modify a character builds its own with `options()` and `generate()`,
-  which is what the tests taking a different decider already do.
+- **`lifepath` in the tests keeps what it makes.** The sweeps call it with the
+  same seeds at several term counts, and a character is a pure function of its
+  seed, term limit, setting and decider, so every caller with the same seed and
+  term limit gets the same `*Character`. A test that needs to modify a character
+  builds its own with `options()` and `generate()`, which is what the tests
+  taking a different decider already do.
