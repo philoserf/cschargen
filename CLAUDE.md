@@ -49,9 +49,7 @@ Iterate with `go test ./chargen/ -run TestName` — plain, no flags. A subset ru
 writes no coverage profile, so it cannot move the ratchet; `task test` is the only
 thing that should write `coverage.out`.
 
-**CI runs exactly `task`.** Never add a check to CI that the local gate does not
-run, and never add a tool to the gate without also installing it in the workflow.
-The Go toolchain, golangci-lint, nilaway and prettier are deliberately unpinned: a
+**The gate is `task`.** The Go toolchain, golangci-lint, nilaway and prettier are deliberately unpinned: a
 red gate on untouched code is the signal working — answer the finding rather than
 pinning the tool.
 
