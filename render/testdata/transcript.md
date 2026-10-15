@@ -1,6 +1,6 @@
 # Lifepath: Vela Ashgrove
 
-Seed 7, 187 events.
+Seed 7, 192 events.
 
 
 ## Step 1: Choose Human, Engineered Human, or Uplift (p. 21)
@@ -165,95 +165,100 @@ Seed 7, 187 events.
 -  125  -> mishap: injured [career, from 124]
 -  126  throw  1d6 [1] = 1  (p. 119)
 -  127  -> nearly killed [injury, from 126]
--  128  -> reduce one physical characteristic by 1d6, and the other two by 2 each (or one of them by 4) [unimplemented, from 126]
+-  128  choice Which physical characteristic took the worst of it: DEX (policy)
+-  129  throw  1d6 [6] = 6  (p. 119)
+-  130  -> lose 1d6 DEX [characteristic, from 128]
+-  131  choice What the other two took: STR and END by 2 each (policy)
+-  132  -> -2 STR [characteristic, from 131]
+-  133  -> -2 END [characteristic, from 131]
 
 ## Step 17: Aging (p. 121)
 
--  130  -> age 23 [age, from 129]
+-  135  -> age 23 [age, from 134]
 
 ## Step 18: Determining the Next Term (p. 125)
 
 
 ## Step 12: Roll for Survival (p. 112)
 
--  133  throw  2d6 [6 5] = 11 +0(END) vs 8+ -- made it  (p. 112)
+-  138  throw  2d6 [5 4] = 9 +0(END) vs 8+ -- made it  (p. 112)
 
 ## Step 14: Roll for Advancement (p. 114)
 
--  135  throw  2d6 [4 1] = 6 +1(INT) vs 8+ -- failed  (p. 115)
+-  140  throw  2d6 [1 4] = 6 +1(INT) vs 8+ -- failed  (p. 115)
 
 ## Step 15: Roll for Skills (p. 117)
 
--  137  choice Choose a skill table to roll on: Personal Development (policy)
--  138  throw  1d6 [4] = 4  (p. 117)
--  139  -> +1 INT [characteristic, from 138]
+-  142  choice Choose a skill table to roll on: Personal Development (policy)
+-  143  throw  1d6 [4] = 4  (p. 117)
+-  144  -> +1 INT [characteristic, from 143]
 
 ## Step 16: Roll for Events (p. 118)
 
--  141  throw  d66 [4 3] = 43  (p. 118)
--  142  -> event: a game of dice among the locals [career, from 141]
--  143  -> Gambler 1 [skill, from 141]
+-  146  throw  d66 [3 5] = 35  (p. 118)
+-  147  -> event: life event [career, from 146]
+-  148  throw  2d6 [6 2] = 8  (p. 120)
+-  149  -> life event: dissatisfaction with your career [career, from 148]
+-  150  -> -2 to the next advancement roll [modifier, from 148]
+-  151  -> +2 to the next enlistment attempt [modifier, from 148]
 
 ## Step 17: Aging (p. 121)
 
--  145  -> age 27 [age, from 144]
+-  153  -> age 27 [age, from 152]
 
 ## Step 18: Determining the Next Term (p. 125)
 
 
 ## Step 12: Roll for Survival (p. 112)
 
--  148  throw  2d6 [5 6] = 11 +0(END) vs 8+ -- made it  (p. 112)
+-  156  throw  2d6 [5 3] = 8 +0(END) vs 8+ -- made it  (p. 112)
 
 ## Step 14: Roll for Advancement (p. 114)
 
--  150  throw  2d6 [2 5] = 8 +1(INT) vs 8+ -- made it  (p. 115)
--  151  -> advanced to rank 1 in Destitute [rank, from 150]
--  152  -> add a stash to the stash [stash, from 150]
+-  158  throw  2d6 [5 1] = 5 -2(-2 to the next advancement roll) +1(INT) vs 8+ -- failed  (p. 115)
 
 ## Step 15: Roll for Skills (p. 117)
 
--  154  choice Choose a skill table to roll on: Personal Development (policy)
--  155  throw  1d6 [3] = 3  (p. 117)
--  156  -> +1 END [characteristic, from 155]
+-  160  choice Choose a skill table to roll on: Personal Development (policy)
+-  161  throw  1d6 [2] = 2  (p. 117)
+-  162  -> +1 DEX [characteristic, from 161]
 
 ## Step 16: Roll for Events (p. 118)
 
--  158  throw  d66 [5 1] = 51  (p. 118)
--  159  -> event: you locate some money [career, from 158]
--  160  throw  1d6 [2] = 2  (pp. 296-300)
--  161  -> gain 1d6x100 credits [credits, from 158]
+-  164  throw  d66 [4 6] = 46  (p. 118)
+-  165  -> event: it is often best not to be seen or heard [career, from 164]
+-  166  -> Stealth 1 [skill, from 164]
 
 ## Step 17: Aging (p. 121)
 
--  163  -> age 31 [age, from 162]
--  164  -> apparent age 20-25 [age, from 162]
+-  168  -> age 31 [age, from 167]
+-  169  -> apparent age 20-25 [age, from 167]
 
 ## Step 18: Determining the Next Term (p. 125)
 
--  166  -> left the Vagabond career: character generation ended [career, from 165]
+-  171  -> left the Vagabond career: character generation ended [career, from 170]
 
 ## Step 19: Muster Out (p. 126)
 
--  168  choice Choose a mustering out table for Vagabond: Cash (policy)
--  169  throw  1d6 [4] = 4  (p. 127)
--  170  -> mustering out of Vagabond: 0 credits [credits, from 169]
--  171  choice Choose a mustering out table for Vagabond: Cash (policy)
--  172  throw  1d6 [6] = 6  (p. 127)
--  173  -> mustering out of Vagabond: 1000 credits [credits, from 172]
--  174  choice Choose a mustering out table for Vagabond: Cash (policy)
--  175  throw  1d6 [4] = 4  (p. 127)
--  176  -> mustering out of Vagabond: 0 credits [credits, from 175]
--  177  choice Choose a mustering out table for Vagabond: Other Benefits (policy)
--  178  throw  1d6 [2] = 2  (p. 127)
--  179  -> mustering out of Vagabond: nothing [benefit_rolls, from 178]
--  180  choice Choose a mustering out table for Vagabond: Other Benefits (policy)
--  181  throw  1d6 [3] = 3  (p. 127)
--  182  -> +1 END [characteristic, from 181]
--  183  choice Choose a mustering out table for Vagabond: Other Benefits (policy)
--  184  throw  1d6 [6] = 6  (p. 127)
--  185  -> gain 1 ally [relationship, from 184]
+-  173  choice Choose a mustering out table for Vagabond: Cash (policy)
+-  174  throw  1d6 [4] = 4  (p. 127)
+-  175  -> mustering out of Vagabond: 0 credits [credits, from 174]
+-  176  choice Choose a mustering out table for Vagabond: Cash (policy)
+-  177  throw  1d6 [2] = 2  (p. 127)
+-  178  -> mustering out of Vagabond: 0 credits [credits, from 177]
+-  179  choice Choose a mustering out table for Vagabond: Cash (policy)
+-  180  throw  1d6 [3] = 3  (p. 127)
+-  181  -> mustering out of Vagabond: 0 credits [credits, from 180]
+-  182  choice Choose a mustering out table for Vagabond: Other Benefits (policy)
+-  183  throw  1d6 [6] = 6  (p. 127)
+-  184  -> gain 1 ally [relationship, from 183]
+-  185  choice Choose a mustering out table for Vagabond: Other Benefits (policy)
+-  186  throw  1d6 [1] = 1  (p. 127)
+-  187  -> mustering out of Vagabond: nothing [benefit_rolls, from 186]
+-  188  choice Choose a mustering out table for Vagabond: Other Benefits (policy)
+-  189  throw  1d6 [2] = 2  (p. 127)
+-  190  -> mustering out of Vagabond: nothing [benefit_rolls, from 189]
 
 ## Step 20: Finishing Touches (pp. 129-130)
 
--  187  -> finishing touches recorded [finishing, from 186]
+-  192  -> finishing touches recorded [finishing, from 191]

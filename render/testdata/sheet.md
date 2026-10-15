@@ -23,17 +23,17 @@ The youngest child.
 
 | STR | DEX | END | INT | EDU | CHA |
 | --- | --- | --- | --- | --- | --- |
-| 9 (+1) | 10 (+1) | 10 (+1) | 10 (+1) | 10 (+1) | 9 (+1) |
+| 7 (+0) | 5 (-1) | 6 (+0) | 10 (+1) | 10 (+1) | 9 (+1) |
 
 ## Skills
 
-Admin-1, Advocate (Legal)-1, Carouse-0, Electronics-0, Gambler-1, Melee (Blade)-1, Persuade-0, Recon-1, Stealth-0, Streetwise-0, Survival-0, Survival (Barren)-1
+Admin-1, Advocate (Legal)-1, Carouse-0, Electronics-0, Melee (Blade)-1, Persuade-0, Recon-1, Stealth-1, Streetwise-0, Survival-0, Survival (Barren)-1
 
 ## Career history
 
 | Career | Assignment | Terms | Rank | Left because |
 | ------ | ---------- | ----- | ---- | ------------ |
-| Vagabond | Destitute | 3 | 1 | character generation ended |
+| Vagabond | Destitute | 3 | 0 | character generation ended |
 
 ## Relationships
 
@@ -48,10 +48,6 @@ Admin-1, Advocate (Legal)-1, Carouse-0, Electronics-0, Gambler-1, Melee (Blade)-
 - Allies: 9 (100 x6, 125 x3)
 
 ## Belongings and injuries
-
-**Credits**: 1200
-
-**Stash**: a stash
 
 - Term 0: nearly killed (permanent)
 

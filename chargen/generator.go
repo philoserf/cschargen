@@ -61,6 +61,13 @@ type serviceState struct {
 	mustContinue        bool
 	mayChangeAssignment bool
 	ejected             bool
+
+	// ejectedBy is what Step 18 records the career as ending for. A mishap
+	// ejects, and so does an event that ends the career without naming the
+	// next one -- Prisoner event 64 releases a character who was wrongly
+	// accused (pp. 265-268) -- and a record calling the second a mishap
+	// contradicts p. 263, which says no Prisoner mishap ejects.
+	ejectedBy string
 }
 
 // Generator walks the twenty steps of character creation. One run produces
@@ -378,7 +385,7 @@ func (g *Generator) nextTerm() error {
 
 	switch {
 	case g.service.ejected:
-		return g.leaveCareer(step, "ejected by a mishap")
+		return g.leaveCareer(step, g.service.ejectedBy)
 	case g.transfer != nil:
 		return g.leaveCareer(step, "sent to another career by a table result")
 	case g.forcedTerms > 0 && g.service.termsInCareer >= g.forcedTerms:

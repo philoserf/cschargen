@@ -25,12 +25,19 @@ const (
 // selections are the same question asked several times, and a player
 // answering the fifth cannot otherwise tell it from the first. They are
 // engine-provided context, not part of the printed rule.
+//
+// Scores is engine-provided context too. Where every option is a loss from
+// a different characteristic -- "reduce any one physical characteristic by
+// 2" (p. 119) -- it holds, option by option, the score each would take the
+// loss from, and is nil everywhere else. It is not part of the question:
+// replay does not compare it, and a record does not keep it.
 type Choice struct {
 	Point   string // stable identifier, e.g. "assign_characteristics"
 	Prompt  string
 	Options []string
 	Cite    string
 	Nth, Of int
+	Scores  []int
 }
 
 // Decider resolves choice points. Every choice in the engine goes through
@@ -76,12 +83,31 @@ func (Policy) Kind() DeciderKind { return DeciderPolicy }
 // Choose takes the first option. Every table in the book prints its options
 // in a fixed order, so "first listed" is a rule a reader can check rather
 // than a preference.
+//
+// The one exception is a loss the character chooses where to take. Taking
+// it from the first characteristic printed takes it from STR every time,
+// and a character who is injured three times in twelve terms reaches 0 --
+// which p. 14 calls "an extreme limitation" and asks a Referee to step in
+// before. So a loss comes out of the highest score it could, and a tie goes
+// to the first printed. POLICY.md has the argument.
 func (Policy) Choose(c Choice) (int, error) {
 	if len(c.Options) == 0 {
 		return 0, fmt.Errorf("%w: %s", ErrNoOptions, c.Point)
 	}
 
-	return 0, nil
+	if len(c.Scores) != len(c.Options) {
+		return 0, nil
+	}
+
+	highest := 0
+
+	for i, score := range c.Scores {
+		if score > c.Scores[highest] {
+			highest = i
+		}
+	}
+
+	return highest, nil
 }
 
 // Replay reapplies the choices a record already holds, in order. It decides

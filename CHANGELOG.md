@@ -23,6 +23,25 @@ release turns out to be.
   recorded as the specialty taken, so a master's raises the same one. ERRATA E-45
   has what the pages leave open. A record written before this will not replay
   ([#165](https://github.com/philoserf/cschargen/issues/165)).
+- The Injury table's two worst rows now do what p. 119 says. "Nearly killed"
+  takes 1d6 from one physical characteristic and 2 from each of the other two
+  (or 4 from one of them); "severely injured" takes 1d6 from one. Both were
+  recorded as unimplemented, so a character nearly killed walked away unmarked —
+  355 of the 776 unimplemented results in 400 twelve-term characters, none now.
+  An injury's throws and consequences now cite p. 119 rather than the career
+  page that sent the character there. A record written before this that reached
+  either row will not replay
+  ([#164](https://github.com/philoserf/cschargen/issues/164)).
+- The auto policy takes a loss the character places from their highest
+  characteristic rather than the first printed, which was STR every time
+  (policy 0.4.0). p. 14 asks for a characteristic at 0 to be headed off, and
+  with the Injury table's 1d6 rows in, first-printed left 68 STR scores at 0 or
+  1 in 400 characters; the new rule leaves 24, and characters with any
+  characteristic at 0 or 1 fall from 100 to 82. POLICY.md's Losses section has
+  the argument (part of [#172](https://github.com/philoserf/cschargen/issues/172)).
+- A career ended by an event that does not name the next one — Prisoner event
+  64's release — is now recorded as "a table result ended the career", not
+  "ejected by a mishap", which p. 263 says no Prisoner mishap does.
 
 ## v0.1.0-alpha.5 — 2026-09-22
 

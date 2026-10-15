@@ -15,12 +15,19 @@ func Injury() [6]MishapRow {
 	return [6]MishapRow{
 		{
 			Summary: "nearly killed",
-			Effects: []Effect{unimplemented(
-				"reduce one physical characteristic by 1d6, and the other two by 2 each (or one of them by 4)")},
+			Effects: []Effect{pick("which physical characteristic took the worst of it",
+				opt("STR", chrRolled("STR", "1d6", false), otherTwo("DEX", "END")),
+				opt("DEX", chrRolled("DEX", "1d6", false), otherTwo("STR", "END")),
+				opt("END", chrRolled("END", "1d6", false), otherTwo("STR", "DEX")),
+			)},
 		},
 		{
 			Summary: "severely injured",
-			Effects: []Effect{unimplemented("reduce one physical characteristic by 1d6")},
+			Effects: []Effect{pick("which physical characteristic took it",
+				opt("STR", chrRolled("STR", "1d6", false)),
+				opt("DEX", chrRolled("DEX", "1d6", false)),
+				opt("END", chrRolled("END", "1d6", false)),
+			)},
 		},
 		{
 			Summary: "heavily injured: an eye or a limb is gone",
@@ -197,4 +204,16 @@ func MilitaryEvents() MishapTable {
 			Effects: []Effect{throwModifier("next advancement roll", 2)},
 		},
 	}
+}
+
+// otherTwo is the second half of the Injury table's first row: "Reduce other
+// physical characteristics by 2 (or one of them by 4)" (p. 119). The two
+// characteristics are whichever the 1d6 did not land on, and the choice is
+// the page's own -- both by 2, or either one by 4.
+func otherTwo(first, second string) Effect {
+	return pick("what the other two took",
+		opt(first+" and "+second+" by 2 each", chr(first, -2), chr(second, -2)),
+		opt(first+" by 4", chr(first, -4)),
+		opt(second+" by 4", chr(second, -4)),
+	)
 }
