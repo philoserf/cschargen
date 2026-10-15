@@ -195,6 +195,12 @@ type Generator struct {
 	// will admit the character, which two graduate-track failures impose.
 	educationClosedUntil int
 
+	// onSkillTable is set while a skill table's result is being applied --
+	// Step 15's roll, or a result that sends the character to one -- which
+	// is where p. 118 governs an "(Any)" result. Everywhere else the book
+	// gives "(Any)" no rule of its own (ERRATA E-45).
+	onSkillTable bool
+
 	homeworldTerms  int
 	maximumAge      int
 	primaryLanguage string

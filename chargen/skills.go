@@ -261,3 +261,144 @@ func (g *Generator) adjustSentence(effect career.Effect, cause int) {
 	g.consequence(ConsequenceCareer, cause,
 		effect.Detail+": "+itoa(g.forcedTerms-g.service.termsInCareer)+" terms left", g.service.career.Name)
 }
+
+// pointSkillSpecialty is the choice of a specialty, from a printed list or
+// from the skill's own where a result writes "(Any)". Three places ask it.
+const pointSkillSpecialty = "skill_specialty"
+
+// anySpecialty is what a table writes where it names a skill and leaves the
+// specialty to the character: "Electronics (Any)".
+const anySpecialty = "Any"
+
+// isAny reports whether a skill result leaves its specialty to the
+// character.
+func isAny(effect career.Effect) bool {
+	return len(effect.Specialties) == 1 && effect.Specialties[0] == anySpecialty
+}
+
+// grantAny resolves "(Any)" outside a rank row, which p. 118 says how to do
+// for a skill table's result:
+//
+//	"the character may choose to add a level to any specialty under that
+//	skill. They may choose to add a level to a skill specialty that they
+//	already have or add a new specialty ... If the character does not
+//	already have the skill listed, it is added to the character sheet as a
+//	zero level skill without a specialty."
+//
+// So the choice is every specialty the skill has, held or not, and a
+// character without the skill gets it bare at level 0 instead. A grant at
+// level 0 -- "Gain Drive (Any) at level 0" -- is that same bare entry,
+// because a level-0 skill has no specialty to name.
+//
+// The book gives "(Any)" no other rule outside a rank row, so an event's,
+// a degree's or a youth path's is resolved the same way, with the one
+// difference ERRATA E-45 records: away from a skill table the level is
+// granted as printed, which is what the engine does for every other skill
+// a result names, and the level-0 sentence is read as p. 118's own.
+func (g *Generator) grantAny(effect career.Effect, level, cause int) (Skill, error) {
+	if !g.onSkillTable {
+		g.char.Provenance.Deviate("E-45")
+	}
+
+	held := g.char.State.Has(effect.Skill)
+
+	if level == 0 || (g.onSkillTable && !held) {
+		if held && level == 0 {
+			g.consequence(ConsequenceSkill, cause,
+				effect.Detail+": the character already holds "+effect.Skill, "")
+
+			return Skill{Name: effect.Skill}, nil
+		}
+
+		return g.gainSkill(effect.Skill, "", 0, cause), nil
+	}
+
+	options := g.specialtiesOf(effect.Skill)
+	if len(options) == 0 {
+		g.unimplemented(cause, effect.Detail+" -- the setting names no language to learn (p. 41)")
+
+		return Skill{Name: effect.Skill}, nil
+	}
+
+	specialty, err := g.chooseAny(effect.Skill, options, skillStepCite)
+	if err != nil {
+		return Skill{}, err
+	}
+
+	return g.gainSkill(effect.Skill, specialty, level, cause), nil
+}
+
+// chooseAny puts an "(Any)" to the decider. It is the same question as a
+// printed list of specialties, so it is the same choice point.
+func (g *Generator) chooseAny(skill string, options []string, cite string) (string, error) {
+	if len(options) == 1 {
+		return options[0], nil
+	}
+
+	chosen, err := g.choose(Choice{
+		Point:   pointSkillSpecialty,
+		Prompt:  "Choose a specialty for " + skill + " (Any)",
+		Options: options,
+		Cite:    cite,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return options[chosen], nil
+}
+
+// specialtiesOf is what "(Any)" chooses from: the specialties pp. 304-314
+// print beneath the skill, in that order, then any the character holds that
+// the list does not print -- Science and Trade print examples, "by no means
+// a full list".
+//
+// Language prints none. Its specialties are "any language which can be
+// chosen as a primary language", which is the setting's to say, and the
+// character's own is not one: "the Language specialty chosen for the skill
+// must be different from the character's Primary Language" (p. 41). ERRATA
+// E-45 reads the setting's primary languages as the list.
+func (g *Generator) specialtiesOf(name string) []string {
+	var options []string
+
+	if definition, found := career.SkillByName(name); found {
+		options = slices.Clone(definition.Specialties)
+	}
+
+	if name == "Language" {
+		g.char.Provenance.Deviate("E-45")
+
+		options = g.languagesOfTheSetting()
+	}
+
+	for _, held := range g.char.State.Skills {
+		if held.Name == name && held.Specialty != "" && !slices.Contains(options, held.Specialty) {
+			options = append(options, held.Specialty)
+		}
+	}
+
+	return options
+}
+
+// languagesOfTheSetting is every primary language the setting's worlds
+// list, in the order the file lists them and without repeats, less the
+// character's own.
+func (g *Generator) languagesOfTheSetting() []string {
+	var languages []string
+
+	if g.setting == nil {
+		return languages
+	}
+
+	for _, subsector := range g.setting.Subsectors {
+		for _, world := range subsector.Worlds {
+			for _, language := range world.PrimaryLanguages {
+				if language != g.primaryLanguage && !slices.Contains(languages, language) {
+					languages = append(languages, language)
+				}
+			}
+		}
+	}
+
+	return languages
+}

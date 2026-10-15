@@ -170,6 +170,12 @@ repository's documents quote their own examples.
   a rank row carries is applied as printed. "(Any)" picks a specialty the
   character does not hold at level 1 or higher. Data written against a rank
   table carries what the page prints.
+- **"(Any)" is a choice, never a specialty.** No sheet holds `Advocate (Any)`.
+  A rank row resolves it by p. 116 (a specialty not held at 1+), a skill table
+  by p. 118 (any specialty, held or not; a skill not held at all goes on bare
+  at level 0), and everything else by p. 118's choice at the printed level
+  (ERRATA E-45). The list is `career.Skills()`'s, and Language's is the
+  setting's primary languages.
 - **Aging is indexed by term number and gated by homeworld tech level** (pp.
   122-123), not by age. Apparent age is a derived lookup (p. 125), never rolled.
 - **Homeworld is not fixed after character creation.** Six of Colonist's eleven

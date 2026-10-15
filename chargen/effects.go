@@ -210,29 +210,16 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 }
 
 // applySkill grants a level. Where the book offers a choice of specialty it
-// is put to the decider; where it writes "(Any)" it is recorded as "Any",
-// which is what the sheet prints and what the player resolves at the table.
+// is put to the decider, and where it writes "(Any)" grantAny resolves it.
 func (g *Generator) applySkill(effect career.Effect, cause int) error {
-	specialty := ""
+	_, err := g.grantSkill(effect, cause)
 
-	switch len(effect.Specialties) {
-	case 0:
-	case 1:
-		specialty = effect.Specialties[0]
-	default:
-		chosen, err := g.choose(Choice{
-			Point:   "skill_specialty",
-			Prompt:  "Choose a specialty for " + effect.Skill,
-			Options: effect.Specialties,
-			Cite:    skillStepCite,
-		})
-		if err != nil {
-			return err
-		}
+	return err
+}
 
-		specialty = effect.Specialties[chosen]
-	}
-
+// grantSkill is applySkill returning what it granted, which a degree needs:
+// the field is the specialty the character took, not the skill's name.
+func (g *Generator) grantSkill(effect career.Effect, cause int) (Skill, error) {
 	// Level zero on an ordinary result means the result did not say, and
 	// every ordinary result reads "gain a level in X". AtLevelZero is what
 	// a result that really means level 0 sets.
@@ -241,7 +228,36 @@ func (g *Generator) applySkill(effect career.Effect, cause int) error {
 		level = 1
 	}
 
-	got := g.char.State.GainSkill(effect.Skill, specialty, level)
+	if isAny(effect) {
+		return g.grantAny(effect, level, cause)
+	}
+
+	specialty := ""
+
+	switch len(effect.Specialties) {
+	case 0:
+	case 1:
+		specialty = effect.Specialties[0]
+	default:
+		chosen, err := g.choose(Choice{
+			Point:   pointSkillSpecialty,
+			Prompt:  "Choose a specialty for " + effect.Skill,
+			Options: effect.Specialties,
+			Cite:    skillStepCite,
+		})
+		if err != nil {
+			return Skill{}, err
+		}
+
+		specialty = effect.Specialties[chosen]
+	}
+
+	return g.gainSkill(effect.Skill, specialty, level, cause), nil
+}
+
+// gainSkill grants the levels and logs what the character now holds.
+func (g *Generator) gainSkill(name, specialty string, level, cause int) Skill {
+	got := g.char.State.GainSkill(name, specialty, level)
 
 	g.log.Consequence(ConsequenceEvent{
 		Kind:   ConsequenceSkill,
@@ -252,7 +268,7 @@ func (g *Generator) applySkill(effect career.Effect, cause int) error {
 		Cite:   g.cite,
 	})
 
-	return nil
+	return got
 }
 
 // adjustBy moves a characteristic by a fixed amount, or by one the book
