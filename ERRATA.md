@@ -1181,3 +1181,61 @@ This was the engine's behaviour from the release Step 5 shipped in, recorded in 
 comment on `extendedFamily` and nowhere a reader of the records would find it.
 
 ---
+
+## E-45 (reading) — "(Any)" outside a skill table and a rank row
+
+**Where:** every result that grants a skill as "(Any)": skill tables, rank rows,
+events, mishaps, degrees, the youth and teenage paths.
+
+The book gives "(Any)" two rules, and both resolve it to a real specialty.
+
+> "This allows the character to select a specialty within that skill, provided
+> they do not already possess that specialty at level 1 or higher." (p. 116, rank
+> benefits)
+
+> "the character may choose to add a level to any specialty under that skill.
+> They may choose to add a level to a skill specialty that they already have or
+> add a new specialty ... If the character does not already have the skill
+> listed, it is added to the character sheet as a zero level skill without a
+> specialty." (p. 118, skill tables)
+
+The engine follows both where they apply. A rank row's "(Any)" takes a specialty
+the character lacks at level 1 or higher, and gains nothing once every one is
+held. A skill table's offers every specialty, held or not, and a character
+without the skill gets it bare at level 0. A first term's level-0 service skills
+are recorded the same way: "Survival", not "Survival (Any)".
+
+Three things the pages do not say, and the engine had to choose:
+
+- **Everywhere else.** An event, a mishap, a degree or a youth path that writes
+  "(Any)" is resolved by p. 118's choice — any specialty, held or not — because
+  it is the book's only rule for an "(Any)" that is not a rank benefit. The
+  level-0 sentence is read as p. 118's own and not carried with it: away from a
+  skill table the level is granted as the result prints it, which is what the
+  engine does for every other skill a result names. "Gain Drive (Any) at level 0"
+  is the bare skill at level 0, because a level-0 skill has no specialty to name,
+  and does nothing to a character who already holds Drive.
+- **Which specialties.** The list is the one pp. 304-314 print beneath the skill,
+  in that order, followed by any the character already holds that it does not —
+  Science and Trade print examples, "by no means a full list".
+- **Language.** pp. 304-314 print no specialties for it: they are "any language
+  which can be chosen as a primary language". The engine offers the setting's
+  primary languages, in the order the file lists them, less the character's own
+  (p. 41). A setting with nothing else to offer leaves the result unimplemented
+  rather than recording a Language that names no language.
+
+**Stamped** where an "(Any)" is resolved away from a skill table, and wherever
+Language is resolved from the setting's list.
+
+**If this is wrong:** a reading that applied p. 118's level-0 sentence everywhere
+would give a character who meets "(Any)" first in an event the bare skill at 0
+rather than a specialty at 1. Nothing else reads the difference: a check takes
+the best level across specialties (E-7).
+
+Until this entry the engine recorded "Any" as the specialty and resolved
+nothing, which made p. 116's proviso unreachable — a second "(Any)" rank grant
+found "Any" already at 1 and stopped — and put lines on the sheet a player could
+not use: `Advocate (Any)-2`, `Language (Any)-0`
+([#165](https://github.com/philoserf/cschargen/issues/165)).
+
+---

@@ -455,19 +455,24 @@ func TestAGraduateDegreeRaisesTheUndergraduateField(t *testing.T) {
 }
 
 // checkTheFieldRose: the bachelor's took the field to 2 and the master's
-// adds two, so it is at 4 or higher -- and it is one skill, not two under
-// different specialties.
+// adds two, so it is at 4 or higher. The field is the skill as the sheet
+// writes it -- "Advocate (Legal)" -- so it is one entry, and the list's
+// "(Any)" is never one: it is resolved, not recorded.
 func checkTheFieldRose(t *testing.T, seed uint64, character *chargen.Character, field string) {
 	t.Helper()
 
-	names := 0
+	found := false
 
 	for _, held := range character.State.Skills {
-		if held.Name != field {
+		if held.Specialty == "Any" {
+			t.Errorf("seed %d holds %s; (Any) is a choice, not a specialty", seed, held.Full())
+		}
+
+		if held.Full() != field {
 			continue
 		}
 
-		names++
+		found = true
 
 		if held.Level < 4 {
 			t.Errorf("seed %d: %s is at %d after a master's, want 4 or more",
@@ -475,8 +480,8 @@ func checkTheFieldRose(t *testing.T, seed uint64, character *chargen.Character, 
 		}
 	}
 
-	if names != 1 {
-		t.Errorf("seed %d holds %s under %d different specialties", seed, field, names)
+	if !found {
+		t.Errorf("seed %d took a degree in %s and does not hold it", seed, field)
 	}
 }
 

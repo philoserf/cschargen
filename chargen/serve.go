@@ -321,7 +321,20 @@ func (g *Generator) rollNamedTable(effect career.Effect, cause int) error {
 	roll := g.dice.D6()
 	thrown := g.log.Roll(roll, skillStepCite)
 
+	defer g.onTable()()
+
 	return g.apply(table.Rows[roll.Total-1], thrown)
+}
+
+// onTable marks a skill table's result as being applied, which is where
+// p. 118 governs "(Any)", and returns the function that restores the mark
+// to what it was: `defer g.onTable()()`.
+func (g *Generator) onTable() func() {
+	was := g.onSkillTable
+
+	g.onSkillTable = true
+
+	return func() { g.onSkillTable = was }
 }
 
 // namedTable finds the table an effect asks for, including "an assignment
@@ -502,13 +515,23 @@ func (g *Generator) applyRankBenefits(effects []career.Effect, cause int) error 
 // within that skill, provided they do not already possess that specialty at
 // level 1 or higher ... If the character already possesses all available
 // specialties at level 1 or higher, they gain no additional benefit"
-// (p. 116). The engine records "Any" as the specialty rather than resolving
-// it, so a second grant of the same skill at "Any" is one the character
-// already has.
+// (p. 116). rankSpecialty resolves it against the skill's own list, so a
+// second grant of the same skill at "(Any)" takes a specialty the first did
+// not.
 func (g *Generator) grantRankSkill(effect career.Effect, cause int) error {
 	level := effect.Level
 	if level == 0 {
 		level = 1
+	}
+
+	if isAny(effect) {
+		effect.Specialties = g.specialtiesOf(effect.Skill)
+		if len(effect.Specialties) == 0 {
+			g.unimplemented(cause, "rank benefit: "+effect.Skill+
+				" (Any) -- the setting names no language to learn (p. 41)")
+
+			return nil
+		}
 	}
 
 	specialty, err := g.rankSpecialty(effect)
@@ -546,7 +569,8 @@ func (g *Generator) grantRankSkill(effect career.Effect, cause int) error {
 
 // rankSpecialty resolves a rank benefit's specialty the way applySkill
 // does, except that a choice excludes what the character already holds at
-// level 1 or higher (p. 116).
+// level 1 or higher (p. 116). An "(Any)" arrives here already expanded to
+// the skill's own list.
 func (g *Generator) rankSpecialty(effect career.Effect) (string, error) {
 	switch len(effect.Specialties) {
 	case 0:
@@ -575,7 +599,7 @@ func (g *Generator) rankSpecialty(effect career.Effect) (string, error) {
 	}
 
 	chosen, err := g.choose(Choice{
-		Point:   "skill_specialty",
+		Point:   pointSkillSpecialty,
 		Prompt:  "Choose a specialty for " + effect.Skill,
 		Options: open,
 		Cite:    "p. 116",
@@ -611,6 +635,8 @@ func (g *Generator) rollSkill(assignment career.Assignment) error {
 
 	roll := g.dice.D6()
 	cause := g.log.Roll(roll, skillStepCite)
+
+	defer g.onTable()()
 
 	return g.apply(tables[index].Rows[roll.Total-1], cause)
 }

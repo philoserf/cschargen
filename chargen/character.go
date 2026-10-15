@@ -30,7 +30,7 @@ const Ruleset = "Clement Sector Core Character Creation Book, (c) 2026 Independe
 //
 // Options.PolicyVersion still carries it into a record, because the tests
 // stamp a version of their own rather than claiming a real build's.
-const PolicyVersion = "0.3.2"
+const PolicyVersion = "0.3.3"
 
 // RNG records how the dice were driven, so that a record made under one
 // generator is not silently replayed under another.

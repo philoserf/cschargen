@@ -12,6 +12,17 @@ release turns out to be.
   held. `choose` now copies the options into the record, which closes the
   class rather than the one caller
   ([#163](https://github.com/philoserf/cschargen/issues/163)).
+- A skill granted as "(Any)" now resolves to a real specialty, where the sheet
+  used to print `Advocate (Any)-2` and `Language (Any)-0`. pp. 116 and 118 both
+  say the character picks one: a rank benefit takes a specialty not already held
+  at level 1 or higher, and a skill table's result raises any specialty, or puts
+  a skill the character lacks on bare at level 0. Recording "Any" made p. 116's
+  proviso unreachable, so a second "(Any)" rank benefit found "Any" already at 1
+  and granted nothing: 38 dropped grants in 200 twelve-term characters, none now.
+  The choice is `skill_specialty` (policy 0.3.3), and a degree's field is
+  recorded as the specialty taken, so a master's raises the same one. ERRATA E-45
+  has what the pages leave open. A record written before this will not replay
+  ([#165](https://github.com/philoserf/cschargen/issues/165)).
 
 ## v0.1.0-alpha.5 — 2026-09-22
 

@@ -448,8 +448,11 @@ func (g *Generator) chooseAssignment(entered career.Career) (career.Assignment, 
 	return entered.Assignments[index], nil
 }
 
+// specialtyOf is the specialty a level-0 service skill is recorded under. An
+// "(Any)" names none: "it is added to the character sheet as a zero level
+// skill without a specialty" (p. 118).
 func specialtyOf(effect career.Effect) string {
-	if len(effect.Specialties) == 1 {
+	if len(effect.Specialties) == 1 && !isAny(effect) {
 		return effect.Specialties[0]
 	}
 

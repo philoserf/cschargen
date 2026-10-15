@@ -1,6 +1,8 @@
 package chargen
 
 import (
+	"strings"
+
 	"github.com/philoserf/cschargen/career"
 	"github.com/philoserf/cschargen/dice"
 )
@@ -376,16 +378,17 @@ func (g *Generator) bachelorsDegree(
 // graduateDegree is p. 97: the undergraduate field rises by two levels, and
 // one more skill from the list is taken at level 1.
 //
-// The raise has to name the same specialty the bachelor's took, so it is
-// found in the institution's own list rather than rebuilt from the field's
-// name -- "Advocate" and "Advocate (Any)" are two skills, and raising the
-// wrong one would leave a character with both.
+// The raise has to name the same specialty the bachelor's took, which is
+// why the field is recorded as the skill the character holds -- "Advocate
+// (Legal)", not "Advocate". The list prints "Advocate (Any)", and resolving
+// that again would let the master's land on a different specialty.
 func (g *Generator) graduateDegree(
 	institution career.Institution, step int,
 ) (string, error) {
 	field := g.previousField()
+	name, specialty := splitSkill(field)
 
-	raise, found := skillNamed(institution.Skills, field)
+	raise, found := skillNamed(institution.Skills, name)
 	if !found {
 		// The prerequisite makes this unreachable -- a graduate track
 		// cannot be entered without a bachelor's -- but a record that got
@@ -394,6 +397,11 @@ func (g *Generator) graduateDegree(
 	} else {
 		raise.Level = graduateGain
 		raise.Detail = "gain " + itoa(graduateGain) + " levels in " + field
+
+		raise.Specialties = nil
+		if specialty != "" {
+			raise.Specialties = []string{specialty}
+		}
 
 		err := g.apply(raise, step)
 		if err != nil {
@@ -411,6 +419,17 @@ func (g *Generator) graduateDegree(
 	}
 
 	return field, nil
+}
+
+// splitSkill is Skill.Full read back: "Advocate (Legal)" is Advocate and
+// Legal.
+func splitSkill(full string) (string, string) {
+	name, specialty, found := strings.Cut(full, " (")
+	if !found {
+		return full, ""
+	}
+
+	return name, strings.TrimSuffix(specialty, ")")
 }
 
 // skillNamed finds a skill in an institution's list by name.
@@ -510,7 +529,12 @@ func (g *Generator) takeFromList(
 
 	taken.Level = level
 
-	return names[chosen], g.apply(taken, step)
+	got, err := g.grantSkill(taken, step)
+	if err != nil {
+		return "", err
+	}
+
+	return got.Full(), nil
 }
 
 // degreeLevel is the level a graduate takes their field at.

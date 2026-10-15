@@ -9,7 +9,7 @@ import (
 
 // Skill is one skill a character holds. The book writes a skill as a name
 // and, often, a specialty in parentheses -- Survival (Desert), Gun Combat
-// (Any) -- and treats the two as one thing for the purpose of levelling.
+// -- and treats the two as one thing for the purpose of levelling.
 type Skill struct {
 	Name      string `json:"name"`
 	Specialty string `json:"specialty,omitempty"`

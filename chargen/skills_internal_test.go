@@ -1,6 +1,7 @@
 package chargen
 
 import (
+	"errors"
 	"slices"
 	"strings"
 	"testing"
@@ -270,3 +271,269 @@ func TestRaisingTheSkillTheCharacterUsed(t *testing.T) {
 		t.Error("the raise reached a skill outside the one it named")
 	}
 }
+
+// anyResults are the cases TestAnAnyResultIsResolved runs.
+var anyResults = []struct {
+	name    string
+	table   bool
+	held    []Skill
+	grant   career.Effect
+	want    []Skill
+	stamped bool
+}{
+	{
+		// "If the character does not already have the skill listed, it
+		// is added to the character sheet as a zero level skill without
+		// a specialty."
+		name: "a skill table, skill not held", table: true,
+		grant: grantOf("Electronics", 1, "Any"),
+		want:  []Skill{{Name: "Electronics", Level: 0}},
+	},
+	{
+		// The policy takes the first the book prints, held or not.
+		name: "a skill table, skill held", table: true,
+		held:  []Skill{{Name: "Electronics", Specialty: "Sensors", Level: 1}},
+		grant: grantOf("Electronics", 1, "Any"),
+		want: []Skill{
+			{Name: "Electronics", Specialty: "Comms", Level: 1},
+			{Name: "Electronics", Specialty: "Sensors", Level: 1},
+		},
+	},
+	{
+		name: "a skill table, the first specialty held", table: true,
+		held:  []Skill{{Name: "Electronics", Specialty: "Comms", Level: 2}},
+		grant: grantOf("Electronics", 1, "Any"),
+		want:  []Skill{{Name: "Electronics", Specialty: "Comms", Level: 3}},
+	},
+	{
+		name:    "an event, skill not held",
+		grant:   grantOf("Advocate", 1, "Any"),
+		want:    []Skill{{Name: "Advocate", Specialty: "Legal", Level: 1}},
+		stamped: true,
+	},
+	{
+		name:    "a degree at level 2",
+		grant:   grantOf("Advocate", 2, "Any"),
+		want:    []Skill{{Name: "Advocate", Specialty: "Legal", Level: 2}},
+		stamped: true,
+	},
+	{
+		name: "level 0, skill not held",
+		grant: career.Effect{
+			Kind: career.EffectSkill, Skill: "Drive", Specialties: []string{"Any"},
+			AtLevelZero: true, Detail: "gain Drive at level 0",
+		},
+		want:    []Skill{{Name: "Drive", Level: 0}},
+		stamped: true,
+	},
+	{
+		name: "level 0, skill held",
+		held: []Skill{{Name: "Drive", Specialty: "Wheeled", Level: 1}},
+		grant: career.Effect{
+			Kind: career.EffectSkill, Skill: "Drive", Specialties: []string{"Any"},
+			AtLevelZero: true, Detail: "gain Drive at level 0",
+		},
+		want:    []Skill{{Name: "Drive", Specialty: "Wheeled", Level: 1}},
+		stamped: true,
+	},
+}
+
+// TestAnAnyResultIsResolved is p. 118 and its reading everywhere else
+// (ERRATA E-45). "(Any)" is a choice the character makes, so the sheet
+// never holds a specialty called "Any".
+func TestAnAnyResultIsResolved(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range anyResults {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			gen := engine(t, 300)
+
+			for _, held := range tc.held {
+				gen.char.State.GainSkill(held.Name, held.Specialty, held.Level)
+			}
+
+			if tc.table {
+				defer gen.onTable()()
+			}
+
+			err := gen.applySkill(tc.grant, 0)
+			if err != nil {
+				t.Fatalf("applySkill: %v", err)
+			}
+
+			if !slices.Equal(gen.char.State.Skills, tc.want) {
+				t.Errorf("skills = %v, want %v", gen.char.State.Skills, tc.want)
+			}
+
+			if got := slices.Contains(gen.char.Provenance.Deviations, "E-45"); got != tc.stamped {
+				t.Errorf("E-45 stamped = %v, want %v", got, tc.stamped)
+			}
+		})
+	}
+}
+
+// TestAnAnyRankBenefitTakesTheSkillsOwnList is p. 116 against "(Any)"
+// itself rather than a list the test supplies: the second grant takes a
+// specialty the first did not, where recording "Any" made it a no-op.
+func TestAnAnyRankBenefitTakesTheSkillsOwnList(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 320)
+
+	granted := grantOf("Advocate", 1, "Any")
+
+	for range 4 {
+		err := gen.applyRankBenefits([]career.Effect{granted}, 0)
+		if err != nil {
+			t.Fatalf("applyRankBenefits: %v", err)
+		}
+	}
+
+	want := []Skill{
+		{Name: "Advocate", Specialty: "Legal", Level: 1},
+		{Name: "Advocate", Specialty: "Oratory", Level: 1},
+		{Name: "Advocate", Specialty: "Politics", Level: 1},
+	}
+
+	if !slices.Equal(gen.char.State.Skills, want) {
+		t.Errorf("skills = %v, want %v: the fourth grant should have found all three held",
+			gen.char.State.Skills, want)
+	}
+}
+
+// TestAnAnyLanguageIsOneTheSettingSpeaks. pp. 304-314 print no Language
+// specialties; they are "any language which can be chosen as a primary
+// language", and not the character's own (p. 41).
+func TestAnAnyLanguageIsOneTheSettingSpeaks(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 321)
+
+	gen.setting = &setting.Data{Subsectors: []setting.Subsector{{Worlds: []setting.World{
+		{PrimaryLanguages: []string{"Rivertongue", "Old Signal"}},
+		{PrimaryLanguages: []string{"Old Signal", "Marsh Creole"}},
+	}}}}
+	gen.primaryLanguage = "Rivertongue"
+
+	if got, want := gen.specialtiesOf("Language"), []string{"Old Signal", "Marsh Creole"}; !slices.Equal(got, want) {
+		t.Errorf("specialtiesOf(Language) = %v, want %v", got, want)
+	}
+
+	gen.setting = &setting.Data{Subsectors: []setting.Subsector{{Worlds: []setting.World{
+		{PrimaryLanguages: []string{"Rivertongue"}},
+	}}}}
+
+	err := gen.applySkill(grantOf("Language", 1, "Any"), 0)
+	if err != nil {
+		t.Fatalf("applySkill: %v", err)
+	}
+
+	if len(gen.char.State.Skills) != 0 {
+		t.Errorf("a setting with no other language granted %v", gen.char.State.Skills)
+	}
+}
+
+// TestAFirstTermAnyServiceSkillIsBare is p. 118's last sentence at p. 117's
+// first term: the level-0 service skills are "added to the character sheet
+// as a zero level skill without a specialty".
+func TestAFirstTermAnyServiceSkillIsBare(t *testing.T) {
+	t.Parallel()
+
+	if got := specialtyOf(grantOf("Survival", 1, "Any")); got != "" {
+		t.Errorf("specialtyOf(Survival (Any)) = %q, want none", got)
+	}
+
+	if got := specialtyOf(grantOf("Suit", 1, "Vacc Suit")); got != "Vacc Suit" {
+		t.Errorf("specialtyOf(Suit (Vacc Suit)) = %q, want Vacc Suit", got)
+	}
+}
+
+// grantOf is a skill result naming a specialty, at a level.
+func grantOf(name string, level int, specialty string) career.Effect {
+	return career.Effect{
+		Kind: career.EffectSkill, Skill: name, Specialties: []string{specialty},
+		Level: level, Detail: "gain " + name,
+	}
+}
+
+// TestAnAnyLanguageWithOneLanguageOrNone: a setting offering one language
+// besides the character's own takes it without a question, and a rank
+// benefit with none to offer says so rather than granting a Language that
+// names no language. With no setting at all there is nothing to offer.
+func TestAnAnyLanguageWithOneLanguageOrNone(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 322)
+
+	if got := gen.specialtiesOf("Language"); len(got) != 0 {
+		t.Errorf("with no setting, specialtiesOf(Language) = %v", got)
+	}
+
+	gen.setting = &setting.Data{Subsectors: []setting.Subsector{{Worlds: []setting.World{
+		{PrimaryLanguages: []string{"Rivertongue", "Old Signal"}},
+	}}}}
+	gen.primaryLanguage = "Rivertongue"
+
+	err := gen.applySkill(grantOf("Language", 2, "Any"), 0)
+	if err != nil {
+		t.Fatalf("applySkill: %v", err)
+	}
+
+	if _, found := gen.char.State.Skill("Language", "Old Signal"); !found {
+		t.Errorf("the one language on offer was not taken: %v", gen.char.State.Skills)
+	}
+
+	gen.primaryLanguage = "Old Signal"
+	gen.setting.Subsectors[0].Worlds[0].PrimaryLanguages = []string{"Old Signal"}
+	gen.char.State.Skills = nil
+
+	err = gen.applyRankBenefits([]career.Effect{grantOf("Language", 1, "Any")}, 0)
+	if err != nil {
+		t.Fatalf("applyRankBenefits: %v", err)
+	}
+
+	if len(gen.char.State.Skills) != 0 || !strings.Contains(lastDetail(t, gen), "no language") {
+		t.Errorf("granted %v and said %q", gen.char.State.Skills, lastDetail(t, gen))
+	}
+}
+
+// TestARefusedAnySpecialtyEndsGeneration. "(Any)" is a choice like any
+// other, so a player who declines it ends the session.
+func TestARefusedAnySpecialtyEndsGeneration(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 323)
+
+	gen.decider = refusingDecider{}
+
+	err := gen.applySkill(grantOf("Advocate", 1, "Any"), 0)
+	if !errors.Is(err, ErrNoSetting) {
+		t.Errorf("applySkill = %v, want the refusal", err)
+	}
+
+	// A degree's field is the same question one step later: the field is
+	// chosen, and then its specialty.
+	gen.decider = refusingAt{point: pointSkillSpecialty}
+
+	_, err = gen.takeFromList(career.Institution{
+		Skills: []career.Effect{grantOf("Advocate", 1, "Any")},
+	}, 0, 2, "Choose the field of the degree")
+	if !errors.Is(err, ErrNoSetting) {
+		t.Errorf("takeFromList = %v, want the refusal", err)
+	}
+}
+
+// refusingAt answers like Policy and refuses one choice point.
+type refusingAt struct{ point string }
+
+func (r refusingAt) Choose(c Choice) (int, error) {
+	if c.Point == r.point {
+		return 0, ErrNoSetting
+	}
+
+	return Policy{}.Choose(c)
+}
+
+func (refusingAt) Kind() DeciderKind { return DeciderPolicy }

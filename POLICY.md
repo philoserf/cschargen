@@ -4,7 +4,7 @@ The auto-mode decision table. Every choice point the engine offers is
 resolved here when `--auto` is set, and `policy_version` in each record
 identifies which version of this document made the choices.
 
-Version: **0.3.2**
+Version: **0.3.3**
 
 ## The rule
 
@@ -38,38 +38,38 @@ need one — they are the two below the table.
 The engine offers these, and the policy answers every one. A choice point the
 policy has no entry for is a build error, not a silent default.
 
-| Point                    | Where                                                          | Policy                                                                                           |
-| ------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `assign_characteristics` | p. 13, "apply the numbers ... as they see fit"                 | Assign in roll order: the first roll to STR, the second to DEX, and so on                        |
-| `generation`             | p. 63, the engineered-human generation tables                  | The first generation the data offers                                                             |
-| `genetic_outcome`        | p. 63, a compound outcome the character chooses between        | The first the data prints                                                                        |
-| `uplift_class`           | p. 66, the class an uplift character is                        | The highest the homeworld's tech level allows, which is the one offered first                    |
-| `subsector_source`       | p. 39, roll for the subsector or choose one                    | Rolling — it is what the page describes first, and the policy has no character concept to fit    |
-| `homeworld_source`       | p. 40, roll for the homeworld or choose one                    | Rolling, for the same reason                                                                     |
-| `subsector`              | p. 39, a file whose subsectors are all choose-only             | The first subsector the data lists — a throw that misses is thrown again, so this is not reached |
-| `homeworld`              | p. 39, a choose-only subsector                                 | The first world the chart prints                                                                 |
-| `primary_language`       | p. 41, a world with more than one                              | The first the chart prints                                                                       |
-| `background_skill`       | p. 40, "or" between two background skills                      | The first the chart prints                                                                       |
-| `background_specialty`   | p. 40, a background skill offering a choice of specialty       | The first the chart prints                                                                       |
-| `youth_path`             | p. 68, "the player may choose any path for which they qualify" | Path 1, the first the book prints — which every character qualifies for                          |
-| `teenage_path`           | p. 76, the same sentence again                                 | Whichever of Paths 1 and 2 the homeworld gives, which is always printed first                    |
-| `higher_education`       | p. 85, "characters are not required to attend college"         | The first institution offered, and never "none" — so an eligible character attends               |
-| `degree_field`           | pp. 87, 92, "the character may now take ... at level 2"        | The first skill the list prints                                                                  |
-| `washout_skill`          | pp. 87, 92, "gains a level in the player's choice of"          | The first skill the list prints                                                                  |
-| `medic_specialty`        | p. 101, "Specialties should all be different"                  | The first specialty still unspoken for, so the four end up different                             |
-| `career`                 | p. 107, the career to attempt                                  | `new`: the first the book prints that they may enter. `batch`: drawn — see below                 |
-| `assignment`             | p. 112, the assignment within a career                         | `new`: the first the career prints. `batch`: drawn — see below                                   |
-| `commission`             | p. 114, "this step is optional"                                | Attempt it — the first option, and the one that opens the officer ranks                          |
-| `skill_table`            | p. 117, which of a career's skill tables to roll on            | The first the career prints                                                                      |
-| `other_assignment`       | p. 117, "an assignment table other than your own"              | The first that is not the character's own                                                        |
-| `skill_specialty`        | pp. 116-117, a skill granted with "(Any)"                      | The first specialty the book prints for that skill                                               |
-| `table_result`           | a result that offers a choice between effects                  | The first the page prints                                                                        |
-| `relationship_target`    | p. 320, "an existing Ally or Contact loses 1d6 × 20"           | The first tie of a matching kind, in the order they were gained                                  |
-| `raise_held_skill`       | "a level in any skill you already possess"                     | The first entry on the character's own sheet, which is alphabetical                              |
-| `any_skill`              | "a level in any skill of your choice" (pp. 304-314)            | The first on the book's skill list, which is Admin                                               |
-| `benefit_table`          | p. 127, Cash or Other Benefits                                 | Cash while the three-per-career cap has room, then Other — see below                             |
-| `spend_pool`             | pp. 188, 218, "+6 ... in increments of up to +3 at any time"   | The largest increment the result allows, every time — see below                                  |
-| `aging_crisis`           | p. 123, "the player may pay 1D6 × 1000 credits"                | Pay for the treatment, which is the first option printed — and the only one a character survives |
+| Point                    | Where                                                                                                  | Policy                                                                                           |
+| ------------------------ | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `assign_characteristics` | p. 13, "apply the numbers ... as they see fit"                                                         | Assign in roll order: the first roll to STR, the second to DEX, and so on                        |
+| `generation`             | p. 63, the engineered-human generation tables                                                          | The first generation the data offers                                                             |
+| `genetic_outcome`        | p. 63, a compound outcome the character chooses between                                                | The first the data prints                                                                        |
+| `uplift_class`           | p. 66, the class an uplift character is                                                                | The highest the homeworld's tech level allows, which is the one offered first                    |
+| `subsector_source`       | p. 39, roll for the subsector or choose one                                                            | Rolling — it is what the page describes first, and the policy has no character concept to fit    |
+| `homeworld_source`       | p. 40, roll for the homeworld or choose one                                                            | Rolling, for the same reason                                                                     |
+| `subsector`              | p. 39, a file whose subsectors are all choose-only                                                     | The first subsector the data lists — a throw that misses is thrown again, so this is not reached |
+| `homeworld`              | p. 39, a choose-only subsector                                                                         | The first world the chart prints                                                                 |
+| `primary_language`       | p. 41, a world with more than one                                                                      | The first the chart prints                                                                       |
+| `background_skill`       | p. 40, "or" between two background skills                                                              | The first the chart prints                                                                       |
+| `background_specialty`   | p. 40, a background skill offering a choice of specialty                                               | The first the chart prints                                                                       |
+| `youth_path`             | p. 68, "the player may choose any path for which they qualify"                                         | Path 1, the first the book prints — which every character qualifies for                          |
+| `teenage_path`           | p. 76, the same sentence again                                                                         | Whichever of Paths 1 and 2 the homeworld gives, which is always printed first                    |
+| `higher_education`       | p. 85, "characters are not required to attend college"                                                 | The first institution offered, and never "none" — so an eligible character attends               |
+| `degree_field`           | pp. 87, 92, "the character may now take ... at level 2"                                                | The first skill the list prints                                                                  |
+| `washout_skill`          | pp. 87, 92, "gains a level in the player's choice of"                                                  | The first skill the list prints                                                                  |
+| `medic_specialty`        | p. 101, "Specialties should all be different"                                                          | The first specialty still unspoken for, so the four end up different                             |
+| `career`                 | p. 107, the career to attempt                                                                          | `new`: the first the book prints that they may enter. `batch`: drawn — see below                 |
+| `assignment`             | p. 112, the assignment within a career                                                                 | `new`: the first the career prints. `batch`: drawn — see below                                   |
+| `commission`             | p. 114, "this step is optional"                                                                        | Attempt it — the first option, and the one that opens the officer ranks                          |
+| `skill_table`            | p. 117, which of a career's skill tables to roll on                                                    | The first the career prints                                                                      |
+| `other_assignment`       | p. 117, "an assignment table other than your own"                                                      | The first that is not the character's own                                                        |
+| `skill_specialty`        | pp. 116, 118, a specialty from a list a result prints, or from the skill's own where it writes "(Any)" | The first offered, in the book's order — see below                                               |
+| `table_result`           | a result that offers a choice between effects                                                          | The first the page prints                                                                        |
+| `relationship_target`    | p. 320, "an existing Ally or Contact loses 1d6 × 20"                                                   | The first tie of a matching kind, in the order they were gained                                  |
+| `raise_held_skill`       | "a level in any skill you already possess"                                                             | The first entry on the character's own sheet, which is alphabetical                              |
+| `any_skill`              | "a level in any skill of your choice" (pp. 304-314)                                                    | The first on the book's skill list, which is Admin                                               |
+| `benefit_table`          | p. 127, Cash or Other Benefits                                                                         | Cash while the three-per-career cap has room, then Other — see below                             |
+| `spend_pool`             | pp. 188, 218, "+6 ... in increments of up to +3 at any time"                                           | The largest increment the result allows, every time — see below                                  |
+| `aging_crisis`           | p. 123, "the player may pay 1D6 × 1000 credits"                                                        | Pay for the treatment, which is the first option printed — and the only one a character survives |
 
 Three entries are not "the first option printed". Two of them are choices the
 page prints no list for; the third is `batch` answering two rows differently from
@@ -89,6 +89,19 @@ auto character's Other Benefits come from the rolls left over.
 The cap is smaller than three where an event compelled a Cash roll: those are
 settled first and count toward it (ERRATA E-32), so a Corporate Shipper who was
 granted two Cash rolls by an event has one free Cash choice, not three.
+
+**`skill_specialty`** is the first option, but the list it is taken from is built
+from the page that governs the grant, so the same rule lands differently. Where a
+result writes "(Any)" the list is the skill's own, in the order pp. 304-314 print
+it — Language's is the setting's primary languages, less the character's own
+(ERRATA E-45). A rank benefit leaves out every specialty the character already
+holds at level 1 or higher (p. 116), so the policy takes the first one they lack
+and a second grant takes a different one. Anything else leaves nothing out
+(p. 118), so the policy raises the first specialty the book prints every time:
+an auto character who keeps rolling Electronics (Any) keeps raising Electronics
+(Comms), where a player might have spread the levels. That is the rule applied, not a
+preference for depth, and a player answering the question is free to do
+otherwise.
 
 Rows are added as the engine reaches the choice points, in the PR that reaches
 them. A row here and no code is as wrong as code and no row — which this table
