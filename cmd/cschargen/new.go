@@ -237,6 +237,7 @@ func newCommand(args []string, out *os.File) error {
 	}
 
 	warnIfTheCareerChanged(os.Stderr, character, *flags.forceCar)
+	warnIfTheHomeworldChanged(os.Stderr, character)
 
 	encoded, err := json.MarshalIndent(character, "", "  ")
 	if err != nil {

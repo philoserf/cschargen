@@ -5,6 +5,13 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+- A `--homeworld` that does not admit the character's species now says so on
+  stderr, naming the world the character was born on instead, and a batch
+  counts it in one line. p. 42 sends such a character to another world, and the
+  record always said so, but the terminal did not, so a referee found out only
+  by rendering the history. The command still exits 0, as `--career` does (#63)
+  ([#167](https://github.com/philoserf/cschargen/issues/167)).
+
 - `--terms` below -1 is refused with a usage error, where `--terms -5` served
   no terms and wrote `termLimit: -5` into the record — a value that is neither
   of the two spellings the command means by "none". `--terms 0` and `--terms -1`

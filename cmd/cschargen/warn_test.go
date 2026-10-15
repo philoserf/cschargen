@@ -417,3 +417,73 @@ func TestTheWorldOverridesAreBounded(t *testing.T) {
 		})
 	}
 }
+
+// born builds a character asked to be born on one world, whose homeworld
+// history is the worlds named, which is all the homeworld notes read.
+func born(asked string, worlds ...string) *chargen.Character {
+	character := &chargen.Character{}
+
+	character.Provenance.Inputs.Homeworld = asked
+	character.Provenance.Inputs.Species = "Deepwalker"
+
+	for _, world := range worlds {
+		character.State.Homeworlds = append(character.State.Homeworlds,
+			chargen.Homeworld{World: world})
+	}
+
+	return character
+}
+
+// TestTheHomeworldNoteFiresOnlyWhenTheBirthWorldChanged (#167). A world
+// that does not admit the species sends the character elsewhere (p. 42),
+// and the command said nothing.
+func TestTheHomeworldNoteFiresOnlyWhenTheBirthWorldChanged(t *testing.T) {
+	t.Parallel()
+
+	for name, test := range map[string]struct {
+		character *chargen.Character
+		want      string
+	}{
+		"no homeworld was asked for": {born("", "Ambergrass"), ""},
+		"born where asked":           {born("Ironpsalm", "Ironpsalm"), ""},
+		"reassigned later, not at birth": {
+			born("Ironpsalm", "Ironpsalm", "Ambergrass"), "",
+		},
+		"born elsewhere": {
+			born("Ironpsalm", "Ambergrass"), "born on Ambergrass instead",
+		},
+	} {
+		got := &strings.Builder{}
+		warnIfTheHomeworldChanged(got, test.character)
+
+		switch {
+		case test.want == "" && got.Len() != 0:
+			t.Errorf("%s: said %q, want silence", name, got)
+		case test.want != "" && !strings.Contains(got.String(), test.want):
+			t.Errorf("%s: said %q, want it to mention %q", name, got, test.want)
+		}
+	}
+}
+
+// TestABatchCountsTheHomeworldsChanged, once rather than per member.
+func TestABatchCountsTheHomeworldsChanged(t *testing.T) {
+	t.Parallel()
+
+	got := &strings.Builder{}
+	warnHowManyHomeworldsChanged(got, []*chargen.Character{
+		born("Ironpsalm", "Ambergrass"), born("Ironpsalm", "Ambergrass"),
+	})
+
+	if !strings.Contains(got.String(), "2 of 2") || strings.Count(got.String(), "\n") != 1 {
+		t.Errorf("said %q, want one line counting 2 of 2", got)
+	}
+
+	silent := &strings.Builder{}
+	warnHowManyHomeworldsChanged(silent, []*chargen.Character{
+		born("Ironpsalm", "Ironpsalm"), born("", "Ambergrass"),
+	})
+
+	if silent.Len() != 0 {
+		t.Errorf("said %q when no character was born elsewhere", silent)
+	}
+}
