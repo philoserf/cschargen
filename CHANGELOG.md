@@ -5,6 +5,14 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+- A medical degree's record now names the four Medic specialties the
+  character took, and replays. The log shared each choice's option list with
+  `medicalDegree`, which narrowed it in place after every pick, so all four
+  recorded lists were overwritten and named specialties the character never
+  held. `choose` now copies the options into the record, which closes the
+  class rather than the one caller
+  ([#163](https://github.com/philoserf/cschargen/issues/163)).
+
 ## v0.1.0-alpha.5 — 2026-09-22
 
 Twenty-one issues out of five review passes over the whole codebase — theory,

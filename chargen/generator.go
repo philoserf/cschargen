@@ -505,6 +505,11 @@ func (g *Generator) dropCareerModifiers() {
 }
 
 // choose puts a choice point to the decider and returns a checked index.
+//
+// The options are copied into the log rather than shared with the caller.
+// The log is the record, and a caller that narrows its own list after the
+// choice -- as medicalDegree does, four times -- would otherwise rewrite
+// what the record says was offered (#163).
 func (g *Generator) choose(ask Choice) (int, error) {
 	chosen, err := g.decider.Choose(ask)
 	if err != nil {
@@ -519,7 +524,7 @@ func (g *Generator) choose(ask Choice) (int, error) {
 		Decider: g.decider.Kind(),
 		Point:   ask.Point,
 		Prompt:  ask.Prompt,
-		Options: ask.Options,
+		Options: slices.Clone(ask.Options),
 		Chosen:  chosen,
 		Cite:    ask.Cite,
 	})
