@@ -5,6 +5,25 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+- `render`, `replay` and `data validate` now take their flags after the file as
+  well as before it, so `replay character.json --data setting.json` replays
+  rather than reporting "takes exactly one character record" about a line with
+  one record in it. Go's `flag` package stopped at the file and read the flag
+  and its value as two more records; the command now parses again after each
+  operand, and `--` still ends the flags. A line with too many files names them
+  ([#171](https://github.com/philoserf/cschargen/issues/171)).
+- Every line of the README's quick start now works typed verbatim into a clean
+  directory. `batch -o crew/` creates the directory where it used to fail with
+  "open crew/: no such file or directory" — a trailing separator says
+  "directory", and a bare name that is not there is still a file — and the
+  `replay` line passes the `--data` the record was generated with. The `--names`
+  line wrote over the `crew.jsonl` three lines above it and was refused; it now
+  writes `cast.jsonl`
+  ([#168](https://github.com/philoserf/cschargen/issues/168)).
+- `cschargen data --help` prints the data usage, where it reported `--help` as
+  an unknown data subcommand
+  ([#173](https://github.com/philoserf/cschargen/issues/173)).
+
 - A medical degree's record now names the four Medic specialties the
   character took, and replays. The log shared each choice's option list with
   `medicalDegree`, which narrowed it in place after every pick, so all four

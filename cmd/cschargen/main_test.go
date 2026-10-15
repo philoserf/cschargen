@@ -332,20 +332,68 @@ func TestRenderHistoryWritesATranscript(t *testing.T) {
 	}
 }
 
-// TestFlagsPrecedeTheFilename: Go's flag package stops parsing at the first
-// non-flag argument, so `render char.json --history` leaves --history
-// standing as a second positional. That is a usage error, not a silent
-// sheet where a transcript was asked for.
-func TestFlagsPrecedeTheFilename(t *testing.T) {
+// TestFlagsMayFollowTheFilename (#171): Go's flag package stops parsing at
+// the first non-flag argument, so `render char.json --history` used to leave
+// --history standing as a second record. The record is what a user already
+// has and the flag the afterthought, so either order now means the same.
+func TestFlagsMayFollowTheFilename(t *testing.T) {
 	t.Parallel()
 
-	_, err := capture(t, "render", record(t, "7"), "--history")
+	path := record(t, "7")
+
+	out, err := capture(t, "render", path, "--history")
+	if err != nil {
+		t.Fatalf("render with the flag after the record: %v", err)
+	}
+
+	if !strings.Contains(out, "# Lifepath") {
+		t.Errorf("a sheet where a transcript was asked for:\n%s", out)
+	}
+
+	sample := filepath.Join("..", "..", "setting", "sample.json")
+
+	out, err = capture(t, "replay", path, "--ignore-provenance")
+	if err != nil {
+		t.Fatalf("replay with the flag after the record: %v", err)
+	}
+
+	if !strings.Contains(out, "identical") {
+		t.Errorf("replay did not report a match: %q", out)
+	}
+
+	_, err = capture(t, cmdData, "validate", sample, "--nope")
+	if err == nil || !strings.HasPrefix(err.Error(), "usage:") {
+		t.Errorf("an unknown flag after the file is still a flag error: %v", err)
+	}
+}
+
+// TestADoubleDashEndsTheFlags: everything after `--` is an operand, so a
+// file whose name begins with a dash is still reachable.
+func TestADoubleDashEndsTheFlags(t *testing.T) {
+	t.Parallel()
+
+	_, err := capture(t, "render", "--", "--history")
+	if err == nil {
+		t.Fatal("a file named --history rendered")
+	}
+
+	if strings.HasPrefix(err.Error(), "usage:") {
+		t.Errorf("after --, --history is a file to read, not a flag: %v", err)
+	}
+}
+
+// TestTooManyRecordsAreNamed: a count alone told a reader looking at one
+// record that there was not one record on the line.
+func TestTooManyRecordsAreNamed(t *testing.T) {
+	t.Parallel()
+
+	_, err := capture(t, "replay", fileA, fileB)
 	if err == nil {
 		t.Fatal("no error")
 	}
 
-	if !strings.HasPrefix(err.Error(), "usage:") {
-		t.Errorf("error %q does not begin with usage:", err)
+	if !strings.Contains(err.Error(), `"`+fileB+`"`) {
+		t.Errorf("the message does not name what it was given: %v", err)
 	}
 }
 
@@ -1290,5 +1338,75 @@ func TestTermsZeroMeansZero(t *testing.T) {
 				t.Errorf("served %d terms, want %d", got, test.want)
 			}
 		})
+	}
+}
+
+// TestDataAnswersHelp (#173): every other command answers --help, and
+// `data` called it an unknown subcommand.
+func TestDataAnswersHelp(t *testing.T) {
+	t.Parallel()
+
+	for _, arg := range []string{"-h", "--help", "help"} {
+		out, err := capture(t, cmdData, arg)
+		if err != nil {
+			t.Errorf("data %s: %v", arg, err)
+		}
+
+		if !strings.Contains(out, "validate <file>") {
+			t.Errorf("data %s printed no subcommands: %q", arg, out)
+		}
+	}
+}
+
+// TestBatchMakesTheDirectoryItIsAskedFor (#168): `-o crew/` is how the
+// README asks for one file each, and it failed in a clean directory. A
+// trailing separator is the caller saying "directory"; a bare name that is
+// not there is still a file.
+func TestBatchMakesTheDirectoryItIsAskedFor(t *testing.T) {
+	t.Parallel()
+
+	dir := filepath.Join(t.TempDir(), "crew") + string(filepath.Separator)
+
+	_, err := capture(t, cmdBatch, "--auto", "--count", "2", "--seed", "7", "--terms", "0", "-o", dir)
+	if err != nil {
+		t.Fatalf("batch -o %s: %v", dir, err)
+	}
+
+	for _, name := range []string{"npc-1.json", "npc-2.json"} {
+		_, err = os.Stat(filepath.Join(dir, name))
+		if err != nil {
+			t.Errorf("%s was not written: %v", name, err)
+		}
+	}
+
+	file := filepath.Join(t.TempDir(), "crew")
+
+	_, err = capture(t, cmdBatch, "--auto", "--count", "2", "--seed", "7", "--terms", "0", "-o", file)
+	if err != nil {
+		t.Fatalf("batch -o %s: %v", file, err)
+	}
+
+	info, err := os.Stat(file)
+	if err != nil || info.IsDir() {
+		t.Errorf("a bare name that was not there should be a file: %v", err)
+	}
+}
+
+// TestBatchSaysWhenItCannotMakeTheDirectory: a trailing separator after a
+// file that already exists names a directory nobody can create.
+func TestBatchSaysWhenItCannotMakeTheDirectory(t *testing.T) {
+	t.Parallel()
+
+	file := filepath.Join(t.TempDir(), "crew")
+
+	err := os.WriteFile(file, nil, 0o600)
+	if err != nil {
+		t.Fatalf("writing: %v", err)
+	}
+
+	_, err = capture(t, cmdBatch, "--auto", "--count", "1", "--seed", "7", "--terms", "0",
+		"-o", file+string(filepath.Separator))
+	if err == nil || !strings.Contains(err.Error(), "creating") {
+		t.Errorf("want the directory named as uncreatable, got %v", err)
 	}
 }
