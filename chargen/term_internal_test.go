@@ -1,6 +1,7 @@
 package chargen
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/philoserf/cschargen/career"
@@ -212,3 +213,141 @@ func TestLeavingACareerEndsItsPage(t *testing.T) {
 		t.Errorf("the career's page outlived the career: %q", gen.cite)
 	}
 }
+
+// TestALossToOneClosesEveryCareerButVagabond is p. 119: "If any of the
+// character's physical or mental characteristics reach 1, the character
+// must either remain within the career they are in, leave character
+// generation and join the game, or enter the Vagabond career" (#166).
+//
+// The cases are the reading ERRATA E-46 records: a floored 0 passed through
+// 1, CHA is not one of the page's own "(INT or EDU)", a gain is not a
+// reaching, and a later recovery reopens nothing.
+func TestALossToOneClosesEveryCareerButVagabond(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name   string
+		which  string
+		from   int
+		deltas []int
+		closed bool
+	}{
+		{"a loss to 1", "STR", 4, []int{-3}, true},
+		{"a loss floored at 0", "END", 2, []int{-5}, true},
+		{"a mental loss to 1", "EDU", 3, []int{-2}, true},
+		{"a later recovery", "DEX", 3, []int{-2, +4}, true},
+		{"a loss that stops at 2", "INT", 4, []int{-2}, false},
+		{"CHA to 1", "CHA", 4, []int{-3}, false},
+		{"a gain to 1", "STR", 0, []int{+1}, false},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			gen := engine(t, 13)
+
+			which, _ := characteristicByName(tc.which)
+			gen.char.State.Characteristics.Set(which, tc.from)
+
+			for _, delta := range tc.deltas {
+				gen.adjust(tc.which, delta, "testing", 1)
+			}
+
+			eligible := gen.eligibleCareers()
+			onlyVagabond := len(eligible) == 1 && eligible[0].Name == career.Vagabond().Name
+
+			if onlyVagabond != tc.closed {
+				t.Errorf("only Vagabond = %v, want %v (%d careers offered)",
+					onlyVagabond, tc.closed, len(eligible))
+			}
+
+			stamped := slices.Contains(gen.char.Provenance.Deviations, "E-46")
+			if stamped != tc.closed {
+				t.Errorf("E-46 stamped = %v, want %v", stamped, tc.closed)
+			}
+		})
+	}
+}
+
+// TestATransferAfterReachingOneIsVagabond is p. 119's second sentence: "If
+// they are forced at this point to leave the career through a Mishap, they
+// can either exit character generation or continue in the Vagabond career."
+// A result that names Prisoner is the commonest case.
+func TestATransferAfterReachingOneIsVagabond(t *testing.T) {
+	t.Parallel()
+
+	for _, dest := range []string{"Prisoner", career.Vagabond().Name} {
+		t.Run(dest, func(t *testing.T) {
+			t.Parallel()
+
+			gen := engine(t, 14)
+
+			gen.reachedOne = true
+			gen.transfer = &career.Effect{Career: dest, Assignment: "Transient", Terms: 2}
+
+			got, forced, err := gen.chooseCareer(0)
+			if err != nil {
+				t.Fatalf("chooseCareer: %v", err)
+			}
+
+			if got.Name != career.Vagabond().Name || !forced {
+				t.Errorf("sent to %s (forced %v), want Vagabond", got.Name, forced)
+			}
+
+			// Only a transfer that was already to Vagabond keeps what it
+			// carried; a redirected one ordered nothing of Vagabond's.
+			kept := gen.forcedAssignment == "Transient" && gen.forcedTerms == 2
+			if kept != (dest == career.Vagabond().Name) {
+				t.Errorf("assignment %q for %d terms carried over from a transfer to %s",
+					gen.forcedAssignment, gen.forcedTerms, dest)
+			}
+		})
+	}
+}
+
+// TestReachingOneTakesHigherEducationOffTheTable is the Step 18 half of
+// p. 119: of p. 125's five choices it leaves remaining and leaving, and
+// returning to higher education is neither. The control proves the offer is
+// there to be withheld.
+func TestReachingOneTakesHigherEducationOffTheTable(t *testing.T) {
+	t.Parallel()
+
+	for _, reached := range []bool{false, true} {
+		asked := &countingDecider{}
+
+		gen := New(Options{
+			Seed:          15,
+			Decider:       asked,
+			EngineVersion: testVersion,
+			PolicyVersion: testVersion,
+			Inputs:        Inputs{Species: testHuman, TermLimit: -1, Interactive: true},
+		})
+
+		for _, which := range CharacteristicOrder {
+			gen.char.State.Characteristics.Set(which, 12)
+		}
+
+		gen.reachedOne = reached
+
+		err := gen.mayReturnToEducation(0)
+		if err != nil {
+			t.Fatalf("mayReturnToEducation: %v", err)
+		}
+
+		if offered := asked.count > 0; offered == reached {
+			t.Errorf("reached 1 = %v, offered higher education = %v", reached, offered)
+		}
+	}
+}
+
+// countingDecider declines every choice it is offered, counting them.
+type countingDecider struct{ count int }
+
+func (c *countingDecider) Choose(Choice) (int, error) {
+	c.count++
+
+	return 0, nil
+}
+
+func (*countingDecider) Kind() DeciderKind { return DeciderPlayer }

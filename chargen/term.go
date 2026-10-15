@@ -112,8 +112,9 @@ func (g *Generator) previousCareerName() string {
 // viable alternative ... it ensures that characters always have a path
 // forward" -- which is why the silence was the bug and not the destination.
 //
-// Only two things empty the list. An aging crisis and a mental
-// characteristic at 0 do not: eligibleCareers answers both with Vagabond,
+// Only two things empty the list. An aging crisis, a mental characteristic
+// at 0 and a characteristic at 1 (p. 119) do not: eligibleCareers answers
+// all three with Vagabond,
 // which is a list of one rather than a list of none, and the ordinary choice
 // point records it.
 func (g *Generator) whyNothingIsOpen() string {
@@ -136,6 +137,20 @@ func (g *Generator) takePendingTransfer(step int) (career.Career, bool, error) {
 	name := pending.Career
 	if name == career.PreviousCareer {
 		name = g.previousCareerName()
+	}
+
+	// p. 119: a character who has reached 1 and is "forced at this point
+	// to leave the career through a Mishap" may "continue in the Vagabond
+	// career" and nowhere else. A result naming any other career --
+	// Prisoner included -- sends them to Vagabond instead (ERRATA E-46).
+	if g.reachedOne && name != career.Vagabond().Name {
+		defer g.citing(reachedOneCite)()
+
+		g.consequence(ConsequenceCareer, step,
+			"sent to "+name+", but a characteristic has reached 1: enter the Vagabond career instead",
+			career.Vagabond().Name)
+
+		return career.Vagabond(), true, nil
 	}
 
 	found, ok := career.ByName(name)
@@ -203,7 +218,12 @@ func (g *Generator) eligibleCareers() []career.Career {
 	// the term limit is what ends generation. What remains is Vagabond,
 	// which takes no enlistment throw, so the automatic failure never has
 	// to be rolled for.
-	if g.crisisSurvived || g.mentalDecline {
+	//
+	// p. 119 closes the same door at a different threshold: a physical or
+	// mental characteristic brought to 1 leaves "remain within the career
+	// they are in, leave character generation ..., or enter the Vagabond
+	// career", and the first two are not this function's either.
+	if g.onlyVagabond() {
 		return []career.Career{career.Vagabond()}
 	}
 
@@ -226,6 +246,12 @@ func (g *Generator) eligibleCareers() []career.Career {
 	}
 
 	return eligible
+}
+
+// onlyVagabond is whether a standing restriction -- pp. 123-124's or
+// p. 119's -- leaves Vagabond as the only career the character may enter.
+func (g *Generator) onlyVagabond() bool {
+	return g.crisisSurvived || g.mentalDecline || g.reachedOne
 }
 
 // consecutiveFailuresToVagabond is p. 110's rule: "If a character fails

@@ -326,7 +326,46 @@ func (g *Generator) adjust(which string, delta int, detail string, cause int) {
 		Delta:          after - before,
 		Cite:           g.cite,
 	})
+
+	if after < before && after <= 1 && reachingOneCounts(target) {
+		g.noteReachedOne(which, after, cause)
+	}
 }
+
+// reachingOneCounts is whether p. 119's rule watches a characteristic. The
+// page names its own: "physical or mental characteristics", and two
+// paragraphs on, "mental characteristics (INT or EDU)" -- so CHA, which
+// E-17 counts as mental for pp. 123-124, is not one of them here (ERRATA
+// E-46).
+func reachingOneCounts(which Characteristic) bool {
+	return which.Physical() || which == INT || which == EDU
+}
+
+// noteReachedOne is p. 119: a loss that brings a characteristic to 1 or
+// below closes every new career but Vagabond, for good. A score floored at
+// 0 passed through 1 on the way, so it counts; a score that climbs back
+// later reopens nothing (ERRATA E-46).
+func (g *Generator) noteReachedOne(which string, score, cause int) {
+	if g.reachedOne {
+		return
+	}
+
+	g.reachedOne = true
+
+	g.char.Provenance.Deviate("E-46")
+
+	g.log.Consequence(ConsequenceEvent{
+		Kind:  ConsequenceCareer,
+		Cause: cause,
+		Detail: which + " has reached " + itoa(score) +
+			": the character may stay in this career or enter Vagabond, and no other",
+		Cite: reachedOneCite,
+	})
+}
+
+// reachedOneCite is the page p. 119's rule is printed on, below the Injury
+// table.
+const reachedOneCite = "p. 119"
 
 func (g *Generator) applyChoice(effect career.Effect) error {
 	labels := make([]string, len(effect.Options))
