@@ -200,6 +200,15 @@ type Generator struct {
 	// that its result 10 knows which life-events table to reach.
 	institution *career.Institution
 
+	// successSkills are the sheet entries the last Success step granted
+	// levels in, which honours raise by one more: "Those successful in
+	// gaining honors should increase the skill level of the skills gained
+	// during the Success step by one level" (p. 89). An events-table result
+	// can grant honours after the throw failed (p. 91), by which time the
+	// table has granted skills of its own, so the list is kept rather than
+	// recomputed.
+	successSkills []Skill
+
 	// academyClosed is p. 93's standing bar: "If a character fails their
 	// success roll while in a military academy, they may not attempt to
 	// enter a military academy again."
