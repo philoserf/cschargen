@@ -871,3 +871,34 @@ func TestLosingThatTieTakesTheNewestAndNotAParent(t *testing.T) {
 			gen.char.State.Ties[1].Rating)
 	}
 }
+
+// TestATieFromOutsideTheCareerIsNotTheOneThatChanges is Gambler mishap 11
+// against a character whose only Contact predates the career: "one Contact
+// or Ally from this career becomes an Enemy" finds nobody to change, and
+// the result has no fallback, so nothing else happens -- the Contact from
+// home is neither turned nor lost with "the rest".
+func TestATieFromOutsideTheCareerIsNotTheOneThatChanges(t *testing.T) {
+	t.Parallel()
+
+	home := Tie{Kind: string(career.Contact), Origin: FamilyOrigin, Rating: 40}
+
+	gen := inCareerEngine(t, home)
+
+	err := gen.becomeTies(career.Effect{
+		Kind: career.EffectBecome, Count: 1, ThisCareer: true, LoseTheRest: true,
+		From: []career.Relationship{career.Contact, career.Ally}, Relationship: career.Enemy,
+		Detail: "one becomes an Enemy",
+	}, 0)
+	if err != nil {
+		t.Fatalf("becomeTies: %v", err)
+	}
+
+	if len(gen.char.State.Ties) != 1 || gen.char.State.Ties[0] != home {
+		t.Errorf("the Contact from outside the career changed: %v", gen.char.State.Ties)
+	}
+
+	last := gen.log.Events()[gen.log.Len()-1]
+	if last.Consequence == nil || !strings.HasSuffix(last.Consequence.Detail, "nobody to change") {
+		t.Errorf("the result did not record that it found nobody: %+v", last.Consequence)
+	}
+}
