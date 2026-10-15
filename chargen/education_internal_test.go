@@ -409,3 +409,46 @@ func TestGrantingHonoursAtTheCeiling(t *testing.T) {
 	// And a second grant does nothing at all.
 	gen.grantHonors(career.MedSchool(), 0, record)
 }
+
+// TestAMedicalDegreeRecordsWhatWasOffered is #163. medicalDegree narrows
+// its list in place after each pick, and the log once held that same slice,
+// so every recorded option list was overwritten by the removals that
+// followed it: the record named specialties the character never took, and
+// replay refused it.
+func TestAMedicalDegreeRecordsWhatWasOffered(t *testing.T) {
+	t.Parallel()
+
+	gen := educationEngine(t, 26)
+
+	_, err := gen.medicalDegree(career.Institution{Cite: "p. 101"}, 0)
+	if err != nil {
+		t.Fatalf("medicalDegree: %v", err)
+	}
+
+	held := map[string]bool{}
+
+	for _, skill := range gen.char.State.Skills {
+		if skill.Name == "Medic" {
+			held[skill.Specialty] = true
+		}
+	}
+
+	offered := len(career.MedicSpecialties())
+
+	for _, event := range gen.log.Events() {
+		if event.Choice == nil || event.Choice.Point != "medic_specialty" {
+			continue
+		}
+
+		choice := event.Choice
+		if len(choice.Options) != offered {
+			t.Errorf("recorded %d options %v, offered %d", len(choice.Options), choice.Options, offered)
+		}
+
+		offered--
+
+		if taken := choice.Options[choice.Chosen]; !held[taken] {
+			t.Errorf("the record says Medic (%s) was taken; the character holds %v", taken, held)
+		}
+	}
+}
