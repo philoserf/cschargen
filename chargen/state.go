@@ -281,16 +281,19 @@ func (s *State) Has(name string) bool {
 // character does not hold it at all. The two are different: p. 117's first
 // term grants "all the skills in the Service Skills table at level 0 that
 // they do not already possess", where every other award is a level.
+//
+// A skill with a printed ceiling stops at it, and the level past it is
+// lost: see skillCeilings.
 func (s *State) GainSkill(name, specialty string, level int) Skill {
 	for i, held := range s.Skills {
 		if held.Name == name && held.Specialty == specialty {
-			s.Skills[i].Level += level
+			s.Skills[i].Level = withinCeiling(name, held.Level+level)
 
 			return s.Skills[i]
 		}
 	}
 
-	added := Skill{Name: name, Specialty: specialty, Level: level}
+	added := Skill{Name: name, Specialty: specialty, Level: withinCeiling(name, level)}
 
 	s.Skills = append(s.Skills, added)
 
@@ -319,4 +322,29 @@ func (s *State) Service(name string) (*Service, bool) {
 	}
 
 	return nil, false
+}
+
+// skillCeilings is the one printed limit on a single skill's level: "Unlike
+// other skills, a character may never have a skill level in Jack of All
+// Trades higher than 3" (p. 309). It is in the skills chapter rather than
+// character creation, but "never" covers both, so a grant past it is held
+// at 3 and the level it would have added is lost (ERRATA E-48).
+//
+// A map in the engine rather than a field on career.SkillDefinition,
+// because one skill out of the list carries one, and a field every other
+// definition leaves at zero is a mechanism waiting for a second use the
+// book does not have.
+var skillCeilings = map[string]int{"Jack of All Trades": jackOfAllTradesCeiling}
+
+// jackOfAllTradesCeiling is p. 309's 3.
+const jackOfAllTradesCeiling = 3
+
+// withinCeiling holds a level to its skill's printed ceiling, where it has
+// one.
+func withinCeiling(name string, level int) int {
+	if ceiling, capped := skillCeilings[name]; capped {
+		return min(level, ceiling)
+	}
+
+	return level
 }

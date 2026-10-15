@@ -260,6 +260,7 @@ func (g *Generator) grantSkill(effect career.Effect, cause int) (Skill, error) {
 
 // gainSkill grants the levels and logs what the character now holds.
 func (g *Generator) gainSkill(name, specialty string, level, cause int) Skill {
+	held, _ := g.char.State.Skill(name, specialty)
 	got := g.char.State.GainSkill(name, specialty, level)
 
 	g.log.Consequence(ConsequenceEvent{
@@ -271,8 +272,33 @@ func (g *Generator) gainSkill(name, specialty string, level, cause int) Skill {
 		Cite:   g.cite,
 	})
 
+	g.noteCeiling(got, held.Level+level, cause)
+
 	return got
 }
+
+// noteCeiling logs a grant a printed ceiling held back, because a level the
+// table awarded and the sheet does not show needs a reason in the record.
+func (g *Generator) noteCeiling(got Skill, wanted, cause int) {
+	if got.Level >= wanted {
+		return
+	}
+
+	g.char.Provenance.Deviate("E-48")
+
+	g.log.Consequence(ConsequenceEvent{
+		Kind:  ConsequenceSkill,
+		Cause: cause,
+		Detail: got.Full() + " held at " + itoa(got.Level) + ", the most the book allows; " +
+			itoa(wanted-got.Level) + " level(s) lost",
+		Skill: got.Full(),
+		Level: got.Level,
+		Cite:  ceilingCite,
+	})
+}
+
+// ceilingCite is where Jack of All Trades' ceiling is printed.
+const ceilingCite = "p. 309"
 
 // adjustBy moves a characteristic by a fixed amount, or by one the book
 // rolls for: "Lose 1d3 from your choice of STR or END" (p. 156). Delta
