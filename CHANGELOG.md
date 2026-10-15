@@ -5,6 +5,12 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+- Jack of All Trades stops at 3, as p. 309 prints: "a character may never have a
+  skill level in Jack of All Trades higher than 3." A grant past it is held at 3,
+  the record logs the levels lost and stamps ERRATA E-48. Nothing enforced the
+  cap before; no character in 2,000 had yet passed it
+  ([#176](https://github.com/philoserf/cschargen/issues/176)).
+
 - The character sheet flags a characteristic at 0: an **At 0** line at the top
   names it, quoting p. 14's "extreme limitation" and its recommendation that
   the Referee intervene, and the cell in the characteristics table is bold. A 0

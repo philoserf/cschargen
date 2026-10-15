@@ -564,6 +564,8 @@ func (g *Generator) grantRankSkill(effect career.Effect, cause int) error {
 		Cite:   g.cite,
 	})
 
+	g.noteCeiling(got, level, cause)
+
 	return nil
 }
 

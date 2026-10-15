@@ -537,3 +537,60 @@ func (r refusingAt) Choose(c Choice) (int, error) {
 }
 
 func (refusingAt) Kind() DeciderKind { return DeciderPolicy }
+
+// TestJackOfAllTradesStopsAtThree is p. 309: "a character may never have a
+// skill level in Jack of All Trades higher than 3." A grant past it is held
+// at 3 and the record says what was lost (#176, ERRATA E-48), and no other
+// skill has a ceiling.
+func TestJackOfAllTradesStopsAtThree(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 62)
+
+	gen.gainSkill("Jack of All Trades", "", 2, 0)
+	gen.gainSkill("Jack of All Trades", "", 2, 0)
+
+	if got := gen.char.State.SkillLevel("Jack of All Trades"); got != 3 {
+		t.Errorf("Jack of All Trades = %d, want 3", got)
+	}
+
+	if got := gen.char.State.GainSkill("Jack of All Trades", "", 0).Level; got != 3 {
+		t.Errorf("a level-0 grant moved Jack of All Trades to %d", got)
+	}
+
+	held := 0
+
+	for _, event := range gen.log.Events() {
+		if event.Consequence != nil && event.Consequence.Cite == ceilingCite {
+			held++
+
+			if !strings.Contains(event.Consequence.Detail, "1 level(s) lost") {
+				t.Errorf("detail = %q, want the one level lost", event.Consequence.Detail)
+			}
+		}
+	}
+
+	if held != 1 {
+		t.Errorf("%d ceiling consequences logged, want 1", held)
+	}
+
+	if !slices.Contains(gen.char.Provenance.Deviations, "E-48") {
+		t.Error("a held grant did not stamp E-48")
+	}
+}
+
+// TestOnlyJackOfAllTradesHasACeiling: a first grant past p. 309's 3, as a
+// rank row could make, is held too, and no other skill stops anywhere.
+func TestOnlyJackOfAllTradesHasACeiling(t *testing.T) {
+	t.Parallel()
+
+	var state State
+
+	if got := state.GainSkill("Jack of All Trades", "", 4).Level; got != 3 {
+		t.Errorf("a first grant of 4 = %d, want 3", got)
+	}
+
+	if got := state.GainSkill("Advocate", "Legal", 5).Level; got != 5 {
+		t.Errorf("Advocate (Legal) = %d, want 5", got)
+	}
+}

@@ -1353,3 +1353,32 @@ recorded the skill half as unimplemented: 57 of 400 twelve-term characters
 ([#169](https://github.com/philoserf/cschargen/issues/169)).
 
 ---
+
+## E-48 (reading) — a grant past Jack of All Trades' ceiling
+
+**Where:** the Jack of All Trades entry in the skill descriptions (p. 309).
+
+> Unlike other skills, a character may never have a skill level in Jack of All
+> Trades higher than 3.
+
+The ceiling is printed in the skills chapter rather than in character creation,
+and the book could mean it as a bound on play. But "never" admits no exception,
+and a character leaves creation holding the level they will play at, so the
+engine holds Jack of All Trades to 3 during creation too. What the book does not
+say is what happens to a grant that would pass the ceiling.
+
+**Engine:** the skill stops at 3 and the excess level is lost. The record logs a
+consequence naming the levels lost, cited to p. 309. A rank row that prints a
+level above 3 is held the same way. No other skill has a ceiling.
+
+**Stamped** where a grant was held at the ceiling.
+
+**If this is wrong:** a reading that redirected the lost level — to another
+skill on the same table, or to a choice — would give such a character one more
+skill level than this one. A reading of p. 309 as a play-time bound only would
+let creation reach 4 or more. Across 2,000 twelve-term characters before this
+entry, the highest Jack of All Trades was 3, reached twice, so the ceiling has
+not yet held anyone back
+([#176](https://github.com/philoserf/cschargen/issues/176)).
+
+---
