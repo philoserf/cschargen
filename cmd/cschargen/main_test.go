@@ -1410,3 +1410,20 @@ func TestBatchSaysWhenItCannotMakeTheDirectory(t *testing.T) {
 		t.Errorf("want the directory named as uncreatable, got %v", err)
 	}
 }
+
+// TestTermsBelowNoneAreRefused (#175). The engine reads any negative as "no
+// terms", so `--terms -5` served none and recorded -5, a term limit that is
+// neither spelling the command means by "none".
+func TestTermsBelowNoneAreRefused(t *testing.T) {
+	t.Parallel()
+
+	for _, args := range [][]string{
+		{cmdNew, "--auto", "--seed", "21", "--terms", "-5"},
+		{cmdBatch, "--auto", "--count", "1", "--seed", "21", "--terms", "-5"},
+	} {
+		_, err := capture(t, args...)
+		if err == nil || !strings.HasPrefix(err.Error(), "usage: --terms -5") {
+			t.Errorf("%s: want a usage error naming the value, got %v", args[0], err)
+		}
+	}
+}

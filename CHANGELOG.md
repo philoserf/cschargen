@@ -5,6 +5,12 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+- `--terms` below -1 is refused with a usage error, where `--terms -5` served
+  no terms and wrote `termLimit: -5` into the record — a value that is neither
+  of the two spellings the command means by "none". `--terms 0` and `--terms -1`
+  are unchanged and both record -1
+  ([#175](https://github.com/philoserf/cschargen/issues/175)).
+
 - `render`, `replay` and `data validate` now take their flags after the file as
   well as before it, so `replay character.json --data setting.json` replays
   rather than reporting "takes exactly one character record" about a line with

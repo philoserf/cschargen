@@ -133,6 +133,22 @@ func (f newFlags) termLimit() int {
 // meant, and it stays supported.
 const noTerms = -1
 
+// checkTerms refuses a `--terms` below -1 (#175). The engine reads any
+// negative as "no terms", so `--terms -5` served none and was written into
+// the record as -5: a term limit that is neither of the two spellings the
+// command means by "none", which a reader of the record has to know the
+// history to read. Normalising it would write -1 where -5 was asked for,
+// and `Inputs` is what was asked for; refusing keeps the record's value
+// one the flag documents, and costs the caller one retyped number.
+func checkTerms(terms int) error {
+	if terms < noTerms {
+		return usagef("--terms %d; 0 serves none, a positive number serves that many,"+
+			" and omitted is the policy default", terms)
+	}
+
+	return nil
+}
+
 // inputs is everything the command line says about the character, which is
 // the same set whether one is generated or twenty.
 func (f newFlags) inputs() chargen.Inputs {

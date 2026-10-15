@@ -215,6 +215,11 @@ func checkNames(world *setting.Data, flags newFlags) error {
 		return err
 	}
 
+	err = checkTerms(*flags.terms)
+	if err != nil {
+		return err
+	}
+
 	return checkWorldOverrides(flags)
 }
 
