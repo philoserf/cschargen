@@ -20,16 +20,16 @@ func replayCommand(args []string, out *os.File) error {
 		"replay a record whose engine or schema version does not match this build")
 	data := flags.String("data", "", "setting data file; omitted means the repository's invented sample")
 
-	err := flags.Parse(args)
+	operands, err := parseOperands(flags, args)
 	if err != nil {
 		return usagef("replay: %v", err)
 	}
 
-	if flags.NArg() != 1 {
-		return usagef("replay takes exactly one character record")
+	if len(operands) != 1 {
+		return oneOperand("replay", "character record", operands)
 	}
 
-	original, err := readRecord(flags.Arg(0))
+	original, err := readRecord(operands[0])
 	if err != nil {
 		return err
 	}

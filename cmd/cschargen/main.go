@@ -12,6 +12,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -83,4 +85,57 @@ func flagSet(name string) *flag.FlagSet {
 	flags.SetOutput(os.Stderr)
 
 	return flags
+}
+
+// parseOperands parses a command line whose flags may sit before, between or
+// after its operands, and returns the operands in the order given.
+//
+// Go's flag package stops at the first argument that is not a flag, so
+// `replay character.json --data setting.json` used to read as three records
+// (#171). The record is the thing already in hand and the flag is the
+// afterthought, so that is the order people type. Parsing again after each
+// operand accepts it with the package as it is; a `--` still ends the flags,
+// and everything after it is an operand however it is spelled.
+func parseOperands(flags *flag.FlagSet, args []string) ([]string, error) {
+	var operands []string
+
+	for {
+		err := flags.Parse(args)
+		if err != nil {
+			return nil, fmt.Errorf("%w", err)
+		}
+
+		rest := flags.Args()
+		if len(rest) == 0 {
+			return operands, nil
+		}
+
+		if consumed := len(args) - len(rest); consumed > 0 && args[consumed-1] == "--" {
+			return append(operands, rest...), nil
+		}
+
+		operands = append(operands, rest[0])
+		args = rest[1:]
+	}
+}
+
+// oneOperand is the usage error for a command that takes exactly one, which
+// names what it was given: a count alone told a reader looking at one record
+// that there was not one record on the line.
+func oneOperand(command, what string, operands []string) error {
+	if len(operands) == 0 {
+		return usagef("%s takes exactly one %s", command, what)
+	}
+
+	return usagef("%s takes exactly one %s, got %d: %s",
+		command, what, len(operands), strings.Join(quoteAll(operands), " "))
+}
+
+func quoteAll(words []string) []string {
+	quoted := make([]string, len(words))
+	for i, word := range words {
+		quoted[i] = strconv.Quote(word)
+	}
+
+	return quoted
 }

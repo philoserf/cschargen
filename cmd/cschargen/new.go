@@ -17,6 +17,10 @@ import (
 // to be world-readable by default.
 const recordMode = 0o600
 
+// directoryMode is the permission a directory `batch -o dir/` creates takes,
+// for the same reason: the records in it are the user's own.
+const directoryMode = 0o700
+
 // newFlags are the flags `cschargen new` accepts, kept together so that the
 // command body reads as what it does rather than as what it parses.
 type newFlags struct {

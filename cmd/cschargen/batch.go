@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/philoserf/cschargen/chargen"
 	"github.com/philoserf/cschargen/setting"
@@ -100,19 +101,28 @@ func batchCommand(args []string, out *os.File) error {
 		return nil
 	}
 
-	if isDirectory(*flags.output) {
+	if asksForADirectory(*flags.output) {
 		return writeRecordsInto(*flags.output, encoded, *flags.force)
 	}
 
 	return writeFile(*flags.output, encoded, *flags.force)
 }
 
-// isDirectory reports whether the output path names a directory that
-// already exists. `-o` takes `dir|file.jsonl`, and an existing directory
-// is the least surprising
-// way to ask for the first: nothing is created behind the caller's back,
-// and a path ending in `.jsonl` can never be mistaken for one.
-func isDirectory(path string) bool {
+// asksForADirectory reports whether `-o` names a directory of records rather
+// than one JSONL file. `-o` takes `dir|file.jsonl`, and two spellings ask for
+// the first: a directory that already exists, and a path ending in a
+// separator, which is how the README writes it and which no file can have.
+//
+// The second used to require the first, so `-o crew/` in a clean directory
+// failed with "open crew/: no such file or directory" -- a precondition
+// reported as a write failure (#168). A trailing slash is the caller saying
+// "directory" as plainly as a path can, so it is created rather than
+// refused; a bare name that does not exist is still a file.
+func asksForADirectory(path string) bool {
+	if strings.HasSuffix(path, string(filepath.Separator)) {
+		return true
+	}
+
 	info, err := os.Stat(path)
 	if err != nil {
 		return false
@@ -128,13 +138,18 @@ func isDirectory(path string) bool {
 // The width of the number is the width of the count, so a batch of a
 // hundred sorts correctly in a listing and in a glob.
 func writeRecordsInto(dir string, batch []byte, force bool) error {
+	err := os.MkdirAll(dir, directoryMode)
+	if err != nil {
+		return fmt.Errorf("creating %s: %w", dir, err)
+	}
+
 	records := splitJSONL(batch)
 	width := len(itoa(len(records)))
 
 	for i, record := range records {
 		name := fmt.Sprintf("npc-%0*d.json", width, i+1)
 
-		err := writeFile(filepath.Join(dir, name), append(record, '\n'), force)
+		err = writeFile(filepath.Join(dir, name), append(record, '\n'), force)
 		if err != nil {
 			return err
 		}

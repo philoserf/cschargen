@@ -17,16 +17,16 @@ func renderCommand(args []string, out *os.File) error {
 	history := flags.Bool("history", false, "render the lifepath transcript instead of the sheet")
 	roster := flags.Bool("roster", false, "one line per character, for casting from a batch")
 
-	err := flags.Parse(args)
+	operands, err := parseOperands(flags, args)
 	if err != nil {
 		return usagef("render: %v", err)
 	}
 
-	if flags.NArg() != 1 {
-		return usagef("render takes exactly one character record")
+	if len(operands) != 1 {
+		return oneOperand("render", "character record", operands)
 	}
 
-	characters, err := readRecords(flags.Arg(0))
+	characters, err := readRecords(operands[0])
 	if err != nil {
 		return err
 	}
@@ -62,10 +62,7 @@ func renderAll(characters []*chargen.Character, history, roster bool) string {
 	return strings.Join(parts, "\n---\n\n")
 }
 
-// readRecord loads a character record. Flags precede the filename because
-// Go's flag package stops parsing at the first non-flag argument, so
-// `render char.json --history` would leave --history standing as a second
-// positional and exit with a usage error.
+// readRecord loads a character record.
 func readRecord(path string) (*chargen.Character, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
