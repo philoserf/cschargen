@@ -42,6 +42,16 @@ release turns out to be.
 - A career ended by an event that does not name the next one — Prisoner event
   64's release — is now recorded as "a table result ended the career", not
   "ejected by a mishap", which p. 263 says no Prisoner mishap does.
+- A characteristic brought to 1 now closes every new career but Vagabond, as
+  p. 119 says: the character stays in the career they are in, and anything that
+  would move them elsewhere — Step 9, a mishap sending them to Prisoner, an
+  event naming another career — sends them to Vagabond. Nothing checked for it,
+  so 19 of 400 twelve-term characters entered another career after a
+  characteristic had reached 1; none now. A score floored at 0 counts, CHA does not, and a later recovery
+  reopens nothing — ERRATA E-46 has the reading. A player is no longer offered a
+  return to higher education once it applies. A record written before this
+  that reached 1 will not replay
+  ([#166](https://github.com/philoserf/cschargen/issues/166)).
 
 ## v0.1.0-alpha.5 — 2026-09-22
 

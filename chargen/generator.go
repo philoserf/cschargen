@@ -133,6 +133,13 @@ type Generator struct {
 	crisisSurvived bool
 	mentalDecline  bool
 
+	// reachedOne is p. 119's: once a loss has brought a physical or mental
+	// characteristic to 1, the character "must either remain within the
+	// career they are in, leave character generation and join the game,
+	// or enter the Vagabond career". A later gain does not clear it
+	// (ERRATA E-46).
+	reachedOne bool
+
 	pending []PendingModifier
 
 	// automatic holds throws a table result has already decided: "Gain an
@@ -419,6 +426,12 @@ func (g *Generator) mayReturnToEducation(step int) error {
 	// after it reads the wrong index (#106). Inputs.Interactive travels in
 	// the record, so a replay reaches the same choice points the run did.
 	if !g.char.Provenance.Inputs.Interactive {
+		return nil
+	}
+
+	// p. 119 leaves a character who has reached 1 three options, and
+	// higher education is not among them.
+	if g.reachedOne {
 		return nil
 	}
 

@@ -1239,3 +1239,64 @@ not use: `Advocate (Any)-2`, `Language (Any)-0`
 ([#165](https://github.com/philoserf/cschargen/issues/165)).
 
 ---
+
+## E-46 (reading) — what "reach 1" is, and how long it lasts
+
+**Where:** the paragraph below the Injury table, p. 119.
+
+> If any of the character's physical or mental characteristics reach 1, the
+> character must either remain within the career they are in, leave character
+> generation and join the game, or enter the Vagabond career (p.290). If they
+> are forced at this point to leave the career through a Mishap, they can either
+> exit character generation or continue in the Vagabond career.
+
+The page does not say what reaching is, which characteristics count, or when the
+restriction ends. The engine had to choose all three.
+
+- **Reaching is a loss that leaves the score at 1 or below.** The engine floors
+  a characteristic at 0, and a score taken from 3 to 0 passed through 1 on the
+  way: reading "reach 1" as "equal 1" would let the worse injury escape the rule
+  the lesser one triggers. A gain is not a reaching — a score rolled low and
+  raised to 1 by a degree has not declined to anything — and neither is the
+  starting roll, which nothing reduced.
+- **The characteristics are STR, DEX, END, INT and EDU.** Two paragraphs on, the
+  same page names its mental characteristics: "(INT or EDU)". E-17 counts CHA as
+  mental for pp. 123-124, which enumerate neither group; p. 119 enumerates its
+  own, and the engine follows the page the rule is printed on.
+- **It lasts for the rest of generation.** The rule reads as an event with a
+  consequence, like p. 123's crisis survivor, and the book prints nothing that
+  lifts it. A score that climbs back to 2 does not reopen the careers: the
+  injury that brought it to 1 happened, and a reading that cleared the
+  restriction on recovery would turn on the order a term's results happened to
+  land in.
+
+What the engine does with it, once reached:
+
+- **Remaining** is Step 18's ordinary continuation, which needs nothing new.
+- **Higher education** is not one of the three options, so p. 125's offer to
+  return to it is withheld from a player.
+- **Every career the character moves into is Vagabond.** Step 9 offers Vagabond
+  alone, as it does for pp. 123-124's restrictions. A result that sends the
+  character to another career — Prisoner most often, but also a career an event
+  names — sends them to Vagabond instead, without the assignment or term count
+  the result carried: the second sentence names Vagabond as the only career a
+  forced exit leads to. p. 42's slave career is the exception; it is the
+  condition a character is born into rather than a career they move into, and
+  the rule's options presume a career to remain in.
+- **Exiting** is not offered. The engine has no early exit for any character —
+  the term limit ends generation — and pp. 123-124's restrictions are handled
+  the same way.
+
+**Stamped** where a loss first brings a characteristic to 1 or below.
+
+**If this is wrong:** an "equal 1" reading would release every character whose
+loss overshot 1, which in 400 twelve-term characters is 36 of the 114 the rule
+reaches. A non-sticky reading would release the ones a later gain
+lifted back to 2. Counting CHA would close careers to characters whose only low
+score is their charisma.
+
+Until this entry nothing checked for 1: 19 of 400 twelve-term characters entered
+a career other than Vagabond after a characteristic had reached it, 13 of them
+Prisoner ([#166](https://github.com/philoserf/cschargen/issues/166)).
+
+---
