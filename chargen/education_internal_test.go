@@ -1,6 +1,7 @@
 package chargen
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -451,4 +452,75 @@ func TestAMedicalDegreeRecordsWhatWasOffered(t *testing.T) {
 			t.Errorf("the record says Medic (%s) was taken; the character holds %v", taken, held)
 		}
 	}
+}
+
+// TestHonoursRaiseTheSkillsTheSuccessGranted is #169: "Those successful in
+// gaining honors should increase the skill level of the skills gained during
+// the Success step by one level" (pp. 89, 94, 98, 102). The skills are the
+// ones the Success step raised, specialties and all, and nothing the
+// character held already.
+func TestHonoursRaiseTheSkillsTheSuccessGranted(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		institution career.Institution
+		edu         int
+		stamped     bool
+	}{
+		{"an undergraduate degree is the book's plain case", career.Undergraduate(), 10, false},
+		{"a medical degree is read as four skills (E-47)", career.MedSchool(), 12, true},
+		{"EDU at medical school's ceiling does not withhold the skills", career.MedSchool(), medicalEDUCap, true},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			gen := educationEngine(t, 28)
+
+			gen.char.State.Characteristics.Set(EDU, tc.edu)
+
+			gen.char.State.Skills = []Skill{{Name: "Admin", Level: 1}}
+
+			before := slices.Clone(gen.char.State.Skills)
+
+			gen.char.State.GainSkill("Advocate", "Legal", degreeLevel)
+			gen.char.State.GainSkill("Admin", "", 1)
+
+			gen.successSkills = skillsRaised(before, gen.char.State.Skills)
+
+			gen.char.State.GainSkill("Broker", "", 1) // an events-table grant
+
+			gen.grantHonors(tc.institution, 0, &Education{Succeeded: true})
+
+			want := map[string]int{"Admin": 3, "Advocate (Legal)": 3, "Broker": 1}
+			for _, held := range gen.char.State.Skills {
+				if held.Level != want[held.Full()] {
+					t.Errorf("%s at %d, want %d", held.Full(), held.Level, want[held.Full()])
+				}
+			}
+
+			if got := slices.Contains(gen.char.Provenance.Deviations, "E-47"); got != tc.stamped {
+				t.Errorf("E-47 stamped = %v, want %v", got, tc.stamped)
+			}
+
+			if issues := countUnimplemented(gen); issues != 0 {
+				t.Errorf("honours still record %d unimplemented results", issues)
+			}
+		})
+	}
+}
+
+// countUnimplemented is how many results the log records as not done.
+func countUnimplemented(gen *Generator) int {
+	count := 0
+
+	for _, event := range gen.log.Events() {
+		if event.Consequence != nil && event.Consequence.Kind == ConsequenceUnimplemented {
+			count++
+		}
+	}
+
+	return count
 }

@@ -393,12 +393,18 @@ func TestAMedicalDegreeIsFourDifferentSpecialties(t *testing.T) {
 			levels[held.Level]++
 		}
 
-		// Four specialties at 3, 2, 2 and 1. A character who held Medic
-		// before medical school may have more.
+		// Four specialties at 3, 2, 2 and 1, each a level higher with
+		// honours (p. 102). A character who held Medic before medical school
+		// may have more.
+		raise := 0
+		if tookMedicalHonours(character) {
+			raise = 1
+		}
+
 		for level, want := range map[int]int{3: 1, 2: 2, 1: 1} {
-			if levels[level] < want {
+			if levels[level+raise] < want {
 				t.Errorf("seed %d holds %d Medic specialties at level %d, want %d",
-					seed, levels[level], level, want)
+					seed, levels[level+raise], level+raise, want)
 			}
 		}
 	}
@@ -665,4 +671,16 @@ func TestAReturnToEducationReplays(t *testing.T) {
 				got.Choice.Point, got.Choice.Chosen)
 		}
 	}
+}
+
+// tookMedicalHonours reports whether the character graduated from medical
+// school with honours.
+func tookMedicalHonours(character *chargen.Character) bool {
+	for _, held := range character.State.Education {
+		if held.Institution == career.MedSchool().Name && held.Honors {
+			return true
+		}
+	}
+
+	return false
 }

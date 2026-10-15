@@ -52,6 +52,15 @@ release turns out to be.
   return to higher education once it applies. A record written before this
   that reached 1 will not replay
   ([#166](https://github.com/philoserf/cschargen/issues/166)).
+- Honours now raise each skill the degree's Success step granted by one level,
+  as every institution's Honors entry says, rather than adding EDU and logging
+  the skill half as unimplemented — 57 times in 400 twelve-term characters,
+  none now. The raise lands on the specialty the degree took, and an events
+  result that grants honours late raises the same skills. A master's with
+  honours raises the field again, a medical degree with honours holds Medic at
+  4, 3, 3 and 2, and a medical graduate already at EDU 16 still takes the skills
+  — ERRATA E-47 has the reading
+  ([#169](https://github.com/philoserf/cschargen/issues/169)).
 
 ## v0.1.0-alpha.5 — 2026-09-22
 

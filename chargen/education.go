@@ -1,6 +1,7 @@
 package chargen
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/philoserf/cschargen/career"
@@ -306,10 +307,14 @@ func (g *Generator) attemptDegree(
 	g.consequence(ConsequenceAge, step,
 		"four years at the "+institution.Name+": age "+itoa(g.char.State.Age), "")
 
+	before := slices.Clone(g.char.State.Skills)
+
 	field, err := g.chooseField(institution, step)
 	if err != nil {
 		return false, err
 	}
+
+	g.successSkills = skillsRaised(before, g.char.State.Skills)
 
 	record.Field = field
 	record.Degree = g.degreeFor(institution)
@@ -614,12 +619,42 @@ func (g *Generator) grantHonors(institution career.Institution, step int, record
 	// character's EDU by 1" (p. 89) -- and medical school's version adds
 	// "to a maximum of 16" to that second sentence (p. 102).
 	gain := honorsGain(g.char.State.Characteristics.Get(EDU), institution)
-	if gain <= 0 {
-		return
+	if gain > 0 {
+		g.adjust("EDU", gain, "honours at the "+institution.Name, step)
 	}
 
-	g.adjust("EDU", gain, "honours at the "+institution.Name, step)
-	g.unimplemented(step, "the skills gained at success rise by one level (p. 89)")
+	// "Those successful in gaining honors should increase the skill level
+	// of the skills gained during the Success step by one level" (p. 89).
+	// The sentence stands apart from the EDU one, so a medical graduate
+	// already at EDU 16 still takes it. Graduate and medical school are
+	// where "the skills gained" needs reading (ERRATA E-47).
+	if len(g.successSkills) > 0 && institution.RequiresDegree {
+		g.char.Provenance.Deviate("E-47")
+	}
+
+	for _, gained := range g.successSkills {
+		g.gainSkill(gained.Name, gained.Specialty, 1, step)
+	}
+}
+
+// skillsRaised is the sheet entries that hold more levels after a step than
+// before it -- including the ones it added -- in the sheet's own order.
+func skillsRaised(before, after []Skill) []Skill {
+	was := make(map[string]int, len(before))
+	for _, old := range before {
+		was[old.Full()] = old.Level
+	}
+
+	raised := make([]Skill, 0, len(after))
+
+	for _, held := range after {
+		level, found := was[held.Full()]
+		if !found || level < held.Level {
+			raised = append(raised, held)
+		}
+	}
+
+	return raised
 }
 
 // honorsGain is how much EDU honours are worth at this institution: "+2 to

@@ -1300,3 +1300,49 @@ a career other than Vagabond after a characteristic had reached it, 13 of them
 Prisoner ([#166](https://github.com/philoserf/cschargen/issues/166)).
 
 ---
+
+## E-47 (reading) — the skills honours raise at graduate and medical school
+
+**Where:** the Honors entries of Graduate School (p. 98) and Medical School
+(p. 102), each repeating pp. 89 and 94.
+
+> Those successful in gaining honors should increase the skill level of the
+> skills gained during the Success step by one level.
+
+At an undergraduate university or a military academy the sentence is plain: the
+Success step granted a field at level 2 and one other skill at level 1, and each
+rises by one. The two graduate tracks reuse the sentence over Success steps that
+grant something else, and the engine had to read it against each.
+
+- **Graduate school's raised field counts.** p. 97's Success step does not grant
+  the field; it "may now increase the skill they increased in Undergraduate
+  University by two levels". The engine counts those levels as gained during the
+  Success step, so honours raise the field a third level, as well as the skill
+  taken from the list. If the second skill is the same entry as the field, the
+  entry rises once: the sentence raises skills, not grants.
+- **Medical school's four Medic grants are four skills.** p. 101 grants "Medic
+  (Any) at level 3, Medic (Any) at level 2, Medic (Any) at level 2, and Medic
+  (Any) at level 1" in specialties that "should all be different". Each is its
+  own line on the sheet, so honours raise each one: 4, 3, 3 and 2.
+- **The EDU ceiling does not withhold the skills.** Medical school's EDU gain
+  stops at 16 (p. 102), and a graduate already there gains no EDU. The skill
+  sentence is separate from the EDU one, so the skills still rise.
+
+What every track shares, and is not a reading: the skills are the sheet entries
+the Success step raised, specialty included, so an "(Any)" rises in the
+specialty it resolved to (E-45). When an events-table result grants honours the
+throw missed (pp. 91, 95, 100, 103), the raise is to those same skills, not to
+what the events table has just granted.
+
+**Stamped** where honours raise skills at graduate or medical school.
+
+**If this is wrong:** a reading that counted only skills newly granted would
+give a master's with honours one level, not two, and leave the field at the
+level the Success step left it. One that read Medic as one skill would raise a
+single specialty instead of four.
+
+Until this entry honours were worth their EDU and nothing else, and every grant
+recorded the skill half as unimplemented: 57 of 400 twelve-term characters
+([#169](https://github.com/philoserf/cschargen/issues/169)).
+
+---
