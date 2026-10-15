@@ -5,6 +5,13 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+- The character sheet flags a characteristic at 0: an **At 0** line at the top
+  names it, quoting p. 14's "extreme limitation" and its recommendation that
+  the Referee intervene, and the cell in the characteristics table is bold. A 0
+  used to be one number in a row of six, which is what an eye slides over, and
+  the referee holding the sheet is the reader who must not miss it
+  ([#172](https://github.com/philoserf/cschargen/issues/172)).
+
 - `data validate` reads every species' `characteristics` dice expressions with
   the parser generation throws them with, and names the species, the
   characteristic and the string it cannot read. A file with `"STR": "2d6+banana"`
