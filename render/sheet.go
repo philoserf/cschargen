@@ -77,7 +77,7 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 		fmt.Fprintf(out, "**Primary language**: %s  \n", state.Language)
 	}
 
-	fmt.Fprintf(out, "**Terms**: %d\n", len(state.Terms))
+	fmt.Fprintf(out, "**Terms**: %d  \n", len(state.Terms))
 
 	// Aging is the one thing that can end a lifepath short of the term
 	// limit (pp. 123-124), and a sheet that did not say so would show a
@@ -89,6 +89,8 @@ func writeSummary(out *strings.Builder, character *chargen.Character) {
 	case chargen.FateIncapacitated:
 		fmt.Fprint(out, "**Incapacitated** by aging: generation ended here  \n")
 	}
+
+	writeZeroed(out, state.Characteristics)
 
 	fmt.Fprint(out, "\n")
 }
@@ -244,7 +246,13 @@ func writeCharacteristics(out *strings.Builder, character *chargen.Character) {
 
 	for _, which := range chargen.CharacteristicOrder {
 		score := character.State.Characteristics.Get(which)
-		fmt.Fprintf(out, " %d (%+d) |", score, chargen.Modifier(score))
+
+		cell := fmt.Sprintf("%d (%+d)", score, chargen.Modifier(score))
+		if score == 0 {
+			cell = "**" + cell + "**"
+		}
+
+		fmt.Fprintf(out, " %s |", cell)
 	}
 
 	out.WriteString("\n\n")
@@ -511,4 +519,28 @@ func writeProvenance(out *strings.Builder, character *chargen.Character) {
 	if len(prov.Deviations) > 0 {
 		fmt.Fprintf(out, "Deviations applied (see ERRATA.md): %s\n", strings.Join(prov.Deviations, ", "))
 	}
+}
+
+// writeZeroed puts a characteristic at 0 at the top of the sheet, where
+// the referee holding it cannot miss it. A 0 in a row of six numbers is
+// what an eye slides over, and p. 14 treats it as anything but a number:
+// "If a characteristic is reduced to 0, it represents an extreme
+// limitation for the character ... it is strongly recommended that
+// Referees intervene before character generation reaches this point."
+func writeZeroed(out *strings.Builder, scores chargen.Characteristics) {
+	var zeroed []string
+
+	for _, which := range chargen.CharacteristicOrder {
+		if scores.Get(which) == 0 {
+			zeroed = append(zeroed, which.String())
+		}
+	}
+
+	if len(zeroed) == 0 {
+		return
+	}
+
+	fmt.Fprintf(out, "**At 0**: %s. A characteristic at 0 is \"an extreme limitation\" "+
+		"and \"a serious condition with meaningful consequences\"; the book strongly "+
+		"recommends the Referee intervene (p. 14)  \n", strings.Join(zeroed, ", "))
 }

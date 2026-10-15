@@ -654,3 +654,26 @@ func TestASheetWithOnlyFamilyHasNoStrayHeading(t *testing.T) {
 		t.Errorf("the school tie is missing:\n%s", got)
 	}
 }
+
+// TestTheSheetFlagsACharacteristicAtZero (#172): p. 14 calls a
+// characteristic at 0 "an extreme limitation" and asks the Referee to
+// intervene, so the sheet says so at the top and marks the cell, rather
+// than printing a 0 an eye slides over.
+func TestTheSheetFlagsACharacteristicAtZero(t *testing.T) {
+	t.Parallel()
+
+	got := character(t, 3, 2, "Zeroed")
+
+	got.State.Characteristics.Set(chargen.STR, 0)
+
+	sheet := render.Sheet(got)
+	for _, want := range []string{"**At 0**: STR.", "(p. 14)", "| **0 (-3)** |"} {
+		if !strings.Contains(sheet, want) {
+			t.Errorf("the sheet of a character at STR 0 does not say %q:\n%s", want, sheet)
+		}
+	}
+
+	if strings.Contains(render.Sheet(character(t, 3, 2, "Whole")), "**At 0**") {
+		t.Error("a sheet with no characteristic at 0 flags one")
+	}
+}
