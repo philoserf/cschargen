@@ -70,6 +70,67 @@ func warnHowManyCareersChanged(
 			" (p. 110).\n", missed, len(characters), asked)
 }
 
+// warnIfTheHomeworldChanged says so when the world a character was born on is
+// not the world `--homeworld` asked for (#167).
+//
+// That happens for a reason the rules give: a world that does not admit the
+// character's species sends them to another (p. 42), and the engine takes
+// the first that does. The record is honest about it -- `inputs.homeworld`
+// keeps the world asked for beside `state.homeworlds`, and the history cites
+// the page -- but nothing at the terminal said so, and a batch never did. So
+// the command says it once, on stderr, and exits 0, as #63 settled for the
+// career.
+//
+// The asked-for world and the species are read from the record rather than
+// the flags: the note is about what this character was asked to be.
+func warnIfTheHomeworldChanged(notes io.Writer, character *chargen.Character) {
+	inputs := character.Provenance.Inputs
+	if !bornElsewhere(character) {
+		return
+	}
+
+	_, _ = fmt.Fprintf(notes,
+		"note: asked for %s; it does not admit a %s, and the character was"+
+			" born on %s instead (p. 42).\n",
+		inputs.Homeworld, inputs.Species, character.State.Homeworlds[0].World)
+}
+
+// warnHowManyHomeworldsChanged is the same note for a batch, counted rather
+// than repeated, as warnHowManyCareersChanged is.
+func warnHowManyHomeworldsChanged(notes io.Writer, characters []*chargen.Character) {
+	var (
+		missed int
+		inputs chargen.Inputs
+	)
+
+	for _, character := range characters {
+		if bornElsewhere(character) {
+			missed++
+
+			inputs = character.Provenance.Inputs
+		}
+	}
+
+	if missed == 0 {
+		return
+	}
+
+	_, _ = fmt.Fprintf(notes,
+		"note: %d of %d were born somewhere other than %s, which does not"+
+			" admit a %s (p. 42).\n", missed, len(characters), inputs.Homeworld, inputs.Species)
+}
+
+// bornElsewhere reports whether a homeworld was asked for and the character
+// was born on another. Only the first entry is the birth: Colonist's
+// mishaps reassign a homeworld later (ERRATA E-9), and that is not the flag
+// being overridden.
+func bornElsewhere(character *chargen.Character) bool {
+	asked := character.Provenance.Inputs.Homeworld
+
+	return asked != "" && len(character.State.Homeworlds) > 0 &&
+		character.State.Homeworlds[0].World != asked
+}
+
 // servedIn reports whether a character ever entered a named career.
 func servedIn(character *chargen.Character, name string) bool {
 	for _, served := range character.State.Services {

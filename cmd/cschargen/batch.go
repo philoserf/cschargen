@@ -238,6 +238,7 @@ func generateBatch(
 	}
 
 	warnHowManyCareersChanged(os.Stderr, made, *flags.forceCar)
+	warnHowManyHomeworldsChanged(os.Stderr, made)
 
 	return lines, nil
 }
