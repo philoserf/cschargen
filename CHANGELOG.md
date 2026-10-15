@@ -5,122 +5,166 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
-- Jack of All Trades stops at 3, as p. 309 prints: "a character may never have a
-  skill level in Jack of All Trades higher than 3." A grant past it is held at 3,
-  the record logs the levels lost and stamps ERRATA E-48. Nothing enforced the
-  cap before; no character in 2,000 had yet passed it
-  ([#176](https://github.com/philoserf/cschargen/issues/176)).
+## v0.1.0-alpha.6 — 2026-10-15
 
-- The character sheet flags a characteristic at 0: an **At 0** line at the top
-  names it, quoting p. 14's "extreme limitation" and its recommendation that
-  the Referee intervene, and the cell in the characteristics table is bold. A 0
-  used to be one number in a row of six, which is what an eye slides over, and
-  the referee holding the sheet is the reader who must not miss it
-  ([#172](https://github.com/philoserf/cschargen/issues/172)).
+Fourteen issues out of playing alpha.5, as alpha.4's thirteen came out of
+playing alpha.3: twelve-term characters read sheet by sheet, the history of the
+odd ones followed throw by throw, and the README's quick start typed into a
+clean directory.
 
-- `data validate` reads every species' `characteristics` dice expressions with
-  the parser generation throws them with, and names the species, the
-  characteristic and the string it cannot read. A file with `"STR": "2d6+banana"`
-  used to validate and then fail only when that species was rolled, with "table
-  carries a dice expression the engine cannot read" — no file, no species, no
-  string. That runtime error now names the expression, the page it was thrown
-  for and, for a species, the species and characteristic
-  ([#170](https://github.com/philoserf/cschargen/issues/170)).
+alpha.5 made the record say what the engine did. This release is about what the
+engine did. Half of the fourteen put a wrong character on the sheet — a result
+the book prints that the engine logged as unimplemented, a rule nothing
+enforced, a choice that resolved to the word "Any" — and the other half are the
+tool failing a referee on first contact.
 
-- `data validate` bounds `presentYear` to 2331–2450 and refuses a world whose
-  `settledYear` is after it, where any year passed. Step 7 measures settlement
-  against the present (p. 76), so a year drifted a century changed which
-  teenage paths a homeworld qualified for without anything a reader would notice
-  (ERRATA E-27) ([#174](https://github.com/philoserf/cschargen/issues/174)).
+### Breaking
 
-- A `--homeworld` that does not admit the character's species now says so on
-  stderr, naming the world the character was born on instead, and a batch
-  counts it in one line. p. 42 sends such a character to another world, and the
-  record always said so, but the terminal did not, so a referee found out only
-  by rendering the history. The command still exits 0, as `--career` does (#63)
-  ([#167](https://github.com/philoserf/cschargen/issues/167)).
+**Records written before this release will not replay where the dice now
+differ.** `replay` refuses a record another build wrote, as it always has, and
+`--ignore-provenance` replays it anyway and names the first value that moved.
+Four changes move what a seed produces: "(Any)" resolving to a real specialty
+([#165](https://github.com/philoserf/cschargen/issues/165)), the Injury table's
+two worst rows ([#164](https://github.com/philoserf/cschargen/issues/164)), a
+characteristic at 1 closing every career but Vagabond
+([#166](https://github.com/philoserf/cschargen/issues/166)), and honours
+raising skills ([#169](https://github.com/philoserf/cschargen/issues/169)). A
+record that reached none of them replays. Jack of All Trades' ceiling
+([#176](https://github.com/philoserf/cschargen/issues/176)) moves a seed too,
+in principle; no character in 2,000 had reached it.
 
-- `--terms` below -1 is refused with a usage error, where `--terms -5` served
-  no terms and wrote `termLimit: -5` into the record — a value that is neither
-  of the two spellings the command means by "none". `--terms 0` and `--terms -1`
-  are unchanged and both record -1
-  ([#175](https://github.com/philoserf/cschargen/issues/175)).
+**Auto `PolicyVersion` is now 0.4.0.** 0.3.3 added the `skill_specialty` choice
+that "(Any)" now asks for, and 0.4.0 takes a loss the character places from the
+highest characteristic rather than the first printed. An auto character from
+the same seed is a different character.
 
-- `render`, `replay` and `data validate` now take their flags after the file as
-  well as before it, so `replay character.json --data setting.json` replays
-  rather than reporting "takes exactly one character record" about a line with
-  one record in it. Go's `flag` package stopped at the file and read the flag
-  and its value as two more records; the command now parses again after each
-  operand, and `--` still ends the flags. A line with too many files names them
-  ([#171](https://github.com/philoserf/cschargen/issues/171)).
-- Every line of the README's quick start now works typed verbatim into a clean
-  directory. `batch -o crew/` creates the directory where it used to fail with
-  "open crew/: no such file or directory" — a trailing separator says
-  "directory", and a bare name that is not there is still a file — and the
-  `replay` line passes the `--data` the record was generated with. The `--names`
-  line wrote over the `crew.jsonl` three lines above it and was refused; it now
-  writes `cast.jsonl`
-  ([#168](https://github.com/philoserf/cschargen/issues/168)).
-- `cschargen data --help` prints the data usage, where it reported `--help` as
-  an unknown data subcommand
-  ([#173](https://github.com/philoserf/cschargen/issues/173)).
+### The character the book would not recognise
 
-- A medical degree's record now names the four Medic specialties the
-  character took, and replays. The log shared each choice's option list with
-  `medicalDegree`, which narrowed it in place after every pick, so all four
-  recorded lists were overwritten and named specialties the character never
-  held. `choose` now copies the options into the record, which closes the
-  class rather than the one caller
-  ([#163](https://github.com/philoserf/cschargen/issues/163)).
-- A skill granted as "(Any)" now resolves to a real specialty, where the sheet
-  used to print `Advocate (Any)-2` and `Language (Any)-0`. pp. 116 and 118 both
-  say the character picks one: a rank benefit takes a specialty not already held
-  at level 1 or higher, and a skill table's result raises any specialty, or puts
-  a skill the character lacks on bare at level 0. Recording "Any" made p. 116's
-  proviso unreachable, so a second "(Any)" rank benefit found "Any" already at 1
-  and granted nothing: 38 dropped grants in 200 twelve-term characters, none now.
-  The choice is `skill_specialty` (policy 0.3.3), and a degree's field is
-  recorded as the specialty taken, so a master's raises the same one. ERRATA E-45
-  has what the pages leave open. A record written before this will not replay
-  ([#165](https://github.com/philoserf/cschargen/issues/165)).
-- The Injury table's two worst rows now do what p. 119 says. "Nearly killed"
-  takes 1d6 from one physical characteristic and 2 from each of the other two
-  (or 4 from one of them); "severely injured" takes 1d6 from one. Both were
-  recorded as unimplemented, so a character nearly killed walked away unmarked —
-  355 of the 776 unimplemented results in 400 twelve-term characters, none now.
-  An injury's throws and consequences now cite p. 119 rather than the career
-  page that sent the character there. A record written before this that reached
-  either row will not replay
-  ([#164](https://github.com/philoserf/cschargen/issues/164)).
-- The auto policy takes a loss the character places from their highest
-  characteristic rather than the first printed, which was STR every time
-  (policy 0.4.0). p. 14 asks for a characteristic at 0 to be headed off, and
-  with the Injury table's 1d6 rows in, first-printed left 68 STR scores at 0 or
-  1 in 400 characters; the new rule leaves 24, and characters with any
-  characteristic at 0 or 1 fall from 100 to 82. POLICY.md's Losses section has
-  the argument (part of [#172](https://github.com/philoserf/cschargen/issues/172)).
-- A career ended by an event that does not name the next one — Prisoner event
-  64's release — is now recorded as "a table result ended the career", not
-  "ejected by a mishap", which p. 263 says no Prisoner mishap does.
-- A characteristic brought to 1 now closes every new career but Vagabond, as
-  p. 119 says: the character stays in the career they are in, and anything that
-  would move them elsewhere — Step 9, a mishap sending them to Prisoner, an
-  event naming another career — sends them to Vagabond. Nothing checked for it,
-  so 19 of 400 twelve-term characters entered another career after a
-  characteristic had reached 1; none now. A score floored at 0 counts, CHA does not, and a later recovery
-  reopens nothing — ERRATA E-46 has the reading. A player is no longer offered a
-  return to higher education once it applies. A record written before this
-  that reached 1 will not replay
-  ([#166](https://github.com/philoserf/cschargen/issues/166)).
-- Honours now raise each skill the degree's Success step granted by one level,
-  as every institution's Honors entry says, rather than adding EDU and logging
-  the skill half as unimplemented — 57 times in 400 twelve-term characters,
-  none now. The raise lands on the specialty the degree took, and an events
-  result that grants honours late raises the same skills. A master's with
-  honours raises the field again, a medical degree with honours holds Medic at
-  4, 3, 3 and 2, and a medical graduate already at EDU 16 still takes the skills
-  — ERRATA E-47 has the reading
-  ([#169](https://github.com/philoserf/cschargen/issues/169)).
+**A skill granted as "(Any)" now resolves to a real specialty**, where the sheet
+used to print `Advocate (Any)-2` and `Language (Any)-0`. pp. 116 and 118 both
+say the character picks one: a rank benefit takes a specialty not already held
+at level 1 or higher, and a skill table's result raises any specialty, or puts a
+skill the character lacks on bare at level 0. Recording "Any" made p. 116's
+proviso unreachable, so a second "(Any)" rank benefit found "Any" already at 1
+and granted nothing: 38 dropped grants in 200 twelve-term characters, none now.
+The choice is `skill_specialty`, and a degree's field is recorded as the
+specialty taken, so a master's raises the same one. ERRATA E-45 has what the
+pages leave open ([#165](https://github.com/philoserf/cschargen/issues/165)).
+
+**The Injury table's two worst rows now do what p. 119 says.** "Nearly killed"
+takes 1d6 from one physical characteristic and 2 from each of the other two (or
+4 from one of them); "severely injured" takes 1d6 from one. Both were recorded
+as unimplemented, so a character nearly killed walked away unmarked — 355 of
+the 776 unimplemented results in 400 twelve-term characters, none now. An
+injury's throws and consequences now cite p. 119 rather than the career page
+that sent the character there. A career ended by an event that does not name
+the next one — Prisoner event 64's release — is now recorded as "a table result
+ended the career", not "ejected by a mishap", which p. 263 says no Prisoner
+mishap does ([#164](https://github.com/philoserf/cschargen/issues/164)).
+
+**The auto policy takes a loss the character places from their highest
+characteristic** rather than the first printed, which was STR every time. p. 14
+asks for a characteristic at 0 to be headed off, and with the Injury table's 1d6
+rows in, first-printed left 68 STR scores at 0 or 1 in 400 characters; the new
+rule leaves 24, and characters with any characteristic at 0 or 1 fall from 100
+to 82. POLICY.md's Losses section has the argument
+([#164](https://github.com/philoserf/cschargen/issues/164),
+[#172](https://github.com/philoserf/cschargen/issues/172)).
+
+**A characteristic brought to 1 now closes every new career but Vagabond**, as
+p. 119 says: the character stays in the career they are in, and anything that
+would move them elsewhere — Step 9, a mishap sending them to Prisoner, an event
+naming another career — sends them to Vagabond. Nothing checked for it, so 19
+of 400 twelve-term characters entered another career after a characteristic had
+reached 1; none now. A score floored at 0 counts, CHA does not, and a later
+recovery reopens nothing — ERRATA E-46 has the reading. A player is no longer
+offered a return to higher education once it applies
+([#166](https://github.com/philoserf/cschargen/issues/166)).
+
+**Honours now raise each skill the degree's Success step granted by one level**,
+as every institution's Honors entry says, rather than adding EDU and logging the
+skill half as unimplemented — 57 times in 400 twelve-term characters, none now.
+The raise lands on the specialty the degree took, and an events result that
+grants honours late raises the same skills. A master's with honours raises the
+field again, a medical degree with honours holds Medic at 4, 3, 3 and 2, and a
+medical graduate already at EDU 16 still takes the skills — ERRATA E-47 has the
+reading ([#169](https://github.com/philoserf/cschargen/issues/169)).
+
+**Jack of All Trades stops at 3**, as p. 309 prints: "a character may never have
+a skill level in Jack of All Trades higher than 3." A grant past it is held at
+3, the record logs the levels lost and stamps ERRATA E-48. Nothing enforced the
+cap before ([#176](https://github.com/philoserf/cschargen/issues/176)).
+
+**A medical degree's record now names the four Medic specialties the character
+took, and replays.** The log shared each choice's option list with
+`medicalDegree`, which narrowed it in place after every pick, so all four
+recorded lists were overwritten and named specialties the character never held.
+`choose` now copies the options into the record, which closes the class rather
+than the one caller ([#163](https://github.com/philoserf/cschargen/issues/163)).
+
+### What the referee sees
+
+**The character sheet flags a characteristic at 0**: an **At 0** line at the top
+names it, quoting p. 14's "extreme limitation" and its recommendation that the
+Referee intervene, and the cell in the characteristics table is bold. A 0 used
+to be one number in a row of six, which is what an eye slides over, and the
+referee holding the sheet is the reader who must not miss it
+([#172](https://github.com/philoserf/cschargen/issues/172)).
+
+**A `--homeworld` that does not admit the character's species now says so on
+stderr**, naming the world the character was born on instead, and a batch
+counts it in one line. p. 42 sends such a character to another world, and the
+record always said so, but the terminal did not, so a referee found out only by
+rendering the history. The command still exits 0, as `--career` does (#63)
+([#167](https://github.com/philoserf/cschargen/issues/167)).
+
+### The command line on first contact
+
+**Every line of the README's quick start now works typed verbatim into a clean
+directory.** `batch -o crew/` creates the directory where it used to fail with
+"open crew/: no such file or directory" — a trailing separator says
+"directory", and a bare name that is not there is still a file — and the
+`replay` line passes the `--data` the record was generated with. The `--names`
+line wrote over the `crew.jsonl` three lines above it and was refused; it now
+writes `cast.jsonl` ([#168](https://github.com/philoserf/cschargen/issues/168)).
+The block no longer carries comments, which an interactive zsh without
+`interactivecomments` passes to the command as arguments; what each line does is
+said beneath it.
+
+**`render`, `replay` and `data validate` take their flags after the file as well
+as before it**, so `replay character.json --data setting.json` replays rather
+than reporting "takes exactly one character record" about a line with one record
+in it. Go's `flag` package stopped at the file and read the flag and its value
+as two more records; the command now parses again after each operand, and `--`
+still ends the flags. A line with too many files names them
+([#171](https://github.com/philoserf/cschargen/issues/171)).
+
+**`--terms` below -1 is refused with a usage error**, where `--terms -5` served
+no terms and wrote `termLimit: -5` into the record — a value that is neither of
+the two spellings the command means by "none". `--terms 0` and `--terms -1` are
+unchanged and both record -1
+([#175](https://github.com/philoserf/cschargen/issues/175)).
+
+**`cschargen data --help` prints the data usage**, where it reported `--help` as
+an unknown data subcommand
+([#173](https://github.com/philoserf/cschargen/issues/173)).
+
+### Setting data
+
+**`data validate` reads every species' `characteristics` dice expressions** with
+the parser generation throws them with, and names the species, the
+characteristic and the string it cannot read. A file with `"STR": "2d6+banana"`
+used to validate and then fail only when that species was rolled, with "table
+carries a dice expression the engine cannot read" — no file, no species, no
+string. That runtime error now names the expression, the page it was thrown for
+and, for a species, the species and characteristic
+([#170](https://github.com/philoserf/cschargen/issues/170)).
+
+**`data validate` bounds `presentYear` to 2331–2450** and refuses a world whose
+`settledYear` is after it, where any year passed. Step 7 measures settlement
+against the present (p. 76), so a year drifted a century changed which teenage
+paths a homeworld qualified for without anything a reader would notice (ERRATA
+E-27) ([#174](https://github.com/philoserf/cschargen/issues/174)).
 
 ## v0.1.0-alpha.5 — 2026-09-22
 

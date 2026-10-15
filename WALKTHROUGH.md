@@ -64,13 +64,18 @@ import cycle. The one edge that would otherwise compile is held by a linter:
 `.golangci.yml` — `depguard`
 
 ```yaml
-depguard:
-  rules:
-    dice-knows-no-rules:
-      files: ["**/dice/*.go"]
-      deny:
-        - pkg: github.com/philoserf/cschargen/career
-          desc: dice knows the shapes of throw, never what a throw means
+    depguard:
+      # depguard's own default is a deny-all list that flags this module's
+      # own imports, so the choice was never on or off but configured or
+      # meaningless. Most of the layering is enforced by the compiler,
+      # because the reverse edge is an import cycle. These are the edges
+      # that would otherwise compile.
+      rules:
+        dice-knows-no-rules:
+          files: ["**/dice/*.go"]
+          deny:
+            - pkg: github.com/philoserf/cschargen/career
+              desc: dice knows the shapes of throw, never what a throw means
 ```
 
 One thing to know before reading further: **the worlds are not in this repository.**
@@ -97,7 +102,8 @@ func main() {
 
 Everything real is in `run`, which takes its arguments and its output stream as
 parameters — that is what makes the whole CLI testable in-process, and
-`cmd/cschargen/main_test.go` has fifty-nine tests that call it directly.
+`cmd/cschargen/main_test.go` drives it through one helper, `capture`, rather than
+through a built binary.
 
 Note what the exit status does **not** encode. Both kinds of failure exit 1:
 
@@ -130,6 +136,36 @@ func dispatch() map[string]func([]string, *os.File) error {
 `version` and the help forms are handled by a `switch` after the map misses, because
 they take no arguments.
 
+The three commands that take a file — `render`, `replay`, `data validate` — read
+their command lines through one function, because Go's `flag` package stops at the
+first argument that is not a flag:
+
+`cmd/cschargen/main.go` — `parseOperands`
+
+```go
+	for {
+		err := flags.Parse(args)
+		if err != nil {
+			return nil, fmt.Errorf("%w", err)
+		}
+
+		rest := flags.Args()
+		if len(rest) == 0 {
+			return operands, nil
+		}
+
+		if consumed := len(args) - len(rest); consumed > 0 && args[consumed-1] == "--" {
+			return append(operands, rest...), nil
+		}
+
+		operands = append(operands, rest[0])
+		args = rest[1:]
+	}
+```
+
+It parses again after each operand, so `replay character.json --data setting.json`
+is one record and a flag rather than three records; a `--` still ends the flags.
+
 ---
 
 ## 4. `new`: from flags to a `Generator`
@@ -153,22 +189,14 @@ generated without a seed is still reproducible afterwards. This is the first pla
 program's central bargain shows up: nothing is allowed to happen that the record
 cannot explain.
 
-`isSet` walks `flag.FlagSet.Visit`, which visits only the flags actually given. That
+`given` walks `flag.FlagSet.Visit`, which visits only the flags actually given. That
 matters for one flag in particular:
 
 `cmd/cschargen/new.go` — `newFlags.termLimit`
 
 ```go
 func (f newFlags) termLimit() int {
-	given := false
-
-	f.set.Visit(func(flag *flag.Flag) {
-		if flag.Name == "terms" {
-			given = true
-		}
-	})
-
-	if given && *f.terms == 0 {
+	if given(f.set, "terms") && *f.terms == 0 {
 		return noTerms
 	}
 
@@ -180,7 +208,26 @@ The engine reads `TermLimit` as zero for "not given, use the policy default" and
 negative for "no career terms at all". A plain `int` cannot tell an unset flag from one
 set to zero, so `--terms 0` used to silently mean the policy's four. `Visit` is what
 lets the command tell them apart and hand the engine the sentinel it already
-understands.
+understands — `noTerms`, which is -1.
+
+The engine reads _any_ negative as "none", so the other edge is held by refusing it:
+
+`cmd/cschargen/new.go` — `checkTerms`
+
+```go
+func checkTerms(terms int) error {
+	if terms < noTerms {
+		return usagef("--terms %d; 0 serves none, a positive number serves that many,"+
+			" and omitted is the policy default", terms)
+	}
+
+	return nil
+}
+```
+
+`--terms -5` used to serve no terms and write `termLimit: -5` into the record — a
+value that is neither of the command's two spellings of "none". Normalising it would
+write -1 where -5 was asked for, and `Inputs` is what was asked for, so it is refused.
 
 ### 4.2 The setting data
 
@@ -242,6 +289,11 @@ func checkNames(world *setting.Data, flags newFlags) error {
 		return err
 	}
 
+	err = checkTerms(*flags.terms)
+	if err != nil {
+		return err
+	}
+
 	return checkWorldOverrides(flags)
 }
 ```
@@ -297,11 +349,27 @@ one and replays the same way.
 		Seed:          seed,
 		Decider:       decider(*flags.auto),
 		EngineVersion: version(),
-		PolicyVersion: policyVersion,
+		PolicyVersion: chargen.PolicyVersion,
 		Setting:       world,
 		Inputs:        inputs,
 	}).Run()
 ```
+
+Two notes can follow on stderr before the record is written:
+
+`cmd/cschargen/new.go` — `newCommand`
+
+```go
+	warnIfTheCareerChanged(os.Stderr, character, *flags.forceCar)
+	warnIfTheHomeworldChanged(os.Stderr, character)
+```
+
+Both are cases where the rules overrode a flag and the record already says so: a
+`--career` the character failed to enlist in (p. 110), and a `--homeworld` that does
+not admit the character's species, which sends them to another world (p. 42). The
+command says it once and still exits 0, because nothing failed — but a referee who
+asked for a world should not have to render the history to learn the character was
+born somewhere else. `batch` counts each in one line rather than repeating it.
 
 ---
 
@@ -414,7 +482,7 @@ func (g *Generator) choose(ask Choice) (int, error) {
 		Decider: g.decider.Kind(),
 		Point:   ask.Point,
 		Prompt:  ask.Prompt,
-		Options: ask.Options,
+		Options: slices.Clone(ask.Options),
 		Chosen:  chosen,
 		Cite:    ask.Cite,
 	})
@@ -423,18 +491,24 @@ func (g *Generator) choose(ask Choice) (int, error) {
 }
 ```
 
-One funnel, and the answer is logged with the full option list. That list is what makes
-replay possible:
+One funnel, and the answer is logged with the full option list. The list is _copied_
+into the log, not shared with the caller: `medicalDegree` narrows its own list of Medic
+specialties in place after each of its four picks, and a shared slice let it rewrite
+what all four recorded choices said had been offered — so a medical graduate's record
+named specialties they never held and would not replay. Copying here closes the class
+rather than the one caller. That list is what makes replay possible:
 
 `chargen/decider.go` — `Replay.Choose`
 
 ```go
 	if rec.Point != ask.Point {
-		return 0, fmt.Errorf("%w: choice %d is %q, engine asked %q", ...)
+		return 0, fmt.Errorf("%w: choice %d is %q, engine asked %q",
+			ErrReplayDiverged, r.next, rec.Point, ask.Point)
 	}
 
 	if !slices.Equal(rec.Options, ask.Options) {
-		return 0, fmt.Errorf("%w: choice %d (%s) recorded options %v, engine offered %v", ...)
+		return 0, fmt.Errorf("%w: choice %d (%s) recorded options %v, engine offered %v",
+			ErrReplayDiverged, r.next, ask.Point, rec.Options, ask.Options)
 	}
 ```
 
@@ -442,7 +516,7 @@ A recorded index means nothing against a different list. A record made with `--c
 forced saw a one-entry career list; replayed against the full list, index 0 would name
 a different career. The options check catches that.
 
-The auto decider is one line of logic:
+The auto decider is nearly one line of logic:
 
 `chargen/decider.go` — `Policy.Choose`
 
@@ -452,13 +526,32 @@ func (Policy) Choose(c Choice) (int, error) {
 		return 0, fmt.Errorf("%w: %s", ErrNoOptions, c.Point)
 	}
 
-	return 0, nil
+	if len(c.Scores) != len(c.Options) {
+		return 0, nil
+	}
+
+	highest := 0
+
+	for i, score := range c.Scores {
+		if score > c.Scores[highest] {
+			highest = i
+		}
+	}
+
+	return highest, nil
 }
 ```
 
-Always the first option. `POLICY.md` argues this is a rule rather than a preference,
-because every table in the book prints its options in a fixed order — so "first listed"
-is checkable against the page.
+The first option, unless the engine has scored the options. `POLICY.md` argues "first
+listed" is a rule rather than a preference, because every table in the book prints its
+options in a fixed order — so it is checkable against the page. The one exception is a
+loss the character places: the Injury table prints STR, DEX, END, so "first listed"
+took every such loss from STR, and a character injured three times in twelve terms
+reached STR 0 while DEX and END sat untouched — the outcome p. 14 asks a Referee to
+head off. The engine fills `Scores` only where every option opens with a loss from a
+different characteristic, with the score each would take from; the policy takes the
+highest, and a tie goes to the first printed. Every other choice leaves `Scores` empty
+and gets the first option, as before. This is policy 0.4.0.
 
 ### 5.5 The event log
 
@@ -541,8 +634,12 @@ to the policy, which answers with the first subsector the file lists.
 
 ```go
 	if g.char.Provenance.Inputs.SkipFamily {
+		restore := g.citing("p. 57")
+
 		g.consequence(ConsequenceFamily, step,
 			"Step 5 skipped at the player's request (p. 57)", "")
+
+		restore()
 	} else {
 		err := g.determineFamily(world)
 		// ...
@@ -558,6 +655,11 @@ to the policy, which answers with the first subsector the file lists.
 Each of the four is optional in the book, and each `--skip-*` flag writes a consequence
 saying so. A skipped step is recorded as skipped, not omitted.
 
+`g.citing` is how a consequence gets its page. A step is not one page — Step 4 writes
+results from five — so the page is set by the function whose work it is and `restore`
+puts the previous one back on return. The pattern recurs throughout the engine as
+`defer g.citing(...)()`.
+
 ### 5.8 The career loop
 
 `chargen/generator.go` — `runCareers`
@@ -568,10 +670,14 @@ saying so. A skipped step is recorded as skipped, not omitted.
 			return nil
 		}
 
-		if g.career == nil {
+		if g.service.career == nil {
 			err := g.enterCareer()
 			// ...
-			if g.career == nil {
+			if g.stopped {
+				return nil
+			}
+
+			if g.service.career == nil {
 				// The enlistment failed. That consumed no term, so the
 				// loop tries again -- three failures in a row is what
 				// sends a character to Vagabond, not one.
@@ -612,6 +718,23 @@ wins (p. 125).
 a pending transfer a table result ordered, an enslaved character's forced first career,
 three consecutive failed enlistments, or an empty eligible list. Only then does it ask.
 
+Before the list is built, a standing restriction can close it to one career:
+
+`chargen/term.go` — `onlyVagabond`
+
+```go
+func (g *Generator) onlyVagabond() bool {
+	return g.crisisSurvived || g.mentalDecline || g.reachedOne
+}
+```
+
+Three flags set long before Step 9 reads them. An Aging Crisis survived and a mental
+characteristic at 0 are pp. 123–124's; `reachedOne` is p. 119's, set by
+`noteReachedOne` in `chargen/effects.go` the first time a loss brings a physical
+characteristic, INT or EDU to 1 or below. It never clears — a score that recovers
+reopens nothing (ERRATA E-46) — and `takePendingTransfer` honours it too, so a mishap
+that would send the character to Prisoner sends them to Vagabond instead.
+
 `chargen/term.go` — `eligibleCareers`
 
 ```go
@@ -643,9 +766,9 @@ locked out for two full terms (p. 110).
 ```go
 func (g *Generator) resolveTerm(assignment career.Assignment, survived bool) error {
 	if !survived {
-		step := g.log.Step("Step 13: Roll A Mishap", "p. 113")
+		g.log.Step("Step 13: Roll A Mishap", "p. 113")
 
-		return g.rollMishap(step, true)
+		return g.rollMishap(true)
 	}
 
 	err := g.advance(assignment)
@@ -668,7 +791,7 @@ func (g *Generator) rollEvent() error {
 	roll := g.dice.D66()
 	cause := g.log.Roll(roll, "p. 118")
 
-	row, ok := g.career.Events[roll.Total]
+	row, ok := g.service.career.Events[roll.Total]
 	if !ok {
 		return ErrMissingEventRow
 	}
@@ -679,7 +802,7 @@ func (g *Generator) rollEvent() error {
 }
 ```
 
-`g.career.Events` is a `map[int]` keyed by the d66 result, which is why the results are
+`Events` is a `map[int]` keyed by the d66 result, which is why the results are
 11–66 with gaps rather than 1–36.
 
 ### 5.9 Effects: the closed alphabet and the fold over it
@@ -716,6 +839,13 @@ func (g *Generator) applyAll(effects []career.Effect, cause int) error {
 //
 //nolint:cyclop,funlen,gocyclo,maintidx // see the paragraph above
 func (g *Generator) apply(effect career.Effect, cause int) error {
+	// career/ builds table data and never sees a character, so a reading
+	// implemented there declares itself on the effect and is recorded
+	// here (#154).
+	if effect.Deviation != "" {
+		g.char.Provenance.Deviate(effect.Deviation)
+	}
+
 	switch effect.Kind {
 	case career.EffectSkill:
 		return g.applySkill(effect, cause)
@@ -734,9 +864,58 @@ adding a kind to `career` and forgetting it here is a **build failure**. Two sma
 switches would need a default between them, and a default is where a forgotten kind
 goes to be ignored quietly. The `nolint` is bought with that argument.
 
+The lines before the switch are how a reading implemented in `career/` reaches a
+record: that package never sees a character, so an effect names the `ERRATA.md` entry
+it rests on and the engine stamps it when it applies the value.
+
 `EffectCheck` and `EffectGroup` recurse: a check's success and failure branches are
 themselves effect lists, so "roll 8+; on a success, roll again" nests without a special
 case.
+
+The commonest letter is a skill, and the one case in it worth following is "(Any)":
+
+`chargen/effects.go` — `grantSkill`
+
+```go
+	if isAny(effect) {
+		return g.grantAny(effect, level, cause)
+	}
+```
+
+`chargen/skills.go` — `grantAny`
+
+```go
+	held := g.char.State.Has(effect.Skill)
+
+	if level == 0 || (g.onSkillTable && !held) {
+		if held && level == 0 {
+			g.consequence(ConsequenceSkill, cause,
+				effect.Detail+": the character already holds "+effect.Skill, "")
+
+			return Skill{Name: effect.Skill}, nil
+		}
+
+		return g.gainSkill(effect.Skill, "", 0, cause), nil
+	}
+
+	options := g.specialtiesOf(effect.Skill)
+	// ...
+	specialty, err := g.chooseAny(effect.Skill, options, skillStepCite)
+```
+
+p. 118 says what "(Any)" on a skill table means: raise any specialty of the skill, held
+or not — or, for a character without the skill, put it on bare at level 0. `grantAny`
+does that, and `chooseAny` puts the specialty to the decider as a `skill_specialty`
+choice, the same point a printed list of specialties uses. The engine used to record
+the word "Any" as if it were a specialty, which put `Advocate (Any)-2` on a sheet and
+made p. 116's rank-benefit proviso — a specialty not already held at level 1 — find
+"Any" already held and grant nothing. Away from a skill table and a rank row the book
+gives "(Any)" no rule of its own; reading it as p. 118's is ERRATA E-45, stamped where
+it applies.
+
+Every grant ends in `State.GainSkill`, which holds Jack of All Trades at p. 309's
+printed maximum of 3; `noteCeiling` in `chargen/effects.go` logs the levels a grant
+past it lost, cited to p. 309, and stamps ERRATA E-48.
 
 The careers themselves are hand-typed Go, built through constructors that keep a
 transcribed table close to the page:
@@ -819,23 +998,23 @@ those are different things.
 ## 6. A real run
 
 Transcript of commands run while writing this document, against the embedded sample
-data. Nothing re-runs these.
+data, with a binary built from the release branch. Nothing re-runs these.
 
 ```console
 $ cschargen version
-cschargen v0.1.0-alpha.4+dirty
+cschargen v0.1.0-alpha.5.0.20261015203557-7b9ca1b2a348+dirty
 schema 2
-policy 0.3.1
+policy 0.4.0
 ruleset Clement Sector Core Character Creation Book, (c) 2026 Independence Games
 
 $ cschargen new --auto --seed 42 --terms 2 -o c42.json
-$ head -30 c42.json
+$ head -29 c42.json
 {
   "provenance": {
     "schemaVersion": 2,
     "ruleset": "Clement Sector Core Character Creation Book, (c) 2026 Independence Games",
-    "engineVersion": "v0.1.0-alpha.4+dirty",
-    "policyVersion": "0.3.1",
+    "engineVersion": "v0.1.0-alpha.5.0.20261015203557-7b9ca1b2a348+dirty",
+    "policyVersion": "0.4.0",
     "rng": {
       "algorithm": "math/rand/v2 PCG",
       "seed": 42
@@ -847,19 +1026,26 @@ $ head -30 c42.json
     },
     "inputs": {
       "species": "human",
+      "techLevel": 0,
+      "maxTerms": 0,
       "termLimit": 2,
       "interactive": false
     },
     "deviations": [
-      "E-8"
+      "E-44",
+      "E-21",
+      "E-8",
+      "E-20"
     ]
   },
 ```
 
-Every field there is a promise the record makes about itself. `deviations` is the
-`ERRATA.md` readings that applied — `E-8` is "rank benefits are applied immediately
+Every field there is a promise the record makes about itself. `inputs` is what was
+asked for, zeros included, because a replay reconstructs the run from it. `deviations`
+is the `ERRATA.md` readings that changed this character,: E-44 truncates p. 61's family recursion at one generation, E-21 and E-20 are
+readings of the apparent-age chart, and E-8 is "rank benefits are applied immediately
 upon achieving that Rank", which fires on entering any career because every character
-begins at Rank 0.
+begins at Rank 0. A reading that applies to every character alike is not stamped.
 
 Now the log, rendered:
 
@@ -867,9 +1053,10 @@ Now the log, rendered:
 $ cschargen render --history c42.json
 # Lifepath: (unnamed)
 
-Seed 42, 150 events.
+Seed 42, 152 events.
 
-## Step 1: Choose Human, [reserved word], or Uplift (p. 21)
+
+## Step 1: Choose Human, Engineered Human, or Uplift (p. 21)
 
 -    2  -> a baseline human [species, from 1]
 
@@ -885,6 +1072,11 @@ Seed 42, 150 events.
 -   11  -> STR 11 [characteristic, from 10]
 -   12  choice Assign a rolled score to DEX: 12 (policy)
 -   13  -> DEX 12 [characteristic, from 12]
+-   14  choice Assign a rolled score to END: 5 (policy)
+-   15  -> END 5 [characteristic, from 14]
+-   16  choice Assign a rolled score to INT: 11 (policy)
+-   17  -> INT 11 [characteristic, from 16]
+-   18  choice Assign a rolled score to EDU: 11 (policy)
 ...
 ## Step 3: Determine Subsector of Origin (p. 39)
 
@@ -901,21 +1093,20 @@ no target is recorded. Events 10–21 are twelve events for six assignments: a
 `ChoiceEvent` and then the `ConsequenceEvent` it caused, each consequence naming the
 sequence number of its choice (`from 10`, `from 12`). Events 23–27 are the 1d6 subsector
 chart missing twice on a four-subsector file and being thrown again, exactly as §5.6
-described.
+described. The blank line doubled under the header is the renderer's, verbatim: the
+header ends in a blank line and every step heading begins with one.
 
-That step heading is redacted above, and the redaction is the point. The real string
-names the book's word for a genetically engineered human, which the OGL notice reserves
-as Product Identity — and it is a Go string literal that reaches every record and every
-rendered sheet. This document may not reproduce it, which is why the transcript is not
-verbatim there; it is verbatim everywhere else. Tracked as GitHub issue #108, which
-counts thirty-three occurrences of the word in the repository against a `CLAUDE.md`
-claim that there is one.
+Step 1's heading is the engine's own string, and it reads "Engineered Human" because
+the book's word for a genetically engineered human is one the OGL notice reserves as
+Product Identity. It used to be the book's word, which put a reserved term in every
+record and every rendered sheet; `setting/setting_test.go`'s
+`TestNoProductIdentityIsCommitted` now reads every file git tracks for it.
 
 Finally, the claim the whole design exists to support:
 
 ```console
 $ cschargen replay c42.json
-replayed 150 events from seed 42: identical
+replayed 152 events from seed 42: identical
 ```
 
 ---
@@ -953,8 +1144,27 @@ func writeEvent(out *strings.Builder, event chargen.Event) {
 }
 ```
 
-Forty lines of `Fprintf` produce the transcript above. That is the payoff for writing
-the log forward: the renderer has nothing to work out.
+One `switch` of `Fprintf` calls produces the transcript above. That is the payoff for
+writing the log forward: the renderer has nothing to work out.
+
+The sheet's one piece of emphasis is a characteristic at 0, which it puts above
+everything else:
+
+`render/sheet.go` — `writeZeroed`
+
+```go
+	for _, which := range chargen.CharacteristicOrder {
+		if scores.Get(which) == 0 {
+			zeroed = append(zeroed, which.String())
+		}
+	}
+```
+
+An **At 0** line names it and quotes p. 14 — "an extreme limitation", and a strong
+recommendation that the Referee intervene — and the cell in the characteristics table
+is bold. A 0 in a row of six numbers is what an eye slides over, and the referee holding
+the sheet is the reader who must not miss it. It is still a view and not a rule: the
+score is in the record, and the sheet only declines to bury it.
 
 Golden files in `render/testdata/` are compared byte for byte, and are listed in
 `.prettierignore` so the formatter does not rewrite them out from under the comparison.
@@ -980,7 +1190,7 @@ Note what is reused from the record: the seed, the recorded choices and the _inp
 The stored throws are **not** input — every throw is recomputed from the seed. The log
 is verification data.
 
-The command is now thirty lines of flag handling around two calls into `chargen`.
+The command is a page of flag handling around two calls into `chargen`.
 Both used to live here; they moved to `chargen/verify.go` because verification is
 the record's own business, and eight statements no test in `cmd` could reach came
 with them.
@@ -1044,7 +1254,8 @@ are not built the same way: one was decoded from a file and the other constructe
       - task: docs
 ```
 
-**CI runs exactly `task`.** Never add a check to CI the local gate does not run.
+**There is no CI.** The gate runs locally, before a pull request is opened, and nothing
+else checks the tree; `task` is the whole of it.
 
 Two parts of the gate are unusual enough to explain.
 
@@ -1055,11 +1266,11 @@ package, checked in:
 
 ```
 github.com/philoserf/cschargen/career 1
-github.com/philoserf/cschargen/chargen 86
-github.com/philoserf/cschargen/cmd/cschargen 32
+github.com/philoserf/cschargen/chargen 79
+github.com/philoserf/cschargen/cmd/cschargen 21
 github.com/philoserf/cschargen/dice 0
-github.com/philoserf/cschargen/render 5
-github.com/philoserf/cschargen/setting 7
+github.com/philoserf/cschargen/render 3
+github.com/philoserf/cschargen/setting 5
 ```
 
 It fails in **both** directions — a count rising is coverage lost, a count falling is
@@ -1069,7 +1280,7 @@ statement and one uncovered, and it grows more forgiving as the repository grows
 
 The trap: under `-coverpkg` every test binary instruments every package, so a test that
 rolls a whole lifepath from an unpredictable seed reaches different branches on every
-run and the ratchet disagrees between a laptop and CI for no visible reason. A test that
+run and the ratchet disagrees between two runs on one machine for no visible reason. A test that
 needs an unpredictable seed asks for `--terms 0`, which generates characteristics and
 stops.
 
@@ -1086,8 +1297,10 @@ stops.
 ```
 
 Bidirectional: a choice point the document omits fails, and a document row the engine no
-longer offers fails. This is the pattern worth copying; `ERRATA.md` has no equivalent,
-and that is where the drift is.
+longer offers fails. `ERRATA.md` is held the same way, by
+`chargen/errata_internal_test.go`: a reading no record stamps fails unless an allowlist
+says why, a stamped identifier with no entry fails, and the allowlist is itself checked
+against the document so an excuse cannot outlive its reason.
 
 ---
 
@@ -1101,8 +1314,10 @@ worth knowing before you go reading:
   applies. The step numbers in the transcript are the book's and are not the execution
   order.
 - **`Generator` carries about forty fields of cross-step state.** `transfer`,
-  `enslaved`, `academyClosed`, `crisisSurvived`, `mustContinue`, `autoAdvance`,
-  `rollAsHuman` … A result in Step 16 sets a flag that Step 9 reads three events later.
+  `enslaved`, `academyClosed`, `crisisSurvived`, `reachedOne`, `mustContinue`,
+  `autoAdvance`, `rollAsHuman` … A result in Step 16 sets a flag that Step 9 reads three
+  events later, and a loss that brings a score to 1 closes every career but one for the
+  rest of the run (§5.8).
   Reading any one step in isolation will not tell you what can reach it; `grep` for the
   field.
 - **Careers are a graph.** Colonist alone reaches Vagabond, Celebrity, Prisoner and a
@@ -1126,16 +1341,14 @@ board. The issue is the durable reference; this table maps the sections above to
 
 **Related existing findings, all since closed.** The `code-theory` pass that preceded
 this one filed nine, several of which a reader of this document will meet. Where this
-document described them as faults, §8 and §6 now describe the engine as it is:
+document described them as faults, §8 and §9 now describe the engine as it is:
 `Verify` compares the whole character rather than one of twenty `State` fields
-(#111), and a record stamps the `ERRATA.md` entries that changed it — nineteen
-identifiers of forty-four, with the rest carrying a written reason and a gate holding
-both directions (#118, #129, #154). See [`THEORY.md`](THEORY.md)'s own index for all
-nine.
+(#111), and a record stamps the `ERRATA.md` entries that changed it, with a gate
+holding both directions (#118, #129, #154). See [`THEORY.md`](THEORY.md)'s own index
+for all nine. Also closed since: **#108**, the reserved word reaching generated output
+(§6); **#106**, a `Choice` gated on `Asker` being skipped on replay; **#104**.
 
-Also closed since: **#108**, the reserved word reaching generated output (§6);
-**#106**, a `Choice` gated on `Asker` being skipped on replay; **#104**.
-
-This document was regenerated for `v0.1.0-alpha.5`. It quotes the code by file and
+This document was regenerated for `v0.1.0-alpha.6`. It quotes the code by file and
 symbol, so it rots the moment one is renamed — `CLAUDE.md` records the cadence, and
-five of its thirty-nine snippets had drifted by this release.
+twelve of its forty snippets had drifted by this release. This pass found nothing new
+to file.

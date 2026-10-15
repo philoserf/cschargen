@@ -101,14 +101,12 @@ section 5 below.
 repository says "engineered human" in prose, Go identifiers and data-format keys. The
 reasoning in `setting/setting.go` is worth keeping: a data file is something a user
 types, and a key is a worse place to put a word we are not entitled to use than a
-comment is. `setting/setting_test.go`'s `TestTheSampleIsInvented` is this boundary held
-as a test — a list of proper names from the book that must not appear in
-`setting/sample.json`, including that term.
-
-Note what that test does _not_ guard: it reads `sample.json` and nothing else. The term
-currently appears in about thirty places in Go comments and quoted rules (GitHub issue
-#108), because quoting p. 42 verbatim brings it along. The guard is the rule; the test
-is a tripwire on the one file most likely to be pasted into.
+comment is. `setting/setting_test.go`'s `TestNoProductIdentityIsCommitted` is this boundary held
+as a test — a list of proper names from the book, including that term, that must not
+appear in any file git tracks. It read only `sample.json` until the term turned up in
+thirty-odd Go comments and quoted rules, because quoting p. 42 verbatim brings it along
+(#108, #134); it reads everything tracked now, and `data/` is out of its reach because
+git does not hold it.
 
 **Before adding any table, ask whether it names a place, a person, a ship or an
 organization.** If it does, it belongs in the external file.
@@ -138,11 +136,11 @@ and a page cite.
 
 Three implementations, and they are **not peers**:
 
-| Decider  | What it is                                                       |
-| -------- | ---------------------------------------------------------------- |
-| `Player` | Asks a person. The only one that also implements `Asker`.        |
-| `Policy` | Answers "the first option", always. Documented by `POLICY.md`.   |
-| `Replay` | Decides nothing. Reapplies recorded answers and checks they fit. |
+| Decider  | What it is                                                         |
+| -------- | ------------------------------------------------------------------ |
+| `Player` | Asks a person. The only one that also implements `Asker`.          |
+| `Policy` | The first option, save one scored rule. Documented by `POLICY.md`. |
+| `Replay` | Decides nothing. Reapplies recorded answers and checks they fit.   |
 
 `Replay.Choose` is the interesting one. It does not just return the recorded index — it
 checks that the recorded `Point` matches the point being asked and that the recorded
@@ -155,8 +153,8 @@ entry.
 `Choose` but not `Ask`. So a choice point gated on `_, ok := g.decider.(Asker)` is
 offered while generating and skipped while replaying, and the recorded answer is
 consumed by whatever choice comes next — which then fails the point check, or worse,
-does not. `mayReturnToEducation` in `chargen/generator.go` is gated this way and is
-GitHub issue #106. **Gate on `Inputs.Interactive`, which travels in the record.**
+does not. `mayReturnToEducation` in `chargen/generator.go` was gated this way until #106
+moved it. **Gate on `Inputs.Interactive`, which travels in the record.**
 `Asker` is for Step 20, whose four free-text answers live in `Inputs` and which replay
 never re-asks.
 
@@ -219,7 +217,9 @@ different direction:
 
 - **Vagabond** is where the rules send a character who has nowhere else: three
   consecutive failed enlistments (p. 110), no eligible career, an aging crisis
-  survived, a mental characteristic at zero.
+  survived, a mental characteristic at zero. A characteristic brought to 1 also
+  closes every new career but this one (p. 119, ERRATA E-46): the character stays
+  where they are, and anything that would move them elsewhere moves them here.
 - **Prisoner** cannot be chosen voluntarily (p. 111); only a table result puts a
   character there.
 - **The slave career** — this repository's name for it, not the book's — has no
@@ -385,7 +385,10 @@ Now the other direction — **what would require rethinking something fundamenta
   be. `CLAUDE.md` is explicit that nothing is shared with the sibling `ctchargen` or
   `t5chargen` beyond house conventions.
 - **A policy that plays well.** `Policy.Choose` returning the first option is not a
-  placeholder; it is a rule a reader can check against the page. A policy that
+  placeholder; it is a rule a reader can check against the page. The one exception
+  since 0.4.0 — a loss the character places goes on the highest characteristic —
+  is held to the same test: the record gives the scores at the moment of choice,
+  and p. 14 gives the reason. A policy that
   optimised would need an argument per choice point, and `POLICY.md` says so twice. A
   strategy belongs beside the policy as a second decider, not inside it.
 - **Derived state the log does not produce.** Any `State` field computed at render
@@ -435,7 +438,8 @@ reasons are the part worth keeping.
   independent transcription exists to prevent. This looks like duplication and
   is the safety mechanism.
 - **`Policy.Choose` returning the first option.** Not a placeholder. It is a
-  rule a reader can check against the page, and a policy that optimised would
+  rule a reader can check against the page, and so is its one exception (losses
+  go on the highest characteristic, `POLICY.md`'s Losses section), and a policy that optimised would
   need an argument per choice point. A strategy belongs beside the policy as a
   second decider, never inside it.
 - **The three deciders not being peers.** `Replay` deliberately implements
@@ -454,14 +458,13 @@ reasons are the part worth keeping.
 
 Read this section as the map of what to distrust.
 
-**The ERRATA stamping promise is not kept.** `ERRATA.md` says records stamp the
-identifier of every deviation that applied to them. Seven identifiers of forty-three
-are ever stamped; thirty-one more appear in Go comments as the reason the code reads
-the way it does and reach no record. `E-24` — a relationship ends rather than inverting
-— changes outcomes, is implemented in `chargen/ties.go`, and leaves no mark. Nothing
-enforces the correspondence the way `TestPolicyDocumentsEveryChoicePoint` enforces the
-policy's. This is the largest gap between what the project says about itself and what it
-does.
+**The ERRATA stamping promise was not kept, and now is held by a gate.** `ERRATA.md`
+said records stamp every deviation that applied to them, and seven identifiers of
+forty-three ever reached a record. The promise now says what it means — the entries
+that changed _that_ character — and `chargen/errata_internal_test.go` fails the build
+on a reading that is neither stamped nor listed as applying to every character alike
+(#118, #154). It was the largest gap between what the project said about itself and
+what it did, and the lesson is the gate rather than the count.
 
 **The second reading covers three careers of thirty-four.** `career/transcription_test.go`
 names repetition as the mechanism that makes hand-typed tables trustworthy, and applies
@@ -472,25 +475,20 @@ the other thirty-one careers have been read once. That closes the question I cou
 answer from the code -- deliberate sample, not unfinished job -- and leaves the coverage
 itself exactly where it was. Thirty-one careers rest on one reading.
 
-**`replay` verifies the log completely and the character partially.** `compare` walks
-both event logs and then checks exactly one of twenty `State` fields. The single
-`Characteristics` comparison concedes that the log alone was not trusted to imply the
-character; having conceded it, the check stops there — most likely because
-`Characteristics` is the only comparable struct and `==` reached no further.
-`State.Age` is set outside any consequence event, so a divergence confined to it
-would pass.
+**`replay` verifies the log and the whole character.** It used to compare one of twenty
+`State` fields after the log, so a divergence confined to the rest — `State.Age` is set
+outside any consequence event — passed. `chargen.Verify` now compares the whole
+character (#111).
 
 ### Things I am inferring rather than reading
 
-- **That `"Any"` is meant to stay unresolved.** `career/academy.go` and many career
-  files pass `"Any"` as a single specialty, and both `applySkill` and `rankSpecialty`
-  take a one-element list verbatim — so a sheet prints `Gun Combat (Any)` and the
-  player picks later. `rankSpecialty` resolves a _multi-element_ list against p. 116's
-  "not already at level 1 or higher" rule. So there are two different things called a
-  specialty choice, and I believe the split is deliberate — the book writes "(Any)"
-  over an unnamed list and writes real lists elsewhere — but nothing states it.
-- **That `(limit)` entries in `ERRATA.md` are never meant to be stamped.** None is, and
-  the preamble does not acknowledge the category at all.
+- **That every "(Any)" outside a rank row reads as p. 118 says.** A rank row's
+  "(Any)" follows p. 116 and a skill table's follows p. 118, and both now resolve to
+  a real specialty through one `skill_specialty` choice (`grantAny`, `chooseAny`),
+  where the engine used to record the word "Any" and let a sheet print
+  `Gun Combat (Any)`. An event's, a degree's or a youth path's "(Any)" has no page
+  of its own, and the engine reads it as p. 118's; ERRATA E-45 records that as a
+  reading rather than the book's word.
 - **Why `chargen` is one large package rather than several.** The step files are
   independent enough to split, but every one is a method on `Generator`, which holds
   about forty fields of cross-step state (`transfer`, `enslaved`, `academyClosed`,
@@ -513,22 +511,21 @@ Loose ends this pass turned up, each filed as a GitHub issue and carried on the
 Workbench board. The issue is the durable reference; this table is a map from the
 sections above to it.
 
-| #   | Severity | Issue                                                                                    | Primary location                                     |
-| --- | -------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| 1   | medium   | #118 — ERRATA.md promises every applied reading is stamped; 7 identifiers of 43 ever are | `ERRATA.md:14`, the 11 `Deviate` sites in `chargen/` |
-| 2   | medium   | #111 — `replay` verifies the whole log and one of twenty `State` fields                  | `cmd/cschargen/replay.go:104`                        |
-| 3   | —        | #121 — fixed: `Generator.Run`'s doc comment now describes the twenty steps               | `chargen/generator.go`                               |
-| 4   | —        | #120 — fixed: the three effect kinds describe the engine, not the plan                   | `career/effect.go`, `career/build.go`                |
-| 5   | —        | #119 — fixed: the transcription file declares its sample and what structure covers       | `career/transcription_test.go:9`                     |
-| 6   | low      | #129 — ERRATA.md says it has two kinds of entry and carries three                        | `ERRATA.md:8`                                        |
-| 7   | —        | #127 — fixed: `setting`'s package doc names the embedded sample beside it                | `setting/setting.go:19`                              |
-| 8   | —        | #128 — fixed: the ragged-struct comment no longer carries a count that can drift         | `chargen/event.go:105`                               |
-| 9   | —        | #117 — fixed: the two never-written `Term` fields are gone from the schema               | `chargen/state.go:57`                                |
+| #   | Severity | Issue                                                                              | Primary location                                     |
+| --- | -------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 1   | —        | #118 — fixed: ERRATA.md promises what it stamps, and a gate holds it               | `ERRATA.md:14`, the 11 `Deviate` sites in `chargen/` |
+| 2   | —        | #111 — fixed: `replay` compares the whole character                                | `chargen/verify.go`                                  |
+| 3   | —        | #121 — fixed: `Generator.Run`'s doc comment now describes the twenty steps         | `chargen/generator.go`                               |
+| 4   | —        | #120 — fixed: the three effect kinds describe the engine, not the plan             | `career/effect.go`, `career/build.go`                |
+| 5   | —        | #119 — fixed: the transcription file declares its sample and what structure covers | `career/transcription_test.go:9`                     |
+| 6   | —        | #129 — fixed: ERRATA.md defines all three kinds of entry it carries                | `ERRATA.md:8`                                        |
+| 7   | —        | #127 — fixed: `setting`'s package doc names the embedded sample beside it          | `setting/setting.go:19`                              |
+| 8   | —        | #128 — fixed: the ragged-struct comment no longer carries a count that can drift   | `chargen/event.go:105`                               |
+| 9   | —        | #117 — fixed: the two never-written `Term` fields are gone from the schema         | `chargen/state.go:57`                                |
 
-**Total: 9 issues (0 critical, 0 high, 6 medium, 3 low); #117, #119, #120, #121, #127 and
-#128 fixed since — #118 and #129, both in `ERRATA.md`, are what remain.**
+**Total: 9 issues (0 critical, 0 high, 6 medium, 3 low), all fixed since.**
 
-Already tracked on GitHub and deliberately not re-filed: **#106** (a `Choice` gated on
+Tracked on GitHub at the time and not re-filed, all since closed: **#106** (a `Choice` gated on
 `Asker` is skipped on replay — §3.2), **#108** (the reserved word appears in
 thirty-three places — §2), **#104** (a communal birth compounds into eighty-one
 relatives).
