@@ -169,7 +169,10 @@ func (g *Generator) apply(effect career.Effect, cause int) error {
 		// a career, not a transfer. Ejecting is the whole of it -- Step 18
 		// (p. 125) then offers the career list, and the character enlists
 		// in what they choose on the ordinary terms.
-		g.service.ejected = true
+		if !g.service.ejected {
+			g.service.ejected = true
+			g.service.ejectedBy = "a table result ended the career"
+		}
 
 		g.char.Provenance.Deviate("E-6")
 		g.consequence(ConsequenceCareer, cause, effect.Detail, "")
@@ -336,6 +339,7 @@ func (g *Generator) applyChoice(effect career.Effect) error {
 		Prompt:  asPrompt(effect.Detail),
 		Options: labels,
 		Cite:    g.cite,
+		Scores:  g.lossScores(effect.Options),
 	})
 	if err != nil {
 		return err
@@ -344,6 +348,41 @@ func (g *Generator) applyChoice(effect career.Effect) error {
 	// g.choose logged the choice; it is the cause of whatever the branch
 	// does.
 	return g.applyAll(effect.Options[chosen].Effects, g.log.Len())
+}
+
+// lossScores is the context a loss the character places needs: the score
+// each option would take it from, where every option opens with a loss
+// from a different characteristic, and nil where any does not.
+//
+// An option is judged by its first effect because that is the loss being
+// placed. The Injury table's first row follows its 1d6 with a second
+// choice about the other two characteristics, and that second choice --
+// both by 2, or one of them by 4 -- names one characteristic twice, so it
+// gets no scores and stays with the first option printed.
+func (g *Generator) lossScores(options []career.Option) []int {
+	scores := make([]int, len(options))
+	seen := map[Characteristic]bool{}
+
+	for i, option := range options {
+		if len(option.Effects) == 0 {
+			return nil
+		}
+
+		lead := option.Effects[0]
+		if lead.Kind != career.EffectCharacteristic || lead.Delta >= 0 {
+			return nil
+		}
+
+		which, ok := characteristicByName(lead.Characteristic)
+		if !ok || seen[which] {
+			return nil
+		}
+
+		seen[which] = true
+		scores[i] = g.char.State.Characteristics.Get(which)
+	}
+
+	return scores
 }
 
 // applyCheck resolves "roll X 8+" and follows the branch it lands in.

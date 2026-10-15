@@ -114,6 +114,10 @@ func (g *Generator) rollSubTable(effect career.Effect) error {
 // applyInjury rolls the Injury table (p. 119) as many times as the result
 // asked for.
 func (g *Generator) applyInjury(effect career.Effect) error {
+	// The 1d6 a severe injury rolls for its loss is p. 119's, wherever the
+	// result that sent the character here was printed.
+	defer g.citing("p. 119")()
+
 	times := max(effect.Times, 1)
 
 	table := career.Injury()
@@ -202,6 +206,7 @@ func (g *Generator) rollMishap(eject bool) error {
 
 	if eject && g.service.career.MishapEjects {
 		g.service.ejected = true
+		g.service.ejectedBy = "ejected by a mishap"
 	}
 
 	return g.applyAll(row.Effects, throw)

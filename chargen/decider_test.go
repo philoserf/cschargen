@@ -31,6 +31,42 @@ func TestPolicyTakesTheFirstOption(t *testing.T) {
 	}
 }
 
+// TestPolicyTakesALossFromTheHighest is the policy's one exception to the
+// first option: a loss the character places comes out of the highest score
+// it could, and a tie goes to the first printed (POLICY.md, p. 14).
+func TestPolicyTakesALossFromTheHighest(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name   string
+		scores []int
+		want   int
+	}{
+		{"highest last", []int{3, 6, 11}, 2},
+		{"a tie goes to the first printed", []int{7, 10, 10}, 1},
+		{"all equal", []int{8, 8, 8}, 0},
+		{"no scores", nil, 0},
+		{"scores that do not match the options", []int{3, 11}, 0},
+	}
+
+	for _, c := range cases {
+		ask := choice("table_result", "STR", "DEX", "END")
+
+		ask.Scores = c.scores
+
+		for _, decider := range []chargen.Decider{chargen.Policy{}, chargen.NewBatchPolicy(1)} {
+			got, err := decider.Choose(ask)
+			if err != nil {
+				t.Fatalf("%s: Choose: %v", c.name, err)
+			}
+
+			if got != c.want {
+				t.Errorf("%s: %T chose %d, want %d", c.name, decider, got, c.want)
+			}
+		}
+	}
+}
+
 func TestPolicyRefusesAnEmptyOptionList(t *testing.T) {
 	t.Parallel()
 

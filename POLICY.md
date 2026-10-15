@@ -4,7 +4,7 @@ The auto-mode decision table. Every choice point the engine offers is
 resolved here when `--auto` is set, and `policy_version` in each record
 identifies which version of this document made the choices.
 
-Version: **0.3.3**
+Version: **0.4.0**
 
 ## The rule
 
@@ -16,9 +16,11 @@ the page rather than a preference this document is asserting. Where the engine
 builds an option list that is not a printed table — the careers a character may
 enter, say — the list is built in the book's own order and the same rule applies.
 
-That is the whole policy. It is deliberately unrefined: a policy that chose
-otherwise would need an argument per choice point, and two choice points already
-need one — they are the two below the table.
+That is almost the whole policy. It is deliberately unrefined: a policy that
+chose otherwise would need an argument per choice point, and the few that have
+one are argued below the table. One exception reaches across every table, and
+has its own section: **a loss the character places comes out of the highest
+score it could** (see [Losses](#losses)).
 
 ## What the policy is not
 
@@ -63,7 +65,7 @@ policy has no entry for is a build error, not a silent default.
 | `skill_table`            | p. 117, which of a career's skill tables to roll on                                                    | The first the career prints                                                                      |
 | `other_assignment`       | p. 117, "an assignment table other than your own"                                                      | The first that is not the character's own                                                        |
 | `skill_specialty`        | pp. 116, 118, a specialty from a list a result prints, or from the skill's own where it writes "(Any)" | The first offered, in the book's order — see below                                               |
-| `table_result`           | a result that offers a choice between effects                                                          | The first the page prints                                                                        |
+| `table_result`           | a result that offers a choice between effects                                                          | The first the page prints, unless it is a loss to place — see [Losses](#losses)                  |
 | `relationship_target`    | p. 320, "an existing Ally or Contact loses 1d6 × 20"                                                   | The first tie of a matching kind, in the order they were gained                                  |
 | `raise_held_skill`       | "a level in any skill you already possess"                                                             | The first entry on the character's own sheet, which is alphabetical                              |
 | `any_skill`              | "a level in any skill of your choice" (pp. 304-314)                                                    | The first on the book's skill list, which is Admin                                               |
@@ -139,6 +141,56 @@ mode leaves Step 20's fields empty, and this fills one of them only when
 somebody hands it a list. Two characters in a batch may draw the same name, which
 is what a list shorter than the batch has to mean and is true of people anyway.
 `--name` beats `--names` where both are given, and `batch` refuses `--name`.
+
+## Losses
+
+**Where a result lets the character choose which characteristic takes a loss,
+the policy takes it from the highest of them, and a tie goes to the first
+printed.** That is the one place, from 0.4.0, where a `table_result` is not
+answered with the first option.
+
+The results are the Injury table's (p. 119) — "Reduce any one physical
+characteristic by 2", "Reduce one physical characteristic by 1d6" — and the
+handful of career results shaped like them, such as "Lose 1d3 from your choice
+of STR or END" (p. 156). The book prints them STR, DEX, END, so "first printed"
+took every one of those losses from STR. A character who is injured three times
+in twelve terms, which the Injury table makes ordinary, then reaches STR 0 while
+DEX and END sit untouched.
+
+p. 14 is the reason that is the wrong answer rather than an inconvenient one. A
+characteristic at 0 "represents an extreme limitation for the character", and
+the same page calls it "rare during character generation" and asks for it to be
+prevented: "it is strongly recommended that Referees intervene before character
+generation reaches this point." Taking a loss from the highest score is the
+choice a player makes who has read that page, and it is still a rule a reader
+can check: the record's characteristic events give the scores at the moment of
+the choice, and the option taken is the highest of them.
+
+What counts is narrow on purpose. A choice is scored only where every option
+opens with a loss from a different characteristic; the engine hands the policy
+the score each option would take from, and the policy hands back the highest.
+Anything else — a gain, a choice between a loss and a skill, a choice that names
+a characteristic twice — is the first option as before. The Injury table's
+first row is both: its 1d6 is placed on the highest score, and its second
+choice, "Reduce other physical characteristics by 2 (or one of them by 4)",
+names each of the other two twice, so it takes the first option and spreads the
+loss as 2 and 2.
+
+Measured on `batch --auto --count 400 --seed 400 --terms 12`, across the change
+that made the Injury table's first two rows do what p. 119 says
+([#164](https://github.com/philoserf/cschargen/issues/164)) and this one:
+
+|                                            | before #164 | #164, first printed | #164, highest (0.4.0) |
+| ------------------------------------------ | ----------- | ------------------- | --------------------- |
+| characters with a characteristic at 0      | 10          | 40                  | 36                    |
+| characters with a characteristic at 0 or 1 | 39          | 100                 | 82                    |
+| zeros and ones on STR                      | 15          | 68                  | 24                    |
+
+The rule moves the damage off STR and spreads it, which is what it is for. It
+does not make 0 rare: most of the zeros left are characters who took three or
+four serious injuries, and the 1d6 a severe one rolls is the book's, not the
+policy's. The rest of what p. 14 asks for — that the referee sees a 0 at all —
+is the sheet's job, not the policy's.
 
 ## What the rule did to a population, before 0.3.0
 
