@@ -2,6 +2,7 @@ package chargen
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/philoserf/cschargen/setting"
@@ -42,6 +43,15 @@ func TestASpeciesMethodThatCannotBeRolled(t *testing.T) {
 	_, err := gen.Run()
 	if !errors.Is(err, ErrBadExpression) {
 		t.Errorf("err = %v, want ErrBadExpression", err)
+	}
+
+	// #170: a species can reach generation from a file this build never
+	// validated, so the error names the species, the characteristic and
+	// the string it could not read.
+	for _, want := range []string{"Broken", "STR", `"2d6 - 2"`} {
+		if err != nil && !strings.Contains(err.Error(), want) {
+			t.Errorf("err = %v, does not name %s", err, want)
+		}
 	}
 }
 

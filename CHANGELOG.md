@@ -5,6 +5,21 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+- `data validate` reads every species' `characteristics` dice expressions with
+  the parser generation throws them with, and names the species, the
+  characteristic and the string it cannot read. A file with `"STR": "2d6+banana"`
+  used to validate and then fail only when that species was rolled, with "table
+  carries a dice expression the engine cannot read" — no file, no species, no
+  string. That runtime error now names the expression, the page it was thrown
+  for and, for a species, the species and characteristic
+  ([#170](https://github.com/philoserf/cschargen/issues/170)).
+
+- `data validate` bounds `presentYear` to 2331–2450 and refuses a world whose
+  `settledYear` is after it, where any year passed. Step 7 measures settlement
+  against the present (p. 76), so a year drifted a century changed which
+  teenage paths a homeworld qualified for without anything a reader would notice
+  (ERRATA E-27) ([#174](https://github.com/philoserf/cschargen/issues/174)).
+
 - A `--homeworld` that does not admit the character's species now says so on
   stderr, naming the world the character was born on instead, and a batch
   counts it in one line. p. 42 sends such a character to another world, and the

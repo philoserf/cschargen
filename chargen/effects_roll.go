@@ -1,7 +1,7 @@
 package chargen
 
 import (
-	"strings"
+	"fmt"
 
 	"github.com/philoserf/cschargen/career"
 	"github.com/philoserf/cschargen/dice"
@@ -429,82 +429,34 @@ func (g *Generator) loseFromStash(effect career.Effect, name string, cause int) 
 	g.consequence(ConsequenceStash, cause, detail, name)
 }
 
-// rollExpression evaluates the small language the tables are written in:
-// a bare number, "NdM", "NdMxK", "NdM+K" or "NdM-K", where M is 6, 3 or 10
-// -- the three dice the book throws for a quantity. Anything else is a
-// transcription error rather than a rule, so it errors rather than guessing
-// what the page meant.
-//
-// The multiplier and the offset are exclusive because the book never writes
-// both: "1d6 x ₶100,000" is a sum of money and "1d3+1 Contacts" is a count
-// of people.
+// rollExpression throws one quantity as the tables write it, which
+// [dice.ParseExpression] reads. An expression it cannot read stops
+// generation with [ErrBadExpression], naming the expression and the page it
+// was thrown for, because a species' method can reach the engine from a
+// file this build never validated.
 func (g *Generator) rollExpression(expr, cite string) (int, error) {
-	expr, offset, ok := suffix(expr, "+", 0)
+	parsed, ok := dice.ParseExpression(expr)
 	if !ok {
-		return 0, ErrBadExpression
+		return 0, fmt.Errorf("%w: %q, thrown for %s", ErrBadExpression, expr, cite)
 	}
 
-	// A species' characteristic method subtracts as often as it adds:
-	// "roll 2d6-2 for STR and END" (p. 23). Only one of the two suffixes
-	// can apply, because no expression in the book carries both.
-	if offset == 0 {
-		var down int
-
-		expr, down, ok = suffix(expr, "-", 0)
-		if !ok {
-			return 0, ErrBadExpression
-		}
-
-		offset = -down
+	if parsed.Count == 0 {
+		return parsed.Offset, nil
 	}
 
-	expr, multiplier, ok := suffix(expr, "x", 1)
-	if !ok {
-		return 0, ErrBadExpression
-	}
-
-	index := strings.Index(expr, "d")
-	if index < 0 {
-		value, valid := atoi(expr)
-		if !valid {
-			return 0, ErrBadExpression
-		}
-
-		return value*multiplier + offset, nil
-	}
-
-	count, valid := atoi(expr[:index])
-	if !valid {
-		return 0, ErrBadExpression
-	}
-
-	sides, valid := atoi(expr[index+1:])
-	if !valid {
-		return 0, ErrBadExpression
-	}
-
-	total, ok := g.throwDice(count, sides, cite)
-	if !ok {
-		return 0, ErrBadExpression
-	}
-
-	return total*multiplier + offset, nil
+	return g.throwDice(parsed.Count, parsed.Sides, cite)*parsed.Multiplier + parsed.Offset, nil
 }
 
 // throwDice throws count dice of one shape and sums them. Three shapes are
-// all the book asks for a quantity: d6, d10 and d3.
-func (g *Generator) throwDice(count, sides int, cite string) (int, bool) {
+// all the book asks for a quantity, and [dice.ParseExpression] admits no
+// other: d6, d10 and d3.
+func (g *Generator) throwDice(count, sides int, cite string) int {
 	switch sides {
-	case sixSided:
-		roll := g.dice.ND6(count)
-		g.log.Roll(roll, cite)
-
-		return roll.Total, true
 	case tenSided:
 		roll := g.dice.ND10(count)
 		g.log.Roll(roll, cite)
 
-		return roll.Total, true
+		return roll.Total
 	case threeSided:
 		total := 0
 
@@ -515,53 +467,17 @@ func (g *Generator) throwDice(count, sides int, cite string) (int, bool) {
 			total += roll.Total
 		}
 
-		return total, true
+		return total
 	}
 
-	return 0, false
+	roll := g.dice.ND6(count)
+	g.log.Roll(roll, cite)
+
+	return roll.Total
 }
 
-// suffix splits a trailing "<sep><number>" off an expression, returning the
-// rest and the number -- or absent is the default, which is what an
-// expression without that suffix means. A separator with nothing readable
-// after it is a transcription error, not a default.
-func suffix(expr, sep string, absent int) (string, int, bool) {
-	rest, after, found := strings.Cut(expr, sep)
-	if !found {
-		return expr, absent, true
-	}
-
-	value, ok := atoi(after)
-	if !ok {
-		return expr, 0, false
-	}
-
-	return rest, value, true
-}
-
-// The two dice the book throws for a quantity, and the base its numbers
-// are written in.
+// The two shapes besides the d6 that the book throws for a quantity.
 const (
-	sixSided   = 6
 	threeSided = 3
 	tenSided   = 10
-	decimal    = 10
 )
-
-func atoi(s string) (int, bool) {
-	if s == "" {
-		return 0, false
-	}
-
-	value := 0
-
-	for _, r := range s {
-		if r < '0' || r > '9' {
-			return 0, false
-		}
-
-		value = value*decimal + int(r-'0')
-	}
-
-	return value, true
-}
