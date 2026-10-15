@@ -599,7 +599,7 @@ func (g *Generator) rollCharacteristics() error {
 
 		score, err := g.rollExpression(expr, speciesCite)
 		if err != nil {
-			return err
+			return fmt.Errorf("species %s, %s: %w", g.species.Name, which, err)
 		}
 
 		g.char.State.Characteristics.Set(which, min(score, g.maximum))

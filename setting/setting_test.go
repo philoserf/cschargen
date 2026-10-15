@@ -330,6 +330,17 @@ func brokenFiles() []brokenFile {
 				keyAllowed: true, keyStatus: statusFree, "banned": []string{"Nobody"},
 			}
 		}, want: "not in the species list"},
+		// #174: the campaign's now is held to the book's era (p. 43) and
+		// to the file's own settlement dates (p. 76).
+		{name: "a present year before the collapse", breakIt: func(m map[string]any) {
+			m["presentYear"] = 1
+		}, want: "presentYear 1;"},
+		{name: "a present year a century and more on", breakIt: func(m map[string]any) {
+			m["presentYear"] = 2530
+		}, want: "presentYear 2530;"},
+		{name: "a world settled after the present", breakIt: func(m map[string]any) {
+			world(m)["settledYear"] = 2400
+		}, want: "settledYear 2400 is after the present year 2350"},
 	}, brokenBackgroundSkills()...)
 }
 
@@ -992,5 +1003,30 @@ func TestARollWithThreeNumbersIsRefused(t *testing.T) {
 				t.Errorf("error was %q, want it to mention %q", err, tc.want)
 			}
 		})
+	}
+}
+
+// TestASpeciesMethodTheEngineCannotRead (#170): a characteristic method is
+// the one field in the format that is a small language, so the validator
+// reads it with the parser generation throws it with and names the species,
+// the characteristic and the string.
+func TestASpeciesMethodTheEngineCannotRead(t *testing.T) {
+	t.Parallel()
+
+	broken := minimal()
+
+	broken["species"] = []any{setting.Species{
+		Name: aSpecies, Kind: kindUplift,
+		Characteristics: map[string]string{"STR": "2d6+banana"},
+	}}
+
+	_, err := setting.Load(write(t, broken))
+	if err == nil {
+		t.Fatal("the file validated")
+	}
+
+	want := "species " + aSpecies + `: STR is "2d6+banana"`
+	if !strings.Contains(err.Error(), want) {
+		t.Errorf("error does not mention %q:\n%v", want, err)
 	}
 }

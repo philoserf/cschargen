@@ -38,10 +38,11 @@ const (
 	// transcription error rather than a rule.
 	ErrMalformedCheck stringError = "check effect carries no target"
 
-	// ErrBadExpression is a dice expression in a table the engine cannot
-	// read. Like ErrMalformedCheck it is a transcription error: the engine
-	// errors rather than guessing what the page meant.
-	ErrBadExpression stringError = "table carries a dice expression the engine cannot read"
+	// ErrBadExpression is a dice expression the engine cannot read, in a
+	// career table or a setting file's species. Like ErrMalformedCheck it is
+	// a transcription error: the engine errors rather than guessing what the
+	// page meant. It is wrapped with the expression and where it was read.
+	ErrBadExpression stringError = "a dice expression the engine cannot read"
 
 	// ErrNoSetting is a run with no setting data. Steps 3 and 4 have
 	// nothing to read without it, and a character with no homeworld has no

@@ -666,6 +666,13 @@ A setting data file may state its own `presentYear`, because a campaign is
 entitled to be set somewhere else in the timeline, and the settlement dates in
 that file are the ones it will be measured against.
 
+`data validate` holds that year between 2331 and 2450. Not before 2331, because
+p. 43's immigration rule is written from after the Conduit's collapse that
+year; not more than a century past 2350, a campaign the tables do not describe.
+The book gives no range, so the bound is wide on purpose: it catches a dropped or
+swapped digit, not a campaign. A world whose `settledYear` falls after the
+present is refused too, since p. 76 would then measure a negative age.
+
 **If this is wrong:** a world settled in exactly 2245 through 2250 falls on the
 other side of the hundred-year line, and its characters take Teenage Path 2
 rather than Path 1. Nothing else in the engine reads the year.

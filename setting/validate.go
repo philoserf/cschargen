@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/philoserf/cschargen/career"
+	"github.com/philoserf/cschargen/dice"
 )
 
 // The bounds a world's numbers must fall inside. They are wide on purpose:
@@ -26,6 +27,14 @@ const (
 	d100High = 100
 	d6Low    = 1
 	d6High   = 6
+
+	// The present year is held to the book's own era. Not before the
+	// Conduit collapsed in 2331, because p. 43's immigration rule is
+	// written from the far side of it; not more than a century past p. 43's
+	// 2350, which is a campaign the tables do not describe. A world's
+	// settledYear bounds it from below as well -- see validatePresentYear.
+	earliestPresentYear = 2331
+	latestPresentYear   = DefaultPresentYear + 100
 )
 
 // Validate reports every problem in a setting file. Every problem, not the
@@ -39,6 +48,8 @@ func Validate(data *Data) []string {
 			"schemaVersion is %d; this build reads %d", data.SchemaVersion, SchemaVersion,
 		))
 	}
+
+	problems = append(problems, validatePresentYear(data)...)
 
 	species := map[string]bool{}
 
@@ -218,10 +229,22 @@ func validateOneSpecies(species Species, where string) []string {
 		))
 	}
 
-	for name := range species.Characteristics {
+	for _, name := range slices.Sorted(maps.Keys(species.Characteristics)) {
 		if !characteristics[name] {
 			problems = append(problems, fmt.Sprintf(
 				"%s: %q is not one of the six characteristics (p. 13)", where, name,
+			))
+		}
+
+		// The one field in the format whose contents are a small language
+		// rather than a number or a name, read by the parser generation
+		// throws it with, so a method that passes here is one Step 2 can
+		// roll.
+		expr := species.Characteristics[name]
+		if _, ok := dice.ParseExpression(expr); !ok {
+			problems = append(problems, fmt.Sprintf(
+				"%s: %s is %q, which is not a dice expression the engine reads (p. 23)",
+				where, name, expr,
 			))
 		}
 	}
@@ -570,4 +593,35 @@ func joinSituations() string {
 	names := slices.Sorted(maps.Keys(BirthSituations))
 
 	return strings.Join(names, ", ")
+}
+
+// validatePresentYear holds the campaign's now to the book's era and to the
+// file's own dates. Step 7 measures a world's settledYear against it (p. 76),
+// so a world settled after the present would be negative years old, and a
+// present that has drifted a century changes who may have immigrated
+// without changing anything a reader would notice (p. 43).
+func validatePresentYear(data *Data) []string {
+	now := data.Now()
+	if now < earliestPresentYear || now > latestPresentYear {
+		// A present out of the era is one typo, not one per world.
+		return []string{fmt.Sprintf(
+			"presentYear %d; it must fall between %d and %d (p. 43)",
+			now, earliestPresentYear, latestPresentYear,
+		)}
+	}
+
+	var problems []string
+
+	for _, sub := range data.Subsectors {
+		for _, world := range sub.Worlds {
+			if world.SettledYear > now {
+				problems = append(problems, fmt.Sprintf(
+					"subsector %s, %s: settledYear %d is after the present year %d (p. 76)",
+					sub.Name, world.Name, world.SettledYear, now,
+				))
+			}
+		}
+	}
+
+	return problems
 }
