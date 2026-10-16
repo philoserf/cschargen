@@ -126,7 +126,8 @@ func pirateEvents() EventTable {
 		54: {
 			Summary: "a reputation, and a nickname to carry it",
 			Effects: []Effect{unimplemented(
-				"a nickname that follows the character: +2 CHA and a Rival if it impresses the referee, -1 CHA if not")},
+				"a nickname that follows the character: +2 CHA and a Rival if it impresses the referee, -1 CHA if not",
+			)},
 		},
 		55: {
 			Summary: "the raided merchant turns out to be a slave ship",
@@ -170,7 +171,8 @@ func pirateEvents() EventTable {
 							// lasts while a possession is held, which nothing
 							// else in the book asks for and the engine has no
 							// shape for.
-							unimplemented("+2 to every advancement roll while the bottles are kept"))),
+							unimplemented("+2 to every advancement roll while the bottles are kept"),
+						)),
 						opt("sell them",
 							benefitRolls(2, 1, ScopeBatch)))))},
 		},

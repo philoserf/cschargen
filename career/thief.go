@@ -133,7 +133,8 @@ func thiefMishaps() MishapTable {
 				opt("take the sentence", transfer("Prisoner", "Prisoner", 4)),
 				opt("inform for them", unimplemented(
 					"stay in the career at -2 to survival and advancement; "+
-						"a failed survival roll then resolves as mishap 12 rather than being rolled")))},
+						"a failed survival roll then resolves as mishap 12 rather than being rolled",
+				)))},
 		},
 		{
 			Summary: "a group of toughs takes everything and leaves you for dead",

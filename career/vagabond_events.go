@@ -139,7 +139,8 @@ func vagabondEvents() EventTable {
 			Summary: "you find a slug pistol and may keep it or be rid of it",
 			Effects: []Effect{unimplemented(
 				"keeping it means rolling 1d6: on 1, arrest for a murder you did not commit and 1d3 " +
-					"terms in the Prisoner career; otherwise a pistol in varying condition")},
+					"terms in the Prisoner career; otherwise a pistol in varying condition",
+			)},
 		},
 		62: {
 			Summary: "you befriend a group of other Destitutes or Transients",
@@ -149,13 +150,15 @@ func vagabondEvents() EventTable {
 			Summary: "you find a discarded middle passage to a nearby world",
 			Effects: []Effect{unimplemented(
 				"take the nearest A-class port as a new homeworld, and either change assignment or " +
-					"gain one of that world's background skills or languages")},
+					"gain one of that world's background skills or languages",
+			)},
 		},
 		64: {Summary: "you have earned this through a hard life", Effects: []Effect{skill("Jack of All Trades")}},
 		65: {
 			Summary: "a continuing education programme puts you into a local university",
 			Effects: []Effect{unimplemented(
-				"spend the next term in higher education (p. 86); succeeding means a degree and a new career of your choice")},
+				"spend the next term in higher education (p. 86); succeeding means a degree and a new career of your choice",
+			)},
 		},
 		66: {
 			Summary: "the person living near you turns out to be a famous actor researching a role",

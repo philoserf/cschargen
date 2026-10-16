@@ -19,7 +19,8 @@ func Reproducible(record *Character, engineVersion string, data *setting.Data) e
 	if data.Hash != record.Provenance.SettingData.Hash {
 		return fmt.Errorf(
 			"%w: the record was generated against setting data hashed %.12s, this is %.12s",
-			ErrProvenance, record.Provenance.SettingData.Hash, data.Hash)
+			ErrProvenance, record.Provenance.SettingData.Hash, data.Hash,
+		)
 	}
 
 	if record.Provenance.SchemaVersion != SchemaVersion {

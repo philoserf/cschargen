@@ -94,7 +94,8 @@ func artsEvents() EventTable {
 				religion(),
 				rollSub("how deeply it takes",
 					onRange(1, 5, "it stays an interest"),
-					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))),
+			)},
 		},
 		44: {
 			Summary: "legendary dinner parties",

@@ -51,7 +51,8 @@ func (g *Generator) youthEvents() error {
 	}
 
 	periods := g.lifePeriods(
-		speciesYouthRolls(g.species), speciesYouthAges(g.species), youthPeriods[:])
+		speciesYouthRolls(g.species), speciesYouthAges(g.species), youthPeriods[:],
+	)
 
 	for _, period := range periods {
 		err := g.oneYouthEvent(period)
