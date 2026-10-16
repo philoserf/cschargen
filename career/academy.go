@@ -100,12 +100,14 @@ func academyFailure() MishapTable {
 		{
 			Summary: "not an officer, but the military kept you",
 			Effects: []Effect{unimplemented(
-				"enlist automatically in a military career at the lowest enlisted rank")},
+				"enlist automatically in a military career at the lowest enlisted rank",
+			)},
 		},
 		{
 			Summary: "war, and cadets rushed into service before finishing",
 			Effects: []Effect{unimplemented(
-				"enlist automatically in a military career at enlisted rank 1")},
+				"enlist automatically in a military career at enlisted rank 1",
+			)},
 		},
 		{
 			Summary: "expelled for breaking the rules for the right reason",
@@ -169,7 +171,8 @@ func academyEvents() []EventRow {
 			Summary: "specialized training for the career you will enter",
 			Effects: []Effect{unimplemented(
 				"choose the military career you will enter and roll once on its " +
-					"Service Skills table")},
+					"Service Skills table",
+			)},
 		},
 		{
 			Summary: "placed in charge of other cadets",
@@ -215,7 +218,8 @@ func academyEvents() []EventRow {
 						enlistmentNarrowing{OnTags: []Tag{TagMilitary}}),
 					modifierFor(advancementThrow, 2, 2,
 						"+2 to the first two advancement rolls in a military career",
-						enlistmentNarrowing{OnTags: []Tag{TagMilitary}})),
+						enlistmentNarrowing{OnTags: []Tag{TagMilitary}}),
+				),
 			},
 		},
 		distinguishedGraduate(),

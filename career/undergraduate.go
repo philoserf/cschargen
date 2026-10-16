@@ -174,7 +174,8 @@ func undergraduateEvents() []EventRow {
 				religion(),
 				rollSub("how deeply it takes",
 					onRange(1, 5, "it stays an interest"),
-					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))),
+			)},
 		},
 		{
 			Summary: "a lot of fun in your college years",
@@ -217,7 +218,8 @@ func undergraduateEvents() []EventRow {
 			Summary: "an exchange programme with another institution",
 			Effects: []Effect{unimplemented(
 				"take the background skills of the exchange world, and a level in its " +
-					"primary language where it differs from your own")},
+					"primary language where it differs from your own",
+			)},
 		},
 		{
 			Summary: "an older student who shows you how the university really works",

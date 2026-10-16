@@ -105,7 +105,8 @@ func celebrityEvents() EventTable {
 				religion(),
 				rollSub("how deeply it takes",
 					onRange(1, 5, "it stays an interest"),
-					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))),
+			)},
 		},
 		24: {
 			Summary: "in this business it is important to know people",
@@ -129,7 +130,8 @@ func celebrityEvents() EventTable {
 		45: {
 			Summary: "understanding the common people, for a role or a song",
 			Effects: []Effect{unimplemented(
-				"roll once on the Service Skills table of any other career")},
+				"roll once on the Service Skills table of any other career",
+			)},
 		},
 		46: {Summary: "frequent travel between star systems", Effects: []Effect{skill("Suit", "Any")}},
 		51: {Summary: "riding, taken up to relax", Effects: []Effect{skill("Animals", "Riding")}},

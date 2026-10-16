@@ -99,7 +99,8 @@ func TestARerolledNothingIsStillNothing(t *testing.T) {
 	gen.service.career = &penniless
 
 	err := gen.immediateCashRolls(
-		career.Effect{Count: 1, RerollNothing: true, Detail: "one cash roll"}, 0)
+		career.Effect{Count: 1, RerollNothing: true, Detail: "one cash roll"}, 0,
+	)
 	if err != nil {
 		t.Fatalf("immediateCashRolls: %v", err)
 	}

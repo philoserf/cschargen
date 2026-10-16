@@ -22,7 +22,8 @@ func prisonerEvents() EventTable {
 			Summary: "war breaks out and amnesty is offered to those who serve",
 			Effects: []Effect{unimplemented(
 				"accepting commutes the sentence and spends two terms in the System Defense Forces " +
-					"troopers (p. 282); refusing continues the career")},
+					"troopers (p. 282); refusing continues the career",
+			)},
 		},
 		15: {
 			Summary: "a model prisoner, freed early and penniless",
@@ -46,7 +47,8 @@ func prisonerEvents() EventTable {
 		22: {
 			Summary: "you make friends with several of your cell block",
 			Effects: []Effect{unimplemented(
-				"gain 1d3+1 Contacts, each becoming an Ally on a 1d6 roll of 5-6")},
+				"gain 1d3+1 Contacts, each becoming an Ally on a 1d6 roll of 5-6",
+			)},
 		},
 		23: {
 			Summary: "you find a knife",
@@ -97,7 +99,8 @@ func prisonerEvents() EventTable {
 			Summary: "a gambling group forms, and you may bet what is in your stash",
 			Effects: []Effect{unimplemented(
 				"bet the stash on Gambler 8+: succeeding doubles what went in, failing loses it and " +
-					"one more item, and an empty stash costs an Injury roll instead")},
+					"one more item, and an empty stash costs an Injury roll instead",
+			)},
 		},
 		45: {
 			Summary: "you steal a science textbook",
@@ -133,7 +136,8 @@ func prisonerEvents() EventTable {
 			Effects: []Effect{unimplemented(
 				"participating is Melee 8+ -- succeeding grants a skill, +1 CHA or a knife, failing " +
 					"costs two Injury rolls and an additional term; standing aside gains a Contact among " +
-					"the guards")},
+					"the guards",
+			)},
 		},
 		56: {
 			Summary: "you get into a lot of fights",

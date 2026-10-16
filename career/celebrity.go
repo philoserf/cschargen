@@ -97,7 +97,8 @@ func Celebrity() Career {
 			{Cash: 100000, Other: group(
 				stashItem("a producer credit on a well-known entertainment"),
 				credits("2d6x100000"),
-				unimplemented("2d6 x 100 credits a year for 1d6 years"))},
+				unimplemented("2d6 x 100 credits a year for 1d6 years"),
+			)},
 		},
 		Mishaps: celebrityMishaps(),
 		Events:  celebrityEvents(),

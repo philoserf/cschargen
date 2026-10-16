@@ -55,7 +55,8 @@ func merchantEvents() EventTable {
 				opt("take it", unimplemented(
 					"a Deception or Persuade check against the target world's law level: "+
 						"8+ for law 8-10 and 10+ above that, for two benefit rolls; "+
-						"failing it is a term in the Prisoner career and a world closed to you")))},
+						"failing it is a term in the Prisoner career and a world closed to you",
+				)))},
 		},
 		21: {
 			Summary: "a great deal of time sorting cargo records and flight plans",
@@ -74,7 +75,8 @@ func merchantEvents() EventTable {
 			Summary: "a distress call from a damaged ship in the outer system",
 			Effects: []Effect{distressCall(
 				throwModifier("next advancement roll", -2),
-				throwModifier("next advancement roll", -1))},
+				throwModifier("next advancement roll", -1),
+			)},
 		},
 		25: {
 			Summary: "local contacts, cultivated",

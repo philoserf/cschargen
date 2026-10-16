@@ -115,7 +115,8 @@ func sharedDefenceEvents(own map[int]EventRow, prisonTerms int) EventTable {
 				religion(),
 				rollSub("how deeply it takes",
 					onRange(1, 5, "it stays an interest"),
-					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))),
+			)},
 		},
 		24: {Summary: "chosen for advanced training", Effects: []Effect{rollTable(AdvancedEducation)}},
 		25: {

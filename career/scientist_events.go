@@ -65,7 +65,8 @@ func scientistEvents() EventTable {
 			// beside it (p. 271).
 			Summary: "the blank row",
 			Effects: []Effect{unimplemented(
-				"this d66 result is printed with no effect beside it (p. 271); nothing happens")},
+				"this d66 result is printed with no effect beside it (p. 271); nothing happens",
+			)},
 		},
 		41: {
 			Summary: "relaxing with your hobbies",

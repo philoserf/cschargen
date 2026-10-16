@@ -132,7 +132,8 @@ func journalistMishaps() MishapTable {
 		{
 			Summary: "captured by local rebels and held until the agency secures your release",
 			Effects: []Effect{unimplemented(
-				"held 2d6 weeks, with an Injury roll for every four weeks rounded down")},
+				"held 2d6 weeks, with an Injury roll for every four weeks rounded down",
+			)},
 		},
 		{
 			Summary: "a bomb in your vehicle, escaped in time but not unhurt",

@@ -157,7 +157,8 @@ func shoddyPractices() Effect {
 			benefitRolls(2, 0, ScopeBatch),
 			unimplemented(
 				"on a 1d6 of 3 or less, the practice kills several people years later "+
-					"and a world bars the character from returning")),
+					"and a world bars the character from returning",
+			)),
 	)
 }
 

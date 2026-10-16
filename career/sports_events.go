@@ -41,7 +41,8 @@ func sportsEvents() EventTable {
 				byAssignment(
 					[]Effect{benefitRolls(2, 0, ScopeBatch), chr("CHA", 1)},
 					[]Effect{injury(1)},
-					[]Effect{benefitRolls(-1, 0, ScopeBatch)}),
+					[]Effect{benefitRolls(-1, 0, ScopeBatch)},
+				),
 			},
 		},
 		15: {
@@ -72,7 +73,8 @@ func sportsEvents() EventTable {
 				religion(),
 				rollSub("how deeply it takes",
 					onRange(1, 5, "it stays an interest"),
-					on(6, "it becomes a calling", skill("Science", "Philosophy"))))},
+					on(6, "it becomes a calling", skill("Science", "Philosophy"))),
+			)},
 		},
 		24: {
 			Summary: "a weapons class",
@@ -155,7 +157,8 @@ func sportsEvents() EventTable {
 			Effects: []Effect{byAssignment(
 				[]Effect{autoSuccess("next survival roll"), throwModifier("next advancement roll", 4)},
 				sportsGuaranteeFailed(),
-				sportsGuaranteeFailed())},
+				sportsGuaranteeFailed(),
+			)},
 		},
 		61: {
 			Summary: "one of the leaders of your team or coaching staff",
@@ -180,7 +183,8 @@ func sportsEvents() EventTable {
 				opt("enlist in Celebrity", transfer("Celebrity", "", 0)),
 				opt("let it stand", unimplemented(
 					"the offer must be accepted within 1d3 terms, and expires "+
-						"if a survival roll is failed in that time")))},
+						"if a survival roll is failed in that time",
+				)))},
 		},
 		66: {
 			Summary: "the most prestigious award in your sport",

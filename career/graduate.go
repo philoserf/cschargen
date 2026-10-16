@@ -150,7 +150,8 @@ func medicalFailure() MishapTable {
 			Summary: "a shift into laboratory work that ends the clinical training",
 			Effects: []Effect{unimplemented(
 				"automatic admission to Graduate School, or -- with a doctorate already -- " +
-					"automatic enlistment in the Scientist career")},
+					"automatic enlistment in the Scientist career",
+			)},
 		},
 		{
 			Summary: "a programme permanently shut down",

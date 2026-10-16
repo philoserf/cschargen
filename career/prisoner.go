@@ -165,7 +165,8 @@ func prisonerMishaps() MishapTable {
 			Effects: []Effect{unimplemented(
 				"join them (Stealth 8+ to escape and take a new homeworld, or a failed attempt adds a term), " +
 					"stay silent (+2 to the next advancement roll and 1000 credits in the stash), " +
-					"or tell the guards (one term off the sentence, and the escapers as Enemies)")},
+					"or tell the guards (one term off the sentence, and the escapers as Enemies)",
+			)},
 		},
 	}
 }
