@@ -11,6 +11,12 @@ release turns out to be.
   consequence now cites pp. 62-65, and a −1 that takes a score to 1 counts
   toward p. 119 like any other loss. Records from a seed that reaches an
   adjusting outcome change.
+- A skill-table result the character does not hold now goes on at level 0, as
+  p. 118 prints for every form: "Persuade" at 0 rather than 1, and "Suit (Vacc
+  Suit)" as bare Suit at 0 rather than Suit (Vacc Suit) at 1. Only "(Any)"
+  followed the page before. Under the auto policy, which takes Personal
+  Development every term, 7 of 300 characters change; a player who rolls on
+  the other tables meets it far more often.
 
 ## v0.1.0-alpha.6 — 2026-10-15
 

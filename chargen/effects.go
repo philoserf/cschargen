@@ -235,6 +235,15 @@ func (g *Generator) grantSkill(effect career.Effect, cause int) (Skill, error) {
 		return g.grantAny(effect, level, cause)
 	}
 
+	// p. 118, for a skill table's result: "If the character does not
+	// already have the skill, they should add the skill at level 0", and
+	// where it names a specialty, "it is added to the character sheet as a
+	// zero level skill without a specialty". Any specialty counts as having
+	// the skill, which is the reading grantAny makes of the same sentence.
+	if g.onSkillTable && !g.char.State.Has(effect.Skill) {
+		return g.gainSkill(effect.Skill, "", 0, cause), nil
+	}
+
 	specialty := ""
 
 	switch len(effect.Specialties) {

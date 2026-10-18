@@ -374,6 +374,85 @@ func TestAnAnyResultIsResolved(t *testing.T) {
 	}
 }
 
+// unheldTableResults are the cases TestASkillTableResultNotHeldGoesOnAtZero
+// runs.
+var unheldTableResults = []struct {
+	name  string
+	table bool
+	held  []Skill
+	grant career.Effect
+	want  []Skill
+}{
+	{
+		name: "a skill, not held", table: true, grant: persuadeGrant,
+		want: []Skill{{Name: "Persuade", Level: 0}},
+	},
+	{
+		name: "a skill, held at 0", table: true, grant: persuadeGrant,
+		held: []Skill{{Name: "Persuade", Level: 0}},
+		want: []Skill{{Name: "Persuade", Level: 1}},
+	},
+	{
+		name: "a specific specialty, skill not held", table: true, grant: vaccSuitGrant,
+		want: []Skill{{Name: "Suit", Level: 0}},
+	},
+	{
+		// Holding another specialty is holding the skill, so the
+		// level goes to the specialty the result names.
+		name: "a specific specialty, another held", table: true, grant: vaccSuitGrant,
+		held: []Skill{{Name: "Suit", Specialty: "Battle Dress", Level: 0}},
+		want: []Skill{
+			{Name: "Suit", Specialty: "Battle Dress", Level: 0},
+			{Name: "Suit", Specialty: "Vacc Suit", Level: 1},
+		},
+	},
+	{
+		name: "an event, not held", grant: vaccSuitGrant,
+		want: []Skill{{Name: "Suit", Specialty: "Vacc Suit", Level: 1}},
+	},
+}
+
+var (
+	persuadeGrant = career.Effect{
+		Kind: career.EffectSkill, Skill: "Persuade", Level: 1, Detail: "gain Persuade",
+	}
+	vaccSuitGrant = grantOf("Suit", 1, "Vacc Suit")
+)
+
+// TestASkillTableResultNotHeldGoesOnAtZero is p. 118's other two forms:
+// "If the character does not already have the skill, they should add the
+// skill at level 0", and for a specific specialty, "it is added to the
+// character sheet as a zero level skill without a specialty". Away from a
+// skill table the level is granted as printed (ERRATA E-45).
+func TestASkillTableResultNotHeldGoesOnAtZero(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range unheldTableResults {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			gen := engine(t, 301)
+
+			for _, held := range tc.held {
+				gen.char.State.GainSkill(held.Name, held.Specialty, held.Level)
+			}
+
+			if tc.table {
+				defer gen.onTable()()
+			}
+
+			err := gen.applySkill(tc.grant, 0)
+			if err != nil {
+				t.Fatalf("applySkill: %v", err)
+			}
+
+			if !slices.Equal(gen.char.State.Skills, tc.want) {
+				t.Errorf("skills = %v, want %v", gen.char.State.Skills, tc.want)
+			}
+		})
+	}
+}
+
 // TestAnAnyRankBenefitTakesTheSkillsOwnList is p. 116 against "(Any)"
 // itself rather than a list the test supplies: the second grant takes a
 // specialty the first did not, where recording "Any" made it a no-op.
