@@ -215,7 +215,7 @@ func TestTheLogNarratesTheStep(t *testing.T) {
 	character := generate(t, options(t, 3))
 	events := stepEvents(character, rollCharacteristics)
 
-	counts := map[chargen.EventKind]int{}
+	counts := make(map[chargen.EventKind]int)
 	for _, event := range events {
 		counts[event.Kind]++
 	}

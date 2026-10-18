@@ -1,6 +1,11 @@
 package chargen
 
-import "github.com/philoserf/cschargen/setting"
+import (
+	"maps"
+	"slices"
+
+	"github.com/philoserf/cschargen/setting"
+)
 
 // The genetics of pp. 62-65.
 //
@@ -120,11 +125,23 @@ func (g *Generator) geneticOutcome(record *Genetics) error {
 
 	g.consequence(ConsequenceSpecies, throw, outcome.Detail, "")
 
-	for name, delta := range outcome.Adjust {
-		g.adjust(name, delta, outcome.Detail, throw)
-	}
+	g.genetic = outcome
+	g.geneticThrow = throw
 
 	return nil
+}
+
+// applyGeneticAdjustment is an outcome's "take a -1 to their DEX", which
+// has to wait for Step 2: the outcome is decided first because it can
+// choose the characteristic method, and an adjustment made then would
+// move a score of 0 and be overwritten by the roll. Sorted, so an outcome
+// adjusting two characteristics logs them in the same order every time.
+func (g *Generator) applyGeneticAdjustment() {
+	defer g.citing(geneticsCite)()
+
+	for _, name := range slices.Sorted(maps.Keys(g.genetic.Adjust)) {
+		g.adjust(name, g.genetic.Adjust[name], g.genetic.Detail, g.geneticThrow)
+	}
 }
 
 // humanMethod is what a hybrid row means by "Roll characteristics as a

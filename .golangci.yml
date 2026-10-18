@@ -58,7 +58,7 @@ linters:
       # A default case is not exhaustiveness. The point is to be told when a
       # value is added, not to have it silently fall through.
       default-signifies-exhaustive: false
-      check: [switch, map]
+      check: [switch, mapliteral]
 
     godot:
       # Doc comments here end in a quotation from the page, and a quotation

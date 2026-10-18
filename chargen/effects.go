@@ -426,7 +426,7 @@ func (g *Generator) applyChoice(effect career.Effect) error {
 // gets no scores and stays with the first option printed.
 func (g *Generator) lossScores(options []career.Option) []int {
 	scores := make([]int, len(options))
-	seen := map[Characteristic]bool{}
+	seen := make(map[Characteristic]bool)
 
 	for i, option := range options {
 		if len(option.Effects) == 0 {
