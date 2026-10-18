@@ -240,7 +240,9 @@ func agingChecksAt(profile AgingProfile, techLevel, term int) ([]AgingCheck, boo
 // The crisis rules of pp. 123-124 say "physical" and "mental" and enumerate
 // neither, but p. 14 does name one of them -- "all three physical
 // characteristics (Strength, Dexterity, and Endurance)" -- and there are six,
-// so the other three follow. ERRATA E-17 records the cross-reference.
+// so the other three follow. p. 119's "(INT or EDU)" is not this group:
+// "two or more mental characteristics" needs a third. ERRATA E-17 records
+// both.
 var (
 	physicalCharacteristics = []Characteristic{STR, DEX, END}
 	mentalCharacteristics   = []Characteristic{INT, EDU, CHA}

@@ -414,6 +414,19 @@ aging section can be read on its own and does not say it. The aging tables agree
 independently: every band begins with STR, DEX and END and adds INT, EDU and CHA
 as the character gets older.
 
+**p. 119 names a different mental group**, and the engine does not follow it
+here. Below the Injury table it writes "mental characteristics (INT or EDU)" and
+"If both mental characteristics (INT and EDU) drop to 0, the character has
+died". "Both" counts two. The crisis rule this entry reads is "If two or more
+mental characteristics are reduced to 0", and "or more" is only possible if there
+are at least three. So the two pages are read as meaning different groups, each
+followed where it is printed: CHA is mental for pp. 123-124 and not for p. 119's
+reach-1 rule (E-46) ([#204](https://github.com/philoserf/cschargen/issues/204)).
+
+**If this is wrong:** reading p. 119's two as the book's definition would stop
+CHA at 0 from counting toward the pp. 123-124 mental cases, and "two or more"
+would mean "both".
+
 ---
 
 ## E-18 (reading) — two crises in one term is two payments
@@ -1270,9 +1283,10 @@ restriction ends. The engine had to choose all three.
   raised to 1 by a degree has not declined to anything — and neither is the
   starting roll, which nothing reduced.
 - **The characteristics are STR, DEX, END, INT and EDU.** Two paragraphs on, the
-  same page names its mental characteristics: "(INT or EDU)". E-17 counts CHA as
-  mental for pp. 123-124, which enumerate neither group; p. 119 enumerates its
-  own, and the engine follows the page the rule is printed on.
+  same page names its mental characteristics: "(INT or EDU)", and "both" of them.
+  E-17 counts CHA as mental for pp. 123-124, whose "two or more mental
+  characteristics" needs a third; p. 119 enumerates its own, and the engine
+  follows the page the rule is printed on.
 - **It lasts for the rest of generation.** The rule reads as an event with a
   consequence, like p. 123's crisis survivor, and the book prints nothing that
   lifts it. A score that climbs back to 2 does not reopen the careers: the
