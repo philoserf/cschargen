@@ -17,6 +17,11 @@ release turns out to be.
   followed the page before. Under the auto policy, which takes Personal
   Development every term, 7 of 300 characters change; a player who rolls on
   the other tables meets it far more often.
+- Every consequence Step 17 writes now cites the aging section's own page —
+  p. 121 for the age, pp. 122-123 for a loss to an aging check, p. 123 for the
+  crisis, pp. 123-124 for death or incapacity, p. 125 for apparent age — where
+  before each carried the page of the career just served. Only cites move; no
+  dice or outcomes change.
 
 ## v0.1.0-alpha.6 — 2026-10-15
 
