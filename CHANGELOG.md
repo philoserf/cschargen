@@ -5,6 +5,13 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+- A hybrid or compound outcome's characteristic adjustment now lands after
+  Step 2 assigns the scores, where before it moved a score of 0 and the roll
+  overwrote it — the record logged a DEX +1 the sheet did not have. The
+  consequence now cites pp. 62-65, and a −1 that takes a score to 1 counts
+  toward p. 119 like any other loss. Records from a seed that reaches an
+  adjusting outcome change.
+
 ## v0.1.0-alpha.6 — 2026-10-15
 
 Fourteen issues out of playing alpha.5, as alpha.4's thirteen came out of

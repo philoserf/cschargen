@@ -191,6 +191,11 @@ type Generator struct {
 	// human" (p. 63).
 	rollAsHuman bool
 
+	// genetic is the hybrid or compound outcome Step 5 rolled, held until
+	// Step 2 has scores for its adjustment to move. Its throw is the cause.
+	genetic      setting.GeneticOutcome
+	geneticThrow int
+
 	// enslaved is set where the homeworld owns this character's people:
 	// they must take the slave career as their first career term (p. 42).
 	// It is cleared once they have.
@@ -618,6 +623,8 @@ func (g *Generator) rollCharacteristics() error {
 	if err != nil {
 		return err
 	}
+
+	g.applyGeneticAdjustment()
 
 	return g.grantSpeciesSkills(step)
 }

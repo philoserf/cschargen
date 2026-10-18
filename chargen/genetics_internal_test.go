@@ -143,3 +143,69 @@ func TestACompoundOutcomeIsChosen(t *testing.T) {
 		t.Errorf("kind = %q, want a compound", character.State.Genetics.Kind)
 	}
 }
+
+// TestAGeneticAdjustmentSurvivesTheRoll. The outcome is decided before
+// Step 2, but "take a -1 to their DEX" (pp. 64-65) moves the score Step 2
+// assigns, so DEX ends one away from what was assigned to it, in both
+// directions.
+func TestAGeneticAdjustmentSurvivesTheRoll(t *testing.T) {
+	t.Parallel()
+
+	for _, delta := range []int{1, -1} {
+		species := engineered("Adjusted")
+
+		species.Genetics.Status = make([]setting.GeneticStatus, 6)
+		for i := range species.Genetics.Status {
+			species.Genetics.Status[i] = setting.GeneticStatus{Kind: setting.Compound}
+		}
+
+		for i := range species.Genetics.Compound {
+			species.Genetics.Compound[i] = setting.GeneticOutcome{
+				Detail: "adjusted", Adjust: map[string]int{"DEX": delta},
+			}
+		}
+
+		character, err := speciesEngine(t, 49, species).Run()
+		if err != nil {
+			t.Fatalf("Run: %v", err)
+		}
+
+		assigned, adjusted := dexAssignedThenAdjusted(t, character.Events)
+
+		if adjusted != delta {
+			t.Errorf("delta %+d: the adjustment moved DEX by %+d", delta, adjusted)
+		}
+
+		if got := character.State.Characteristics.Get(DEX); got != assigned+delta {
+			t.Errorf("delta %+d: DEX = %d, want %d assigned %+d", delta, got, assigned, delta)
+		}
+	}
+}
+
+// dexAssignedThenAdjusted is the score Step 2 assigned to DEX and the delta
+// the genetics then moved it by, failing where the second comes first.
+func dexAssignedThenAdjusted(t *testing.T, events []Event) (int, int) {
+	t.Helper()
+
+	assigned, adjusted := -1, 0
+
+	for _, event := range events {
+		consequence := event.Consequence
+		if consequence == nil || consequence.Characteristic != "DEX" {
+			continue
+		}
+
+		switch consequence.Cite {
+		case characteristicCite:
+			assigned = consequence.Delta
+		case geneticsCite:
+			if assigned < 0 {
+				t.Fatal("the adjustment came before DEX was assigned")
+			}
+
+			adjusted = consequence.Delta
+		}
+	}
+
+	return assigned, adjusted
+}
