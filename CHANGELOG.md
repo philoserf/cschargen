@@ -5,35 +5,102 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
-- A hybrid or compound outcome's characteristic adjustment now lands after
-  Step 2 assigns the scores, where before it moved a score of 0 and the roll
-  overwrote it — the record logged a DEX +1 the sheet did not have. The
-  consequence now cites pp. 62-65, and a −1 that takes a score to 1 counts
-  toward p. 119 like any other loss. Records from a seed that reaches an
-  adjusting outcome change.
-- A skill-table result the character does not hold now goes on at level 0, as
-  p. 118 prints for every form: "Persuade" at 0 rather than 1, and "Suit (Vacc
-  Suit)" as bare Suit at 0 rather than Suit (Vacc Suit) at 1. Only "(Any)"
-  followed the page before. Under the auto policy, which takes Personal
-  Development every term, 7 of 300 characters change; a player who rolls on
-  the other tables meets it far more often.
-- Every consequence Step 17 writes now cites the aging section's own page —
-  p. 121 for the age, pp. 122-123 for a loss to an aging check, p. 123 for the
-  crisis, pp. 123-124 for death or incapacity, p. 125 for apparent age — where
-  before each carried the page of the career just served. Only cites move; no
-  dice or outcomes change.
-- A background or species skill that a setting file writes as "(Any)" is now
-  resolved to a specialty the book prints, at level 1, where it used to go on
-  the sheet as `Electronics (Any)`. A skill the book gives no specialties goes
-  on bare. ERRATA E-45 covers it.
-- `batch` now draws eleven more choice points, on top of the career and
-  assignment it already drew: the skill table, specialty, youth and teenage
-  path, degree field, background skill and the rest where the options stand
-  level (POLICY.md 0.5.0). On `batch --auto --count 300 --seed 31337 --terms 4`,
-  Step 15 went from Personal Development on every roll to a spread across every
-  table, Youth Path 1 from all 596 choices to 162, and distinct skill lines from
-  116 to 176. `new --auto` is unchanged. Batch records from a given seed change;
-  old ones still replay.
+## v0.1.0-alpha.7 — 2026-10-18
+
+Four issues left behind by shipping alpha.6, each found while fixing something
+next to it, and one question asked of a batch: why do a hundred characters all
+read the same? Answering it turned up a fifth bug, which shipped first.
+
+Three of the six put a wrong number on the sheet without saying so — a genetic
+adjustment the roll overwrote, a skill a level higher than the book gives, a
+specialty called "Any". One made every aging line in a record cite the wrong
+page. One was a reading two errata entries disagreed on. The last is the batch.
+
+### Breaking
+
+**Records written before this release will not replay where the dice now
+differ.** `replay` refuses a record another build wrote, as it always has, and
+`--ignore-provenance` replays it anyway and names the first value that moved.
+Three changes move what a seed produces: a hybrid's genetic adjustment
+([#201](https://github.com/philoserf/cschargen/issues/201)), a skill-table
+result the character does not hold
+([#202](https://github.com/philoserf/cschargen/issues/202)), and a background or
+species skill written "(Any)"
+([#211](https://github.com/philoserf/cschargen/issues/211)). Every record that
+reached aging also cites different pages
+([#203](https://github.com/philoserf/cschargen/issues/203)).
+
+**Auto `PolicyVersion` is now 0.5.0.** `batch` draws thirteen choice points
+where it drew two, so a batch member from the same seed is a different
+character. `new --auto` is unchanged
+([#210](https://github.com/philoserf/cschargen/issues/210)).
+
+### The character the book would not recognise
+
+**A hybrid's genetic adjustment now survives the characteristic roll.** The
+genetics run before Step 2 because an outcome can choose the method the
+characteristics are rolled with, and the adjustment ran with them — moving a
+score of 0 that Step 2 then overwrote. A "+1 DEX" outcome was logged and never
+reached the sheet; a "−1" was floored to nothing first. The adjustment now lands
+after the scores are assigned, cites pp. 62-65, and a −1 that takes a score to 1
+trips p. 119 like any other loss
+([#201](https://github.com/philoserf/cschargen/issues/201)).
+
+**A skill-table result the character does not hold goes on at level 0**, as
+p. 118 prints for all three forms a result takes: "Persuade" at 0 rather than 1,
+and "Suit (Vacc Suit)" as bare Suit at 0 rather than Suit (Vacc Suit) at 1. Only
+"(Any)" followed the page before. Holding any specialty counts as holding the
+skill, which is the reading "(Any)" already made. Under `new --auto` it moves 7
+characters in 300, because that policy rolls on Personal Development every term;
+a batch member or a player meets it on most rolls that introduce a skill
+([#202](https://github.com/philoserf/cschargen/issues/202)).
+
+**A background or species skill a setting file writes as "(Any)" resolves to a
+real specialty**, where the sheet used to read `Electronics (Any) 1`. Career
+results resolved "(Any)" from alpha.6; the setting's own skills went through a
+different function that took a one-item list as the answer. They now offer the
+skill's specialties as pp. 304-314 print them, at the level 1 the page grants,
+and stamp ERRATA E-45. Widening the batch draw found it: the first prototype put
+"Any" on 18 sheets in 300
+([#211](https://github.com/philoserf/cschargen/issues/211)).
+
+### What the record cites
+
+**Every consequence Step 17 writes cites the aging section's own page** — p. 121
+for the age, pp. 122-123 for a loss to an aging check, p. 123 for the crisis,
+pp. 123-124 for death or incapacity, p. 125 for apparent age. Each used to carry
+the page of the career just served, so a loss cited Vagabond's pp. 296-300 one
+line below a throw citing pp. 122-123: 550 miscited lines across the sample's
+forty-term sweep, none now. Only cites move
+([#203](https://github.com/philoserf/cschargen/issues/203)).
+
+**ERRATA E-17 now says why CHA is mental for the aging crisis and not for
+p. 119's reach-1 rule.** p. 119 kills a character when "both" mental
+characteristics (INT and EDU) reach 0; p. 124 when "two or more" do, which needs
+a third. The two pages are read as meaning different groups, and E-17 and E-46
+now cite each other. Nothing the engine does changes
+([#204](https://github.com/philoserf/cschargen/issues/204)).
+
+### A batch that is a population
+
+**`batch` draws every choice point where the options stand level**: the skill
+table, the specialty, the youth and teenage paths, the degree field, the
+background skill and six more, beside the career and assignment it already drew.
+Points with an argued rule keep it — a loss from the highest score, paying for an
+aging crisis, the benefit and pool rows. On `batch --auto --count 300 --seed
+31337 --terms 4`, Step 15 went from Personal Development on all 671 rolls to a
+spread across every table, Youth Path 1 from all 596 choices to 162, and
+distinct skill lines from 116 to 176. POLICY.md's 0.3.0 view that "varying the
+rest would be a different policy" is recorded and reversed there
+([#210](https://github.com/philoserf/cschargen/issues/210)).
+
+### Development
+
+gofumpt runs with every extra rule
+([#205](https://github.com/philoserf/cschargen/pull/205)). golangci-lint 2.15
+renamed `exhaustive`'s `map` check to `mapliteral` and refused the old name;
+`.golangci.yml` follows it, and two empty enum-keyed map literals it then flagged
+are `make` calls ([#206](https://github.com/philoserf/cschargen/pull/206)).
 
 ## v0.1.0-alpha.6 — 2026-10-15
 

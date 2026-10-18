@@ -136,11 +136,11 @@ and a page cite.
 
 Three implementations, and they are **not peers**:
 
-| Decider  | What it is                                                         |
-| -------- | ------------------------------------------------------------------ |
-| `Player` | Asks a person. The only one that also implements `Asker`.          |
-| `Policy` | The first option, save one scored rule. Documented by `POLICY.md`. |
-| `Replay` | Decides nothing. Reapplies recorded answers and checks they fit.   |
+| Decider  | What it is                                                                                                                                                                                |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Player` | Asks a person. The only one that also implements `Asker`.                                                                                                                                 |
+| `Policy` | The first option, save one scored rule. Documented by `POLICY.md`. `batch` uses `BatchPolicy`, which draws the thirteen points whose options stand level and is `Policy` everywhere else. |
+| `Replay` | Decides nothing. Reapplies recorded answers and checks they fit.                                                                                                                          |
 
 `Replay.Choose` is the interesting one. It does not just return the recorded index — it
 checks that the recorded `Point` matches the point being asked and that the recorded
@@ -488,7 +488,11 @@ character (#111).
   where the engine used to record the word "Any" and let a sheet print
   `Gun Combat (Any)`. An event's, a degree's or a youth path's "(Any)" has no page
   of its own, and the engine reads it as p. 118's; ERRATA E-45 records that as a
-  reading rather than the book's word.
+  reading rather than the book's word. A setting file's background and species
+  skills reach the same list through `chooseSpecialty`, the one other place a
+  specialty is resolved. p. 118's level-0 sentence, by contrast, is read as
+  belonging to skill tables alone, where it governs every form of result and not
+  only "(Any)".
 - **Why `chargen` is one large package rather than several.** The step files are
   independent enough to split, but every one is a method on `Generator`, which holds
   about forty fields of cross-step state (`transfer`, `enslaved`, `academyClosed`,

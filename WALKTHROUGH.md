@@ -7,6 +7,10 @@ This is the linear tour. For _why_ the system is shaped this way — the invaria
 Product Identity constraint, what would break if you changed something — read
 [`THEORY.md`](THEORY.md). This one assumes no knowledge of it, and starts at `main`.
 
+Regenerated for `v0.1.0-alpha.7`. It quotes the code by file and symbol, never by
+line, so it rots the moment one is renamed; `CLAUDE.md` records that it is brought
+current at each release.
+
 ---
 
 ## 1. Overview
@@ -340,6 +344,29 @@ The player reads stdin and prompts to **stderr**, because the record goes to std
 it can be piped. A record generated interactively is byte-identical in form to an auto
 one and replays the same way.
 
+`batch` does not go through `decider`. Each member gets a `BatchPolicy` seeded from
+its own seed, which is `Policy` everywhere except the choice points named in one set:
+
+`chargen/batchpolicy.go` — `BatchPolicy.Choose`
+
+```go
+	if !batchDrawn[c.Point] {
+		return Policy{}.Choose(c)
+	}
+
+	return b.draw.IntN(len(c.Options)), nil
+```
+
+`batchDrawn` holds thirteen points — the career, the assignment, the skill table, the
+youth and teenage paths, the specialty and degree-field choices among them — where
+the book offers the options on equal terms, so a draw makes a different character
+rather than a worse one. The points with an argued answer stay `Policy`'s: a loss
+goes on the highest score, an aging crisis is paid for. The draw has its own PCG
+stream rather than the dice's, because a decider that pulled from the dice would
+shift every throw after its first answer. `chargen/policy_internal_test.go` —
+`TestPolicyDocumentsWhatABatchDraws` holds the set to `POLICY.md`'s rows in both
+directions.
+
 ### 4.6 Handing off
 
 `cmd/cschargen/new.go` — `newCommand`
@@ -419,6 +446,37 @@ A record that fails halfway still knows what it was trying to be.
 
 Six calls. The one departure from the printed order is commented where it happens: the
 genetics of Step 5 decide which characteristic method Step 2 uses, so they run first.
+
+Running first is only half of it. A hybrid or compound outcome can also adjust a
+characteristic — "take a -1 to their DEX" — and when the genetics run, every score is
+still 0. So `geneticOutcome` decides the outcome and holds it rather than applying it:
+
+`chargen/genetics.go` — `geneticOutcome`
+
+```go
+	g.genetic = outcome
+	g.geneticThrow = throw
+```
+
+and Step 2 applies it once `assignCharacteristics` has put the scores in place, with
+the genetics throw still the cause:
+
+`chargen/genetics.go` — `applyGeneticAdjustment`
+
+```go
+func (g *Generator) applyGeneticAdjustment() {
+	defer g.citing(geneticsCite)()
+
+	for _, name := range slices.Sorted(maps.Keys(g.genetic.Adjust)) {
+		g.adjust(name, g.genetic.Adjust[name], g.genetic.Detail, g.geneticThrow)
+	}
+}
+```
+
+It used to apply where it was decided, moving a 0 that the roll then overwrote, so a
+record logged a DEX +1 the sheet did not have. The keys are sorted because a Go map's
+order is not, and an outcome adjusting two characteristics would otherwise log them in
+a different order from one run to the next.
 
 ### 5.3 Every roll goes through `dice`, and every roll is logged
 
@@ -551,7 +609,8 @@ reached STR 0 while DEX and END sat untouched — the outcome p. 14 asks a Refer
 head off. The engine fills `Scores` only where every option opens with a loss from a
 different characteristic, with the score each would take from; the policy takes the
 highest, and a tie goes to the first printed. Every other choice leaves `Scores` empty
-and gets the first option, as before. This is policy 0.4.0.
+and gets the first option, as before. That rule has stood since policy 0.4.0; 0.5.0
+changed only what `batch` draws (§4.5).
 
 ### 5.5 The event log
 
@@ -805,6 +864,24 @@ func (g *Generator) rollEvent() error {
 `Events` is a `map[int]` keyed by the d66 result, which is why the results are
 11–66 with gaps rather than 1–36.
 
+After the term, Step 17 ages the character, and it is where §5.7's `g.citing` earns
+its keep. The step runs with the career's page still set from the term, and nothing
+it writes is the career's:
+
+`chargen/serve.go` — `age`
+
+```go
+	// The career's page is still set from the term, and nothing this step
+	// writes is the career's. Each function below names its own page.
+	defer g.citing(ageCite)()
+```
+
+Each function beneath it names its own page in turn — `stampApparentAge` p. 125,
+`agingThrows` pp. 122-123, and inside that `agingCrisis` p. 123 and
+`settleTerminalStates` pp. 123-124.
+Before they did, an aging loss cited the career just served, one line below a throw
+citing the aging table.
+
 ### 5.9 Effects: the closed alphabet and the fold over it
 
 A table row does not describe what happens — it _is_ a list of `career.Effect` values,
@@ -872,7 +949,8 @@ it rests on and the engine stamps it when it applies the value.
 themselves effect lists, so "roll 8+; on a success, roll again" nests without a special
 case.
 
-The commonest letter is a skill, and the one case in it worth following is "(Any)":
+The commonest letter is a skill, and two cases in it are worth following: "(Any)", and
+a skill the character does not hold yet.
 
 `chargen/effects.go` — `grantSkill`
 
@@ -880,7 +958,20 @@ The commonest letter is a skill, and the one case in it worth following is "(Any
 	if isAny(effect) {
 		return g.grantAny(effect, level, cause)
 	}
+
+	// p. 118, for a skill table's result: "If the character does not
+	// already have the skill, they should add the skill at level 0", and
+	// where it names a specialty, "it is added to the character sheet as a
+	// zero level skill without a specialty". Any specialty counts as having
+	// the skill, which is the reading grantAny makes of the same sentence.
+	if g.onSkillTable && !g.char.State.Has(effect.Skill) {
+		return g.gainSkill(effect.Skill, "", 0, cause), nil
+	}
 ```
+
+`g.onSkillTable` is set while Step 15's roll, or a result that rolls on a named
+table, is being applied; an event or a degree that grants a skill leaves it clear and
+grants the level it prints.
 
 `chargen/skills.go` — `grantAny`
 
@@ -903,15 +994,36 @@ The commonest letter is a skill, and the one case in it worth following is "(Any
 	specialty, err := g.chooseAny(effect.Skill, options, skillStepCite)
 ```
 
-p. 118 says what "(Any)" on a skill table means: raise any specialty of the skill, held
-or not — or, for a character without the skill, put it on bare at level 0. `grantAny`
-does that, and `chooseAny` puts the specialty to the decider as a `skill_specialty`
-choice, the same point a printed list of specialties uses. The engine used to record
+p. 118 says what a skill table's result does for a character without the skill: it
+goes on bare at level 0, whatever form the result takes — a plain skill, a named
+specialty, or "(Any)". The branch above applies that to the first two; until alpha.7
+only "(Any)" followed it, and a first Persuade from a table went on at 1. For a
+character who holds the skill, p. 118's "(Any)" raises any specialty of it, held or
+not. `grantAny` does both halves, and `chooseAny` puts the specialty to the decider as
+a `skill_specialty` choice, the same point a printed list of specialties uses. The engine used to record
 the word "Any" as if it were a specialty, which put `Advocate (Any)-2` on a sheet and
 made p. 116's rank-benefit proviso — a specialty not already held at level 1 — find
 "Any" already held and grant nothing. Away from a skill table and a rank row the book
 gives "(Any)" no rule of its own; reading it as p. 118's is ERRATA E-45, stamped where
 it applies.
+
+The setting file writes "(Any)" too — a world's background skill, a species' starting
+skill — and those go through `chooseSpecialty` in `chargen/background.go`, which
+reaches the same list:
+
+`chargen/background.go` — `chooseSpecialty`
+
+```go
+	if len(options) == 1 && options[0] == anySpecialty {
+		g.char.Provenance.Deviate("E-45")
+
+		options = g.specialtiesOf(alternative.Skill)
+	}
+```
+
+It used to take a one-item list as the answer, so `["Any"]` put `Electronics (Any)` on
+a sheet. The sample's one "(Any)" background skill is the second of a pair, which the
+first-option policy never took, and it surfaced when `batch` began drawing that choice.
 
 Every grant ends in `State.GainSkill`, which holds Jack of All Trades at p. 309's
 printed maximum of 3; `noteCeiling` in `chargen/effects.go` logs the levels a grant
@@ -1002,9 +1114,9 @@ data, with a binary built from the release branch. Nothing re-runs these.
 
 ```console
 $ cschargen version
-cschargen v0.1.0-alpha.5.0.20261015203557-7b9ca1b2a348+dirty
+cschargen v0.1.0-alpha.6.0.20261018204727-77fb95fde823+dirty
 schema 2
-policy 0.4.0
+policy 0.5.0
 ruleset Clement Sector Core Character Creation Book, (c) 2026 Independence Games
 
 $ cschargen new --auto --seed 42 --terms 2 -o c42.json
@@ -1013,8 +1125,8 @@ $ head -29 c42.json
   "provenance": {
     "schemaVersion": 2,
     "ruleset": "Clement Sector Core Character Creation Book, (c) 2026 Independence Games",
-    "engineVersion": "v0.1.0-alpha.5.0.20261015203557-7b9ca1b2a348+dirty",
-    "policyVersion": "0.4.0",
+    "engineVersion": "v0.1.0-alpha.6.0.20261018204727-77fb95fde823+dirty",
+    "policyVersion": "0.5.0",
     "rng": {
       "algorithm": "math/rand/v2 PCG",
       "seed": 42
@@ -1309,10 +1421,11 @@ against the document so an excuse cannot outlive its reason.
 Three places where following the call chain meant holding two things at once, which is
 worth knowing before you go reading:
 
-- **Step 5 runs before Step 2.** `Run` calls `determineGenetics` before
-  `rollCharacteristics`, because the genetics decide which characteristic method
-  applies. The step numbers in the transcript are the book's and are not the execution
-  order.
+- **Step 5 runs before Step 2, and finishes inside it.** `Run` calls
+  `determineGenetics` before `rollCharacteristics`, because the genetics decide which
+  characteristic method applies — and an outcome's adjustment is held until
+  `rollCharacteristics` has assigned the scores (§5.2). The step numbers in the
+  transcript are the book's and are not the execution order.
 - **`Generator` carries about forty fields of cross-step state.** `transfer`,
   `enslaved`, `academyClosed`, `crisisSurvived`, `reachedOne`, `mustContinue`,
   `autoAdvance`, `rollAsHuman` … A result in Step 16 sets a flag that Step 9 reads three
@@ -1324,31 +1437,3 @@ worth knowing before you go reading:
   Diplomatic Service skill table through its mishaps and events. A linear read of
   `career/` gives no sense of this; `career/transcription_test.go` —
   `TestColonistReachesFourOtherCareers` is the closest thing to a map.
-
----
-
-## Index
-
-Findings from this pass, each filed as a GitHub issue and carried on the Workbench
-board. The issue is the durable reference; this table maps the sections above to it.
-
-| #   | Severity | Issue                                                                        | Primary location                                    |
-| --- | -------- | ---------------------------------------------------------------------------- | --------------------------------------------------- |
-| 1   | —        | #110 — fixed: POLICY.md declares the version a record stamps, held by a test | `chargen/character.go`, `POLICY.md:7`               |
-| 2   | —        | #126 — fixed: `isSet` and `given` are one function                           | `cmd/cschargen/version.go`, `cmd/cschargen/warn.go` |
-
-**Total: 2 issues (0 critical, 1 high, 0 medium, 1 low); both fixed since.**
-
-**Related existing findings, all since closed.** The `code-theory` pass that preceded
-this one filed nine, several of which a reader of this document will meet. Where this
-document described them as faults, §8 and §9 now describe the engine as it is:
-`Verify` compares the whole character rather than one of twenty `State` fields
-(#111), and a record stamps the `ERRATA.md` entries that changed it, with a gate
-holding both directions (#118, #129, #154). See [`THEORY.md`](THEORY.md)'s own index
-for all nine. Also closed since: **#108**, the reserved word reaching generated output
-(§6); **#106**, a `Choice` gated on `Asker` being skipped on replay; **#104**.
-
-This document was regenerated for `v0.1.0-alpha.6`. It quotes the code by file and
-symbol, so it rots the moment one is renamed — `CLAUDE.md` records the cadence, and
-twelve of its forty snippets had drifted by this release. This pass found nothing new
-to file.
