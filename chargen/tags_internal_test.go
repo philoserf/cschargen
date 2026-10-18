@@ -332,17 +332,16 @@ func TestNothingWillHaveThemSaysWhy(t *testing.T) {
 	}
 }
 
-// TestABatchPolicyDrawsTheCareerAndTakesTheRest is what separates
-// policy_version 0.3.0 from 0.2.0. Every choice point still takes the first
-// option the book prints except the two a batch repeats a hundred times.
+// TestABatchPolicyDrawsTheCareerAndTakesTheRest is what separates a batch
+// from `new --auto`: the points in batchDrawn are drawn, and every other
+// takes what Policy takes.
 func TestABatchPolicyDrawsTheCareerAndTakesTheRest(t *testing.T) {
 	t.Parallel()
 
 	options := []string{"first", "second", "third", "fourth", "fifth"}
 
-	// The career and the assignment are drawn, so across seeds they are not
-	// always the first.
-	for _, point := range []string{"career", "assignment"} {
+	// The drawn points are not always the first across seeds.
+	for point := range batchDrawn {
 		seen := map[int]bool{}
 
 		for seed := range uint64(40) {
@@ -364,15 +363,17 @@ func TestABatchPolicyDrawsTheCareerAndTakesTheRest(t *testing.T) {
 	}
 
 	// Everything else is Policy, unchanged.
-	for _, point := range []string{"youth_path", "degree_field", "benefit_table", "spend_pool"} {
+	for _, point := range []string{
+		"assign_characteristics", "table_result", "aging_crisis",
+		"benefit_table", "spend_pool", "commission", "higher_education",
+	} {
 		chosen, err := NewBatchPolicy(11).Choose(Choice{Point: point, Options: options})
 		if err != nil {
 			t.Fatalf("%s: %v", point, err)
 		}
 
 		if chosen != 0 {
-			t.Errorf("%s chose %d; a batch varies the career and the assignment, nothing else",
-				point, chosen)
+			t.Errorf("%s chose %d; a batch draws only the points in batchDrawn", point, chosen)
 		}
 	}
 }

@@ -26,6 +26,14 @@ release turns out to be.
   resolved to a specialty the book prints, at level 1, where it used to go on
   the sheet as `Electronics (Any)`. A skill the book gives no specialties goes
   on bare. ERRATA E-45 covers it.
+- `batch` now draws eleven more choice points, on top of the career and
+  assignment it already drew: the skill table, specialty, youth and teenage
+  path, degree field, background skill and the rest where the options stand
+  level (POLICY.md 0.5.0). On `batch --auto --count 300 --seed 31337 --terms 4`,
+  Step 15 went from Personal Development on every roll to a spread across every
+  table, Youth Path 1 from all 596 choices to 162, and distinct skill lines from
+  116 to 176. `new --auto` is unchanged. Batch records from a given seed change;
+  old ones still replay.
 
 ## v0.1.0-alpha.6 — 2026-10-15
 

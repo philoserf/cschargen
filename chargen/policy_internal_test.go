@@ -128,3 +128,38 @@ func choicePointsInSource(t *testing.T) map[string]bool {
 
 	return found
 }
+
+// TestPolicyDocumentsWhatABatchDraws holds batchDrawn to POLICY.md in both
+// directions: a point a batch draws says "`batch`: drawn" in its row, and
+// no other row does. A misspelled point in batchDrawn would otherwise fall
+// through to Policy without a sound.
+func TestPolicyDocumentsWhatABatchDraws(t *testing.T) {
+	t.Parallel()
+
+	doc, err := os.ReadFile(policyDoc)
+	if err != nil {
+		t.Fatalf("reading %s: %v", policyDoc, err)
+	}
+
+	points := choicePointsInSource(t)
+	rows := map[string]string{}
+
+	for _, row := range regexp.MustCompile("\n\\| `([a-z_]+)` +\\|([^\n]*)").FindAllStringSubmatch(string(doc), -1) {
+		rows[row[1]] = row[2]
+	}
+
+	for point := range batchDrawn {
+		if !points[point] {
+			t.Errorf("batchDrawn names %q, which the engine does not offer", point)
+		}
+	}
+
+	for point, row := range rows {
+		says := strings.Contains(row, "`batch`: drawn")
+
+		if says != batchDrawn[point] {
+			t.Errorf("POLICY.md's %q row says drawn = %v, and batchDrawn says %v",
+				point, says, batchDrawn[point])
+		}
+	}
+}
