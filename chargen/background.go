@@ -138,8 +138,18 @@ func (g *Generator) grantAlternative(alternative setting.Alternative, step int) 
 // specialty chosen for the skill must be different from the character's
 // Primary Language. This represents learning an additional language beyond
 // one's native tongue" (p. 41).
+//
+// "(Any)" is a choice, never a specialty: it offers the skill's own list,
+// as every "(Any)" away from a skill table does (ERRATA E-45), and a skill
+// the book prints no specialties for goes on bare.
 func (g *Generator) chooseSpecialty(alternative setting.Alternative, step int) (string, error) {
 	options := alternative.Specialties
+
+	if len(options) == 1 && options[0] == anySpecialty {
+		g.char.Provenance.Deviate("E-45")
+
+		options = g.specialtiesOf(alternative.Skill)
+	}
 
 	if alternative.Skill == "Language" {
 		options = withoutPrimary(options, g.primaryLanguage)
