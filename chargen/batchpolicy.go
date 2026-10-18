@@ -55,9 +55,10 @@ var batchDrawn = map[string]bool{
 // every term and all took Youth Path 1, so from 0.5.0 the draw reaches
 // every choice point where the options stand level.
 //
-// The draw is seeded from the record's own seed, so `batch --seed N` member
-// i and `new --seed N+i --policy-batch` are the same character, so any
-// member can be regenerated alone.
+// The draw is seeded from the record's own seed, so a member is a function
+// of the seed it records rather than of its position in the batch, and
+// `replay` on its record regenerates it alone. It is not the character
+// `new --seed N+i` makes, which takes the first option at every point.
 type BatchPolicy struct {
 	draw *rand.Rand
 }
