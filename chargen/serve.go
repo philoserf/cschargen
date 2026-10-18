@@ -683,15 +683,19 @@ func (g *Generator) rollEvent() error {
 // ejected the character mid-term, and then whatever aging throws the
 // homeworld's tech level has made due.
 func (g *Generator) age() error {
-	step := g.log.Step("Step 17: Aging", "p. 121")
+	step := g.log.Step("Step 17: Aging", ageCite)
 	cause := step
+
+	// The career's page is still set from the term, and nothing this step
+	// writes is the career's. Each function below names its own page.
+	defer g.citing(ageCite)()
 
 	years := termYears
 
 	if g.service.ejected {
 		roll := g.dice.D3()
 
-		cause = g.log.Roll(roll, "p. 121")
+		cause = g.log.Roll(roll, ageCite)
 
 		years = roll.Total
 	}
@@ -711,6 +715,8 @@ func (g *Generator) age() error {
 // The index is the character's lifetime term count, which is why this reads
 // len(State.Terms) rather than g.service.termsInCareer.
 func (g *Generator) agingThrows(step int) error {
+	defer g.citing(agingCite)()
+
 	term := len(g.char.State.Terms)
 
 	g.stampAgingReadings(term)
@@ -807,6 +813,8 @@ func (g *Generator) agingCrisis(which string, cause int) error {
 		return nil
 	}
 
+	defer g.citing(crisisCite)()
+
 	// Checked by inCrisis a line ago; the name is needed again to restore
 	// the score if treatment is paid for.
 	target, _ := characteristicByName(which)
@@ -864,6 +872,8 @@ func (g *Generator) agingCrisis(which string, cause int) error {
 // three physical characteristics at 0 is death, two is incapacity, two
 // mental is death, and one mental ends enlistment.
 func (g *Generator) settleTerminalStates(cause int) {
+	defer g.citing(terminalCite)()
+
 	physical := g.char.State.Characteristics.zeroed(physicalCharacteristics)
 	mental := g.char.State.Characteristics.zeroed(mentalCharacteristics)
 
@@ -904,14 +914,22 @@ func (g *Generator) die(cause int, why string) {
 	g.consequence(ConsequenceAge, cause, "died at age "+itoa(g.char.State.Age)+": "+why, "")
 }
 
-// crisisCite is the page the Aging Crisis is printed on.
-const crisisCite = "p. 123"
+// The pages Step 17's parts are printed on: the step itself, the Aging
+// Crisis, the terminal states that follow it, and the apparent age chart.
+const (
+	ageCite         = "p. 121"
+	crisisCite      = "p. 123"
+	terminalCite    = "pp. 123-124"
+	apparentAgeCite = "p. 125"
+)
 
 // stampApparentAge records what p. 125's chart makes of the character's
 // years. It is recorded rather than computed on demand because it needs the
 // homeworld's tech level, which the record does not otherwise carry into
 // the renderer.
 func (g *Generator) stampApparentAge(cause int) {
+	defer g.citing(apparentAgeCite)()
+
 	if apparentAgeIsOffChart(g.techLevel, g.char.State.Age) {
 		g.char.Provenance.Deviate("E-20")
 	}

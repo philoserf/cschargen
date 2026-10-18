@@ -44,6 +44,10 @@ func TestACharacterActuallyAges(t *testing.T) {
 		if agedInLog(character) {
 			aged++
 		}
+
+		for _, miscited := range agingMiscited(character) {
+			t.Errorf("seed %d: Step 17 wrote %s", seed, miscited)
+		}
 	}
 
 	if lowTech == 0 {
@@ -75,6 +79,39 @@ func agedInLog(character *chargen.Character) bool {
 	}
 
 	return false
+}
+
+// agingPages are the pages Step 17 writes from: the step, the aging tables,
+// the crisis, the terminal states, the apparent age chart, and p. 119's
+// reach-1 rule, which an aging loss can trigger.
+var agingPages = map[string]bool{
+	"p. 121": true, "pp. 122-123": true, "p. 123": true,
+	"pp. 123-124": true, "p. 125": true, "p. 119": true,
+}
+
+// agingMiscited is every consequence written under Step 17 that cites a
+// page other than the aging section's -- the career's, most often, which
+// is what the term leaves behind.
+func agingMiscited(character *chargen.Character) []string {
+	var (
+		miscited []string
+		inStep   bool
+	)
+
+	for _, event := range character.Events {
+		if event.Step != nil {
+			inStep = strings.HasPrefix(event.Step.Name, "Step 17")
+
+			continue
+		}
+
+		if inStep && event.Consequence != nil && !agingPages[event.Consequence.Cite] {
+			miscited = append(miscited,
+				"\""+event.Consequence.Detail+"\" cited to "+event.Consequence.Cite)
+		}
+	}
+
+	return miscited
 }
 
 // TestTheEnlistmentModifierIsApplied. Twelve careers take -2 to enlistment
