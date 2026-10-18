@@ -22,6 +22,10 @@ release turns out to be.
   crisis, pp. 123-124 for death or incapacity, p. 125 for apparent age — where
   before each carried the page of the career just served. Only cites move; no
   dice or outcomes change.
+- A background or species skill that a setting file writes as "(Any)" is now
+  resolved to a specialty the book prints, at level 1, where it used to go on
+  the sheet as `Electronics (Any)`. A skill the book gives no specialties goes
+  on bare. ERRATA E-45 covers it.
 
 ## v0.1.0-alpha.6 — 2026-10-15
 

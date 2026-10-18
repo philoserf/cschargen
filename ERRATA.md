@@ -1205,7 +1205,8 @@ comment on `extendedFamily` and nowhere a reader of the records would find it.
 ## E-45 (reading) — "(Any)" outside a skill table and a rank row
 
 **Where:** every result that grants a skill as "(Any)": skill tables, rank rows,
-events, mishaps, degrees, the youth and teenage paths.
+events, mishaps, degrees, the youth and teenage paths, and a setting file's
+background and species skills.
 
 The book gives "(Any)" two rules, and both resolve it to a real specialty.
 
@@ -1254,6 +1255,11 @@ Language is resolved from the setting's list.
 would give a character who meets "(Any)" first in an event the bare skill at 0
 rather than a specialty at 1. Nothing else reads the difference: a check takes
 the best level across specialties (E-7).
+
+A background or species skill a setting file writes as "(Any)" is resolved the
+same way, at the level 1 pp. 23 and 40 grant; until
+[#211](https://github.com/philoserf/cschargen/issues/211) it went on the sheet
+as the specialty "Any".
 
 Until this entry the engine recorded "Any" as the specialty and resolved
 nothing, which made p. 116's proviso unreachable — a second "(Any)" rank grant

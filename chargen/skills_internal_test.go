@@ -673,3 +673,55 @@ func TestOnlyJackOfAllTradesHasACeiling(t *testing.T) {
 		t.Errorf("Advocate (Legal) = %d, want 5", got)
 	}
 }
+
+// TestABackgroundAnyIsResolved. A background or species skill the data
+// file writes as "(Any)" is a choice like any other "(Any)" away from a
+// skill table (ERRATA E-45): the skill's own list at the level the page
+// grants, or the bare skill where the book prints no specialties.
+func TestABackgroundAnyIsResolved(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		skill string
+		want  Skill
+	}{
+		{"Electronics", Skill{Name: "Electronics", Specialty: "Comms", Level: 1}},
+		{"Admin", Skill{Name: "Admin", Level: 1}},
+	}
+
+	for _, tc := range cases {
+		gen := engine(t, 302)
+
+		err := gen.grantAlternative(setting.Alternative{
+			Skill: tc.skill, Specialties: []string{anySpecialty},
+		}, 0)
+		if err != nil {
+			t.Fatalf("%s: grantAlternative: %v", tc.skill, err)
+		}
+
+		if !slices.Equal(gen.char.State.Skills, []Skill{tc.want}) {
+			t.Errorf("%s: skills = %v, want %v", tc.skill, gen.char.State.Skills, tc.want)
+		}
+
+		if !slices.Contains(gen.char.Provenance.Deviations, "E-45") {
+			t.Errorf("%s: E-45 not stamped", tc.skill)
+		}
+	}
+}
+
+// TestAnAnyOffersAHeldSpecialtyTheBookDoesNotPrint. Science and Trade print
+// examples, "by no means a full list" (pp. 304-314), so a specialty the
+// character already holds is offered after the printed ones.
+func TestAnAnyOffersAHeldSpecialtyTheBookDoesNotPrint(t *testing.T) {
+	t.Parallel()
+
+	gen := engine(t, 303)
+
+	gen.char.State.GainSkill("Science", "Cryptozoology", 1)
+
+	options := gen.specialtiesOf("Science")
+
+	if len(options) < 2 || options[len(options)-1] != "Cryptozoology" {
+		t.Errorf("options = %v, want the printed list and then Cryptozoology", options)
+	}
+}
