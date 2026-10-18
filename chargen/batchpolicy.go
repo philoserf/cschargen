@@ -12,8 +12,34 @@ const (
 	pointAssignment = "assignment"
 )
 
-// BatchPolicy is the auto policy for a batch: Policy at every choice point
-// but one.
+// batchDrawn are the choice points a batch draws rather than taking the
+// first option. Each chooses among options the book offers on equal terms
+// -- which table to roll on, which path to take, which specialty to raise
+// -- so a draw cannot make a worse character, only a different one.
+//
+// The rest stay Policy because Policy's answer is argued and a draw's
+// would not be: a loss comes out of the highest score, an aging crisis is
+// paid for, benefits and pools follow their own rows in POLICY.md, and
+// characteristics are assigned in roll order because the rolls are already
+// random.
+var batchDrawn = map[string]bool{
+	pointCareer:            true,
+	pointAssignment:        true,
+	"other_assignment":     true,
+	"skill_table":          true,
+	pointSkillSpecialty:    true,
+	"any_skill":            true,
+	"raise_held_skill":     true,
+	"youth_path":           true,
+	"teenage_path":         true,
+	"degree_field":         true,
+	"washout_skill":        true,
+	"background_skill":     true,
+	"background_specialty": true,
+}
+
+// BatchPolicy is the auto policy for a batch: Policy, except at the choice
+// points in batchDrawn.
 //
 // Policy takes the first option the book prints, which is a rule a reader
 // can check against the page rather than a preference. Applied to the
@@ -24,9 +50,10 @@ const (
 //
 // One character generated that way is a character. A hundred are not a
 // population, and `batch` is the command a population is asked of. So the
-// career is drawn from the eligible list instead, and every other choice
-// point is Policy unchanged -- because varying the rest would be a
-// different policy rather than the same one applied to a crowd.
+// career was drawn from the eligible list from 0.3.0. That left a hundred
+// characters in thirty-four careers who all rolled on Personal Development
+// every term and all took Youth Path 1, so from 0.5.0 the draw reaches
+// every choice point where the options stand level.
 //
 // The draw is seeded from the record's own seed, so `batch --seed N` member
 // i and `new --seed N+i --policy-batch` are the same character, so any
@@ -51,13 +78,13 @@ func NewBatchPolicy(seed uint64) BatchPolicy {
 // a policy; which policy is what policy_version says.
 func (BatchPolicy) Kind() DeciderKind { return DeciderPolicy }
 
-// Choose takes the first option, except at the career.
+// Choose draws at a point in batchDrawn and is Policy everywhere else.
 func (b BatchPolicy) Choose(c Choice) (int, error) {
 	if len(c.Options) == 0 {
 		return 0, fmt.Errorf("%w: %s", ErrNoOptions, c.Point)
 	}
 
-	if c.Point != pointCareer && c.Point != pointAssignment {
+	if !batchDrawn[c.Point] {
 		return Policy{}.Choose(c)
 	}
 
