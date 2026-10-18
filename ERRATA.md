@@ -1209,7 +1209,10 @@ The book gives "(Any)" two rules, and both resolve it to a real specialty.
 The engine follows both where they apply. A rank row's "(Any)" takes a specialty
 the character lacks at level 1 or higher, and gains nothing once every one is
 held. A skill table's offers every specialty, held or not, and a character
-without the skill gets it bare at level 0. A first term's level-0 service skills
+without the skill gets it bare at level 0. That sentence is printed for all
+three forms a skill-table result takes, and "(Any)" is only one of them: a
+plain skill and a named specialty the character does not hold go on at 0 the
+same way ([#202](https://github.com/philoserf/cschargen/issues/202)). A first term's level-0 service skills
 are recorded the same way: "Survival", not "Survival (Any)".
 
 Three things the pages do not say, and the engine had to choose:
