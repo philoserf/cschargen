@@ -16,19 +16,20 @@ Enterprises.
 
 ## Status
 
-**v0.1.0-alpha.6** — all twenty steps, all thirty-four careers, and every species
+**v0.1.0-alpha.7** — all twenty steps, all thirty-four careers, and every species
 a setting data file declares. `CHANGELOG.md` has what each release changed.
 
 Alpha because no character it generates has sat at a table yet. The engine follows
 the book and says so on every throw, and the tool has been played, but the
 readings in `ERRATA.md` are one person's reading of a book published this year.
 
-This release came out of playing the last one, and it is about the character: a
-skill granted as "(Any)" resolves to a real specialty, the Injury table's two
-worst rows take what p. 119 says they take, a characteristic at 1 closes every
-career but Vagabond, honours raise skills, and the sheet flags a characteristic
-at 0. **Records written before it will not replay where the dice now differ**,
-and the auto policy is now 0.4.0.
+This release finishes what shipping the last one turned up, and asks why a batch
+of a hundred characters all read the same. A hybrid's genetic adjustment survives
+the characteristic roll, a skill-table result the character does not hold goes on
+at level 0, a setting's "(Any)" skills resolve to a real specialty, and every
+aging line cites the aging pages. `batch` now draws every choice point where the
+options stand level. **Records written before it will not replay where the dice
+now differ**, and the auto policy is now 0.5.0.
 
 The schema is versioned and so is the policy, and a record carries both along with
 the engine that wrote it. `replay` refuses a record a different build wrote rather
