@@ -7,7 +7,7 @@ This is the linear tour. For _why_ the system is shaped this way — the invaria
 Product Identity constraint, what would break if you changed something — read
 [`THEORY.md`](THEORY.md). This one assumes no knowledge of it, and starts at `main`.
 
-Regenerated for `v0.1.0-alpha.7`. It quotes the code by file and symbol, never by
+Regenerated for `v0.1.0-alpha.8`. It quotes the code by file and symbol, never by
 line, so it rots the moment one is renamed; `CLAUDE.md` records that it is brought
 current at each release.
 
@@ -397,6 +397,58 @@ not admit the character's species, which sends them to another world (p. 42). Th
 command says it once and still exits 0, because nothing failed — but a referee who
 asked for a world should not have to render the history to learn the character was
 born somewhere else. `batch` counts each in one line rather than repeating it.
+
+### 4.7 Writing the record
+
+Without `-o` the record goes to stdout. With it, `newCommand` hands the encoded record
+to `writeFile`, which `batch` also uses for a single file and, member by member, for
+`-o dir/`:
+
+`cmd/cschargen/new.go` — `writeFile`
+
+```go
+	if force {
+		return replaceFile(path, content)
+	}
+
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, recordMode)
+	if err != nil {
+		if errors.Is(err, os.ErrExist) {
+			return usagef("%s exists; pass --force to overwrite it", path)
+		}
+```
+
+A generated character is not reproducible from anything the caller still holds unless
+they kept the seed, so overwriting one takes `--force`. The refusal is `O_EXCL` itself:
+the file is created or nothing happens, so no other process can create the name between
+a check and the write, and a dangling symbolic link at the name is refused rather than
+written through. A write that fails after the create removes what it made.
+
+`--force` goes through `replaceFile`, which stages the record beside the target and
+renames it into place:
+
+`cmd/cschargen/new.go` — `replaceFile`
+
+```go
+	tmp, err := os.CreateTemp(dir, ".cschargen-*")
+	if err != nil {
+		return fmt.Errorf("staging %s: %w", path, err)
+	}
+	// ...
+	err = os.Rename(tmp.Name(), path)
+	if err != nil {
+		return fmt.Errorf("putting %s in place: %w", path, err)
+	}
+```
+
+A truncating open would empty the old record before the new one landed, so a full disk
+partway through would leave neither. The rename is atomic on one filesystem, and the old
+record survives any failure before it.
+
+`batch -o dir/` writes one file per member and keeps a list of what it wrote. A refusal
+partway through calls `removeCreated` on that list, so the first four members do not
+outlive a refusal on the fifth. Under `--force` it removes nothing: a member there may
+have replaced a record that is now gone, and removing the replacement would lose both.
 
 ---
 
