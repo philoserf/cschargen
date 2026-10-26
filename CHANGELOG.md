@@ -5,6 +5,13 @@
 Bullets as the work lands. The release pass rewrites this into whatever the
 release turns out to be.
 
+- `-o` without `--force` now refuses in the same step that creates the file
+  (`O_EXCL`), so nothing can create the name between a check and the write, and
+  a dangling symbolic link at the name is refused rather than written through.
+  `--force` stages the record beside the target and renames it into place, so a
+  failed write leaves the old record whole. A `batch -o dir/` refused partway
+  removes the members it had already written.
+
 ## v0.1.0-alpha.7 — 2026-10-18
 
 Four issues left behind by shipping alpha.6, each found while fixing something

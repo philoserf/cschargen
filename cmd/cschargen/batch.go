@@ -146,16 +146,38 @@ func writeRecordsInto(dir string, batch []byte, force bool) error {
 	records := splitJSONL(batch)
 	width := len(itoa(len(records)))
 
-	for i, record := range records {
-		name := fmt.Sprintf("npc-%0*d.json", width, i+1)
+	written := make([]string, 0, len(records))
 
-		err = writeFile(filepath.Join(dir, name), append(record, '\n'), force)
+	for i, record := range records {
+		path := filepath.Join(dir, fmt.Sprintf("npc-%0*d.json", width, i+1))
+
+		err = writeFile(path, append(record, '\n'), force)
 		if err != nil {
+			removeCreated(written, force)
+
 			return err
 		}
+
+		written = append(written, path)
 	}
 
 	return nil
+}
+
+// removeCreated takes back the members a failed batch has already written,
+// so a refusal on the fifth record does not leave the first four behind as
+// a cast nobody asked for (#217). Without --force every one of them was
+// created by this batch, so removing them restores the directory. With it
+// a member may have replaced a record that is now gone, and removing the
+// replacement would lose both; each is whole, so they stay.
+func removeCreated(paths []string, force bool) {
+	if force {
+		return
+	}
+
+	for _, path := range paths {
+		_ = os.Remove(path)
+	}
 }
 
 // generateFrom reads the name list, if there is one, and runs the batch.

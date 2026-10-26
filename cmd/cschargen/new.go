@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"math/rand/v2"
 	"os"
+	"path/filepath"
 
 	"github.com/philoserf/cschargen/chargen"
 	"github.com/philoserf/cschargen/setting"
@@ -283,21 +285,82 @@ func loadSetting(path string) (*setting.Data, error) {
 // writeFile refuses to overwrite without --force, because a generated
 // character is not reproducible from anything the caller still holds unless
 // they kept the seed.
+//
+// Without --force, O_EXCL is that refusal: the file is created or nothing
+// happens. A check followed by a write left a window in which another
+// process could create the name, and it could not see a dangling symbolic
+// link at all -- os.Stat follows the link, finds nothing, and the write
+// then creates the file the link names (#217). A write that fails after
+// the create removes what it made, so a refusal or an error leaves no half
+// a record behind. With --force the guard is replaceFile's.
 func writeFile(path string, content []byte, force bool) error {
-	if !force {
-		_, err := os.Stat(path)
-		if err == nil {
+	if force {
+		return replaceFile(path, content)
+	}
+
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, recordMode)
+	if err != nil {
+		if errors.Is(err, os.ErrExist) {
 			return usagef("%s exists; pass --force to overwrite it", path)
 		}
 
-		if !os.IsNotExist(err) {
-			return fmt.Errorf("checking %s: %w", path, err)
-		}
+		return fmt.Errorf("opening %s: %w", path, err)
 	}
 
-	err := os.WriteFile(path, content, recordMode)
+	_, err = file.Write(content)
+	if err == nil {
+		err = file.Close()
+	} else {
+		_ = file.Close()
+	}
+
+	if err != nil {
+		_ = os.Remove(path)
+
+		return fmt.Errorf("writing %s: %w", path, err)
+	}
+
+	return nil
+}
+
+// replaceFile puts content where path is, and leaves what is already there
+// alone unless the whole of the new record was written.
+//
+// A truncating open would empty the old record before the first byte of
+// the new one landed, so a full disk or an I/O error partway through would
+// leave neither. The record is staged beside the target and renamed over
+// it, which is atomic on one filesystem. os.CreateTemp creates at 0600,
+// which is recordMode, so the record is not widened on its way through.
+//
+// The rename replaces a symbolic link at path rather than writing through
+// it into the file it names, and it needs write permission on the
+// directory rather than on the file.
+func replaceFile(path string, content []byte) error {
+	dir := filepath.Dir(path)
+
+	tmp, err := os.CreateTemp(dir, ".cschargen-*")
+	if err != nil {
+		return fmt.Errorf("staging %s: %w", path, err)
+	}
+
+	// On every path out, including the one where the rename has already
+	// carried the file off this name and there is nothing left to remove.
+	defer func() { _ = os.Remove(tmp.Name()) }()
+
+	_, err = tmp.Write(content)
+	if err == nil {
+		err = tmp.Close()
+	} else {
+		_ = tmp.Close()
+	}
+
 	if err != nil {
 		return fmt.Errorf("writing %s: %w", path, err)
+	}
+
+	err = os.Rename(tmp.Name(), path)
+	if err != nil {
+		return fmt.Errorf("putting %s in place: %w", path, err)
 	}
 
 	return nil
