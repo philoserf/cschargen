@@ -284,8 +284,8 @@ the repository grows.
 
 **The trap:** under `-coverpkg` every test binary instruments every package. A test
 that rolls a whole lifepath from an unpredictable seed reaches different engine
-branches on every run, and the ratchet then disagrees between a developer's machine
-and CI for no reason anyone can see. A test that needs an unpredictable seed must ask
+branches on every run, and the ratchet then disagrees from one run to the
+next for no reason anyone can see. A test that needs an unpredictable seed must ask
 for **no terms at all** — `--terms 0` — which generates characteristics and stops.
 
 Separately: reflowing blank lines splits coverage blocks, so a pure refactor can move
