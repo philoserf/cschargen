@@ -1,4 +1,4 @@
-# prettier explodes the commented flow sequences this file uses to justify
+# The formatter explodes the commented flow sequences this file uses to justify
 # each linter disable, turning a readable argument into one entry per line.
 .golangci.yml
 
@@ -8,9 +8,9 @@ coverage.ratchet
 coverage.out
 coverage.counts.out
 
-# Golden renders, compared byte for byte by `go test ./render/`. Prettier
+# Golden renders, compared byte for byte by `go test ./render/`. The formatter
 # would reformat the tables and every comparison would fail.
 render/testdata/
 
-# Ignored through the global core.excludesfile, which prettier does not read.
+# Ignored through the global core.excludesfile, which bun fmt does not read.
 .issues/

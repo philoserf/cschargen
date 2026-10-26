@@ -49,7 +49,7 @@ Iterate with `go test ./chargen/ -run TestName` — plain, no flags. A subset ru
 writes no coverage profile, so it cannot move the ratchet; `task test` is the only
 thing that should write `coverage.out`.
 
-**The gate is `task`.** The Go toolchain, golangci-lint, nilaway and prettier are deliberately unpinned: a
+**The gate is `task`.** The Go toolchain, golangci-lint, nilaway and bun are deliberately unpinned: a
 red gate on untouched code is the signal working — answer the finding rather than
 pinning the tool.
 
@@ -137,9 +137,9 @@ matched against any record the binary wrote.
 carries its reason in a comment beside itself. That is the bar for adding another.
 
 gofumpt and goimports run **inside** golangci-lint, which is the single definition
-of formatted for Go here. prettier is the same for every file that is not Go —
+of formatted for Go here. `bun fmt` is the same for every file that is not Go —
 Markdown, JSON, YAML — run by `task docs`. `embeddedLanguageFormatting: "off"` is
-load-bearing: prettier's default rewrites source inside fenced blocks, and this
+load-bearing: the default rewrites source inside fenced blocks, and this
 repository's documents quote their own examples.
 
 ## Gotchas
