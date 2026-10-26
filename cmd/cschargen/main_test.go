@@ -276,6 +276,123 @@ func TestOutputFileIsNotOverwrittenWithoutForce(t *testing.T) {
 	}
 }
 
+// TestNoClobberIsTheOpenItself. A dangling symbolic link is the one name a
+// check-then-write guard cannot see: os.Stat follows it, finds nothing, and
+// the write then creates the file it points at. O_EXCL refuses any name
+// that exists, link or not, so the refusal and the create are one step and
+// nothing can slip between them (#217).
+func TestNoClobberIsTheOpenItself(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	target := filepath.Join(dir, "elsewhere.json")
+	path := filepath.Join(dir, "character.json")
+
+	err := os.Symlink(target, path)
+	if err != nil {
+		t.Fatalf("symlink: %v", err)
+	}
+
+	err = writeFile(path, []byte("{}\n"), false)
+	if err == nil {
+		t.Fatal("writeFile wrote through a name that exists")
+	}
+
+	if !strings.Contains(err.Error(), "--force") {
+		t.Errorf("error %q does not say how to proceed", err)
+	}
+
+	_, err = os.Lstat(target)
+	if !os.IsNotExist(err) {
+		t.Errorf("the link's target was created: %v", err)
+	}
+}
+
+// TestForceReplacesALinkRatherThanWritingThroughIt. --force stages the
+// record beside the target and renames it into place, so a failed write
+// leaves the old file whole -- and a link at the name is replaced, never
+// followed into the file it names.
+func TestForceReplacesALinkRatherThanWritingThroughIt(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	target := filepath.Join(dir, "elsewhere.json")
+	path := filepath.Join(dir, "character.json")
+
+	err := os.WriteFile(target, []byte("kept\n"), 0o600)
+	if err != nil {
+		t.Fatalf("writing: %v", err)
+	}
+
+	err = os.Symlink(target, path)
+	if err != nil {
+		t.Fatalf("symlink: %v", err)
+	}
+
+	err = writeFile(path, []byte("{}\n"), true)
+	if err != nil {
+		t.Fatalf("--force: %v", err)
+	}
+
+	kept, err := os.ReadFile(target)
+	if err != nil || string(kept) != "kept\n" {
+		t.Errorf("the link's target changed: %q, %v", kept, err)
+	}
+
+	written, err := os.ReadFile(path)
+	if err != nil || string(written) != "{}\n" {
+		t.Errorf("the record is %q, %v", written, err)
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("reading %s: %v", dir, err)
+	}
+
+	if len(entries) != 2 {
+		t.Errorf("a temporary file was left behind: %v", entries)
+	}
+}
+
+// TestWriteFileReportsWhatItCouldNotDo. A path nothing can be written at
+// fails with or without --force, names the path, and leaves nothing behind;
+// a name held by a non-empty directory cannot be renamed over.
+func TestWriteFileReportsWhatItCouldNotDo(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	missing := filepath.Join(dir, "absent", "character.json")
+	occupied := filepath.Join(dir, "occupied")
+
+	err := os.MkdirAll(filepath.Join(occupied, "inside"), 0o700)
+	if err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+
+	for _, tc := range []struct {
+		path  string
+		force bool
+	}{
+		{missing, false},
+		{missing, true},
+		{occupied, true},
+	} {
+		err = writeFile(tc.path, []byte("{}\n"), tc.force)
+		if err == nil || !strings.Contains(err.Error(), tc.path) {
+			t.Errorf("writeFile(%s, force=%v) = %v", tc.path, tc.force, err)
+		}
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("reading %s: %v", dir, err)
+	}
+
+	if len(entries) != 1 {
+		t.Errorf("a failed write left %v", entries)
+	}
+}
+
 func TestRecordEndsWithANewline(t *testing.T) {
 	t.Parallel()
 
@@ -1135,6 +1252,40 @@ func TestBatchIntoADirectoryRespectsForce(t *testing.T) {
 	_, err = capture(t, cmdBatch, "--auto", "--count", "2", "--seed", "9", "--force", "-o", dir)
 	if err != nil {
 		t.Errorf("--force did not allow the overwrite: %v", err)
+	}
+}
+
+// TestARefusedBatchLeavesNothingBehind. The guard trips on the second
+// member, and the first has already been written by then; a refused batch
+// that leaves half a cast is a directory nobody asked for (#217).
+func TestARefusedBatchLeavesNothingBehind(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	taken := filepath.Join(dir, "npc-2.json")
+
+	err := os.WriteFile(taken, []byte("mine\n"), 0o600)
+	if err != nil {
+		t.Fatalf("writing: %v", err)
+	}
+
+	_, err = capture(t, cmdBatch, "--auto", "--count", "2", "--seed", "7", "-o", dir)
+	if err == nil {
+		t.Fatal("the batch overwrote npc-2.json without --force")
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("reading %s: %v", dir, err)
+	}
+
+	if len(entries) != 1 {
+		t.Errorf("the refused batch left %v", entries)
+	}
+
+	kept, err := os.ReadFile(taken)
+	if err != nil || string(kept) != "mine\n" {
+		t.Errorf("npc-2.json is %q, %v", kept, err)
 	}
 }
 
