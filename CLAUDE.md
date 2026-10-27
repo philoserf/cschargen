@@ -49,7 +49,7 @@ Iterate with `go test ./chargen/ -run TestName` — plain, no flags. A subset ru
 writes no coverage profile, so it cannot move the ratchet; `task test` is the only
 thing that should write `coverage.out`.
 
-**The gate is `task`.** The Go toolchain, golangci-lint, nilaway and bun are deliberately unpinned: a
+**The gate is `task`.** The Go toolchain, golangci-lint, nilaway, govulncheck and bun are deliberately unpinned: a
 red gate on untouched code is the signal working — answer the finding rather than
 pinning the tool.
 
