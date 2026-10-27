@@ -1413,6 +1413,7 @@ are not built the same way: one was decoded from a file and the other constructe
       - task: vet
       - task: lint
       - task: nilaway
+      - task: vuln
       - task: test
       - task: ratchet
       - task: docs
