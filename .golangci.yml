@@ -2,9 +2,8 @@ version: "2"
 
 linters:
   # Every linter golangci-lint ships. Anything disabled below carries a
-  # measured finding count and a reason that survives reading the findings.
-  # That is the bar for adding another entry: count them, read them, and
-  # write down why they are wrong here.
+  # reason that survives reading the findings. That is the bar for adding
+  # another entry: read them, and write down why they are wrong here.
   default: all
 
   disable:
@@ -12,9 +11,9 @@ linters:
     - wsl # replaced by wsl_v5, which is on
     - gomodguard # replaced by gomodguard_v2, which is on
 
-    # 26 findings, and the linter takes no settings in this release, so the
-    # choice is all or nothing. Every one is on a type whose unset fields
-    # are the design rather than an omission.
+    # The linter takes no settings in this release, so the choice is all or
+    # nothing. Every finding is on a type whose unset fields are the design
+    # rather than an omission.
     #
     # Event is a discriminated union: exactly one of its four payload
     # pointers is non-nil, and which one is what Kind means. Naming all four
@@ -29,9 +28,9 @@ linters:
     # stages as generation proceeds.
     - exhaustruct_v5
 
-    # 2 findings, and the linter takes no settings, so the choice is all or
-    # nothing. Both are immutable tables: the six characteristics in the
-    # order the book prints them, and the modifier bands of p. 14. Go has no
+    # The linter takes no settings, so the choice is all or nothing. The
+    # findings are immutable tables: the six characteristics in the order
+    # the book prints them, and the modifier bands of p. 14. Go has no
     # const for an array, so the alternative is an accessor that clones on
     # every call -- in the engine's assignment loop, to prevent a mutation
     # nothing in this module performs and the tests would catch.
@@ -73,12 +72,12 @@ linters:
         # whole determinism contract. A cryptographic source would defeat
         # the tool rather than harden it.
         - G404
-        # 5 findings, every one a test reading back a file it just wrote
-        # inside its own t.TempDir(). The path is a variable because the
-        # directory is a fresh one per test; a constant path would be the
-        # bug this rule exists to catch.
+        # Every finding is a test reading back a file it just wrote inside
+        # its own t.TempDir(). The path is a variable because the directory
+        # is a fresh one per test; a constant path would be the bug this
+        # rule exists to catch.
         - G304
-        # 2 findings, both a test writing a deliberately tampered record
+        # Every finding is a test writing a deliberately tampered record
         # back into its own t.TempDir() to prove replay catches it. The
         # taint is the test's own fixture.
         - G703
@@ -120,33 +119,33 @@ linters:
   exclusions:
     rules:
       # A transcribed table is a literal of printed numbers, and career/ is
-      # nothing else. 51 findings: 25 of them the target number 8, which is
-      # common but is not one concept -- the book prints 6, 7, 8 and 10 as
+      # nothing else. About half the findings are the target number 8, which
+      # is common but is not one concept -- the book prints 6, 7, 8 and 10 as
       # targets in different places, so naming 8 would assert a rule it does
       # not have. The rest are cash values and characteristic deltas, each
       # of which is the cell it sits in.
       - linters: [mnd]
         path: career/
 
-      # 15 findings, and every one is a number off pp. 122-123: a tech level
-      # in a case, a target number in a band. The file is four printed
-      # tables and the three row shapes they are built from. Naming 8 or 9
-      # would assert that every 8 in the tables is the same concept, which
-      # is the thing a second reading exists to disprove.
+      # Every finding is a number off pp. 122-123: a tech level in a case, a
+      # target number in a band. The file is four printed tables and the
+      # three row shapes they are built from. Naming 8 or 9 would assert that
+      # every 8 in the tables is the same concept, which is the thing a
+      # second reading exists to disprove.
       - linters: [mnd]
         path: chargen/aging\.go
 
-      # 35 findings, the same argument again. chargen/family.go is Step 5
-      # transcribed: "1d6-1 (minimum 1) fathers", "2d6-4 (minimum 4)
-      # parents", "15 x 1d10" at tech level 10, and the boundaries of the
-      # birth situation chart. Every constant is the cell it sits in, and
-      # the ones that recur -- 1, 2, 4, 6 -- recur because arithmetic does,
-      # not because they mean the same thing.
+      # The same argument again. chargen/family.go is Step 5 transcribed:
+      # "1d6-1 (minimum 1) fathers", "2d6-4 (minimum 4) parents", "15 x 1d10"
+      # at tech level 10, and the boundaries of the birth situation chart.
+      # Every constant is the cell it sits in, and the ones that recur -- 1,
+      # 2, 4, 6 -- recur because arithmetic does, not because they mean the
+      # same thing.
       - linters: [mnd]
         path: chargen/family\.go
 
-      # 27 findings, every one a skill name, a table heading or a mishap
-      # summary that recurs because the book prints it in several places.
+      # Every finding is a skill name, a table heading or a mishap summary
+      # that recurs because the book prints it in several places.
       # Collapsing a repeated cell into a constant is exactly the coupling
       # the transcription exists to prevent: one constant means one typo
       # reaches every cell that shares it, and the second reading stops
@@ -165,19 +164,20 @@ linters:
       - linters: [goconst]
         path: chargen/(aging\.go|characteristics\.go|education\.go|.*_test\.go)
 
-      # 4 findings: three d66 event tables of 36 rows each, and one block of
-      # three assignments. They are data, written as functions because Go
-      # has no other way to build a map of literals. Splitting a table into
-      # six functions of six rows would make it harder to check against the
-      # page, which is the only thing that matters about it.
+      # The findings are d66 event tables of 36 rows each and a block of
+      # assignments. They are data, written as functions because Go has no
+      # other way to build a map of literals. Splitting a table into six
+      # functions of six rows would make it harder to check against the page,
+      # which is the only thing that matters about it.
       - linters: [funlen]
         path: career/
 
-      # 4 findings, all in career/'s own tests. A test that checks a table
-      # cell by cell has the complexity of the table it checks: the shape
-      # test walks three careers' events, mishaps, benefits and assignments,
-      # and the transcription tests read a page's numbers a second time.
-      # Splitting one into three would hide that they are one check.
+      # The findings are all in career/'s own tests. A test that checks a
+      # table cell by cell has the complexity of the table it checks: the
+      # shape test walks three careers' events, mishaps, benefits and
+      # assignments, and the transcription tests read a page's numbers a
+      # second time. Splitting one into three would hide that they are one
+      # check.
       - linters: [cyclop, gocognit]
         path: career/.*_test\.go
 
